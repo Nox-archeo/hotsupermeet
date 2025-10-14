@@ -6,17 +6,21 @@ const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
+
+// Charger les variables d'environnement
 require('dotenv').config();
 
 const app = express();
 const server = createServer(app);
+const PORT = process.env.PORT || 3000;
+const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
+
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: CLIENT_URL,
     methods: ['GET', 'POST'],
   },
 });
-const PORT = process.env.PORT || 3000;
 
 // Configuration du proxy pour Infomaniak
 app.set('trust proxy', 1);
@@ -28,7 +32,7 @@ app.use(compression());
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // limite chaque IP à 1000 requêtes par fenêtre
+  max: 1000,
   message: 'Trop de requêtes depuis cette IP, veuillez réessayer plus tard.',
 });
 app.use(limiter);
@@ -36,7 +40,7 @@ app.use(limiter);
 // Middleware CORS
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: CLIENT_URL,
     credentials: true,
   })
 );
@@ -138,7 +142,7 @@ app.use((err, req, res, next) => {
     error: {
       code: 'SERVER_ERROR',
       message: 'Erreur interne du serveur',
-      details: process.env.NODE_ENV === 'development' ? err.message : {},
+      details: {},
     },
   });
 });
@@ -292,16 +296,11 @@ io.on('connection', socket => {
 
 // Démarrer le serveur
 server.listen(PORT, () => {
-  console.log(`🚀 Serveur HotMeet démarré sur le port ${PORT}`);
-  console.log(`📱 Environnement: ${process.env.NODE_ENV || 'development'}`);
-
-  // Afficher l'URL correcte selon l'environnement
-  const baseUrl =
-    process.env.NODE_ENV === 'production'
-      ? process.env.CLIENT_URL || 'https://hotsupermeet.com'
-      : `http://localhost:${PORT}`;
-
-  console.log(`🌐 URL: ${baseUrl}`);
+  console.log('🚀 Serveur HotMeet démarré sur Infomaniak');
+  console.log('🏁 Version FORCÉE en production');
+  console.log('🔍 CLIENT_URL configuré: https://hotsupermeet.com');
+  console.log('🌐 URL publique: https://hotsupermeet.com');
+  console.log('🏁 Port d\\' + 'écoute: 3000');
   console.log('🔌 Socket.IO activé pour le cam-to-cam');
 });
 
