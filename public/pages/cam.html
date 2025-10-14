@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Cam-to-Cam Live - HotMeet</title>
+    <link rel="stylesheet" href="/css/style.css?v=3" />
+    <link rel="stylesheet" href="/css/animations.css" />
+  </head>
+  <body>
+    <header class="header">
+      <nav class="nav">
+        <a href="/" class="nav-brand">
+          <img
+            src="/images/logo-hotmeet.png"
+            alt="HotMeet - Rencontres Adultes Premium"
+            class="logo-img"
+          />
+          <span class="logo-text">HotMeet</span>
+        </a>
+        <div class="nav-menu">
+          <a href="/" class="nav-link">Accueil</a>
+          <a href="/directory" class="nav-link">Annuaire</a>
+          <a href="/ads" class="nav-link">Annonces</a>
+          <a href="/tonight" class="nav-link">Ce Soir</a>
+          <a href="/cam" class="nav-link active">Cam-to-Cam</a>
+          <a href="/messages" class="nav-link">Messages</a>
+          <a href="/profile" class="nav-link">Mon Profil</a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="cam-container">
+      <div class="container">
+        <div class="page-header">
+          <h1>Cam-to-Cam Live</h1>
+          <p>
+            Expériences en direct avec technologie WebRTC sécurisée -
+            Fonctionnalité réservée aux membres premium
+          </p>
+        </div>
+
+        <!-- Section d'explication de la fonctionnalité -->
+        <div
+          style="
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+          "
+        >
+          <h2 style="color: #2c3e50; margin-bottom: 1rem">
+            Expériences en Direct
+          </h2>
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+              gap: 1.5rem;
+            "
+          >
+            <div style="text-align: center">
+              <div style="font-size: 2rem; margin-bottom: 1rem">📹</div>
+              <h3 style="color: #2c3e50; margin-bottom: 0.5rem">Vidéo Live</h3>
+              <p style="color: #666">
+                Communications en temps réel avec webcam
+              </p>
+            </div>
+            <div style="text-align: center">
+              <div style="font-size: 2rem; margin-bottom: 1rem">🔒</div>
+              <h3 style="color: #2c3e50; margin-bottom: 0.5rem">Sécurité</h3>
+              <p style="color: #666">Technologie WebRTC cryptée et sécurisée</p>
+            </div>
+            <div style="text-align: center">
+              <div style="font-size: 2rem; margin-bottom: 1rem">🌍</div>
+              <h3 style="color: #2c3e50; margin-bottom: 0.5rem">Global</h3>
+              <p style="color: #666">
+                Connectez-vous avec des personnes du monde entier
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Restriction pour les non-premium -->
+        <div id="premiumRestriction" class="premium-restriction hidden">
+          <h2 style="color: #2c3e50; margin-bottom: 1rem">
+            Fonctionnalité Premium
+          </h2>
+          <p style="color: #666; margin-bottom: 2rem">
+            L'accès au cam-to-cam est réservé aux membres premium.
+          </p>
+          <button class="btn-primary" onclick="window.location.href='/premium'">
+            Devenir Premium
+          </button>
+        </div>
+
+        <!-- Demande d'autorisations -->
+        <div id="permissionRequest" class="permission-request hidden">
+          <h2 style="color: #2c3e50; margin-bottom: 1rem">
+            Autorisations requises
+          </h2>
+          <p style="color: #666; margin-bottom: 1rem">
+            Le cam-to-cam nécessite l'accès à votre webcam et microphone.
+          </p>
+          <button
+            class="btn-primary"
+            id="requestPermissions"
+            style="min-height: 44px; font-size: 16px"
+          >
+            Autoriser l'accès
+          </button>
+        </div>
+
+        <!-- Recherche de partenaire -->
+        <div id="searchSection" class="search-partner hidden">
+          <h2 style="color: #2c3e50; margin-bottom: 1rem">
+            Rechercher un partenaire
+          </h2>
+
+          <!-- Configuration anonymat -->
+          <div class="filter-group" style="margin-bottom: 1rem">
+            <label for="anonymity">Mode anonyme</label>
+            <select id="anonymity">
+              <option value="normal">Visage visible</option>
+              <option value="mask">Masque de protection</option>
+              <option value="blur">Flou du visage</option>
+              <option value="silhouette">Silhouette uniquement</option>
+            </select>
+          </div>
+
+          <div class="filters">
+            <div class="filter-group">
+              <label for="country">Pays</label>
+              <select id="country">
+                <option value="all">Tous les pays</option>
+                <option value="fr">France</option>
+                <option value="ch">Suisse</option>
+                <option value="be">Belgique</option>
+                <option value="ca">Canada</option>
+                <option value="us">États-Unis</option>
+                <option value="gb">Royaume-Uni</option>
+                <option value="de">Allemagne</option>
+                <option value="it">Italie</option>
+                <option value="es">Espagne</option>
+                <option value="pt">Portugal</option>
+                <option value="nl">Pays-Bas</option>
+                <option value="se">Suède</option>
+                <option value="no">Norvège</option>
+                <option value="dk">Danemark</option>
+                <option value="fi">Finlande</option>
+                <option value="au">Australie</option>
+                <option value="nz">Nouvelle-Zélande</option>
+                <option value="jp">Japon</option>
+                <option value="kr">Corée du Sud</option>
+                <option value="cn">Chine</option>
+                <option value="br">Brésil</option>
+                <option value="mx">Mexique</option>
+                <option value="ar">Argentine</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="gender">Genre recherché</label>
+              <select id="gender">
+                <option value="all">Tous</option>
+                <option value="male">Homme</option>
+                <option value="female">Femme</option>
+                <option value="other">Autre</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="ageMin">Âge minimum</label>
+              <input type="number" id="ageMin" min="18" max="100" value="18" />
+            </div>
+            <div class="filter-group">
+              <label for="ageMax">Âge maximum</label>
+              <input type="number" id="ageMax" min="18" max="100" value="100" />
+            </div>
+          </div>
+
+          <!-- Sélection de langue -->
+          <div class="filter-group" style="margin-bottom: 1rem">
+            <label for="language">Langue de traduction</label>
+            <select id="language">
+              <option value="fr">Français</option>
+              <option value="en">Anglais</option>
+              <option value="de">Allemand</option>
+              <option value="it">Italien</option>
+              <option value="es">Espagnol</option>
+              <option value="pt">Portugais</option>
+            </select>
+          </div>
+
+          <button
+            class="btn-primary"
+            id="startSearch"
+            style="min-height: 44px; font-size: 16px"
+          >
+            Commencer la recherche
+          </button>
+        </div>
+
+        <!-- Interface cam-to-cam principale -->
+        <div id="camInterface" class="hidden">
+          <div class="cam-content">
+            <div class="video-section">
+              <div class="video-container">
+                <div class="video-wrapper">
+                  <video id="localVideo" autoplay muted></video>
+                  <div class="video-label">Vous</div>
+                </div>
+                <div class="video-wrapper">
+                  <video id="remoteVideo" autoplay></video>
+                  <div class="video-label">Partenaire</div>
+                </div>
+              </div>
+
+              <div class="controls">
+                <button class="control-btn" id="pauseBtn">
+                  <span>⏸️ Pause</span>
+                </button>
+                <button class="control-btn" id="nextBtn">
+                  <span>⏭️ Suivant</span>
+                </button>
+                <button class="control-btn danger" id="reportBtn">
+                  <span>🚨 Signaler</span>
+                </button>
+                <button class="control-btn danger" id="endBtn">
+                  <span>❌ Terminer</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="chat-section">
+              <div class="chat-header">
+                <h3>Chat en direct</h3>
+                <div
+                  class="chat-settings"
+                  style="display: flex; gap: 0.5rem; margin-top: 0.5rem"
+                >
+                  <select
+                    id="chatLanguage"
+                    class="chat-setting"
+                    style="
+                      padding: 0.25rem;
+                      border-radius: 4px;
+                      border: 1px solid rgba(255, 255, 255, 0.3);
+                      background: rgba(255, 255, 255, 0.2);
+                      color: white;
+                    "
+                  >
+                    <option value="fr">🇫🇷 FR</option>
+                    <option value="en">🇺🇸 EN</option>
+                    <option value="de">🇩🇪 DE</option>
+                    <option value="it">🇮🇹 IT</option>
+                    <option value="es">🇪🇸 ES</option>
+                    <option value="pt">🇵🇹 PT</option>
+                  </select>
+                  <select
+                    id="chatAnonymity"
+                    class="chat-setting"
+                    style="
+                      padding: 0.25rem;
+                      border-radius: 4px;
+                      border: 1px solid rgba(255, 255, 255, 0.3);
+                      background: rgba(255, 255, 255, 0.2);
+                      color: white;
+                    "
+                  >
+                    <option value="normal">👤 Normal</option>
+                    <option value="mask">🎭 Masque</option>
+                    <option value="blur">🌀 Flou</option>
+                    <option value="silhouette">👥 Silhouette</option>
+                  </select>
+                </div>
+              </div>
+              <div class="chat-messages" id="chatMessages">
+                <div class="message system">
+                  Conversation commencée. Vous pouvez maintenant chatter avec
+                  votre partenaire.
+                </div>
+              </div>
+              <div class="chat-input">
+                <input
+                  type="text"
+                  id="chatInput"
+                  placeholder="Tapez votre message..."
+                />
+                <button
+                  class="btn-primary"
+                  id="sendBtn"
+                  style="min-height: 44px; font-size: 16px"
+                >
+                  Envoyer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Statut de recherche -->
+        <div
+          id="searchStatus"
+          class="hidden"
+          style="text-align: center; color: white; padding: 2rem"
+        >
+          <h3>Recherche de partenaire en cours...</h3>
+          <p>
+            Veuillez patienter pendant que nous trouvons un partenaire
+            correspondant à vos critères.
+          </p>
+          <div class="loading" style="font-size: 2rem; margin: 1rem 0">⏳</div>
+          <button
+            class="btn-secondary"
+            id="cancelSearch"
+            style="min-height: 44px; font-size: 16px"
+          >
+            Annuler la recherche
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal de signalement -->
+    <div
+      id="reportModal"
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+      "
+    >
+      <div
+        style="
+          background: white;
+          padding: 2rem;
+          border-radius: var(--radius);
+          max-width: 500px;
+          width: 90%;
+        "
+      >
+        <h3 style="color: #2c3e50; margin-bottom: 1rem">
+          Signaler un comportement
+        </h3>
+        <div style="margin-bottom: 1rem">
+          <label
+            style="
+              display: block;
+              margin-bottom: 0.5rem;
+              color: #2c3e50;
+              font-weight: 600;
+            "
+            >Raison du signalement</label
+          >
+          <select
+            id="reportReason"
+            style="
+              width: 100%;
+              padding: 0.75rem;
+              border: 2px solid var(--border-color);
+              border-radius: var(--radius);
+            "
+          >
+            <option value="mineur">Contenu mineur suspecté</option>
+            <option value="comportement">Comportement inapproprié</option>
+            <option value="harcelement">Harcèlement</option>
+            <option value="autre">Autre</option>
+          </select>
+        </div>
+        <div style="margin-bottom: 1rem">
+          <label
+            style="
+              display: block;
+              margin-bottom: 0.5rem;
+              color: #2c3e50;
+              font-weight: 600;
+            "
+            >Description</label
+          >
+          <textarea
+            id="reportDescription"
+            style="
+              width: 100%;
+              padding: 0.75rem;
+              border: 2px solid var(--border-color);
+              border-radius: var(--radius);
+              height: 100px;
+            "
+            placeholder="Décrivez le problème..."
+          ></textarea>
+        </div>
+        <div style="display: flex; gap: 1rem; justify-content: flex-end">
+          <button class="btn-secondary" id="cancelReport">Annuler</button>
+          <button class="btn-primary" id="submitReport">Signaler</button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-bottom">
+          <p>
+            &copy; 2024 HotMeet. Tous droits réservés. Réservé aux adultes de 18
+            ans et plus.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/cam.js"></script>
+  </body>
+</html>

@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Messages - HotMeet</title>
+    <meta
+      name="description"
+      content="Gérez vos messages et demandes de chat sur HotMeet"
+    />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/style.css?v=2" />
+    <link rel="stylesheet" href="/css/animations.css" />
+
+    <!-- Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <nav class="nav">
+        <a href="/" class="nav-brand">
+          <img
+            src="/images/logo-hotmeet.png"
+            alt="HotMeet - Rencontres Adultes Premium"
+            class="logo-img"
+          />
+          <span class="logo-text">HotMeet</span>
+        </a>
+
+        <div class="nav-menu" id="navMenu">
+          <a href="/" class="nav-link">Accueil</a>
+          <a href="/directory" class="nav-link">Annuaire</a>
+          <a href="/ads" class="nav-link">Annonces</a>
+          <a href="/tonight" class="nav-link">Ce Soir</a>
+          <a href="/cam" class="nav-link">Cam-to-Cam</a>
+          <a href="/messages" class="nav-link active"
+            >Messages
+            <span
+              class="notification-badge"
+              id="messageBadge"
+              style="display: none"
+              >0</span
+            ></a
+          >
+          <a href="/profile" class="nav-link">Mon Profil</a>
+        </div>
+
+        <div class="nav-actions">
+          <button class="btn-secondary" id="loginBtn">Connexion</button>
+          <button class="btn-primary" id="registerBtn">Inscription</button>
+          <div class="mobile-menu-toggle" id="mobileMenuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="messages-page" style="padding-top: 150px; min-height: 80vh">
+      <div class="container">
+        <div class="page-header">
+          <h1>Messages</h1>
+          <p>Gérez vos conversations et demandes de chat</p>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="tabs-navigation">
+          <button class="tab-btn active" data-tab="conversations">
+            Conversations
+          </button>
+          <button class="tab-btn" data-tab="requests">
+            Demandes de chat
+            <span
+              class="notification-badge"
+              id="requestsBadge"
+              style="display: none"
+              >0</span
+            >
+          </button>
+          <button class="tab-btn" data-tab="ad-responses">
+            Réponses aux annonces
+          </button>
+        </div>
+
+        <!-- Conversations Tab -->
+        <div id="conversations" class="tab-content active">
+          <div class="conversations-list">
+            <div class="conversation-item">
+              <div class="conversation-avatar">
+                <img
+                  src="/images/avatar-femme-1.jpg"
+                  alt="Sophie"
+                  onerror="this.src='/images/avatar-placeholder.png'"
+                />
+                <div class="online-status online"></div>
+              </div>
+              <div class="conversation-info">
+                <div class="conversation-header">
+                  <h3>Sophie</h3>
+                  <span class="conversation-time">Il y a 5 min</span>
+                </div>
+                <p class="conversation-preview">
+                  Salut ! Comment vas-tu aujourd'hui ?
+                </p>
+              </div>
+              <div class="conversation-actions">
+                <button class="btn-secondary">Ouvrir</button>
+              </div>
+            </div>
+
+            <div class="conversation-item">
+              <div class="conversation-avatar">
+                <img
+                  src="/images/avatar-homme-1.jpg"
+                  alt="Pierre"
+                  onerror="this.src='/images/avatar-placeholder.png'"
+                />
+                <div class="online-status offline"></div>
+              </div>
+              <div class="conversation-info">
+                <div class="conversation-header">
+                  <h3>Pierre</h3>
+                  <span class="conversation-time">Hier</span>
+                </div>
+                <p class="conversation-preview">
+                  Merci pour la conversation hier soir !
+                </p>
+              </div>
+              <div class="conversation-actions">
+                <button class="btn-secondary">Ouvrir</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Requests Tab -->
+        <div id="requests" class="tab-content">
+          <div class="requests-list">
+            <div class="request-item">
+              <div class="request-avatar">
+                <img
+                  src="/images/avatar-femme-2.jpg"
+                  alt="Marie"
+                  onerror="this.src='/images/avatar-placeholder.png'"
+                />
+                <div class="online-status online"></div>
+              </div>
+              <div class="request-info">
+                <div class="request-header">
+                  <h3>Marie</h3>
+                  <span class="request-time">Il y a 10 min</span>
+                </div>
+                <p class="request-message">
+                  "Bonjour, j'aimerais faire votre connaissance !"
+                </p>
+                <div class="request-details">
+                  <span>25 ans • Femme • Paris</span>
+                </div>
+              </div>
+              <div class="request-actions">
+                <button class="btn-primary accept-request">Accepter</button>
+                <button class="btn-secondary decline-request">Refuser</button>
+              </div>
+            </div>
+
+            <div class="request-item">
+              <div class="request-avatar">
+                <img
+                  src="/images/avatar-homme-2.jpg"
+                  alt="David"
+                  onerror="this.src='/images/avatar-placeholder.png'"
+                />
+                <div class="online-status offline"></div>
+              </div>
+              <div class="request-info">
+                <div class="request-header">
+                  <h3>David</h3>
+                  <span class="request-time">Il y a 1 heure</span>
+                </div>
+                <p class="request-message">
+                  "Salut, ton profil m'a beaucoup plu !"
+                </p>
+                <div class="request-details">
+                  <span>32 ans • Homme • Lyon</span>
+                </div>
+              </div>
+              <div class="request-actions">
+                <button class="btn-primary accept-request">Accepter</button>
+                <button class="btn-secondary decline-request">Refuser</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ad Responses Tab -->
+        <div id="ad-responses" class="tab-content">
+          <div class="ad-responses-list">
+            <div class="ad-response-item">
+              <div class="ad-response-header">
+                <h3>Réponse à votre annonce: "Soirée détente"</h3>
+                <span class="response-time">Il y a 2 heures</span>
+              </div>
+              <div class="ad-response-content">
+                <div class="responder-info">
+                  <img
+                    src="/images/avatar-femme-3.jpg"
+                    alt="Claire"
+                    onerror="this.src='/images/avatar-placeholder.png'"
+                  />
+                  <div>
+                    <strong>Claire</strong>
+                    <span>28 ans • Femme • Marseille</span>
+                  </div>
+                </div>
+                <p class="response-message">
+                  "Votre annonce m'intéresse beaucoup ! J'aimerais en savoir
+                  plus sur votre proposition."
+                </p>
+              </div>
+              <div class="ad-response-actions">
+                <button class="btn-primary">Répondre</button>
+                <button class="btn-secondary">Voir le profil</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Window (hidden by default) -->
+        <div id="chatWindow" class="chat-window" style="display: none">
+          <div class="chat-header">
+            <div class="chat-partner-info">
+              <img
+                src="/images/avatar-femme-1.jpg"
+                alt="Sophie"
+                onerror="this.src='/images/avatar-placeholder.png'"
+              />
+              <div>
+                <h3>Sophie</h3>
+                <span class="chat-status">En ligne</span>
+              </div>
+            </div>
+            <button class="close-chat">×</button>
+          </div>
+
+          <div class="chat-messages">
+            <div class="message received">
+              <div class="message-content">
+                <p>Salut ! Comment vas-tu aujourd'hui ?</p>
+                <span class="message-time">14:30</span>
+              </div>
+            </div>
+            <div class="message sent">
+              <div class="message-content">
+                <p>Très bien merci ! Et toi ?</p>
+                <span class="message-time">14:31</span>
+              </div>
+            </div>
+            <div class="message received">
+              <div class="message-content">
+                <p>Super ! Tu veux qu'on discute un peu ?</p>
+                <span class="message-time">14:32</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-input">
+            <textarea placeholder="Tapez votre message..." rows="3"></textarea>
+            <button class="btn-primary send-message">Envoyer</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h4>HotMeet</h4>
+            <ul class="footer-links">
+              <li><a href="/">Accueil</a></li>
+              <li><a href="/directory">Annuaire</a></li>
+              <li><a href="/premium">Premium</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Aide</h4>
+            <ul class="footer-links">
+              <li><a href="/faq">FAQ</a></li>
+              <li><a href="/contact">Contact</a></li>
+              <li><a href="/support">Support</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Légal</h4>
+            <ul class="footer-links">
+              <li><a href="/legal">Mentions légales</a></li>
+              <li><a href="/privacy">Confidentialité</a></li>
+              <li><a href="/terms">Conditions</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2024 HotMeet. Tous droits réservés.</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/js/messages.js"></script>
+  </body>
+</html>

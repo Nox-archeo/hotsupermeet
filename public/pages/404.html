@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Page non trouvée - HotMeet</title>
+    <link rel="stylesheet" href="/css/style.css?v=2" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <nav class="nav">
+        <a href="/" class="nav-brand">
+          <img
+            src="/images/logo-hotmeet.png"
+            alt="HotMeet - Rencontres Adultes Premium"
+            class="logo-img"
+          />
+          <span class="logo-text">HotMeet</span>
+        </a>
+
+        <div class="nav-menu" id="navMenu">
+          <a href="/" class="nav-link">Accueil</a>
+          <a href="/directory" class="nav-link">Annuaire</a>
+          <a href="/ads" class="nav-link">Annonces</a>
+          <a href="/tonight" class="nav-link">Ce Soir</a>
+          <a href="/cam" class="nav-link">Cam-to-Cam</a>
+          <a href="/messages" class="nav-link">Messages</a>
+          <a href="/profile" class="nav-link">Mon Profil</a>
+        </div>
+
+        <div class="nav-actions">
+          <button class="btn-secondary" id="loginBtn">Connexion</button>
+          <button class="btn-primary" id="registerBtn">Inscription</button>
+          <div class="mobile-menu-toggle" id="mobileMenuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="error-container">
+      <div class="container">
+        <div class="error-content">
+          <h1>404</h1>
+          <h2>Page non trouvée</h2>
+          <p>La page que vous recherchez n'existe pas ou a été déplacée.</p>
+          <a href="/" class="btn-primary">Retour à l'accueil</a>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h4>HotMeet</h4>
+            <p>
+              La plateforme premium de rencontres adultes pour des expériences
+              authentiques et sécurisées.
+            </p>
+          </div>
+          <div class="footer-section">
+            <h4>Navigation</h4>
+            <ul class="footer-links">
+              <li><a href="/">Accueil</a></li>
+              <li><a href="/directory">Annuaire</a></li>
+              <li><a href="/ads">Annonces</a></li>
+              <li><a href="/tonight">Ce Soir</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Légal</h4>
+            <ul class="footer-links">
+              <li><a href="/legal">Mentions légales</a></li>
+              <li><a href="/legal#privacy">Politique de confidentialité</a></li>
+              <li><a href="/legal#terms">Conditions d'utilisation</a></li>
+              <li><a href="/legal#cookies">Cookies</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Contact</h4>
+            <ul class="footer-links">
+              <li><a href="mailto:support@hotmeet.ch">Support</a></li>
+              <li><a href="/help">Aide</a></li>
+              <li><a href="/about">À propos</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>
+            &copy; 2024 HotMeet. Tous droits réservés. Réservé aux adultes de 18
+            ans et plus.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Menu mobile
+      document
+        .getElementById('mobileMenuToggle')
+        .addEventListener('click', function () {
+          const navMenu = document.getElementById('navMenu');
+          navMenu.classList.toggle('active');
+          this.classList.toggle('active');
+        });
+    </script>
+  </body>
+</html>

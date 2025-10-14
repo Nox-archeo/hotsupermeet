@@ -1,0 +1,12 @@
+<!-- Cette image sera remplacée par une vraie image JPEG -->
+<!-- Pour l'instant, créons un fichier texte pour indiquer qu'il faut une image -->
+Ce fichier doit être remplacé par une image JPEG pour la section hero.
+Dimensions recommandées : 1920x1080 pixels
+Format : JPEG ou PNG
+Taille maximale : 5MB
+
+Pour ajouter votre image :
+1. Supprimez ce fichier
+2. Téléchargez votre image dans le dossier public/images/
+3. Renommez-la en "default-hero.jpg"
+4. Utilisez le système de glisser-déposer en haut à droite de la page pour tester

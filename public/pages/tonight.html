@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ce Soir - HotMeet</title>
+    <link rel="stylesheet" href="/css/style.css?v=2" />
+    <link rel="stylesheet" href="/css/animations.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <nav class="nav">
+        <a href="/" class="nav-brand">
+          <img
+            src="/images/logo-hotmeet.png"
+            alt="HotMeet - Rencontres Adultes Premium"
+            class="logo-img"
+          />
+          <span class="logo-text">HotMeet</span>
+        </a>
+
+        <div class="nav-menu" id="navMenu">
+          <a href="/" class="nav-link">Accueil</a>
+          <a href="/directory" class="nav-link">Annuaire</a>
+          <a href="/ads" class="nav-link">Annonces</a>
+          <a href="/tonight" class="nav-link active">Ce Soir</a>
+          <a href="/cam" class="nav-link">Cam-to-Cam</a>
+          <a href="/messages" class="nav-link">Messages</a>
+          <a href="/profile" class="nav-link">Mon Profil</a>
+        </div>
+
+        <div class="nav-actions">
+          <button class="btn-secondary" id="loginBtn">Connexion</button>
+          <button class="btn-primary" id="registerBtn">Inscription</button>
+          <div class="mobile-menu-toggle" id="mobileMenuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="tonight-container">
+      <div class="container">
+        <div class="page-header">
+          <h1>Rencontres Ce Soir</h1>
+          <p>Planifiez des rencontres spontanées pour le soir même</p>
+        </div>
+
+        <!-- Section d'explication -->
+        <div class="card">
+          <h2>Comment ça marche ?</h2>
+          <div class="grid grid-3">
+            <div class="feature-item">
+              <div class="feature-icon">📍</div>
+              <h3>Géolocalisation</h3>
+              <p>Trouvez des personnes près de votre position actuelle</p>
+            </div>
+            <div class="feature-item">
+              <div class="feature-icon">⏰</div>
+              <h3>Immédiateté</h3>
+              <p>Rencontres spontanées pour le soir même</p>
+            </div>
+            <div class="feature-item">
+              <div class="feature-icon">🔒</div>
+              <h3>Sécurité</h3>
+              <p>Système de vérification et de signalement</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulaire de création de rendez-vous -->
+        <div class="card">
+          <h2>Créer un Rendez-vous Spontané</h2>
+          <form id="rendezvousForm" class="tonight-form">
+            <!-- Informations de base -->
+            <div class="form-section">
+              <h3>Informations du rendez-vous</h3>
+              <div class="grid grid-2">
+                <div class="form-group">
+                  <label for="lieu">Lieu exact *</label>
+                  <input
+                    type="text"
+                    id="lieu"
+                    name="lieu"
+                    required
+                    class="form-input"
+                    placeholder="Ex: Lotus Bar à Fribourg"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="date">Date *</label>
+                  <input
+                    type="date"
+                    id="date"
+                    name="date"
+                    required
+                    class="form-input"
+                  />
+                </div>
+              </div>
+              <div class="grid grid-2">
+                <div class="form-group">
+                  <label for="heure_debut">Heure de début *</label>
+                  <input
+                    type="time"
+                    id="heure_debut"
+                    name="heure_debut"
+                    required
+                    class="form-input"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="heure_fin">Heure de fin *</label>
+                  <input
+                    type="time"
+                    id="heure_fin"
+                    name="heure_fin"
+                    required
+                    class="form-input"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Description personnelle -->
+            <div class="form-section">
+              <h3>Ma description</h3>
+              <div class="form-group">
+                <label for="description_personne"
+                  >Comment me reconnaître *</label
+                >
+                <textarea
+                  id="description_personne"
+                  name="description_personne"
+                  required
+                  class="form-input"
+                  placeholder="Ex: Je porterai un chapeau violet, je suis grand avec des lunettes..."
+                ></textarea>
+              </div>
+            </div>
+
+            <!-- Critères des personnes recherchées -->
+            <div class="form-section">
+              <h3>Personnes recherchées</h3>
+              <div class="grid grid-3">
+                <div class="form-group">
+                  <label for="genre_recherche">Genre recherché *</label>
+                  <select
+                    id="genre_recherche"
+                    name="genre_recherche"
+                    required
+                    class="form-input"
+                  >
+                    <option value="homme">Homme</option>
+                    <option value="femme">Femme</option>
+                    <option value="autre">Autre</option>
+                    <option value="tous">Tous</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="age_min">Âge minimum *</label>
+                  <input
+                    type="number"
+                    id="age_min"
+                    name="age_min"
+                    min="18"
+                    max="100"
+                    required
+                    class="form-input"
+                    value="25"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="age_max">Âge maximum *</label>
+                  <input
+                    type="number"
+                    id="age_max"
+                    name="age_max"
+                    min="18"
+                    max="100"
+                    required
+                    class="form-input"
+                    value="45"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Type de rencontre souhaitée -->
+            <div class="form-section">
+              <h3>Type de rencontre *</h3>
+              <div class="grid grid-2">
+                <label class="radio-option">
+                  <input
+                    type="radio"
+                    name="type_rencontre"
+                    value="discussion"
+                    required
+                  />
+                  <div>
+                    <span>Discussion détendue</span>
+                    <p>Pour faire connaissance tranquillement, sans pression</p>
+                  </div>
+                </label>
+                <label class="radio-option">
+                  <input
+                    type="radio"
+                    name="type_rencontre"
+                    value="flirt"
+                    required
+                  />
+                  <div>
+                    <span>Flirt léger et complice</span>
+                    <p>Ambiance légère avec une touche de sensualité</p>
+                  </div>
+                </label>
+                <label class="radio-option">
+                  <input
+                    type="radio"
+                    name="type_rencontre"
+                    value="sensuel"
+                    required
+                  />
+                  <div>
+                    <span>Rencontre sensuelle</span>
+                    <p>Moments intimes avec complicité et respect</p>
+                  </div>
+                </label>
+                <label class="radio-option">
+                  <input
+                    type="radio"
+                    name="type_rencontre"
+                    value="passionne"
+                    required
+                  />
+                  <div>
+                    <span>Soirée passionnée</span>
+                    <p>Pour une connexion intense et électrique</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Message supplémentaire -->
+            <div class="form-section">
+              <h3>Message supplémentaire</h3>
+              <div class="form-group">
+                <textarea
+                  id="message_supplementaire"
+                  name="message_supplementaire"
+                  class="form-input"
+                  placeholder="Ajoutez quelques lignes supplémentaires pour décrire vos attentes..."
+                ></textarea>
+              </div>
+            </div>
+
+            <!-- Visibilité de l'annonce -->
+            <div class="form-section">
+              <h3>Visibilité de l'annonce *</h3>
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input
+                    type="radio"
+                    name="visibilite"
+                    value="filtree"
+                    required
+                    checked
+                  />
+                  <div>
+                    <span>Visibilité filtrée</span>
+                    <p>
+                      Seules les personnes correspondant à vos critères peuvent
+                      voir l'annonce et doivent être likées pour confirmer
+                    </p>
+                  </div>
+                </label>
+                <label class="radio-option">
+                  <input
+                    type="radio"
+                    name="visibilite"
+                    value="publique"
+                    required
+                  />
+                  <div>
+                    <span>Visibilité publique</span>
+                    <p>
+                      Tout le monde peut voir l'annonce et se pointer au
+                      rendez-vous sans confirmation
+                    </p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary">
+              Publier le rendez-vous
+            </button>
+          </form>
+        </div>
+
+        <!-- Section des rendez-vous disponibles -->
+        <div class="card">
+          <h2>Rendez-vous disponibles ce soir</h2>
+
+          <!-- Filtres de recherche -->
+          <div class="filters-section">
+            <div class="grid grid-3">
+              <div class="form-group">
+                <label for="filterGender">Genre recherché</label>
+                <select id="filterGender" class="form-input">
+                  <option value="tous">Tous</option>
+                  <option value="homme">Homme</option>
+                  <option value="femme">Femme</option>
+                  <option value="autre">Autre</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="filterAgeMin">Âge minimum</label>
+                <input
+                  type="number"
+                  id="filterAgeMin"
+                  min="18"
+                  max="100"
+                  value="18"
+                  class="form-input"
+                />
+              </div>
+              <div class="form-group">
+                <label for="filterAgeMax">Âge maximum</label>
+                <input
+                  type="number"
+                  id="filterAgeMax"
+                  min="18"
+                  max="100"
+                  value="100"
+                  class="form-input"
+                />
+              </div>
+            </div>
+            <button class="btn-primary" id="applyFilters">
+              Appliquer les filtres
+            </button>
+          </div>
+
+          <!-- Liste des annonces -->
+          <div id="tonightMeetsList" class="tonight-meets-grid">
+            <!-- Les annonces seront chargées ici dynamiquement -->
+            <div class="loading">Chargement des annonces...</div>
+          </div>
+
+          <!-- Pagination -->
+          <div id="pagination" class="pagination">
+            <!-- La pagination sera générée par JavaScript -->
+          </div>
+
+          <!-- État vide -->
+          <div id="emptyState" class="empty-state">
+            <p>Aucune annonce disponible pour le moment</p>
+            <p>Soyez le premier à créer une annonce !</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h4>HotMeet</h4>
+            <p>
+              La plateforme premium de rencontres adultes pour des expériences
+              authentiques et sécurisées.
+            </p>
+          </div>
+          <div class="footer-section">
+            <h4>Navigation</h4>
+            <ul class="footer-links">
+              <li><a href="/">Accueil</a></li>
+              <li><a href="/directory">Annuaire</a></li>
+              <li><a href="/ads">Annonces</a></li>
+              <li><a href="/tonight">Ce Soir</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Légal</h4>
+            <ul class="footer-links">
+              <li><a href="/legal">Mentions légales</a></li>
+              <li><a href="/legal#privacy">Politique de confidentialité</a></li>
+              <li><a href="/legal#terms">Conditions d'utilisation</a></li>
+              <li><a href="/legal#cookies">Cookies</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Contact</h4>
+            <ul class="footer-links">
+              <li><a href="mailto:support@hotmeet.ch">Support</a></li>
+              <li><a href="/help">Aide</a></li>
+              <li><a href="/about">À propos</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>
+            &copy; 2024 HotMeet. Tous droits réservés. Réservé aux adultes de 18
+            ans et plus.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Menu mobile
+      document
+        .getElementById('mobileMenuToggle')
+        .addEventListener('click', function () {
+          const navMenu = document.getElementById('navMenu');
+          navMenu.classList.toggle('active');
+          this.classList.toggle('active');
+        });
+
+      // Mettre la date d'aujourd'hui par défaut
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('date').value = today;
+
+      // Gestion du formulaire
+      document
+        .getElementById('rendezvousForm')
+        .addEventListener('submit', function (e) {
+          e.preventDefault();
+          alert(
+            'Fonctionnalité de création de rendez-vous en cours de développement'
+          );
+        });
+
+      // Appliquer les filtres
+      document
+        .getElementById('applyFilters')
+        .addEventListener('click', function () {
+          alert('Fonctionnalité de filtrage en cours de développement');
+        });
+    </script>
+  </body>
+</html>

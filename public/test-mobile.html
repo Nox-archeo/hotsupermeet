@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Mobile - HotMeet</title>
+    <link rel="stylesheet" href="/css/responsive-final.css" />
+    <link rel="stylesheet" href="/css/animations.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <nav class="nav">
+        <a href="/" class="nav-brand">
+          <img
+            src="/images/logo-hotmeet.png"
+            alt="HotMeet - Rencontres Adultes Premium"
+            class="logo-img"
+          />
+          <span class="logo-text">HotMeet</span>
+        </a>
+
+        <div class="nav-menu" id="navMenu">
+          <a href="/" class="nav-link active">Accueil</a>
+          <a href="/directory" class="nav-link">Annuaire</a>
+          <a href="/ads" class="nav-link">Annonces</a>
+          <a href="/tonight" class="nav-link">Ce Soir</a>
+          <a href="/cam" class="nav-link">Cam-to-Cam</a>
+          <a href="/messages" class="nav-link">Messages</a>
+          <a href="/profile" class="nav-link">Mon Profil</a>
+        </div>
+
+        <div class="nav-actions">
+          <button class="btn-secondary" id="loginBtn">Connexion</button>
+          <button class="btn-primary" id="registerBtn">Inscription</button>
+          <div class="mobile-menu-toggle" id="mobileMenuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-content">
+        <div class="hero-text">
+          <h1 class="hero-title">HotMeet</h1>
+          <h2 class="hero-subtitle">Test Mobile Réussi</h2>
+          <p class="hero-description">
+            Cette page de test montre que votre site est maintenant entièrement
+            responsive et beau sur mobile.
+          </p>
+          <div class="hero-actions">
+            <button class="btn-hero-primary">Test Réussi</button>
+            <button class="btn-hero-secondary">Design Élégant</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Test Section -->
+    <section
+      class="container"
+      style="padding: 2rem 0; color: white; text-align: center"
+    >
+      <h2>✅ Test Responsive Réussi</h2>
+      <p>
+        Votre site HotMeet est maintenant parfaitement responsive sur tous les
+        appareils.
+      </p>
+      <div style="margin-top: 2rem">
+        <button class="btn-primary" style="margin: 0.5rem">Bouton Test</button>
+        <button class="btn-secondary" style="margin: 0.5rem">
+          Bouton Secondaire
+        </button>
+      </div>
+    </section>
+
+    <script>
+      // Menu mobile simple
+      document
+        .getElementById('mobileMenuToggle')
+        .addEventListener('click', function () {
+          const navMenu = document.getElementById('navMenu');
+          navMenu.classList.toggle('active');
+          this.classList.toggle('active');
+        });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Annuaire - HotMeet</title>
+    <meta
+      name="description"
+      content="Parcourez l'annuaire des membres HotMeet. Trouvez des personnes partageant vos intérêts pour des rencontres authentiques."
+    />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/responsive.css" />
+    <link rel="stylesheet" href="/css/animations.css" />
+
+    <!-- Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <nav class="nav">
+        <a href="/" class="nav-brand">
+          <img
+            src="/images/logo-hotmeet.png"
+            alt="HotMeet - Rencontres Adultes Premium"
+            class="logo-img"
+          />
+          <span class="logo-text">HotMeet</span>
+        </a>
+
+        <div class="nav-menu" id="navMenu">
+          <a href="/" class="nav-link">Accueil</a>
+          <a href="/directory" class="nav-link active">Annuaire</a>
+          <a href="/ads" class="nav-link">Annonces</a>
+          <a href="/tonight" class="nav-link">Ce Soir</a>
+          <a href="/cam" class="nav-link">Cam-to-Cam</a>
+          <a href="/messages" class="nav-link">Messages</a>
+          <a href="/profile" class="nav-link">Mon Profil</a>
+        </div>
+
+        <div class="nav-actions" id="navActions">
+          <button class="btn-secondary" id="loginBtn">Connexion</button>
+          <button class="btn-primary" id="registerBtn">Inscription</button>
+          <div class="mobile-menu-toggle" id="mobileMenuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main style="padding-top: 150px; min-height: auto">
+      <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+          <h1>Annuaire des Membres</h1>
+          <p>Découvrez des personnes authentiques partageant vos intérêts</p>
+        </div>
+
+        <!-- Filters Section -->
+        <section class="filters-section">
+          <div class="filters-header">
+            <h2>Filtres de Recherche</h2>
+            <button class="btn-secondary" id="resetFilters">
+              Réinitialiser
+            </button>
+          </div>
+
+          <form id="searchForm" class="filters-form">
+            <div class="filter-group">
+              <label for="ageRange">Âge</label>
+              <div class="range-inputs">
+                <input
+                  type="number"
+                  id="ageMin"
+                  name="ageMin"
+                  placeholder="18"
+                  min="18"
+                  max="100"
+                />
+                <span>à</span>
+                <input
+                  type="number"
+                  id="ageMax"
+                  name="ageMax"
+                  placeholder="100"
+                  min="18"
+                  max="100"
+                />
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <label for="sexe">Sexe</label>
+              <select id="sexe" name="sexe">
+                <option value="tous">Tous</option>
+                <option value="homme">Homme</option>
+                <option value="femme">Femme</option>
+                <option value="autre">Autre</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="country">Pays</label>
+              <select
+                id="country"
+                name="country"
+                style="
+                  width: 100%;
+                  padding: 0.75rem;
+                  border: 2px solid var(--border-color);
+                  border-radius: var(--radius);
+                "
+              >
+                <option value="tous">Tous les pays</option>
+                <option value="france">France</option>
+                <option value="suisse">Suisse</option>
+                <option value="belgique">Belgique</option>
+                <option value="canada">Canada</option>
+                <option value="espagne">Espagne</option>
+                <option value="italie">Italie</option>
+                <option value="allemagne">Allemagne</option>
+                <option value="royaume-uni">Royaume-Uni</option>
+                <option value="etats-unis">États-Unis</option>
+                <option value="bresil">Brésil</option>
+                <option value="japon">Japon</option>
+                <option value="australie">Australie</option>
+                <option value="autre">Autre pays</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="region">Région/Ville</label>
+              <input
+                type="text"
+                id="region"
+                name="region"
+                placeholder="Région ou ville (ex: Paris, Genève)"
+                list="regionsList"
+                style="
+                  width: 100%;
+                  padding: 0.75rem;
+                  border: 2px solid var(--border-color);
+                  border-radius: var(--radius);
+                "
+              />
+              <datalist id="regionsList">
+                <option value="Paris"></option>
+                <option value="Lyon"></option>
+                <option value="Marseille"></option>
+                <option value="Genève"></option>
+                <option value="Zurich"></option>
+                <option value="Bruxelles"></option>
+                <option value="Montréal"></option>
+                <option value="Toronto"></option>
+                <option value="Madrid"></option>
+                <option value="Barcelone"></option>
+                <option value="Rome"></option>
+                <option value="Milan"></option>
+                <option value="Berlin"></option>
+                <option value="Munich"></option>
+                <option value="Londres"></option>
+                <option value="New York"></option>
+                <option value="Los Angeles"></option>
+                <option value="Tokyo"></option>
+                <option value="Sydney"></option>
+              </datalist>
+            </div>
+
+            <div class="filter-group">
+              <label for="orientation">Orientation sexuelle</label>
+              <select
+                id="orientation"
+                name="orientation"
+                style="
+                  width: 100%;
+                  padding: 0.75rem;
+                  border: 2px solid var(--border-color);
+                  border-radius: var(--radius);
+                "
+              >
+                <option value="tous">Toutes les orientations</option>
+                <option value="hetero">Hétérosexuel(le)</option>
+                <option value="gay">Gay</option>
+                <option value="lesbienne">Lesbienne</option>
+                <option value="bi">Bisexuel(le)</option>
+                <option value="trans">Transgenre</option>
+                <option value="queer">Queer</option>
+                <option value="autre">Autre</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn-primary">Rechercher</button>
+          </form>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results-section">
+          <div class="results-header">
+            <h2 id="resultsCount">
+              Membres trouvés: <span class="count">0</span>
+            </h2>
+            <div class="sort-options">
+              <select id="sortBy">
+                <option value="lastActive">Dernière activité</option>
+                <option value="age">Âge</option>
+                <option value="premium">Premium</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="usersGrid" class="users-grid">
+            <!-- Les utilisateurs seront chargés ici par JavaScript -->
+            <div class="loading">Chargement des membres...</div>
+          </div>
+
+          <div id="pagination" class="pagination">
+            <!-- La pagination sera générée par JavaScript -->
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h4>HotMeet</h4>
+            <p>
+              La plateforme premium de rencontres adultes pour des expériences
+              authentiques et sécurisées.
+            </p>
+          </div>
+          <div class="footer-section">
+            <h4>Navigation</h4>
+            <ul class="footer-links">
+              <li><a href="/">Accueil</a></li>
+              <li><a href="/directory">Annuaire</a></li>
+              <li><a href="/ads">Annonces</a></li>
+              <li><a href="/tonight">Ce Soir</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Légal</h4>
+            <ul class="footer-links">
+              <li><a href="/legal">Mentions légales</a></li>
+              <li><a href="/legal#privacy">Politique de confidentialité</a></li>
+              <li><a href="/legal#terms">Conditions d'utilisation</a></li>
+              <li><a href="/legal#cookies">Cookies</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Contact</h4>
+            <ul class="footer-links">
+              <li><a href="mailto:support@hotmeet.ch">Support</a></li>
+              <li><a href="/help">Aide</a></li>
+              <li><a href="/about">À propos</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>
+            &copy; 2024 HotMeet. Tous droits réservés. Réservé aux adultes de 18
+            ans et plus.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="/js/app.js"></script>
+    <script src="/js/directory.js"></script>
+  </body>
+</html>

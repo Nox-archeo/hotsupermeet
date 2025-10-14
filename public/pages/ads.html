@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Annonces Érotiques - HotMeet</title>
+    <link rel="stylesheet" href="/css/style.css?v=2" />
+    <link rel="stylesheet" href="/css/animations.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <nav class="nav">
+        <a href="/" class="nav-brand">
+          <img
+            src="/images/logo-hotmeet.png"
+            alt="HotMeet - Rencontres Adultes Premium"
+            class="logo-img"
+          />
+          <span class="logo-text">HotMeet</span>
+        </a>
+
+        <div class="nav-menu" id="navMenu">
+          <a href="/" class="nav-link">Accueil</a>
+          <a href="/directory" class="nav-link">Annuaire</a>
+          <a href="/ads" class="nav-link active">Annonces</a>
+          <a href="/tonight" class="nav-link">Ce Soir</a>
+          <a href="/cam" class="nav-link">Cam-to-Cam</a>
+          <a href="/messages" class="nav-link">Messages</a>
+          <a href="/profile" class="nav-link">Mon Profil</a>
+        </div>
+
+        <div class="nav-actions">
+          <button class="btn-secondary" id="loginBtn">Connexion</button>
+          <button class="btn-primary" id="registerBtn">Inscription</button>
+          <div class="mobile-menu-toggle" id="mobileMenuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="ads-container">
+      <div class="container">
+        <div class="page-header">
+          <h1>Annonces Érotiques</h1>
+          <p>
+            Exprimez vos fantasmes et trouvez des partenaires pour des plans
+            spécifiques - Publication et réponse réservées aux membres premium
+          </p>
+        </div>
+
+        <!-- Section d'explication de la fonctionnalité -->
+        <div class="card">
+          <h2>Fonctionnalité Premium</h2>
+          <div class="grid grid-3">
+            <div class="feature-item">
+              <div class="feature-icon">💬</div>
+              <h3>Expression Libre</h3>
+              <p>Décrivez vos envies et fantasmes en toute discrétion</p>
+            </div>
+            <div class="feature-item">
+              <div class="feature-icon">🔍</div>
+              <h3>Recherche Ciblée</h3>
+              <p>Trouvez des personnes partageant vos intérêts spécifiques</p>
+            </div>
+            <div class="feature-item">
+              <div class="feature-icon">🔒</div>
+              <h3>Sécurité</h3>
+              <p>Annonces vérifiées et modérées pour votre sécurité</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Créer une annonce</h2>
+          <form class="ads-form">
+            <div class="form-group">
+              <label for="adTitle">Titre de l'annonce</label>
+              <input
+                type="text"
+                id="adTitle"
+                class="form-input"
+                placeholder="Titre accrocheur pour votre annonce"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="adDescription">Description</label>
+              <textarea
+                id="adDescription"
+                class="form-input"
+                placeholder="Décrivez vos envies et attentes..."
+                rows="4"
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="adInterests">Pratiques recherchées</label>
+              <input
+                type="text"
+                id="adInterests"
+                class="form-input"
+                placeholder="Séparées par des virgules"
+              />
+            </div>
+
+            <!-- Section Photos Visibles -->
+            <div class="form-group">
+              <label>Photos Visibles</label>
+              <p class="form-help">Photos accessibles à tous les membres</p>
+              <div class="upload-zone">
+                <p>
+                  Glissez-déposez vos photos ici ou cliquez pour sélectionner
+                </p>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  id="visiblePhotos"
+                  class="file-input"
+                />
+                <button type="button" class="btn-secondary upload-btn">
+                  Sélectionner des photos
+                </button>
+                <div id="visiblePhotosPreview" class="photos-preview"></div>
+              </div>
+            </div>
+
+            <!-- Section Photos sur Demande -->
+            <div class="form-group">
+              <label>Photos sur Demande</label>
+              <p class="form-help">
+                Photos uniquement visibles après acceptation de votre part
+              </p>
+              <div class="upload-zone">
+                <p>Glissez-déposez vos photos privées ici</p>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  id="privatePhotos"
+                  class="file-input"
+                />
+                <button type="button" class="btn-secondary upload-btn">
+                  Sélectionner des photos privées
+                </button>
+                <div id="privatePhotosPreview" class="photos-preview"></div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary">Publier l'annonce</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>Annonces récentes</h2>
+          <div class="empty-state">
+            <p>Fonctionnalité en cours de développement</p>
+            <p>Les annonces érotiques seront bientôt disponibles</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h4>HotMeet</h4>
+            <p>
+              La plateforme premium de rencontres adultes pour des expériences
+              authentiques et sécurisées.
+            </p>
+          </div>
+          <div class="footer-section">
+            <h4>Navigation</h4>
+            <ul class="footer-links">
+              <li><a href="/">Accueil</a></li>
+              <li><a href="/directory">Annuaire</a></li>
+              <li><a href="/ads">Annonces</a></li>
+              <li><a href="/tonight">Ce Soir</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Légal</h4>
+            <ul class="footer-links">
+              <li><a href="/legal">Mentions légales</a></li>
+              <li><a href="/legal#privacy">Politique de confidentialité</a></li>
+              <li><a href="/legal#terms">Conditions d'utilisation</a></li>
+              <li><a href="/legal#cookies">Cookies</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Contact</h4>
+            <ul class="footer-links">
+              <li><a href="mailto:support@hotmeet.ch">Support</a></li>
+              <li><a href="/help">Aide</a></li>
+              <li><a href="/about">À propos</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>
+            &copy; 2024 HotMeet. Tous droits réservés. Réservé aux adultes de 18
+            ans et plus.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Gestion de l'upload de photos
+      document.querySelectorAll('.upload-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+          const inputId = this.previousElementSibling.id;
+          document.getElementById(inputId).click();
+        });
+      });
+
+      // Gestion de l'affichage des photos
+      document
+        .getElementById('visiblePhotos')
+        .addEventListener('change', handlePhotoUpload);
+      document
+        .getElementById('privatePhotos')
+        .addEventListener('change', handlePhotoUpload);
+
+      function handlePhotoUpload(e) {
+        const files = e.target.files;
+        const previewId = e.target.id + 'Preview';
+        const previewContainer = document.getElementById(previewId);
+
+        previewContainer.innerHTML = '';
+
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const reader = new FileReader();
+
+          reader.onload = function (e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.classList.add('preview-thumbnail');
+            previewContainer.appendChild(img);
+          };
+
+          reader.readAsDataURL(file);
+        }
+      }
+
+      // Gestion du formulaire
+      document
+        .querySelector('.ads-form')
+        .addEventListener('submit', function (e) {
+          e.preventDefault();
+          alert(
+            "Fonctionnalité de publication d'annonces en cours de développement"
+          );
+        });
+
+      // Menu mobile
+      document
+        .getElementById('mobileMenuToggle')
+        .addEventListener('click', function () {
+          const navMenu = document.getElementById('navMenu');
+          navMenu.classList.toggle('active');
+          this.classList.toggle('active');
+        });
+    </script>
+  </body>
+</html>

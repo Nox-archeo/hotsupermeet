@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mon Profil - HotMeet</title>
+    <link rel="stylesheet" href="/css/style.css?v=2" />
+    <link rel="stylesheet" href="/css/animations.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <nav class="nav">
+        <a href="/" class="nav-brand">
+          <img
+            src="/images/logo-hotmeet.png"
+            alt="HotMeet - Rencontres Adultes Premium"
+            class="logo-img"
+          />
+          <span class="logo-text">HotMeet</span>
+        </a>
+        <div class="nav-menu">
+          <a href="/" class="nav-link">Accueil</a>
+          <a href="/directory" class="nav-link">Annuaire</a>
+          <a href="/ads" class="nav-link">Annonces</a>
+          <a href="/tonight" class="nav-link">Ce Soir</a>
+          <a href="/cam" class="nav-link">Cam-to-Cam</a>
+          <a href="/messages" class="nav-link">Messages</a>
+          <a href="/profile" class="nav-link active">Mon Profil</a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="profile-container">
+      <div class="profile-content">
+        <div class="profile-card">
+          <div class="profile-header">
+            <img
+              src="/images/default-avatar.jpg"
+              alt="Avatar"
+              class="profile-avatar"
+              id="profileAvatar"
+            />
+            <h1>
+              Mon Profil
+              <span
+                class="premium-badge"
+                id="premiumBadge"
+                style="display: none"
+                >PREMIUM</span
+              >
+            </h1>
+            <p>Complétez votre profil pour améliorer vos rencontres</p>
+          </div>
+
+          <form class="profile-form" id="profileForm">
+            <div class="photo-upload">
+              <img
+                src="/images/default-avatar.jpg"
+                alt="Aperçu"
+                class="upload-preview"
+                id="uploadPreview"
+              />
+              <input
+                type="file"
+                id="photoUpload"
+                accept="image/*"
+                style="display: none"
+              />
+              <button
+                type="button"
+                class="upload-btn"
+                onclick="document.getElementById('photoUpload').click()"
+              >
+                📷 Changer la photo
+              </button>
+            </div>
+
+            <div class="form-group">
+              <label for="displayName">Nom d'affichage</label>
+              <input
+                type="text"
+                id="displayName"
+                placeholder="Votre nom public"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="age">Âge</label>
+              <input
+                type="number"
+                id="age"
+                min="18"
+                max="100"
+                placeholder="Votre âge"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="gender">Genre</label>
+              <select id="gender">
+                <option value="">Sélectionnez votre genre</option>
+                <option value="male">Homme</option>
+                <option value="female">Femme</option>
+                <option value="other">Autre</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="country">Pays</label>
+              <select id="country">
+                <option value="">Sélectionnez votre pays</option>
+                <option value="fr">France</option>
+                <option value="ch">Suisse</option>
+                <option value="be">Belgique</option>
+                <option value="ca">Canada</option>
+                <option value="us">États-Unis</option>
+                <option value="gb">Royaume-Uni</option>
+                <option value="de">Allemagne</option>
+                <option value="it">Italie</option>
+                <option value="es">Espagne</option>
+                <option value="pt">Portugal</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="language">Langue principale</label>
+              <select id="language">
+                <option value="fr">Français</option>
+                <option value="en">Anglais</option>
+                <option value="de">Allemand</option>
+                <option value="it">Italien</option>
+                <option value="es">Espagnol</option>
+                <option value="pt">Portugais</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="description">Description</label>
+              <textarea
+                id="description"
+                placeholder="Décrivez-vous en quelques mots..."
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="interests">Centres d'intérêt</label>
+              <input
+                type="text"
+                id="interests"
+                placeholder="Séparés par des virgules (ex: cuisine, voyage, sport)"
+              />
+            </div>
+
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-number" id="connectionsCount">0</div>
+                <div class="stat-label">Connexions</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="messagesCount">0</div>
+                <div class="stat-label">Messages</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="rating">0</div>
+                <div class="stat-label">Évaluation</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="premiumDays">0</div>
+                <div class="stat-label">Jours Premium</div>
+              </div>
+            </div>
+
+            <div class="profile-actions">
+              <button type="submit" class="btn-primary">
+                Sauvegarder le profil
+              </button>
+              <button
+                type="button"
+                class="btn-secondary"
+                onclick="resetProfile()"
+              >
+                Réinitialiser
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-bottom">
+          <p>
+            &copy; 2024 HotMeet. Tous droits réservés. Réservé aux adultes de 18
+            ans et plus.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Charger le profil depuis l'API
+      async function loadProfile() {
+        try {
+          const response = await fetch('/api/users/profile');
+          const result = await response.json();
+
+          if (result.success) {
+            const profile = result.data;
+
+            // Remplir les champs du formulaire
+            document.getElementById('displayName').value = profile.nom || '';
+            document.getElementById('age').value = profile.age || '';
+            document.getElementById('gender').value = profile.sexe || '';
+            document.getElementById('country').value = profile.pays || '';
+            document.getElementById('language').value = profile.langue || 'fr';
+            document.getElementById('description').value = profile.bio || '';
+            document.getElementById('interests').value = profile.interets || '';
+
+            // Mettre à jour les statistiques
+            document.getElementById('connectionsCount').textContent =
+              profile.statistiques?.connexions || 0;
+            document.getElementById('messagesCount').textContent =
+              profile.statistiques?.messages || 0;
+            document.getElementById('rating').textContent =
+              profile.statistiques?.evaluation || '0';
+            document.getElementById('premiumDays').textContent =
+              profile.statistiques?.joursPremium || 0;
+
+            // Afficher le badge premium si applicable
+            if (profile.abonnement === 'premium') {
+              document.getElementById('premiumBadge').style.display =
+                'inline-block';
+            }
+
+            // Mettre à jour l'avatar
+            if (profile.photos && profile.photos.length > 0) {
+              document.getElementById('profileAvatar').src = profile.photos[0];
+              document.getElementById('uploadPreview').src = profile.photos[0];
+            }
+          } else {
+            // Mode démo - utiliser les données locales
+            loadDemoProfile();
+          }
+        } catch (error) {
+          console.error('Erreur chargement profil:', error);
+          // Mode démo en cas d'erreur
+          loadDemoProfile();
+        }
+      }
+
+      // Charger le profil de démonstration
+      function loadDemoProfile() {
+        const savedProfile = localStorage.getItem('hotmeetProfile');
+        if (savedProfile) {
+          const profile = JSON.parse(savedProfile);
+
+          // Remplir les champs du formulaire
+          document.getElementById('displayName').value =
+            profile.displayName || '';
+          document.getElementById('age').value = profile.age || '';
+          document.getElementById('gender').value = profile.gender || '';
+          document.getElementById('country').value = profile.country || '';
+          document.getElementById('language').value = profile.language || 'fr';
+          document.getElementById('description').value =
+            profile.description || '';
+          document.getElementById('interests').value = profile.interests || '';
+
+          // Mettre à jour les statistiques
+          document.getElementById('connectionsCount').textContent =
+            profile.connections || 0;
+          document.getElementById('messagesCount').textContent =
+            profile.messages || 0;
+          document.getElementById('rating').textContent = profile.rating || '0';
+          document.getElementById('premiumDays').textContent =
+            profile.premiumDays || 0;
+
+          // Afficher le badge premium si applicable
+          if (profile.isPremium) {
+            document.getElementById('premiumBadge').style.display =
+              'inline-block';
+          }
+
+          // Mettre à jour l'avatar
+          if (profile.avatar) {
+            document.getElementById('profileAvatar').src = profile.avatar;
+            document.getElementById('uploadPreview').src = profile.avatar;
+          }
+        }
+      }
+
+      // Sauvegarder le profil via l'API
+      async function saveProfile(event) {
+        event.preventDefault();
+
+        const profileData = {
+          nom: document.getElementById('displayName').value,
+          age: parseInt(document.getElementById('age').value),
+          sexe: document.getElementById('gender').value,
+          pays: document.getElementById('country').value,
+          langue: document.getElementById('language').value,
+          bio: document.getElementById('description').value,
+          interets: document
+            .getElementById('interests')
+            .value.split(',')
+            .map(item => item.trim())
+            .filter(item => item),
+        };
+
+        try {
+          const response = await fetch('/api/users/profile', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(profileData),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            alert('Profil sauvegardé avec succès !');
+          } else {
+            // Mode démo - sauvegarder localement
+            saveDemoProfile(profileData);
+            alert('Profil sauvegardé en mode démo !');
+          }
+        } catch (error) {
+          console.error('Erreur sauvegarde profil:', error);
+          // Mode démo en cas d'erreur
+          saveDemoProfile(profileData);
+          alert('Profil sauvegardé en mode démo !');
+        }
+      }
+
+      // Sauvegarder le profil en mode démo
+      function saveDemoProfile(profileData) {
+        const existingProfile = JSON.parse(
+          localStorage.getItem('hotmeetProfile') || '{}'
+        );
+        const updatedProfile = {
+          ...existingProfile,
+          displayName: profileData.nom,
+          age: profileData.age,
+          gender: profileData.sexe,
+          country: profileData.pays,
+          language: profileData.langue,
+          description: profileData.bio,
+          interests: profileData.interets.join(', '),
+          lastUpdated: new Date().toISOString(),
+        };
+
+        localStorage.setItem('hotmeetProfile', JSON.stringify(updatedProfile));
+      }
+
+      // Réinitialiser le profil
+      async function resetProfile() {
+        if (confirm('Êtes-vous sûr de vouloir réinitialiser votre profil ?')) {
+          try {
+            const response = await fetch('/api/users/profile', {
+              method: 'DELETE',
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              alert('Profil réinitialisé avec succès !');
+              document.getElementById('profileForm').reset();
+              loadProfile();
+            } else {
+              // Mode démo
+              localStorage.removeItem('hotmeetProfile');
+              document.getElementById('profileForm').reset();
+              loadDemoProfile();
+              alert('Profil réinitialisé en mode démo !');
+            }
+          } catch (error) {
+            console.error('Erreur réinitialisation profil:', error);
+            // Mode démo
+            localStorage.removeItem('hotmeetProfile');
+            document.getElementById('profileForm').reset();
+            loadDemoProfile();
+            alert('Profil réinitialisé en mode démo !');
+          }
+        }
+      }
+
+      // Gérer l'upload de photo
+      document
+        .getElementById('photoUpload')
+        .addEventListener('change', async function (e) {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = async function (e) {
+              document.getElementById('profileAvatar').src = e.target.result;
+              document.getElementById('uploadPreview').src = e.target.result;
+
+              try {
+                const formData = new FormData();
+                formData.append('photo', file);
+
+                const response = await fetch('/api/users/profile/photo', {
+                  method: 'POST',
+                  body: formData,
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                  // Mode démo - sauvegarder localement
+                  const profile = JSON.parse(
+                    localStorage.getItem('hotmeetProfile') || '{}'
+                  );
+                  profile.avatar = e.target.result;
+                  localStorage.setItem(
+                    'hotmeetProfile',
+                    JSON.stringify(profile)
+                  );
+                }
+              } catch (error) {
+                console.error('Erreur upload photo:', error);
+                // Mode démo - sauvegarder localement
+                const profile = JSON.parse(
+                  localStorage.getItem('hotmeetProfile') || '{}'
+                );
+                profile.avatar = e.target.result;
+                localStorage.setItem('hotmeetProfile', JSON.stringify(profile));
+              }
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+
+      // Initialisation
+      document
+        .getElementById('profileForm')
+        .addEventListener('submit', saveProfile);
+      loadProfile();
+    </script>
+  </body>
+</html>
