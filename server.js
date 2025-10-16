@@ -12,8 +12,9 @@ require('dotenv').config();
 
 const app = express();
 const server = createServer(app);
-const PORT = process.env.PORT || 3000;
-const CLIENT_URL = process.env.CLIENT_URL || `http://localhost:${PORT}`;
+const PORT = process.env.PORT || 10000;
+const CLIENT_URL =
+  process.env.CLIENT_URL || 'https://hotsupermeet.onrender.com';
 
 const io = new Server(server, {
   cors: {
@@ -55,34 +56,66 @@ app.use(express.static('public'));
 // Servir les fichiers uploads
 app.use('/uploads', express.static(process.env.UPLOAD_PATH || './uploads'));
 
-// Connexion à MongoDB Atlas
+// Connexion à MongoDB Atlas avec gestion d'erreur améliorée
 const connectToDatabase = async () => {
   console.log('🔍 Tentative de connexion MongoDB Atlas...');
-  console.log(
-    '🔍 MONGODB_URI:',
-    process.env.MONGODB_URI ? 'Défini' : 'Non défini'
-  );
 
+  // Vérifier si l'URI MongoDB est valide
   if (
-    process.env.MONGODB_URI &&
-    !process.env.MONGODB_URI.includes('votre_utilisateur')
+    !process.env.MONGODB_URI ||
+    process.env.MONGODB_URI.includes('votre_utilisateur')
   ) {
+    console.log('🚀 Mode démo activé - MongoDB désactivé (URI non valide)');
+    return false;
+  }
+
+  try {
+    console.log(
+      '🔍 Connexion à MongoDB Atlas avec URI:',
+      process.env.MONGODB_URI.substring(0, 50) + '...'
+    );
+
+    // Options de connexion pour résoudre les problèmes DNS
+    const mongooseOptions = {
+      // Désactiver le SRV qui cause l'erreur EBADNAME
+      srv: false,
+      // Utiliser le nom d'hôte direct
+      directConnection: true,
+      // Désactiver la validation du nom d'hôte
+      tlsAllowInvalidHostnames: true,
+      // Désactiver la validation des certificats (pour le développement)
+      tlsAllowInvalidCertificates: true,
+      // Timeout plus long
+      serverSelectionTimeoutMS: 5000,
+      // Réessayer la connexion
+      retryWrites: true,
+      w: 'majority',
+    };
+
+    await mongoose.connect(process.env.MONGODB_URI, mongooseOptions);
+    console.log('✅ MongoDB Atlas connecté avec succès');
+    return true;
+  } catch (error) {
+    console.error('❌ Erreur de connexion MongoDB Atlas:', error.message);
+    console.log('🔧 Tentative de connexion alternative...');
+
+    // Tentative de connexion alternative avec options simplifiées
     try {
-      console.log(
-        '🔍 Connexion à MongoDB Atlas avec URI:',
-        process.env.MONGODB_URI.substring(0, 50) + '...'
-      );
-      await mongoose.connect(process.env.MONGODB_URI);
-      console.log('✅ MongoDB Atlas connecté avec succès');
+      await mongoose.connect(process.env.MONGODB_URI, {
+        serverSelectionTimeoutMS: 3000,
+        retryWrites: true,
+        w: 'majority',
+      });
+      console.log('✅ MongoDB Atlas connecté avec méthode alternative');
       return true;
-    } catch (error) {
-      console.error('❌ Erreur de connexion MongoDB Atlas:', error.message);
+    } catch (secondError) {
+      console.error(
+        '❌ Échec de la connexion alternative:',
+        secondError.message
+      );
       console.log('🚀 Mode démo activé - MongoDB désactivé');
       return false;
     }
-  } else {
-    console.log('🚀 Mode démo activé - MongoDB désactivé (URI non valide)');
-    return false;
   }
 };
 
