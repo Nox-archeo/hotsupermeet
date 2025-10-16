@@ -182,33 +182,30 @@ class HotMeetApp {
     }
   }
 
-  // Affichage de la modal de vérification d'âge
+  // Affichage de la modal de vérification d'âge simplifiée
   showAgeVerificationModal() {
     const modalHTML = `
             <div class="age-modal-overlay">
                 <div class="age-modal">
                     <div class="modal-header">
-                        <h3>Vérification d'âge requise</h3>
+                        <h3>⚠️ Vérification d'âge obligatoire</h3>
                     </div>
                     <div class="modal-content">
-                        <p>Ce site est réservé aux adultes de 18 ans et plus. Veuillez confirmer votre âge pour continuer.</p>
-                        <form id="ageVerificationForm">
-                            <div class="form-group">
-                                <label for="birthDate">Date de naissance (jj/mm/aaaa):</label>
-                                <input type="text" id="birthDate" name="birthDate" placeholder="01/01/1990" required>
-                                <small style="font-size: 0.8rem; color: #666;">Format: jour/mois/année</small>
-                            </div>
-                            <div class="form-group">
-                                <label class="checkbox-label">
-                                    <input type="checkbox" id="acceptTerms" name="acceptTerms" required>
-                                    <span>Je confirme avoir 18 ans ou plus et j'accepte les <a href="/legal" target="_blank">conditions d'utilisation</a></span>
-                                </label>
-                            </div>
-                            <div class="modal-actions">
-                                <button type="submit" class="btn-primary">Confirmer</button>
-                                <button type="button" class="btn-secondary exit-btn">Quitter</button>
-                            </div>
-                        </form>
+                        <p style="text-align: center; font-size: 1.1rem; margin-bottom: 2rem;">
+                            Ce site est strictement réservé aux adultes de 18 ans et plus.<br>
+                            <strong>Avez-vous 18 ans ou plus ?</strong>
+                        </p>
+                        <div class="age-buttons" style="display: flex; gap: 1rem; justify-content: center;">
+                            <button type="button" class="btn-primary age-yes-btn" style="padding: 12px 30px;">
+                                OUI, j'ai 18 ans ou plus
+                            </button>
+                            <button type="button" class="btn-secondary age-no-btn" style="padding: 12px 30px;">
+                                NON, je suis mineur
+                            </button>
+                        </div>
+                        <div style="margin-top: 1rem; text-align: center; font-size: 0.9rem; color: #666;">
+                            En cliquant sur "OUI", vous confirmez votre majorité et acceptez nos <a href="/legal" target="_blank">conditions d'utilisation</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -218,18 +215,19 @@ class HotMeetApp {
     this.setupAgeModalEvents();
   }
 
-  // Configuration des événements de la modal d'âge
+  // Configuration des événements de la modal d'âge simplifiée
   setupAgeModalEvents() {
-    const form = document.getElementById('ageVerificationForm');
-    const exitBtn = document.querySelector('.exit-btn');
+    const yesBtn = document.querySelector('.age-yes-btn');
+    const noBtn = document.querySelector('.age-no-btn');
     const overlay = document.querySelector('.age-modal-overlay');
 
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      this.handleAgeVerification(form);
+    yesBtn.addEventListener('click', () => {
+      localStorage.setItem('ageVerified', 'true');
+      document.querySelector('.age-modal-overlay').remove();
+      document.body.style.overflow = 'auto';
     });
 
-    exitBtn.addEventListener('click', () => {
+    noBtn.addEventListener('click', () => {
       window.location.href = 'https://www.google.com';
     });
 
@@ -241,48 +239,10 @@ class HotMeetApp {
     });
   }
 
-  // Gestion de la vérification d'âge
-  async handleAgeVerification(form) {
-    const formData = new FormData(form);
-    const birthDateText = formData.get('birthDate');
-    const acceptTerms = formData.get('acceptTerms');
-
-    // Vérification côté client
-    if (!birthDateText || !acceptTerms) {
-      this.showError('Veuillez remplir tous les champs requis.');
-      return;
-    }
-
-    // Convertir le texte en date (format jj/mm/aaaa)
-    const birthDateObj = this.parseDate(birthDateText);
-    if (!birthDateObj) {
-      this.showError(
-        'Format de date invalide. Utilisez le format jj/mm/aaaa (ex: 01/01/1990).'
-      );
-      return;
-    }
-
-    // Calculer l'âge
-    const today = new Date();
-    const age = today.getFullYear() - birthDateObj.getFullYear();
-    const monthDiff = today.getMonth() - birthDateObj.getMonth();
-    const dayDiff = today.getDate() - birthDateObj.getDate();
-
-    // Ajuster l'âge si l'anniversaire n'est pas encore passé cette année
-    const isAdult =
-      age > 18 ||
-      (age === 18 && (monthDiff > 0 || (monthDiff === 0 && dayDiff >= 0)));
-
-    if (isAdult) {
-      // Âge valide - sauvegarder et fermer la modal
-      localStorage.setItem('ageVerified', 'true');
-      document.querySelector('.age-modal-overlay').remove();
-      document.body.style.overflow = 'auto'; // Rétablir le défilement
-    } else {
-      this.showError(
-        'Vous devez avoir au moins 18 ans pour accéder à ce site.'
-      );
-    }
+  // Gestion de la vérification d'âge simplifiée
+  handleAgeVerification() {
+    // Cette fonction n'est plus utilisée avec la nouvelle modal simplifiée
+    // La logique est maintenant directement dans les écouteurs d'événements
   }
 
   // Parser une date au format jj/mm/aaaa

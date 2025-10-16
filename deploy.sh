@@ -17,7 +17,7 @@ fi
 FTP_HOST="al6rd7.ftp.infomaniak.com"
 FTP_USER="al6rd7_system"
 FTP_PASS="Lilith66.666"
-REMOTE_PATH="/sites/hotsupermeet.com/"
+REMOTE_PATH="/hotsupermeet.com//"
 
 # Copier .env.production vers .env pour la production
 echo "📝 Configuration de l'environnement de production..."
@@ -36,13 +36,31 @@ deploy.sh
 test-ftp.sh
 EOF
 
-# Synchroniser les fichiers avec LFTP
+# Synchroniser les fichiers avec LFTP avec vérification d'erreur
 echo "📤 Upload des fichiers vers Infomaniak..."
-lftp -c "
+if ! lftp -c "
 open ftp://$FTP_USER:$FTP_PASS@$FTP_HOST
-mirror -R -x .git/ -x node_modules/ -x .vscode/ -x package-lock.json -x .env.example -x deploy.sh -x .deploy-ignore -x test-ftp.sh . $REMOTE_PATH
+mirror -R -v -x .git/ -x node_modules/ -x .vscode/ -x package-lock.json -x .env.example -x deploy.sh -x .deploy-ignore -x test-ftp.sh . $REMOTE_PATH
 bye
-"
+"; then
+    echo "❌ ERREUR: Échec de l'upload FTP"
+    exit 1
+fi
+
+# Vérifier que les fichiers clés sont bien uploadés
+echo "🔍 Vérification des fichiers uploadés..."
+if ! lftp -c "
+open ftp://$FTP_USER:$FTP_PASS@$FTP_HOST
+ls $REMOTE_PATH/public/css/style.css
+ls $REMOTE_PATH/public/pages/index.html
+ls $REMOTE_PATH/server.js
+bye
+" > /dev/null 2>&1; then
+    echo "❌ ERREUR: Fichiers manquants après déploiement"
+    exit 1
+fi
+
+echo "✅ Vérification FTP réussie"
 
 # Nettoyer
 rm -f .deploy-ignore

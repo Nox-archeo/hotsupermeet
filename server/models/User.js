@@ -22,7 +22,15 @@ const userSchema = new mongoose.Schema(
       localisation: { type: String, required: true, trim: true },
       bio: { type: String, maxlength: 500, trim: true },
       pratiques: [{ type: String, trim: true }],
-      photos: [{ type: String }],
+      photos: [
+        {
+          filename: { type: String, required: true },
+          path: { type: String, required: true },
+          isBlurred: { type: Boolean, default: false },
+          isProfile: { type: Boolean, default: false },
+          uploadedAt: { type: Date, default: Date.now },
+        },
+      ],
       tenuePreferee: { type: String, trim: true },
       disponibilite: {
         type: String,

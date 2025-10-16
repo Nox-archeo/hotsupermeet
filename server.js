@@ -52,6 +52,9 @@ app.use(express.urlencoded({ extended: true }));
 // Servir les fichiers statiques
 app.use(express.static('public'));
 
+// Servir les fichiers uploads
+app.use('/uploads', express.static(process.env.UPLOAD_PATH || './uploads'));
+
 // Connexion à MongoDB Atlas
 const connectToDatabase = async () => {
   console.log('🔍 Tentative de connexion MongoDB Atlas...');
@@ -92,9 +95,26 @@ connectToDatabase().then(mongoConnected => {
     app.use('/api/messages', require('./server/routes/messages'));
     app.use('/api/payments', require('./server/routes/payments'));
     app.use('/api/tonight', require('./server/routes/tonight'));
+    app.use('/api/uploads', require('./server/routes/uploads'));
+    app.use('/api/subscriptions', require('./server/routes/subscriptions'));
   } else {
     console.log('🚀 Mode démo - Routes API désactivées');
   }
+});
+
+// Route de health check pour Render
+app.get('/health', (req, res) => {
+  const healthStatus = {
+    status: 'online',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    database:
+      mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    environment: process.env.NODE_ENV || 'development',
+  };
+
+  res.status(200).json(healthStatus);
 });
 
 // Route de démonstration pour l'API
