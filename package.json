@@ -3,7 +3,10 @@
   "version": "1.0.1",
   "description": "Plateforme de rencontres adultes et networking érotique HotMeet",
   "main": "server.js",
-  "//": "SFTP upload test - ",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",

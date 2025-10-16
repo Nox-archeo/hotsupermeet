@@ -13,7 +13,7 @@ require('dotenv').config();
 const app = express();
 const server = createServer(app);
 const PORT = process.env.PORT || 3000;
-const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
+const CLIENT_URL = process.env.CLIENT_URL || `http://localhost:${PORT}`;
 
 const io = new Server(server, {
   cors: {
@@ -316,11 +316,14 @@ io.on('connection', socket => {
 
 // Démarrer le serveur
 server.listen(PORT, () => {
-  console.log('🚀 Serveur HotMeet démarré sur Infomaniak');
-  console.log('🏁 Version FORCÉE en production');
-  console.log('🔍 CLIENT_URL configuré: https://hotsupermeet.com');
-  console.log('🌐 URL publique: https://hotsupermeet.com');
-  console.log('🏁 Port d\\' + 'écoute: 3000');
+  console.log('🚀 Serveur HotMeet démarré');
+  console.log('🏁 Version:', process.env.NODE_ENV || 'development');
+  console.log('🔍 CLIENT_URL configuré:', CLIENT_URL);
+  console.log(
+    '🌐 URL publique:',
+    process.env.RENDER_EXTERNAL_URL || CLIENT_URL
+  );
+  console.log('🏁 Port d\\' + 'écoute:', PORT);
   console.log('🔌 Socket.IO activé pour le cam-to-cam');
 });
 
