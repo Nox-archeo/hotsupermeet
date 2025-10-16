@@ -3,8 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mon Profil - HotMeet</title>
-    <link rel="stylesheet" href="/css/style.css?v=2" />
+    <title>Créer Mon Profil - HotMeet</title>
+    <link rel="stylesheet" href="/css/style.css?v=6" />
+    <link rel="stylesheet" href="/css/pages.css?v=1" />
     <link rel="stylesheet" href="/css/animations.css" />
   </head>
   <body>
@@ -19,7 +20,8 @@
           />
           <span class="logo-text">HotMeet</span>
         </a>
-        <div class="nav-menu">
+
+        <div class="nav-menu" id="navMenu">
           <a href="/" class="nav-link">Accueil</a>
           <a href="/directory" class="nav-link">Annuaire</a>
           <a href="/ads" class="nav-link">Annonces</a>
@@ -28,163 +30,297 @@
           <a href="/messages" class="nav-link">Messages</a>
           <a href="/profile" class="nav-link active">Mon Profil</a>
         </div>
+
+        <div class="nav-actions">
+          <button class="btn-secondary" id="loginBtn">Connexion</button>
+          <button class="btn-primary" id="registerBtn">Inscription</button>
+          <div class="mobile-menu-toggle" id="mobileMenuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
       </nav>
     </header>
 
-    <main class="profile-container">
-      <div class="profile-content">
-        <div class="profile-card">
-          <div class="profile-header">
-            <img
-              src="/images/default-avatar.jpg"
-              alt="Avatar"
-              class="profile-avatar"
-              id="profileAvatar"
-            />
-            <h1>
-              Mon Profil
-              <span
-                class="premium-badge"
-                id="premiumBadge"
-                style="display: none"
-                >PREMIUM</span
-              >
-            </h1>
-            <p>Complétez votre profil pour améliorer vos rencontres</p>
+    <!-- Main Content -->
+    <main class="pages-container profile-creator">
+      <div class="container">
+        <!-- Hero Section de création de profil -->
+        <div class="profile-hero">
+          <div class="hero-content">
+            <h1>🌟 Créez Votre Profil Unique</h1>
+            <p class="hero-subtitle">
+              Montrez votre personnalité et attirez les bonnes personnes
+            </p>
+            <div class="progress-indicator">
+              <div class="progress-step active" data-step="1">Photo</div>
+              <div class="progress-step" data-step="2">Infos</div>
+              <div class="progress-step" data-step="3">Personnalité</div>
+              <div class="progress-step" data-step="4">Finalisation</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulaire de création de profil en étapes -->
+        <form class="profile-creation-form" id="profileForm">
+          <!-- Étape 1: Photo de profil -->
+          <div class="creation-step active" id="step1">
+            <div class="step-header">
+              <h2>📸 Votre Photo de Profil</h2>
+              <p>
+                Une belle photo vaut mille mots ! Choisissez une photo qui vous
+                représente
+              </p>
+            </div>
+
+            <div class="photo-upload-section">
+              <div class="photo-preview-container">
+                <div class="photo-frame">
+                  <img
+                    src="/images/default-avatar.jpg"
+                    alt="Votre photo"
+                    class="profile-photo-preview"
+                    id="profilePhotoPreview"
+                  />
+                  <div class="photo-overlay">
+                    <span class="photo-instruction">Cliquez pour changer</span>
+                  </div>
+                </div>
+                <div class="photo-stats">
+                  <div class="stat-item">
+                    <span class="stat-number">87%</span>
+                    <span class="stat-label">Plus de visibilité</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-number">3x</span>
+                    <span class="stat-label">Plus de messages</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="upload-actions">
+                <input
+                  type="file"
+                  id="photoUpload"
+                  accept="image/*"
+                  style="display: none"
+                />
+                <button
+                  type="button"
+                  class="btn-primary upload-btn"
+                  id="uploadBtn"
+                >
+                  🎯 Choisir une photo
+                </button>
+                <button type="button" class="btn-secondary selfie-btn">
+                  📱 Prendre une photo
+                </button>
+              </div>
+
+              <div class="photo-tips">
+                <h3>💡 Conseils pour une photo réussie :</h3>
+                <ul>
+                  <li>✅ Sourire naturel et détendu</li>
+                  <li>✅ Bon éclairage (lumière naturelle)</li>
+                  <li>✅ Photo récente et authentique</li>
+                  <li>✅ Arrière-plan simple et élégant</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="step-navigation">
+              <button type="button" class="btn-next" data-next="2">
+                Suivant →
+              </button>
+            </div>
           </div>
 
-          <form class="profile-form" id="profileForm">
-            <div class="photo-upload">
-              <img
-                src="/images/default-avatar.jpg"
-                alt="Aperçu"
-                class="upload-preview"
-                id="uploadPreview"
-              />
-              <input
-                type="file"
-                id="photoUpload"
-                accept="image/*"
-                style="display: none"
-              />
-              <button
-                type="button"
-                class="upload-btn"
-                onclick="document.getElementById('photoUpload').click()"
-              >
-                📷 Changer la photo
+          <!-- Étape 2: Informations de base -->
+          <div class="creation-step" id="step2">
+            <div class="step-header">
+              <h2>👤 Présentez-Vous</h2>
+              <p>Quelques informations essentielles pour commencer</p>
+            </div>
+
+            <div class="info-grid">
+              <div class="form-group animated-input">
+                <label for="displayName">✨ Votre prénom</label>
+                <input
+                  type="text"
+                  id="displayName"
+                  placeholder="Comment souhaitez-vous qu'on vous appelle ?"
+                  class="form-input"
+                />
+              </div>
+
+              <div class="form-group animated-input">
+                <label for="age">🎂 Votre âge</label>
+                <input
+                  type="number"
+                  id="age"
+                  min="18"
+                  max="100"
+                  placeholder="Âge"
+                  class="form-input"
+                />
+              </div>
+
+              <div class="form-group animated-input">
+                <label for="gender">⚤ Votre genre</label>
+                <select id="gender" class="form-input">
+                  <option value="">Choisissez votre genre</option>
+                  <option value="male">Homme</option>
+                  <option value="female">Femme</option>
+                  <option value="other">Autre</option>
+                </select>
+              </div>
+
+              <div class="form-group animated-input">
+                <label for="city">🏙️ Votre ville</label>
+                <input
+                  type="text"
+                  id="city"
+                  placeholder="Où habitez-vous ?"
+                  class="form-input"
+                />
+              </div>
+            </div>
+
+            <div class="step-navigation">
+              <button type="button" class="btn-prev" data-prev="1">
+                ← Précédent
+              </button>
+              <button type="button" class="btn-next" data-next="3">
+                Suivant →
+              </button>
+            </div>
+          </div>
+
+          <!-- Étape 3: Personnalité et centres d'intérêt -->
+          <div class="creation-step" id="step3">
+            <div class="step-header">
+              <h2>💫 Votre Personnalité</h2>
+              <p>Montrez ce qui vous rend unique et intéressant</p>
+            </div>
+
+            <div class="personality-section">
+              <div class="form-group">
+                <label for="description">📝 Votre présentation</label>
+                <textarea
+                  id="description"
+                  placeholder="Parlez-nous de vous... Qu'est-ce qui vous passionne ? Vos hobbies ? Votre philosophie de vie ?"
+                  class="form-input bio-textarea"
+                  rows="4"
+                ></textarea>
+                <div class="char-counter">
+                  <span id="charCount">0</span>/500 caractères
+                </div>
+              </div>
+
+              <div class="interests-section">
+                <label>🎯 Vos centres d'intérêt</label>
+                <div class="interests-grid">
+                  <div class="interest-tag" data-interest="voyage">
+                    ✈️ Voyage
+                  </div>
+                  <div class="interest-tag" data-interest="cuisine">
+                    🍳 Cuisine
+                  </div>
+                  <div class="interest-tag" data-interest="sport">🏃 Sport</div>
+                  <div class="interest-tag" data-interest="musique">
+                    🎵 Musique
+                  </div>
+                  <div class="interest-tag" data-interest="cinema">
+                    🎬 Cinéma
+                  </div>
+                  <div class="interest-tag" data-interest="art">🎨 Art</div>
+                  <div class="interest-tag" data-interest="lecture">
+                    📚 Lecture
+                  </div>
+                  <div class="interest-tag" data-interest="nature">
+                    🌿 Nature
+                  </div>
+                </div>
+                <input
+                  type="text"
+                  id="customInterest"
+                  placeholder="Ou ajoutez vos propres centres d'intérêt..."
+                  class="form-input"
+                />
+              </div>
+            </div>
+
+            <div class="step-navigation">
+              <button type="button" class="btn-prev" data-prev="2">
+                ← Précédent
+              </button>
+              <button type="button" class="btn-next" data-next="4">
+                Suivant →
+              </button>
+            </div>
+          </div>
+
+          <!-- Étape 4: Finalisation -->
+          <div class="creation-step" id="step4">
+            <div class="step-header">
+              <h2>🎉 Félicitations !</h2>
+              <p>Votre profil est presque prêt à briller</p>
+            </div>
+
+            <div class="preview-section">
+              <div class="profile-preview-card">
+                <div class="preview-header">
+                  <img
+                    src="/images/default-avatar.jpg"
+                    alt="Photo de profil"
+                    class="preview-photo"
+                    id="finalPhotoPreview"
+                  />
+                  <div class="preview-info">
+                    <h3 id="previewName">Votre nom</h3>
+                    <p id="previewAgeCity">Âge • Ville</p>
+                    <div class="preview-badges">
+                      <span class="badge new">Nouveau</span>
+                      <span class="badge premium">Premium</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="preview-bio">
+                  <p id="previewBio">Votre description apparaîtra ici...</p>
+                </div>
+                <div class="preview-interests">
+                  <div class="preview-tags" id="previewInterests"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="final-actions">
+              <div class="privacy-notice">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="acceptTerms" required />
+                  <span
+                    >J'accepte les
+                    <a href="/legal">conditions d'utilisation</a> et la
+                    <a href="/legal#privacy"
+                      >politique de confidentialité</a
+                    ></span
+                  >
+                </label>
+              </div>
+
+              <button type="submit" class="btn-complete" id="completeProfile">
+                🚀 Activer Mon Profil
               </button>
             </div>
 
-            <div class="form-group">
-              <label for="displayName">Nom d'affichage</label>
-              <input
-                type="text"
-                id="displayName"
-                placeholder="Votre nom public"
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="age">Âge</label>
-              <input
-                type="number"
-                id="age"
-                min="18"
-                max="100"
-                placeholder="Votre âge"
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="gender">Genre</label>
-              <select id="gender">
-                <option value="">Sélectionnez votre genre</option>
-                <option value="male">Homme</option>
-                <option value="female">Femme</option>
-                <option value="other">Autre</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="country">Pays</label>
-              <select id="country">
-                <option value="">Sélectionnez votre pays</option>
-                <option value="fr">France</option>
-                <option value="ch">Suisse</option>
-                <option value="be">Belgique</option>
-                <option value="ca">Canada</option>
-                <option value="us">États-Unis</option>
-                <option value="gb">Royaume-Uni</option>
-                <option value="de">Allemagne</option>
-                <option value="it">Italie</option>
-                <option value="es">Espagne</option>
-                <option value="pt">Portugal</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="language">Langue principale</label>
-              <select id="language">
-                <option value="fr">Français</option>
-                <option value="en">Anglais</option>
-                <option value="de">Allemand</option>
-                <option value="it">Italien</option>
-                <option value="es">Espagnol</option>
-                <option value="pt">Portugais</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="description">Description</label>
-              <textarea
-                id="description"
-                placeholder="Décrivez-vous en quelques mots..."
-              ></textarea>
-            </div>
-
-            <div class="form-group">
-              <label for="interests">Centres d'intérêt</label>
-              <input
-                type="text"
-                id="interests"
-                placeholder="Séparés par des virgules (ex: cuisine, voyage, sport)"
-              />
-            </div>
-
-            <div class="stats-grid">
-              <div class="stat-card">
-                <div class="stat-number" id="connectionsCount">0</div>
-                <div class="stat-label">Connexions</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-number" id="messagesCount">0</div>
-                <div class="stat-label">Messages</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-number" id="rating">0</div>
-                <div class="stat-label">Évaluation</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-number" id="premiumDays">0</div>
-                <div class="stat-label">Jours Premium</div>
-              </div>
-            </div>
-
-            <div class="profile-actions">
-              <button type="submit" class="btn-primary">
-                Sauvegarder le profil
-              </button>
-              <button
-                type="button"
-                class="btn-secondary"
-                onclick="resetProfile()"
-              >
-                Réinitialiser
+            <div class="step-navigation">
+              <button type="button" class="btn-prev" data-prev="3">
+                ← Précédent
               </button>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </main>
 
@@ -199,245 +335,609 @@
       </div>
     </footer>
 
+    <!-- JavaScript pour la création de profil -->
     <script>
-      // Charger le profil depuis l'API
-      async function loadProfile() {
-        try {
-          const response = await fetch('/api/users/profile');
-          const result = await response.json();
+      // Gestion des étapes du formulaire
+      const steps = document.querySelectorAll('.creation-step');
+      const progressSteps = document.querySelectorAll('.progress-step');
 
-          if (result.success) {
-            const profile = result.data;
+      function showStep(stepNumber) {
+        // Cacher toutes les étapes
+        steps.forEach(step => step.classList.remove('active'));
+        progressSteps.forEach(step => step.classList.remove('active'));
 
-            // Remplir les champs du formulaire
-            document.getElementById('displayName').value = profile.nom || '';
-            document.getElementById('age').value = profile.age || '';
-            document.getElementById('gender').value = profile.sexe || '';
-            document.getElementById('country').value = profile.pays || '';
-            document.getElementById('language').value = profile.langue || 'fr';
-            document.getElementById('description').value = profile.bio || '';
-            document.getElementById('interests').value = profile.interets || '';
-
-            // Mettre à jour les statistiques
-            document.getElementById('connectionsCount').textContent =
-              profile.statistiques?.connexions || 0;
-            document.getElementById('messagesCount').textContent =
-              profile.statistiques?.messages || 0;
-            document.getElementById('rating').textContent =
-              profile.statistiques?.evaluation || '0';
-            document.getElementById('premiumDays').textContent =
-              profile.statistiques?.joursPremium || 0;
-
-            // Afficher le badge premium si applicable
-            if (profile.abonnement === 'premium') {
-              document.getElementById('premiumBadge').style.display =
-                'inline-block';
-            }
-
-            // Mettre à jour l'avatar
-            if (profile.photos && profile.photos.length > 0) {
-              document.getElementById('profileAvatar').src = profile.photos[0];
-              document.getElementById('uploadPreview').src = profile.photos[0];
-            }
-          } else {
-            // Mode démo - utiliser les données locales
-            loadDemoProfile();
-          }
-        } catch (error) {
-          console.error('Erreur chargement profil:', error);
-          // Mode démo en cas d'erreur
-          loadDemoProfile();
-        }
+        // Afficher l'étape courante
+        document.getElementById(`step${stepNumber}`).classList.add('active');
+        document
+          .querySelector(`[data-step="${stepNumber}"]`)
+          .classList.add('active');
       }
 
-      // Charger le profil de démonstration
-      function loadDemoProfile() {
-        const savedProfile = localStorage.getItem('hotmeetProfile');
-        if (savedProfile) {
-          const profile = JSON.parse(savedProfile);
+      // Navigation entre les étapes
+      document.querySelectorAll('.btn-next').forEach(btn => {
+        btn.addEventListener('click', function () {
+          const nextStep = this.getAttribute('data-next');
+          showStep(nextStep);
+        });
+      });
 
-          // Remplir les champs du formulaire
-          document.getElementById('displayName').value =
-            profile.displayName || '';
-          document.getElementById('age').value = profile.age || '';
-          document.getElementById('gender').value = profile.gender || '';
-          document.getElementById('country').value = profile.country || '';
-          document.getElementById('language').value = profile.language || 'fr';
-          document.getElementById('description').value =
-            profile.description || '';
-          document.getElementById('interests').value = profile.interests || '';
+      document.querySelectorAll('.btn-prev').forEach(btn => {
+        btn.addEventListener('click', function () {
+          const prevStep = this.getAttribute('data-prev');
+          showStep(prevStep);
+        });
+      });
 
-          // Mettre à jour les statistiques
-          document.getElementById('connectionsCount').textContent =
-            profile.connections || 0;
-          document.getElementById('messagesCount').textContent =
-            profile.messages || 0;
-          document.getElementById('rating').textContent = profile.rating || '0';
-          document.getElementById('premiumDays').textContent =
-            profile.premiumDays || 0;
+      // Gestion de l'upload de photo
+      document
+        .getElementById('uploadBtn')
+        .addEventListener('click', function () {
+          document.getElementById('photoUpload').click();
+        });
 
-          // Afficher le badge premium si applicable
-          if (profile.isPremium) {
-            document.getElementById('premiumBadge').style.display =
-              'inline-block';
-          }
-
-          // Mettre à jour l'avatar
-          if (profile.avatar) {
-            document.getElementById('profileAvatar').src = profile.avatar;
-            document.getElementById('uploadPreview').src = profile.avatar;
-          }
-        }
-      }
-
-      // Sauvegarder le profil via l'API
-      async function saveProfile(event) {
-        event.preventDefault();
-
-        const profileData = {
-          nom: document.getElementById('displayName').value,
-          age: parseInt(document.getElementById('age').value),
-          sexe: document.getElementById('gender').value,
-          pays: document.getElementById('country').value,
-          langue: document.getElementById('language').value,
-          bio: document.getElementById('description').value,
-          interets: document
-            .getElementById('interests')
-            .value.split(',')
-            .map(item => item.trim())
-            .filter(item => item),
-        };
-
-        try {
-          const response = await fetch('/api/users/profile', {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(profileData),
-          });
-
-          const result = await response.json();
-
-          if (result.success) {
-            alert('Profil sauvegardé avec succès !');
-          } else {
-            // Mode démo - sauvegarder localement
-            saveDemoProfile(profileData);
-            alert('Profil sauvegardé en mode démo !');
-          }
-        } catch (error) {
-          console.error('Erreur sauvegarde profil:', error);
-          // Mode démo en cas d'erreur
-          saveDemoProfile(profileData);
-          alert('Profil sauvegardé en mode démo !');
-        }
-      }
-
-      // Sauvegarder le profil en mode démo
-      function saveDemoProfile(profileData) {
-        const existingProfile = JSON.parse(
-          localStorage.getItem('hotmeetProfile') || '{}'
-        );
-        const updatedProfile = {
-          ...existingProfile,
-          displayName: profileData.nom,
-          age: profileData.age,
-          gender: profileData.sexe,
-          country: profileData.pays,
-          language: profileData.langue,
-          description: profileData.bio,
-          interests: profileData.interets.join(', '),
-          lastUpdated: new Date().toISOString(),
-        };
-
-        localStorage.setItem('hotmeetProfile', JSON.stringify(updatedProfile));
-      }
-
-      // Réinitialiser le profil
-      async function resetProfile() {
-        if (confirm('Êtes-vous sûr de vouloir réinitialiser votre profil ?')) {
-          try {
-            const response = await fetch('/api/users/profile', {
-              method: 'DELETE',
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-              alert('Profil réinitialisé avec succès !');
-              document.getElementById('profileForm').reset();
-              loadProfile();
-            } else {
-              // Mode démo
-              localStorage.removeItem('hotmeetProfile');
-              document.getElementById('profileForm').reset();
-              loadDemoProfile();
-              alert('Profil réinitialisé en mode démo !');
-            }
-          } catch (error) {
-            console.error('Erreur réinitialisation profil:', error);
-            // Mode démo
-            localStorage.removeItem('hotmeetProfile');
-            document.getElementById('profileForm').reset();
-            loadDemoProfile();
-            alert('Profil réinitialisé en mode démo !');
-          }
-        }
-      }
-
-      // Gérer l'upload de photo
       document
         .getElementById('photoUpload')
-        .addEventListener('change', async function (e) {
+        .addEventListener('change', function (e) {
           const file = e.target.files[0];
           if (file) {
             const reader = new FileReader();
-            reader.onload = async function (e) {
-              document.getElementById('profileAvatar').src = e.target.result;
-              document.getElementById('uploadPreview').src = e.target.result;
-
-              try {
-                const formData = new FormData();
-                formData.append('photo', file);
-
-                const response = await fetch('/api/users/profile/photo', {
-                  method: 'POST',
-                  body: formData,
-                });
-
-                const result = await response.json();
-
-                if (!result.success) {
-                  // Mode démo - sauvegarder localement
-                  const profile = JSON.parse(
-                    localStorage.getItem('hotmeetProfile') || '{}'
-                  );
-                  profile.avatar = e.target.result;
-                  localStorage.setItem(
-                    'hotmeetProfile',
-                    JSON.stringify(profile)
-                  );
-                }
-              } catch (error) {
-                console.error('Erreur upload photo:', error);
-                // Mode démo - sauvegarder localement
-                const profile = JSON.parse(
-                  localStorage.getItem('hotmeetProfile') || '{}'
-                );
-                profile.avatar = e.target.result;
-                localStorage.setItem('hotmeetProfile', JSON.stringify(profile));
-              }
+            reader.onload = function (e) {
+              document.getElementById('profilePhotoPreview').src =
+                e.target.result;
+              document.getElementById('finalPhotoPreview').src =
+                e.target.result;
             };
             reader.readAsDataURL(file);
           }
         });
 
-      // Initialisation
+      // Compteur de caractères pour la bio
+      document
+        .getElementById('description')
+        .addEventListener('input', function () {
+          const charCount = this.value.length;
+          document.getElementById('charCount').textContent = charCount;
+
+          if (charCount > 500) {
+            this.style.borderColor = '#ff6b6b';
+          } else {
+            this.style.borderColor = '#e1e8ed';
+          }
+        });
+
+      // Sélection des centres d'intérêt
+      document.querySelectorAll('.interest-tag').forEach(tag => {
+        tag.addEventListener('click', function () {
+          this.classList.toggle('selected');
+        });
+      });
+
+      // Mise à jour en temps réel de l'aperçu
+      function updatePreview() {
+        const name =
+          document.getElementById('displayName').value || 'Votre nom';
+        const age = document.getElementById('age').value || 'Âge';
+        const city = document.getElementById('city').value || 'Ville';
+        const bio =
+          document.getElementById('description').value ||
+          'Votre description apparaîtra ici...';
+
+        document.getElementById('previewName').textContent = name;
+        document.getElementById('previewAgeCity').textContent =
+          `${age} ans • ${city}`;
+        document.getElementById('previewBio').textContent = bio;
+
+        // Mise à jour des centres d'intérêt sélectionnés
+        const selectedInterests = document.querySelectorAll(
+          '.interest-tag.selected'
+        );
+        const interestsContainer = document.getElementById('previewInterests');
+        interestsContainer.innerHTML = '';
+
+        selectedInterests.forEach(interest => {
+          const tag = document.createElement('span');
+          tag.className = 'preview-tag';
+          tag.textContent = interest.textContent;
+          interestsContainer.appendChild(tag);
+        });
+      }
+
+      // Écouteurs d'événements pour la mise à jour en temps réel
+      document
+        .getElementById('displayName')
+        .addEventListener('input', updatePreview);
+      document.getElementById('age').addEventListener('input', updatePreview);
+      document.getElementById('city').addEventListener('input', updatePreview);
+      document
+        .getElementById('description')
+        .addEventListener('input', updatePreview);
+
+      // Gestion de la soumission du formulaire
       document
         .getElementById('profileForm')
-        .addEventListener('submit', saveProfile);
-      loadProfile();
+        .addEventListener('submit', function (e) {
+          e.preventDefault();
+
+          if (!document.getElementById('acceptTerms').checked) {
+            alert("Veuillez accepter les conditions d'utilisation");
+            return;
+          }
+
+          // Simulation de sauvegarde réussie
+          const successMessage = document.createElement('div');
+          successMessage.className = 'success-message';
+          successMessage.innerHTML = `
+          <div class="success-content">
+            <h3>🎉 Profil Créé avec Succès !</h3>
+            <p>Votre profil est maintenant visible par la communauté HotMeet</p>
+            <button class="btn-primary" onclick="window.location.href='/directory'">
+              Découvrir les membres
+            </button>
+          </div>
+        `;
+
+          document
+            .querySelector('.profile-creator')
+            .appendChild(successMessage);
+        });
+
+      // Animation des champs de formulaire
+      document
+        .querySelectorAll('.animated-input input, .animated-input select')
+        .forEach(input => {
+          input.addEventListener('focus', function () {
+            this.parentElement.classList.add('focused');
+          });
+
+          input.addEventListener('blur', function () {
+            if (!this.value) {
+              this.parentElement.classList.remove('focused');
+            }
+          });
+        });
+
+      // Initialisation
+      showStep(1);
+      updatePreview();
     </script>
+
+    <style>
+      /* Styles spécifiques pour la création de profil */
+      .profile-creator {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding-top: 100px;
+      }
+
+      .profile-hero {
+        text-align: center;
+        margin-bottom: 3rem;
+        color: white;
+      }
+
+      .profile-hero h1 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.9);
+      }
+
+      .hero-subtitle {
+        font-size: 1.3rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+      }
+
+      .progress-indicator {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 2rem;
+      }
+
+      .progress-step {
+        padding: 1rem 2rem;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .progress-step.active {
+        background: #ff6b6b;
+        transform: scale(1.1);
+      }
+
+      .creation-step {
+        display: none;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 3rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .creation-step.active {
+        display: block;
+        animation: fadeInUp 0.6s ease-out;
+      }
+
+      .step-header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .step-header h2 {
+        color: #2c3e50;
+        font-size: 2.2rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .photo-upload-section {
+        text-align: center;
+      }
+
+      .photo-frame {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 2rem;
+      }
+
+      .profile-photo-preview {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid #8a2be2;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .profile-photo-preview:hover {
+        transform: scale(1.05);
+        border-color: #ff6b6b;
+      }
+
+      .photo-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .photo-frame:hover .photo-overlay {
+        opacity: 1;
+      }
+
+      .photo-instruction {
+        color: white;
+        font-weight: 600;
+      }
+
+      .photo-stats {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .stat-item {
+        text-align: center;
+      }
+
+      .stat-number {
+        display: block;
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #8a2be2;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+      }
+
+      .upload-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+      }
+
+      .photo-tips {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        text-align: left;
+      }
+
+      .photo-tips h3 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+      }
+
+      .photo-tips ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      .photo-tips li {
+        margin-bottom: 0.5rem;
+        color: #7f8c8d;
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .animated-input {
+        position: relative;
+      }
+
+      .animated-input label {
+        position: absolute;
+        top: 50%;
+        left: 1rem;
+        transform: translateY(-50%);
+        background: white;
+        padding: 0 0.5rem;
+        transition: all 0.3s ease;
+        pointer-events: none;
+      }
+
+      .animated-input.focused label,
+      .animated-input input:not(:placeholder-shown) + label,
+      .animated-input select:valid + label {
+        top: 0;
+        font-size: 0.8rem;
+        color: #8a2be2;
+      }
+
+      .bio-textarea {
+        resize: vertical;
+        min-height: 120px;
+      }
+
+      .char-counter {
+        text-align: right;
+        font-size: 0.8rem;
+        color: #7f8c8d;
+        margin-top: 0.5rem;
+      }
+
+      .interests-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .interest-tag {
+        padding: 0.75rem 1rem;
+        background: #f8f9fa;
+        border: 2px solid #e1e8ed;
+        border-radius: 25px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+      }
+
+      .interest-tag:hover {
+        border-color: #8a2be2;
+        transform: translateY(-2px);
+      }
+
+      .interest-tag.selected {
+        background: #8a2be2;
+        color: white;
+        border-color: #8a2be2;
+      }
+
+      .preview-section {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+      }
+
+      .profile-preview-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        max-width: 400px;
+        width: 100%;
+      }
+
+      .preview-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .preview-photo {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .preview-info h3 {
+        margin: 0;
+        color: #2c3e50;
+      }
+
+      .preview-info p {
+        margin: 0.25rem 0;
+        color: #7f8c8d;
+      }
+
+      .preview-badges {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+      }
+
+      .badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+
+      .badge.new {
+        background: #4ecdc4;
+        color: white;
+      }
+
+      .badge.premium {
+        background: linear-gradient(45deg, #ffd700, #ffa500);
+        color: black;
+      }
+
+      .preview-bio {
+        margin-bottom: 1rem;
+        color: #7f8c8d;
+        line-height: 1.5;
+      }
+
+      .preview-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .preview-tag {
+        background: #f8f9fa;
+        padding: 0.5rem 1rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        color: #7f8c8d;
+      }
+
+      .final-actions {
+        text-align: center;
+      }
+
+      .privacy-notice {
+        margin-bottom: 2rem;
+      }
+
+      .btn-complete {
+        background: linear-gradient(45deg, #ff6b6b, #8a2be2);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 25px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .btn-complete:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(138, 43, 226, 0.3);
+      }
+
+      .step-navigation {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+      }
+
+      .success-message {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .success-content {
+        background: white;
+        padding: 3rem;
+        border-radius: 20px;
+        text-align: center;
+        max-width: 500px;
+        animation: bounceIn 0.6s ease-out;
+      }
+
+      .success-content h3 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes bounceIn {
+        0% {
+          opacity: 0;
+          transform: scale(0.3);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.05);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .profile-hero h1 {
+          font-size: 2rem;
+        }
+
+        .progress-indicator {
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .creation-step {
+          padding: 1.5rem;
+        }
+
+        .info-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .upload-actions {
+          flex-direction: column;
+        }
+
+        .profile-photo-preview {
+          width: 150px;
+          height: 150px;
+        }
+      }
+    </style>
   </body>
 </html>
