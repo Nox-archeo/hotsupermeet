@@ -56,7 +56,7 @@ app.use(express.static('public'));
 // Servir les fichiers uploads
 app.use('/uploads', express.static(process.env.UPLOAD_PATH || './uploads'));
 
-// Connexion à MongoDB Atlas avec gestion d'erreur améliorée
+// Connexion à MongoDB Atlas avec URI standard (sans SRV) pour Render
 const connectToDatabase = async () => {
   console.log('🔍 Tentative de connexion MongoDB Atlas...');
 
@@ -75,47 +75,42 @@ const connectToDatabase = async () => {
       process.env.MONGODB_URI.substring(0, 50) + '...'
     );
 
-    // Options de connexion pour résoudre les problèmes DNS
+    // Convertir l'URI SRV en URI standard pour Render
+    let mongoUri = process.env.MONGODB_URI;
+
+    // Si c'est une URI SRV, la convertir en URI standard
+    if (mongoUri.startsWith('mongodb+srv://')) {
+      mongoUri = mongoUri.replace('mongodb+srv://', 'mongodb://');
+      // Remplacer le domaine par le domaine direct avec port 27017
+      mongoUri = mongoUri.replace('.mongodb.net/', '.mongodb.net:27017/');
+      // Ajouter directConnection=true pour éviter les problèmes SRV
+      if (mongoUri.includes('?')) {
+        mongoUri += '&directConnection=true';
+      } else {
+        mongoUri += '?directConnection=true';
+      }
+    }
+
+    console.log(
+      '🔧 URI convertie pour Render:',
+      mongoUri.substring(0, 60) + '...'
+    );
+
+    // Options de connexion simples pour Render
     const mongooseOptions = {
-      // Désactiver le SRV qui cause l'erreur EBADNAME
-      srv: false,
-      // Utiliser le nom d'hôte direct
-      directConnection: true,
-      // Désactiver la validation du nom d'hôte
-      tlsAllowInvalidHostnames: true,
-      // Désactiver la validation des certificats (pour le développement)
-      tlsAllowInvalidCertificates: true,
-      // Timeout plus long
-      serverSelectionTimeoutMS: 5000,
-      // Réessayer la connexion
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
       retryWrites: true,
       w: 'majority',
     };
 
-    await mongoose.connect(process.env.MONGODB_URI, mongooseOptions);
-    console.log('✅ MongoDB Atlas connecté avec succès');
+    await mongoose.connect(mongoUri, mongooseOptions);
+    console.log('✅ MongoDB Atlas connecté avec succès sur Render');
     return true;
   } catch (error) {
     console.error('❌ Erreur de connexion MongoDB Atlas:', error.message);
-    console.log('🔧 Tentative de connexion alternative...');
-
-    // Tentative de connexion alternative avec options simplifiées
-    try {
-      await mongoose.connect(process.env.MONGODB_URI, {
-        serverSelectionTimeoutMS: 3000,
-        retryWrites: true,
-        w: 'majority',
-      });
-      console.log('✅ MongoDB Atlas connecté avec méthode alternative');
-      return true;
-    } catch (secondError) {
-      console.error(
-        '❌ Échec de la connexion alternative:',
-        secondError.message
-      );
-      console.log('🚀 Mode démo activé - MongoDB désactivé');
-      return false;
-    }
+    console.log('🚀 Mode démo activé - MongoDB désactivé');
+    return false;
   }
 };
 
