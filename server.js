@@ -317,7 +317,7 @@ io.on('connection', socket => {
         // Retirer les deux utilisateurs de la file d'attente
         waitingQueue.delete(socket.id);
         waitingQueue.delete(partnerSocketId);
-        console.log('✅ Utilisateurs retirés de la file d\\' + 'attente');
+        console.log("✅ Utilisateurs retirés de la file d'attente");
       } else {
         socket.emit('waiting-for-partner', {
           message: 'Recherche de partenaire en cours...',
@@ -339,7 +339,7 @@ io.on('connection', socket => {
   socket.on('leave-cam-queue', () => {
     waitingQueue.delete(socket.id);
     socket.emit('left-queue', {
-      message: 'Vous avez quitté la file d\\' + 'attente',
+      message: "Vous avez quitté la file d'attente",
     });
   });
 
@@ -386,7 +386,7 @@ server.listen(PORT, '0.0.0.0', () => {
     '🌐 URL publique:',
     process.env.RENDER_EXTERNAL_URL || CLIENT_URL
   );
-  console.log('🏁 Port d\\' + 'écoute:', PORT);
+  console.log("🏁 Port d'écoute:", PORT);
   console.log('🔌 Socket.IO activé pour le cam-to-cam');
   console.log('🌍 Serveur accessible depuis toutes les interfaces réseau');
 });
