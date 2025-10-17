@@ -149,23 +149,12 @@ const connectToDatabase = async () => {
   }
 };
 
-// Appeler la fonction de connexion et activer les routes si MongoDB est disponible
-connectToDatabase().then(mongoConnected => {
-  if (mongoConnected) {
-    console.log('✅ Activation des routes API avec MongoDB');
-    app.use('/api/auth', require('./server/routes/auth'));
-    app.use('/api/users', require('./server/routes/users'));
-    app.use('/api/messages', require('./server/routes/messages'));
-    app.use('/api/payments', require('./server/routes/payments'));
-    app.use('/api/tonight', require('./server/routes/tonight'));
-    app.use('/api/uploads', require('./server/routes/uploads'));
-    app.use('/api/subscriptions', require('./server/routes/subscriptions'));
-  } else {
-    console.log('🚀 Mode démo - Routes API désactivées');
-  }
+// Routes de base qui doivent répondre immédiatement (avant MongoDB)
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/pages/index.html');
 });
 
-// Route de health check pour Render
+// Health check pour Render
 app.get('/health', (req, res) => {
   const healthStatus = {
     status: 'online',
@@ -176,7 +165,6 @@ app.get('/health', (req, res) => {
       mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
     environment: process.env.NODE_ENV || 'development',
   };
-
   res.status(200).json(healthStatus);
 });
 
@@ -187,11 +175,6 @@ app.get('/api/demo', (req, res) => {
     status: 'online',
     pages: ['/', '/directory', '/messages', '/auth'],
   });
-});
-
-// Route pour la page d'accueil
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/pages/index.html');
 });
 
 // Route pour les autres pages
@@ -214,6 +197,24 @@ app.get('/:page', (req, res) => {
     res.sendFile(__dirname + `/public/pages/${page}.html`);
   } else {
     res.status(404).sendFile(__dirname + '/public/pages/404.html');
+  }
+});
+
+// Charger les routes API (elles gèrent elles-mêmes les erreurs MongoDB)
+app.use('/api/auth', require('./server/routes/auth'));
+app.use('/api/users', require('./server/routes/users'));
+app.use('/api/messages', require('./server/routes/messages'));
+app.use('/api/payments', require('./server/routes/payments'));
+app.use('/api/tonight', require('./server/routes/tonight'));
+app.use('/api/uploads', require('./server/routes/uploads'));
+app.use('/api/subscriptions', require('./server/routes/subscriptions'));
+
+// Connexion MongoDB en arrière-plan (ne bloque pas le démarrage)
+connectToDatabase().then(mongoConnected => {
+  if (mongoConnected) {
+    console.log('✅ MongoDB connecté - Fonctionnalités complètes activées');
+  } else {
+    console.log('🚀 Mode démo - Fonctionnalités de base uniquement');
   }
 });
 
