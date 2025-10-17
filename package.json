@@ -32,6 +32,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-fileupload": "^1.5.2",
     "express-rate-limit": "^6.10.0",
     "express-validator": "^7.0.1",
     "helmet": "^7.0.0",
@@ -43,12 +44,8 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1",
     "eslint": "^8.45.0",
+    "nodemon": "^3.0.1",
     "prettier": "^3.0.0"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
   }
 }
