@@ -279,12 +279,67 @@ io.on('connection', socket => {
         `📊 File d'attente actuelle: ${waitingQueue.size} utilisateurs`
       );
 
-      // Rechercher un partenaire compatible (simplifié)
+      // Rechercher un partenaire compatible avec critères de matching
       let partnerSocketId = null;
+      let bestMatchScore = 0;
+
       for (const [otherSocketId, otherData] of waitingQueue.entries()) {
-        if (otherSocketId !== socket.id) {
+        if (otherSocketId === socket.id) {
+          continue;
+        }
+
+        // Calculer un score de compatibilité basé sur les critères
+        let matchScore = 0;
+
+        // Critère pays (priorité élevée)
+        if (
+          criteria.country === otherData.country ||
+          criteria.country === 'all' ||
+          otherData.country === 'all'
+        ) {
+          matchScore += 30;
+        }
+
+        // Critère genre (priorité élevée)
+        if (
+          criteria.gender === otherData.gender ||
+          criteria.gender === 'all' ||
+          otherData.gender === 'all'
+        ) {
+          matchScore += 30;
+        }
+
+        // Critère langue (priorité moyenne)
+        if (
+          criteria.language === otherData.language ||
+          criteria.language === 'all' ||
+          otherData.language === 'all'
+        ) {
+          matchScore += 20;
+        }
+
+        // Critère âge (priorité moyenne)
+        const otherAge = otherData.ageMin || 25; // Valeur par défaut pour la démo
+        const userAge = criteria.ageMin || 25;
+        const ageDiff = Math.abs(otherAge - userAge);
+        if (ageDiff <= 10) {
+          matchScore += 20 - ageDiff; // Plus l'âge est proche, plus le score est élevé
+        }
+
+        // Si le score est meilleur que le précédent, mettre à jour le partenaire
+        if (matchScore > bestMatchScore) {
+          bestMatchScore = matchScore;
           partnerSocketId = otherSocketId;
-          break;
+        }
+      }
+
+      // Si aucun partenaire n'est trouvé avec critères, prendre le premier disponible
+      if (!partnerSocketId && waitingQueue.size > 1) {
+        for (const [otherSocketId, otherData] of waitingQueue.entries()) {
+          if (otherSocketId !== socket.id) {
+            partnerSocketId = otherSocketId;
+            break;
+          }
         }
       }
 
