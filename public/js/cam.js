@@ -50,6 +50,22 @@ class CamToCamSystem {
     // Connexion au serveur Socket.IO réel
     this.socket = io({
       transports: ['websocket', 'polling'],
+      timeout: 10000,
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+    });
+
+    // Vérifier la connexion
+    this.socket.on('connect', () => {
+      console.log('✅ Connecté au serveur Socket.IO:', this.socket.id);
+    });
+
+    this.socket.on('connect_error', error => {
+      console.error('❌ Erreur de connexion Socket.IO:', error);
+      this.showError(
+        'Impossible de se connecter au serveur. Veuillez rafraîchir la page.'
+      );
     });
 
     // Écouter les événements Socket.IO
@@ -343,13 +359,20 @@ class CamToCamSystem {
 
     console.log('🎯 Critères de recherche:', searchCriteria);
 
-    // Rejoindre la file d'attente via Socket.IO
-    this.socket.emit('join-cam-queue', {
-      userId: this.userId,
-      criteria: searchCriteria,
-    });
-
-    console.log('📡 Émission join-cam-queue');
+    // Vérifier que le socket est connecté
+    if (!this.socket.connected) {
+      console.error('❌ Socket non connecté, tentative de reconnexion...');
+      this.socket.connect();
+      setTimeout(() => {
+        if (this.socket.connected) {
+          this.emitJoinCamQueue(searchCriteria);
+        } else {
+          this.showError('Connexion échouée. Veuillez rafraîchir la page.');
+        }
+      }, 1000);
+    } else {
+      this.emitJoinCamQueue(searchCriteria);
+    }
 
     // Afficher le statut de recherche
     document.getElementById('searchSection').classList.add('hidden');
@@ -397,7 +420,29 @@ class CamToCamSystem {
     );
   }
 
+  emitJoinCamQueue(searchCriteria) {
+    console.log('📡 Émission join-cam-queue avec critères:', searchCriteria);
+
+    this.socket.emit(
+      'join-cam-queue',
+      {
+        userId: this.userId,
+        criteria: searchCriteria,
+      },
+      response => {
+        if (response && response.error) {
+          console.error('❌ Erreur du serveur:', response.error);
+          this.showError('Erreur lors de la recherche: ' + response.error);
+        } else {
+          console.log('✅ Requête join-cam-queue envoyée avec succès');
+        }
+      }
+    );
+  }
+
   handleWaitingForPartner(data) {
+    console.log('⏳ En attente de partenaire:', data);
+
     // Mettre à jour le statut de recherche
     const statusElement = document.getElementById('searchStatus');
     statusElement.innerHTML = `
@@ -409,23 +454,50 @@ class CamToCamSystem {
     `;
   }
 
-  handleWebRTCSignal(data) {
+  async handleWebRTCSignal(data) {
     console.log('📡 Signal WebRTC reçu:', {
       type: data.signal.type,
       connectionId: data.connectionId,
       fromSocketId: data.fromSocketId,
     });
 
-    // Gérer les signaux WebRTC du partenaire
-    if (this.peerConnection) {
-      try {
-        this.peerConnection.signal(data.signal);
-        console.log('✅ Signal WebRTC traité avec succès');
-      } catch (error) {
-        console.error('❌ Erreur lors du traitement du signal WebRTC:', error);
-      }
-    } else {
+    if (!this.peerConnection) {
       console.error('❌ PeerConnection non disponible pour traiter le signal');
+      return;
+    }
+
+    try {
+      if (data.signal.type === 'offer') {
+        console.log('📥 Offre WebRTC reçue du partenaire');
+        await this.peerConnection.setRemoteDescription(
+          new RTCSessionDescription(data.signal)
+        );
+
+        // Créer et envoyer la réponse
+        const answer = await this.peerConnection.createAnswer();
+        await this.peerConnection.setLocalDescription(answer);
+
+        this.socket.emit('webrtc-signal', {
+          connectionId: this.connectionId,
+          signal: answer,
+          targetSocketId: this.getPartnerSocketId(),
+        });
+        console.log('📤 Réponse WebRTC envoyée au partenaire');
+      } else if (data.signal.type === 'answer') {
+        console.log('📥 Réponse WebRTC reçue du partenaire');
+        await this.peerConnection.setRemoteDescription(
+          new RTCSessionDescription(data.signal)
+        );
+      } else if (data.signal.candidate) {
+        console.log('🧊 Candidat ICE reçu du partenaire');
+        await this.peerConnection.addIceCandidate(
+          new RTCIceCandidate(data.signal.candidate)
+        );
+      }
+
+      console.log('✅ Signal WebRTC traité avec succès');
+    } catch (error) {
+      console.error('❌ Erreur lors du traitement du signal WebRTC:', error);
     }
   }
 
@@ -507,8 +579,26 @@ class CamToCamSystem {
         }
       };
 
-      // Créer l'offre
-      console.log('📝 Création de l\\' + 'offre WebRTC...');
+      // Gérer la négociation nécessaire
+      this.peerConnection.onnegotiationneeded = async () => {
+        console.log('🔁 Négociation WebRTC nécessaire');
+        try {
+          const offer = await this.peerConnection.createOffer();
+          await this.peerConnection.setLocalDescription(offer);
+
+          this.socket.emit('webrtc-signal', {
+            connectionId: this.connectionId,
+            signal: offer,
+            targetSocketId: this.getPartnerSocketId(),
+          });
+          console.log('📤 Offre de négociation envoyée');
+        } catch (error) {
+          console.error('❌ Erreur lors de la négociation:', error);
+        }
+      };
+
+      // Créer l'offre initiale
+      console.log('📝 Création de l\\' + 'offre WebRTC initiale...');
       const offer = await this.peerConnection.createOffer();
       await this.peerConnection.setLocalDescription(offer);
       console.log('✅ Offre créée et description locale définie');
@@ -519,7 +609,7 @@ class CamToCamSystem {
         signal: offer,
         targetSocketId: this.getPartnerSocketId(),
       });
-      console.log('📤 Offre envoyée au partenaire');
+      console.log('📤 Offre initiale envoyée au partenaire');
     } catch (error) {
       console.error('❌ Erreur WebRTC:', error);
       this.showError('Erreur de connexion vidéo');
