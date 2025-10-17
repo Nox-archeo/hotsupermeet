@@ -56,7 +56,7 @@ app.use(express.static('public'));
 // Servir les fichiers uploads
 app.use('/uploads', express.static(process.env.UPLOAD_PATH || './uploads'));
 
-// Connexion à MongoDB Atlas avec URI standard (sans SRV) pour Render
+// Connexion à MongoDB Atlas avec gestion d'erreur avancée pour Render
 const connectToDatabase = async () => {
   console.log('🔍 Tentative de connexion MongoDB Atlas...');
 
@@ -75,42 +75,77 @@ const connectToDatabase = async () => {
       process.env.MONGODB_URI.substring(0, 50) + '...'
     );
 
-    // Convertir l'URI SRV en URI standard pour Render
-    let mongoUri = process.env.MONGODB_URI;
-
-    // Si c'est une URI SRV, la convertir en URI standard
-    if (mongoUri.startsWith('mongodb+srv://')) {
-      mongoUri = mongoUri.replace('mongodb+srv://', 'mongodb://');
-      // Remplacer le domaine par le domaine direct avec port 27017
-      mongoUri = mongoUri.replace('.mongodb.net/', '.mongodb.net:27017/');
-      // Ajouter directConnection=true pour éviter les problèmes SRV
-      if (mongoUri.includes('?')) {
-        mongoUri += '&directConnection=true';
-      } else {
-        mongoUri += '?directConnection=true';
-      }
-    }
-
-    console.log(
-      '🔧 URI convertie pour Render:',
-      mongoUri.substring(0, 60) + '...'
-    );
-
-    // Options de connexion simples pour Render
-    const mongooseOptions = {
-      serverSelectionTimeoutMS: 10000,
+    // Tentative 1: Connexion directe avec IPv4 forcé
+    const mongooseOptions1 = {
+      serverSelectionTimeoutMS: 15000,
       socketTimeoutMS: 45000,
       retryWrites: true,
       w: 'majority',
+      // Forcer IPv4 pour éviter les problèmes de réseau
+      family: 4,
     };
 
-    await mongoose.connect(mongoUri, mongooseOptions);
+    console.log('🔧 Tentative 1: Connexion directe avec IPv4 forcé...');
+    await mongoose.connect(process.env.MONGODB_URI, mongooseOptions1);
     console.log('✅ MongoDB Atlas connecté avec succès sur Render');
     return true;
   } catch (error) {
-    console.error('❌ Erreur de connexion MongoDB Atlas:', error.message);
-    console.log('🚀 Mode démo activé - MongoDB désactivé');
-    return false;
+    console.error(
+      '❌ Erreur de connexion MongoDB Atlas (tentative 1):',
+      error.message
+    );
+
+    // Tentative 2: Conversion SRV vers URI standard
+    try {
+      console.log('🔧 Tentative 2: Conversion SRV vers URI standard...');
+      let mongoUri = process.env.MONGODB_URI;
+
+      if (mongoUri.startsWith('mongodb+srv://')) {
+        mongoUri = mongoUri.replace('mongodb+srv://', 'mongodb://');
+        mongoUri = mongoUri.replace('.mongodb.net/', '.mongodb.net:27017/');
+        if (mongoUri.includes('?')) {
+          mongoUri += '&directConnection=true&family=4';
+        } else {
+          mongoUri += '?directConnection=true&family=4';
+        }
+      }
+
+      console.log('🔧 URI convertie:', mongoUri.substring(0, 60) + '...');
+
+      const mongooseOptions2 = {
+        serverSelectionTimeoutMS: 10000,
+        socketTimeoutMS: 45000,
+        retryWrites: true,
+        w: 'majority',
+        family: 4,
+      };
+
+      await mongoose.connect(mongoUri, mongooseOptions2);
+      console.log('✅ MongoDB Atlas connecté avec méthode alternative');
+      return true;
+    } catch (secondError) {
+      console.error(
+        '❌ Échec de la connexion alternative:',
+        secondError.message
+      );
+
+      // Tentative 3: Utiliser une connexion simplifiée sans options
+      try {
+        console.log('🔧 Tentative 3: Connexion simplifiée...');
+        await mongoose.connect(process.env.MONGODB_URI, {
+          serverSelectionTimeoutMS: 5000,
+        });
+        console.log('✅ MongoDB Atlas connecté avec méthode simplifiée');
+        return true;
+      } catch (thirdError) {
+        console.error(
+          '❌ Échec de la connexion simplifiée:',
+          thirdError.message
+        );
+        console.log('🚀 Mode démo activé - MongoDB désactivé');
+        return false;
+      }
+    }
   }
 };
 
