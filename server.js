@@ -378,7 +378,7 @@ io.on('connection', socket => {
 });
 
 // Démarrer le serveur
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   console.log('🚀 Serveur HotMeet démarré');
   console.log('🏁 Version:', process.env.NODE_ENV || 'development');
   console.log('🔍 CLIENT_URL configuré:', CLIENT_URL);
@@ -388,6 +388,7 @@ server.listen(PORT, () => {
   );
   console.log('🏁 Port d\\' + 'écoute:', PORT);
   console.log('🔌 Socket.IO activé pour le cam-to-cam');
+  console.log('🌍 Serveur accessible depuis toutes les interfaces réseau');
 });
 
 module.exports = app;
