@@ -579,37 +579,29 @@ class CamToCamSystem {
         }
       };
 
-      // Gérer la négociation nécessaire
-      this.peerConnection.onnegotiationneeded = async () => {
-        console.log('🔁 Négociation WebRTC nécessaire');
-        try {
-          const offer = await this.peerConnection.createOffer();
-          await this.peerConnection.setLocalDescription(offer);
+      // Déterminer qui initie l'offre (premier socket ID alphabétiquement)
+      const shouldInitiate = this.mySocketId < this.partnerSocketId;
 
-          this.socket.emit('webrtc-signal', {
-            connectionId: this.connectionId,
-            signal: offer,
-            targetSocketId: this.getPartnerSocketId(),
-          });
-          console.log('📤 Offre de négociation envoyée');
-        } catch (error) {
-          console.error('❌ Erreur lors de la négociation:', error);
-        }
-      };
+      if (shouldInitiate) {
+        console.log('🎯 Ce client initie l\\' + 'offre WebRTC');
 
-      // Créer l'offre initiale
-      console.log('📝 Création de l\\' + 'offre WebRTC initiale...');
-      const offer = await this.peerConnection.createOffer();
-      await this.peerConnection.setLocalDescription(offer);
-      console.log('✅ Offre créée et description locale définie');
+        // Créer l'offre initiale
+        console.log('📝 Création de l\\' + 'offre WebRTC...');
+        const offer = await this.peerConnection.createOffer();
+        await this.peerConnection.setLocalDescription(offer);
+        console.log('✅ Offre créée et description locale définie');
 
-      // Envoyer l'offre au partenaire
-      this.socket.emit('webrtc-signal', {
-        connectionId: this.connectionId,
-        signal: offer,
-        targetSocketId: this.getPartnerSocketId(),
-      });
-      console.log('📤 Offre initiale envoyée au partenaire');
+        // Envoyer l'offre au partenaire
+        this.socket.emit('webrtc-signal', {
+          connectionId: this.connectionId,
+          signal: offer,
+          targetSocketId: this.getPartnerSocketId(),
+        });
+        console.log('📤 Offre envoyée au partenaire');
+      } else {
+        console.log('🎯 Ce client attend l\\' + 'offre du partenaire');
+        // Ne pas créer d'offre, attendre l'offre du partenaire
+      }
     } catch (error) {
       console.error('❌ Erreur WebRTC:', error);
       this.showError('Erreur de connexion vidéo');
