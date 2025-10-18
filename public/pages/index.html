@@ -42,29 +42,34 @@
     <link rel="stylesheet" href="/css/responsive.css?v=2" />
   </head>
   <body>
-    <!-- Modal de vérification d'âge -->
+    <!-- Modal de vérification d'âge - DOIT ÊTRE LE PREMIER ÉLÉMENT -->
     <div id="ageVerificationModal" class="age-modal">
       <div class="age-modal-content">
         <div class="age-modal-header">
-          <h2>Vérification d'âge requise</h2>
+          <h2>🔞 Vérification d'âge requise</h2>
         </div>
         <div class="age-modal-body">
-          <p>Ce site est réservé aux adultes de 18 ans et plus.</p>
+          <p>
+            <strong>Ce site est réservé aux adultes de 18 ans et plus.</strong>
+          </p>
           <p>
             En cliquant sur "J'ai plus de 18 ans", vous confirmez que vous êtes
             majeur et acceptez nos conditions d'utilisation.
           </p>
           <div class="age-verification-actions">
             <button class="btn-primary" id="confirmAgeBtn">
-              J'ai plus de 18 ans
+              ✅ J'ai plus de 18 ans
             </button>
             <button class="btn-secondary" id="exitSiteBtn">
-              Quitter le site
+              ❌ Quitter le site
             </button>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Overlay pour bloquer le contenu -->
+    <div id="ageOverlay" class="age-overlay"></div>
 
     <!-- Header -->
     <header class="header">
@@ -346,6 +351,11 @@
         const confirmAgeBtn = document.getElementById('confirmAgeBtn');
         const exitSiteBtn = document.getElementById('exitSiteBtn');
 
+        // Afficher la modale IMMÉDIATEMENT au chargement de la page
+        ageModal.style.display = 'flex';
+        document.getElementById('ageOverlay').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+
         // Vérifier si l'âge a déjà été confirmé côté serveur
         try {
           const response = await fetch('/api/auth/age-verified', {
@@ -356,19 +366,17 @@
           if (response.ok) {
             const result = await response.json();
             if (result.ageVerified) {
-              // Âge déjà vérifié, ne pas afficher la modale
+              // Âge déjà vérifié, cacher la modale
+              ageModal.style.display = 'none';
+              document.getElementById('ageOverlay').style.display = 'none';
+              document.body.style.overflow = 'auto';
               return;
             }
           }
         } catch (error) {
           console.error("Erreur de vérification d'âge:", error);
+          // En cas d'erreur, on laisse la modale affichée
         }
-
-        // Afficher la modale après un court délai
-        setTimeout(() => {
-          ageModal.style.display = 'flex';
-          document.body.style.overflow = 'hidden';
-        }, 500);
 
         // Confirmer l'âge côté serveur
         confirmAgeBtn.addEventListener('click', async function () {
@@ -384,6 +392,7 @@
 
             if (response.ok) {
               ageModal.style.display = 'none';
+              document.getElementById('ageOverlay').style.display = 'none';
               document.body.style.overflow = 'auto';
             } else {
               throw new Error("Erreur de confirmation d'âge");
@@ -409,6 +418,19 @@
     </script>
 
     <style>
+      /* Styles pour l'overlay qui bloque tout le contenu */
+      .age-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 9998;
+        backdrop-filter: blur(5px);
+      }
+
       /* Styles pour la modale de vérification d'âge */
       .age-modal {
         display: none;
@@ -417,7 +439,6 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.9);
         z-index: 9999;
         align-items: center;
         justify-content: center;
