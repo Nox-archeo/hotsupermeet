@@ -391,9 +391,8 @@
             });
 
             if (response.ok) {
-              ageModal.style.display = 'none';
-              document.getElementById('ageOverlay').style.display = 'none';
-              document.body.style.overflow = 'auto';
+              // Rediriger vers la page d'inscription pour créer le profil
+              window.location.href = '/auth?register=true';
             } else {
               throw new Error("Erreur de confirmation d'âge");
             }
@@ -401,6 +400,11 @@
             console.error('Erreur:', error);
             alert("Erreur lors de la confirmation d'âge. Veuillez réessayer.");
           }
+        });
+
+        // Ajouter aussi un lien vers l'inscription pour ceux qui ont déjà confirmé l'âge
+        exitSiteBtn.addEventListener('click', function () {
+          window.location.href = 'https://www.google.com';
         });
 
         // Quitter le site
