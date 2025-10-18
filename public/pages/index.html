@@ -351,25 +351,36 @@
         const confirmAgeBtn = document.getElementById('confirmAgeBtn');
         const exitSiteBtn = document.getElementById('exitSiteBtn');
 
+        // Vérifier que les éléments existent
+        console.log('🔞 Vérification des éléments:');
+        console.log('Modal:', ageModal);
+        console.log('Bouton confirmer:', confirmAgeBtn);
+        console.log('Bouton quitter:', exitSiteBtn);
+
+        if (!ageModal || !confirmAgeBtn || !exitSiteBtn) {
+          console.error('❌ Éléments manquants!');
+          return;
+        }
+
         // Afficher la modale IMMÉDIATEMENT - SIMPLIFIÉ
         console.log("🔞 Affichage de la vérification d'âge");
         ageModal.style.display = 'flex';
         document.getElementById('ageOverlay').style.display = 'block';
         document.body.style.overflow = 'hidden';
 
-        // Vérifier que les boutons existent
-        console.log('Bouton confirmer:', confirmAgeBtn);
-        console.log('Bouton quitter:', exitSiteBtn);
-
         // Confirmer l'âge côté serveur - VERSION SIMPLIFIÉE
         confirmAgeBtn.addEventListener('click', function () {
           console.log('✅ Bouton confirmation cliqué');
+          console.log('Bouton confirmAgeBtn:', confirmAgeBtn);
+          console.log('Fonction déclenchée');
           // Rediriger directement vers l'inscription
           window.location.href = '/auth?register=true';
         });
 
         // Quitter le site
         exitSiteBtn.addEventListener('click', function () {
+          console.log('❌ Bouton quitter cliqué');
+          console.log('Bouton exitSiteBtn:', exitSiteBtn);
           window.location.href = 'https://www.google.com';
         });
 
