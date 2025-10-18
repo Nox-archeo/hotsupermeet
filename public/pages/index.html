@@ -60,11 +60,15 @@
             <button
               class="btn-primary"
               id="confirmAgeBtn"
-              onclick="confirmAge()"
+              onclick="document.getElementById('ageVerificationModal').style.display='none'; document.getElementById('ageOverlay').style.display='none'; document.body.style.overflow='auto';"
             >
               ✅ J'ai plus de 18 ans
             </button>
-            <button class="btn-secondary" id="exitSiteBtn" onclick="exitSite()">
+            <button
+              class="btn-secondary"
+              id="exitSiteBtn"
+              onclick="window.location.href='https://www.google.com'"
+            >
               ❌ Quitter le site
             </button>
           </div>
@@ -343,29 +347,6 @@
         </div>
       </div>
     </footer>
-
-    <!-- Script pour la vérification d'âge - PLACÉ AVANT APP.JS -->
-    <script>
-      // Fonction pour confirmer l'âge - FERME LA POPUP ET DONNE ACCÈS AU SITE
-      function confirmAge() {
-        console.log('✅ Bouton "J\\' + 'ai plus de 18 ans" cliqué');
-        document.getElementById('ageVerificationModal').style.display = 'none';
-        document.getElementById('ageOverlay').style.display = 'none';
-        document.body.style.overflow = 'auto';
-        console.log('✅ Popup fermée, accès au site donné');
-      }
-
-      // Fonction pour quitter le site
-      function exitSite() {
-        console.log('❌ Bouton "Quitter le site" cliqué');
-        window.location.href = 'https://www.google.com';
-      }
-
-      // Vérifier que les fonctions sont disponibles
-      console.log('🔞 Script de vérification d\\' + 'âge chargé');
-      console.log('Fonction confirmAge:', typeof confirmAge);
-      console.log('Fonction exitSite:', typeof exitSite);
-    </script>
 
     <!-- JavaScript principal -->
     <script src="/js/app.js"></script>
