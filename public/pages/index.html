@@ -57,10 +57,14 @@
             majeur et acceptez nos conditions d'utilisation.
           </p>
           <div class="age-verification-actions">
-            <button class="btn-primary" id="confirmAgeBtn">
+            <button
+              class="btn-primary"
+              id="confirmAgeBtn"
+              onclick="confirmAge()"
+            >
               ✅ J'ai plus de 18 ans
             </button>
-            <button class="btn-secondary" id="exitSiteBtn">
+            <button class="btn-secondary" id="exitSiteBtn" onclick="exitSite()">
               ❌ Quitter le site
             </button>
           </div>
@@ -343,25 +347,19 @@
     <!-- JavaScript -->
     <script src="/js/app.js"></script>
 
-    <!-- Script pour la vérification d'âge - VERSION SIMPLIFIÉE -->
+    <!-- Script pour la vérification d'âge - ULTRA SIMPLE -->
     <script>
-      // Afficher la modale IMMÉDIATEMENT
-      document.addEventListener('DOMContentLoaded', function () {
-        // Afficher la modale et bloquer le contenu
-        document.getElementById('ageVerificationModal').style.display = 'flex';
-        document.getElementById('ageOverlay').style.display = 'block';
-        document.body.style.overflow = 'hidden';
+      // Fonction pour confirmer l'âge - FERME LA POPUP ET DONNE ACCÈS AU SITE
+      function confirmAge() {
+        document.getElementById('ageVerificationModal').style.display = 'none';
+        document.getElementById('ageOverlay').style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
 
-        // Fonction pour confirmer l'âge
-        document.getElementById('confirmAgeBtn').onclick = function () {
-          window.location.href = '/auth?register=true';
-        };
-
-        // Fonction pour quitter le site
-        document.getElementById('exitSiteBtn').onclick = function () {
-          window.location.href = 'https://www.google.com';
-        };
-      });
+      // Fonction pour quitter le site
+      function exitSite() {
+        window.location.href = 'https://www.google.com';
+      }
     </script>
 
     <style>

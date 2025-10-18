@@ -15,7 +15,7 @@ fi
 
 # Configuration FTP
 FTP_HOST="al6rd7.ftp.infomaniak.com"
-FTP_USER="al6rd7_system"
+FTP_USER="398ik9rTQFD_noxhook"
 FTP_PASS="Lilith66.666"
 REMOTE_PATH="/hotsupermeet.com//"
 
