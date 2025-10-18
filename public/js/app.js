@@ -146,15 +146,17 @@ class HotMeetApp {
       // Remplacer les boutons de connexion par le profil utilisateur
       navActions.innerHTML = `
                 <div class="user-menu">
-                    <div class="user-avatar">
-                        <img src="${this.currentUser.profile.photos?.[0] || '/images/avatar-placeholder.png'}" alt="${this.currentUser.profile.nom}">
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <img src="${this.currentUser.profile.photos?.[0] || '/images/avatar-placeholder.png'}" alt="${this.currentUser.profile.nom}">
+                        </div>
+                        <span class="user-name">${this.currentUser.profile.nom}</span>
                     </div>
-                    <span class="user-name">${this.currentUser.profile.nom}</span>
                     <div class="dropdown-menu">
-                        <a href="/profile" class="dropdown-item">Mon Profil</a>
-                        <a href="/messages" class="dropdown-item">Messages</a>
-                        <a href="/premium" class="dropdown-item ${this.currentUser.premium.isPremium ? 'premium-active' : ''}">${this.currentUser.premium.isPremium ? 'Premium Actif' : 'Devenir Premium'}</a>
-                        <button class="dropdown-item logout-btn">Déconnexion</button>
+                        <a href="/profile" class="dropdown-item">📋 Mon Profil</a>
+                        <a href="/messages" class="dropdown-item">💬 Messages</a>
+                        <a href="/premium" class="dropdown-item ${this.currentUser.premium.isPremium ? 'premium-active' : ''}">⭐ ${this.currentUser.premium.isPremium ? 'Premium Actif' : 'Devenir Premium'}</a>
+                        <button class="dropdown-item logout-btn">🚪 Déconnexion</button>
                     </div>
                 </div>
             `;
