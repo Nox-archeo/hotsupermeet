@@ -12,7 +12,7 @@ class HotMeetApp {
     this.checkAuthentication();
     this.setupMobileMenu();
     this.setupSmoothScrolling();
-    this.setupAgeVerification();
+    // DÉSACTIVÉ: this.setupAgeVerification(); - Utilise la vérification d'âge intégrée dans index.html
   }
 
   // Configuration des écouteurs d'événements
@@ -40,8 +40,8 @@ class HotMeetApp {
       .getElementById('learnMoreBtn')
       ?.addEventListener('click', () => this.scrollToSection('features'));
 
-    // Vérification d'âge au chargement
-    this.checkAgeRequirement();
+    // Vérification d'âge au chargement - DÉSACTIVÉE (gérée dans index.html)
+    // this.checkAgeRequirement();
   }
 
   // Configuration du menu mobile
@@ -97,13 +97,12 @@ class HotMeetApp {
     });
   }
 
-  // Configuration de la vérification d'âge
+  // Configuration de la vérification d'âge - DÉSACTIVÉE (utilise la vérification intégrée dans index.html)
   setupAgeVerification() {
-    // Vérifier si l'utilisateur a déjà confirmé son âge
-    const ageVerified = localStorage.getItem('ageVerified');
-    if (!ageVerified) {
-      this.showAgeVerificationModal();
-    }
+    // DÉSACTIVÉ - La vérification d'âge est maintenant gérée directement dans index.html
+    console.log(
+      "Vérification d'âge désactivée dans app.js - Utilisation de la modale intégrée"
+    );
   }
 
   // Vérification de l'authentification
@@ -217,67 +216,24 @@ class HotMeetApp {
     }
   }
 
-  // Affichage de la modal de vérification d'âge simplifiée
+  // Affichage de la modal de vérification d'âge simplifiée - DÉSACTIVÉE
   showAgeVerificationModal() {
-    const modalHTML = `
-            <div class="age-modal-overlay">
-                <div class="age-modal">
-                    <div class="modal-header">
-                        <h3>⚠️ Vérification d'âge obligatoire</h3>
-                    </div>
-                    <div class="modal-content">
-                        <p style="text-align: center; font-size: 1.1rem; margin-bottom: 2rem;">
-                            Ce site est strictement réservé aux adultes de 18 ans et plus.<br>
-                            <strong>Avez-vous 18 ans ou plus ?</strong>
-                        </p>
-                        <div class="age-buttons" style="display: flex; gap: 1rem; justify-content: center;">
-                            <button type="button" class="btn-primary age-yes-btn" style="padding: 12px 30px;">
-                                OUI, j'ai 18 ans ou plus
-                            </button>
-                            <button type="button" class="btn-secondary age-no-btn" style="padding: 12px 30px;">
-                                NON, je suis mineur
-                            </button>
-                        </div>
-                        <div style="margin-top: 1rem; text-align: center; font-size: 0.9rem; color: #666;">
-                            En cliquant sur "OUI", vous confirmez votre majorité et acceptez nos <a href="/legal" target="_blank">conditions d'utilisation</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-    this.setupAgeModalEvents();
+    console.log(
+      "Modal de vérification d'âge désactivée - Utilisation de la modale intégrée dans index.html"
+    );
+    // DÉSACTIVÉ - La modale est maintenant intégrée directement dans index.html
   }
 
-  // Configuration des événements de la modal d'âge simplifiée
+  // Configuration des événements de la modal d'âge simplifiée - DÉSACTIVÉE
   setupAgeModalEvents() {
-    const yesBtn = document.querySelector('.age-yes-btn');
-    const noBtn = document.querySelector('.age-no-btn');
-    const overlay = document.querySelector('.age-modal-overlay');
-
-    yesBtn.addEventListener('click', () => {
-      localStorage.setItem('ageVerified', 'true');
-      document.querySelector('.age-modal-overlay').remove();
-      document.body.style.overflow = 'auto';
-    });
-
-    noBtn.addEventListener('click', () => {
-      window.location.href = 'https://www.google.com';
-    });
-
-    // Empêcher la fermeture de la modal en cliquant à l'extérieur
-    overlay.addEventListener('click', e => {
-      if (e.target === overlay) {
-        e.preventDefault();
-      }
-    });
+    console.log('Configuration des événements de modal d\\' + 'âge désactivée');
+    // DÉSACTIVÉ - Les événements sont gérés directement dans index.html
   }
 
-  // Gestion de la vérification d'âge simplifiée
+  // Gestion de la vérification d'âge simplifiée - DÉSACTIVÉE
   handleAgeVerification() {
-    // Cette fonction n'est plus utilisée avec la nouvelle modal simplifiée
-    // La logique est maintenant directement dans les écouteurs d'événements
+    console.log('Gestion de la vérification d\\' + 'âge désactivée');
+    // DÉSACTIVÉ - La vérification d'âge est gérée dans index.html
   }
 
   // Parser une date au format jj/mm/aaaa
@@ -319,13 +275,10 @@ class HotMeetApp {
     return date;
   }
 
-  // Vérification de l'exigence d'âge au chargement
+  // Vérification de l'exigence d'âge au chargement - DÉSACTIVÉE
   checkAgeRequirement() {
-    const ageVerified = localStorage.getItem('ageVerified');
-    if (!ageVerified) {
-      // Bloquer l'accès jusqu'à la vérification
-      document.body.style.overflow = 'hidden';
-    }
+    console.log('Vérification d\\' + 'exigence d\\' + 'âge désactivée');
+    // DÉSACTIVÉ - La vérification d'âge est gérée dans index.html
   }
 
   // Déconnexion
