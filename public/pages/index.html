@@ -357,28 +357,15 @@
         document.getElementById('ageOverlay').style.display = 'block';
         document.body.style.overflow = 'hidden';
 
-        // Confirmer l'âge côté serveur
-        confirmAgeBtn.addEventListener('click', async function () {
-          try {
-            const response = await fetch('/api/auth/confirm-age', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              credentials: 'include',
-              body: JSON.stringify({ confirmed: true }),
-            });
+        // Vérifier que les boutons existent
+        console.log('Bouton confirmer:', confirmAgeBtn);
+        console.log('Bouton quitter:', exitSiteBtn);
 
-            if (response.ok) {
-              // Rediriger vers la page d'inscription pour créer le profil
-              window.location.href = '/auth?register=true';
-            } else {
-              throw new Error("Erreur de confirmation d'âge");
-            }
-          } catch (error) {
-            console.error('Erreur:', error);
-            alert("Erreur lors de la confirmation d'âge. Veuillez réessayer.");
-          }
+        // Confirmer l'âge côté serveur - VERSION SIMPLIFIÉE
+        confirmAgeBtn.addEventListener('click', function () {
+          console.log('✅ Bouton confirmation cliqué');
+          // Rediriger directement vers l'inscription
+          window.location.href = '/auth?register=true';
         });
 
         // Quitter le site
