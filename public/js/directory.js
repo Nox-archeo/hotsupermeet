@@ -32,8 +32,6 @@ class DirectoryManager {
     document.getElementById('sortBy')?.addEventListener('change', () => {
       this.loadUsers();
     });
-
-    // Pagination (sera configurée dynamiquement)
   }
 
   // Gestion de la recherche
@@ -76,14 +74,18 @@ class DirectoryManager {
       const queryParams = new URLSearchParams();
 
       // Ajouter les filtres
-      if (this.filters.ageMin)
+      if (this.filters.ageMin) {
         queryParams.append('ageMin', this.filters.ageMin);
-      if (this.filters.ageMax)
+      }
+      if (this.filters.ageMax) {
         queryParams.append('ageMax', this.filters.ageMax);
-      if (this.filters.sexe && this.filters.sexe !== 'tous')
+      }
+      if (this.filters.sexe && this.filters.sexe !== 'tous') {
         queryParams.append('sexe', this.filters.sexe);
-      if (this.filters.region)
+      }
+      if (this.filters.region) {
         queryParams.append('localisation', this.filters.region);
+      }
 
       // Ajouter la pagination
       queryParams.append('page', this.currentPage);
@@ -104,161 +106,8 @@ class DirectoryManager {
       }
     } catch (error) {
       console.error('Erreur lors du chargement des utilisateurs:', error);
-
-      // En cas d'erreur, utiliser les données de démonstration comme fallback
-      try {
-        const demoUsers = this.generateDemoUsers();
-        const filteredUsers = this.filterUsers(demoUsers, this.filters);
-        const paginatedUsers = this.paginateUsers(
-          filteredUsers,
-          this.currentPage,
-          this.limit
-        );
-
-        const fallbackData = {
-          success: true,
-          users: paginatedUsers,
-          pagination: {
-            page: this.currentPage,
-            limit: this.limit,
-            total: filteredUsers.length,
-            pages: Math.ceil(filteredUsers.length / this.limit),
-          },
-        };
-
-        this.displayUsers(fallbackData.users);
-        this.updatePagination(fallbackData.pagination);
-        this.updateResultsCount(fallbackData.pagination.total);
-
-        usersGrid.innerHTML +=
-          '<div class="demo-notice">⚠️ Mode démo activé - Utilisation de données de démonstration</div>';
-      } catch (fallbackError) {
-        usersGrid.innerHTML = `<div class="error">Erreur: ${error.message}</div>`;
-      }
+      usersGrid.innerHTML = `<div class="error">Erreur lors du chargement des utilisateurs: ${error.message}</div>`;
     }
-  }
-
-  // Générer des utilisateurs de démonstration
-  generateDemoUsers() {
-    // Profils prédéfinis pour tester le design
-    const predefinedUsers = [
-      {
-        id: 1,
-        profile: {
-          nom: 'Sophie',
-          age: 28,
-          sexe: 'femme',
-          orientation: 'hetero',
-          localisation: 'Paris, France',
-          photos: [],
-          description:
-            'Élégante et sensuelle, à la recherche de connexions profondes. Passionnée de voyage et de cuisine.',
-        },
-        premium: { isPremium: true },
-        isOnline: true,
-        lastActive: new Date().toISOString(),
-        country: 'france',
-        region: 'Paris',
-        orientation: 'hetero',
-      },
-      {
-        id: 2,
-        profile: {
-          nom: 'Thomas',
-          age: 32,
-          sexe: 'homme',
-          orientation: 'bi',
-          localisation: 'Genève, Suisse',
-          photos: [],
-          description:
-            'Dynamique cherchant des rencontres authentiques. Gentleman respectueux à la recherche de moments complices.',
-        },
-        premium: { isPremium: false },
-        isOnline: false,
-        lastActive: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-        country: 'suisse',
-        region: 'Genève',
-        orientation: 'bi',
-      },
-      {
-        id: 3,
-        profile: {
-          nom: 'Alex',
-          age: 25,
-          sexe: 'autre',
-          orientation: 'queer',
-          localisation: 'Berlin, Allemagne',
-          photos: [],
-          description:
-            'Ouvert et authentique, cherchant des rencontres basées sur le respect mutuel. Personne chaleureuse valorisant la complicité.',
-        },
-        premium: { isPremium: true },
-        isOnline: true,
-        lastActive: new Date().toISOString(),
-        country: 'allemagne',
-        region: 'Berlin',
-        orientation: 'queer',
-      },
-      {
-        id: 4,
-        profile: {
-          nom: 'Laura',
-          age: 35,
-          sexe: 'femme',
-          orientation: 'lesbienne',
-          localisation: 'Montréal, Canada',
-          photos: [],
-          description:
-            'Indépendante appréciant les rencontres raffinées. Passionnée de musique et de nature.',
-        },
-        premium: { isPremium: true },
-        isOnline: true,
-        lastActive: new Date().toISOString(),
-        country: 'canada',
-        region: 'Montréal',
-        orientation: 'lesbienne',
-      },
-      {
-        id: 5,
-        profile: {
-          nom: 'David',
-          age: 40,
-          sexe: 'homme',
-          orientation: 'gay',
-          localisation: 'Madrid, Espagne',
-          photos: [],
-          description:
-            "Passionné et ouvert d'esprit. À la recherche de moments complices et authentiques.",
-        },
-        premium: { isPremium: false },
-        isOnline: false,
-        lastActive: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-        country: 'espagne',
-        region: 'Madrid',
-        orientation: 'gay',
-      },
-      {
-        id: 6,
-        profile: {
-          nom: 'Chloé',
-          age: 22,
-          sexe: 'femme',
-          orientation: 'hetero',
-          localisation: 'Lyon, France',
-          photos: [],
-          description:
-            'Jeune femme énergique cherchant à rencontrer des personnes intéressantes. Amatrice de sport et de cinéma.',
-        },
-        premium: { isPremium: true },
-        isOnline: true,
-        lastActive: new Date().toISOString(),
-        country: 'france',
-        region: 'Lyon',
-        orientation: 'hetero',
-      },
-    ];
-
-    return predefinedUsers;
   }
 
   // Obtenir le nom du pays
@@ -294,102 +143,6 @@ class DirectoryManager {
     return orientations[orientationCode] || orientationCode;
   }
 
-  // Générer une description aléatoire
-  generateDescription(gender, age) {
-    const hobbies = [
-      'voyage',
-      'cuisine',
-      'sport',
-      'musique',
-      'cinéma',
-      'lecture',
-      'art',
-      'nature',
-    ];
-    const descriptions = {
-      homme: [
-        "Passionné et ouvert d'esprit.",
-        'Dynamique cherchant des rencontres authentiques.',
-        'Gentleman respectueux à la recherche de moments complices.',
-      ],
-      femme: [
-        'Élégante et sensuelle.',
-        'À la recherche de connexions profondes.',
-        'Indépendante appréciant les rencontres raffinées.',
-      ],
-      autre: [
-        'Ouverte et authentique.',
-        'Cherchant des rencontres basées sur le respect mutuel.',
-        'Personne chaleureuse valorisant la complicité.',
-      ],
-    };
-
-    const baseDesc =
-      descriptions[gender][
-        Math.floor(Math.random() * descriptions[gender].length)
-      ];
-    const hobby = hobbies[Math.floor(Math.random() * hobbies.length)];
-
-    return `${baseDesc} Passionné(e) de ${hobby}.`;
-  }
-
-  // Filtrer les utilisateurs selon les critères
-  filterUsers(users, filters) {
-    return users.filter(user => {
-      // Filtre par âge
-      if (filters.ageMin && user.profile.age < parseInt(filters.ageMin)) {
-        return false;
-      }
-      if (filters.ageMax && user.profile.age > parseInt(filters.ageMax)) {
-        return false;
-      }
-
-      // Filtre par genre
-      if (
-        filters.sexe &&
-        filters.sexe !== 'tous' &&
-        user.profile.sexe !== filters.sexe
-      ) {
-        return false;
-      }
-
-      // Filtre par orientation sexuelle
-      if (
-        filters.orientation &&
-        filters.orientation !== 'tous' &&
-        user.orientation !== filters.orientation
-      ) {
-        return false;
-      }
-
-      // Filtre par pays
-      if (
-        filters.country &&
-        filters.country !== 'tous' &&
-        user.country !== filters.country
-      ) {
-        return false;
-      }
-
-      // Filtre par région
-      if (
-        filters.region &&
-        !user.region.toLowerCase().includes(filters.region.toLowerCase())
-      ) {
-        return false;
-      }
-
-      return true;
-    });
-  }
-
-  // Paginer les utilisateurs
-  paginateUsers(users, page, limit) {
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    return users.slice(startIndex, endIndex);
-  }
-
   // Affichage des utilisateurs
   displayUsers(users) {
     const usersGrid = document.getElementById('usersGrid');
@@ -410,16 +163,15 @@ class DirectoryManager {
   // Création d'une carte utilisateur avec nouveau design
   createUserCard(user) {
     const defaultAvatar = this.getDefaultAvatar(user.profile.sexe);
-    const mainPhoto = user.profile.photos?.[0] || defaultAvatar;
-    const isOnline = user.isOnline ? 'online' : 'offline';
+    const mainPhoto = user.profile.photos?.[0]?.path || defaultAvatar;
+    const isOnline = new Date() - new Date(user.lastActive) < 15 * 60 * 1000;
     const premiumBadge = user.premium.isPremium
       ? '<span class="premium-badge">PREMIUM</span>'
       : '';
     const lastActive = this.formatLastActive(user.lastActive);
-    const orientationName = this.getOrientationName(user.orientation);
 
     // Nettoyer la description pour éviter les duplications
-    let cleanDescription = user.profile.description;
+    let cleanDescription = user.profile.bio || '';
     // Supprimer le nom du début de la description s'il y est répété
     if (cleanDescription.startsWith(user.profile.nom)) {
       cleanDescription = cleanDescription
@@ -440,43 +192,41 @@ class DirectoryManager {
         ? cleanDescription.substring(0, 100) + '...'
         : cleanDescription;
 
+    const readMoreButton =
+      cleanDescription.length > 100
+        ? '<button class="read-more-btn">Lire la suite</button>'
+        : '';
+
     return `
-            <div class="user-card" data-user-id="${user.id}">
-                <div class="user-card-header">
-                    <div class="user-photo">
-                        <img src="${mainPhoto}" alt="${user.profile.nom}" onerror="this.src='${defaultAvatar}'">
-                        <div class="user-status ${isOnline}"></div>
-                    </div>
-                    <div class="user-info">
-                        <h3 class="user-name">${user.profile.nom}</h3>
-                        <div class="user-details">
-                            <span class="user-age">${user.profile.age} ans</span>
-                            <span class="user-gender">${this.getGenderDisplayName(user.profile.sexe)}</span>
-                            <span class="user-orientation">${orientationName}</span>
-                            ${premiumBadge}
-                        </div>
-                        <p class="user-location">📍 ${user.profile.localisation}</p>
-                        <p class="user-activity">${lastActive}</p>
-                    </div>
-                </div>
-                <div class="user-description">
-                    <p class="description-text">${shortDescription}</p>
-                    ${
-                      cleanDescription.length > 100
-                        ? '<button class="read-more-btn" onclick="this.parentElement.querySelector(\'.description-text\').textContent = \'' +
-                          cleanDescription.replace(/'/g, "\\\\'") +
-                          "'; this.style.display='none'\">Lire la suite</button>"
-                        : ''
-                    }
-                </div>
-                <div class="user-card-actions">
-                    <button class="btn-secondary view-profile" data-user-id="${user.id}">Voir le profil</button>
-                    <button class="btn-primary send-message" data-user-id="${user.id}" ${!window.coolMeetApp?.currentUser?.premium?.isPremium ? 'disabled' : ''}>
-                        ${window.coolMeetApp?.currentUser?.premium?.isPremium ? 'Envoyer un message' : 'Premium requis'}
-                    </button>
-                </div>
+      <div class="user-card" data-user-id="${user.id}">
+        <div class="user-card-header">
+          <div class="user-photo">
+            <img src="${mainPhoto}" alt="${user.profile.nom}" onerror="this.src='${defaultAvatar}'">
+            <div class="user-status ${isOnline ? 'online' : 'offline'}"></div>
+          </div>
+          <div class="user-info">
+            <h3 class="user-name">${user.profile.nom}</h3>
+            <div class="user-details">
+              <span class="user-age">${user.profile.age} ans</span>
+              <span class="user-gender">${this.getGenderDisplayName(user.profile.sexe)}</span>
+              ${premiumBadge}
             </div>
-        `;
+            <p class="user-location">📍 ${user.profile.localisation}</p>
+            <p class="user-activity">${lastActive}</p>
+          </div>
+        </div>
+        <div class="user-description">
+          <p class="description-text">${shortDescription}</p>
+          ${readMoreButton}
+        </div>
+        <div class="user-card-actions">
+          <button class="btn-secondary view-profile" data-user-id="${user.id}">Voir le profil</button>
+          <button class="btn-primary send-message" data-user-id="${user.id}" ${!window.hotMeetApp?.currentUser?.premium?.isPremium ? 'disabled' : ''}>
+            ${window.hotMeetApp?.currentUser?.premium?.isPremium ? 'Envoyer un message' : 'Premium requis'}
+          </button>
+        </div>
+      </div>
+    `;
   }
 
   // Obtenir l'avatar par défaut selon le genre
@@ -515,15 +265,15 @@ class DirectoryManager {
       return 'En ligne maintenant';
     }
     if (diffMins < 60) {
-      return `En ligne il y a ${diffMins} min`;
+      return 'En ligne il y a ' + diffMins + ' min';
     }
     if (diffHours < 24) {
-      return `En ligne il y a ${diffHours} h`;
+      return 'En ligne il y a ' + diffHours + ' h';
     }
     if (diffDays < 7) {
-      return `En ligne il y a ${diffDays} j`;
+      return 'En ligne il y a ' + diffDays + ' j';
     }
-    return `Dernière connexion: ${lastActiveDate.toLocaleDateString('fr-FR')}`;
+    return 'Dernière connexion: ' + lastActiveDate.toLocaleDateString('fr-FR');
   }
 
   // Configuration des boutons de message
@@ -541,17 +291,30 @@ class DirectoryManager {
         this.viewUserProfile(userId);
       });
     });
+
+    // Gestion des boutons "Lire la suite"
+    document.querySelectorAll('.read-more-btn').forEach(button => {
+      button.addEventListener('click', e => {
+        const descriptionText =
+          e.target.parentElement.querySelector('.description-text');
+        const fullText =
+          descriptionText.getAttribute('data-full-text') ||
+          descriptionText.textContent;
+        descriptionText.textContent = fullText;
+        e.target.style.display = 'none';
+      });
+    });
   }
 
   // Envoi d'un message
   async sendMessage(userId) {
-    if (!window.coolMeetApp?.currentUser) {
+    if (!window.hotMeetApp?.currentUser) {
       alert('Veuillez vous connecter pour envoyer un message');
       window.location.href = '/auth';
       return;
     }
 
-    if (!window.coolMeetApp.currentUser.premium.isPremium) {
+    if (!window.hotMeetApp.currentUser.premium.isPremium) {
       alert('Vous devez être membre premium pour envoyer des messages');
       window.location.href = '/premium';
       return;
@@ -567,7 +330,7 @@ class DirectoryManager {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('hotmeet_token')}`,
+          Authorization: 'Bearer ' + localStorage.getItem('hotmeet_token'),
         },
         body: JSON.stringify({
           toUserId: userId,
@@ -581,11 +344,11 @@ class DirectoryManager {
       } else {
         const errorData = await response.json();
         throw new Error(
-          errorData.error?.message || "Erreur lors de l'envoi du message"
+          errorData.error?.message || 'Erreur lors de l\\' + 'envoi du message'
         );
       }
     } catch (error) {
-      console.error("Erreur lors de l'envoi du message:", error);
+      console.error('Erreur lors de l\\' + 'envoi du message:', error);
       alert('Erreur: ' + error.message);
     }
   }
@@ -597,118 +360,87 @@ class DirectoryManager {
   }
 
   // Afficher une modale avec les détails du profil
-  showProfileModal(userId) {
-    // Trouver l'utilisateur dans la liste actuelle
-    const user = this.findUserById(userId);
-    if (!user) {
-      alert('Utilisateur non trouvé');
-      return;
+  async showProfileModal(userId) {
+    try {
+      const response = await fetch(`/api/users/${userId}`);
+      const data = await response.json();
+
+      if (!data.success) {
+        alert('Utilisateur non trouvé');
+        return;
+      }
+
+      const user = data.user;
+      const modalContent = this.createProfileModalContent(user);
+      this.displayModal(modalContent);
+    } catch (error) {
+      console.error('Erreur lors du chargement du profil:', error);
+      alert('Erreur lors du chargement du profil');
     }
-
-    // Créer le contenu de la modale
-    const modalContent = this.createProfileModalContent(user);
-
-    // Afficher la modale
-    this.displayModal(modalContent, user);
-  }
-
-  // Trouver un utilisateur par son ID
-  findUserById(userId) {
-    // Cette fonction devrait normalement faire une requête API
-    // Pour l'instant, nous allons simuler la recherche
-    const demoUsers = this.generateDemoUsers();
-    return demoUsers.find(user => user.id === userId);
   }
 
   // Créer le contenu de la modale de profil
   createProfileModalContent(user) {
     const mainPhoto =
-      user.profile.photos?.[0] || '/images/avatar-placeholder.png';
-    const orientationName = this.getOrientationName(user.orientation);
-    const countryName = this.getCountryName(user.country);
+      user.profile.photos?.[0]?.path ||
+      this.getDefaultAvatar(user.profile.sexe);
+    const isOnline =
+      new Date() - new Date(user.stats.lastActive) < 15 * 60 * 1000;
+
+    const bioSection = user.profile.bio
+      ? `
+      <div class="profile-bio">
+        <h4>À propos</h4>
+        <p>${user.profile.bio}</p>
+      </div>
+    `
+      : '';
+
+    const practicesSection =
+      user.profile.pratiques && user.profile.pratiques.length > 0
+        ? `
+      <div class="profile-practices">
+        <h4>Pratiques</h4>
+        <div class="practices-list">
+          ${user.profile.pratiques.map(practice => `<span class="practice-tag">${practice}</span>`).join('')}
+        </div>
+      </div>
+    `
+        : '';
 
     return `
-            <div class="profile-modal" style="
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.8);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 2000;
-            ">
-                <div class="modal-content" style="
-                    background: white;
-                    padding: 2rem;
-                    border-radius: 10px;
-                    max-width: 500px;
-                    width: 90%;
-                    max-height: 90vh;
-                    overflow-y: auto;
-                ">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h2 style="margin: 0;">Profil de ${user.profile.nom}</h2>
-                        <button onclick="this.closest('.profile-modal').remove()" style="
-                            background: none;
-                            border: none;
-                            font-size: 1.5rem;
-                            cursor: pointer;
-                        ">×</button>
-                    </div>
-                    
-                    <div style="text-align: center; margin-bottom: 1.5rem;">
-                        <img src="${mainPhoto}" alt="${user.profile.nom}" style="
-                            width: 150px;
-                            height: 150px;
-                            border-radius: 50%;
-                            object-fit: cover;
-                            margin-bottom: 1rem;
-                        " onerror="this.src='/images/avatar-placeholder.png'">
-                        
-                        <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 0.5rem;">
-                            ${user.profile.nom}, ${user.profile.age} ans
-                        </div>
-                        <div style="color: #666; margin-bottom: 0.5rem;">
-                            ${user.profile.sexe.charAt(0).toUpperCase() + user.profile.sexe.slice(1)} • ${orientationName}
-                        </div>
-                        <div style="color: #666; margin-bottom: 1rem;">
-                            📍 ${user.profile.localisation}
-                        </div>
-                    </div>
-                    
-                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 5px; margin-bottom: 1.5rem;">
-                        <h3 style="margin-top: 0;">À propos</h3>
-                        <p style="margin: 0; line-height: 1.5;">${user.profile.description}</p>
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <div style="text-align: center;">
-                            <div style="font-weight: bold; color: #666;">Pays</div>
-                            <div>${countryName}</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-weight: bold; color: #666;">Région</div>
-                            <div>${user.region}</div>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-top: 1.5rem; text-align: center;">
-                        <button class="btn-primary" onclick="
-                            alert('Fonctionnalité de messagerie en cours de développement');
-                            this.closest('.profile-modal').remove();
-                        " style="margin-right: 0.5rem;">
-                            Envoyer un message
-                        </button>
-                        <button class="btn-secondary" onclick="this.closest('.profile-modal').remove()">
-                            Fermer
-                        </button>
-                    </div>
-                </div>
+      <div class="profile-modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Profil de ${user.profile.nom}</h2>
+            <button class="close-modal">×</button>
+          </div>
+          
+          <div class="modal-body">
+            <div class="profile-photo-section">
+              <img src="${mainPhoto}" alt="${user.profile.nom}" onerror="this.src='${this.getDefaultAvatar(user.profile.sexe)}'">
+              <div class="profile-status ${isOnline ? 'online' : 'offline'}">${isOnline ? '🟢 En ligne' : '⚫ Hors ligne'}</div>
             </div>
-        `;
+            
+            <div class="profile-info">
+              <h3>${user.profile.nom}, ${user.profile.age} ans</h3>
+              <p class="profile-gender">${this.getGenderDisplayName(user.profile.sexe)}</p>
+              <p class="profile-location">📍 ${user.profile.localisation}</p>
+              
+              ${bioSection}
+              ${practicesSection}
+            </div>
+          </div>
+          
+          <div class="modal-actions">
+            <button class="btn-primary send-message-modal" data-user-id="${user.id}">
+              Envoyer un message
+            </button>
+            <button class="btn-secondary close-modal">Fermer</button>
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   // Afficher la modale
@@ -717,34 +449,21 @@ class DirectoryManager {
     modal.innerHTML = content;
     document.body.appendChild(modal);
 
-    // Attacher les événements aux boutons après l'insertion du HTML
-    setTimeout(() => {
-      // Bouton de fermeture (×)
-      const closeButton = modal.querySelector('button[onclick*="closest"]');
-      if (closeButton) {
-        closeButton.onclick = function () {
-          modal.remove();
-        };
-      }
+    // Attacher les événements
+    modal.querySelectorAll('.close-modal').forEach(button => {
+      button.addEventListener('click', () => {
+        modal.remove();
+      });
+    });
 
-      // Bouton "Envoyer un message"
-      const messageButton = modal.querySelector('.btn-primary');
-      if (messageButton) {
-        messageButton.onclick = function () {
-          // Ouvrir une modale de demande de chat
-          this.openChatRequestModal(user);
-          modal.remove();
-        };
-      }
-
-      // Bouton "Fermer"
-      const closeModalButton = modal.querySelector('.btn-secondary');
-      if (closeModalButton) {
-        closeModalButton.onclick = function () {
-          modal.remove();
-        };
-      }
-    }, 100);
+    modal
+      .querySelector('.send-message-modal')
+      ?.addEventListener('click', () => {
+        const userId = modal.querySelector('.send-message-modal').dataset
+          .userId;
+        modal.remove();
+        this.sendMessage(userId);
+      });
 
     // Fermer la modale en cliquant à l'extérieur
     modal.addEventListener('click', e => {
@@ -763,105 +482,6 @@ class DirectoryManager {
     document.addEventListener('keydown', handleEscape);
   }
 
-  // Ouvrir une modale de demande de chat
-  openChatRequestModal(user) {
-    const modalContent = this.createChatRequestModalContent(user);
-    this.displayModal(modalContent);
-  }
-
-  // Créer le contenu de la modale de demande de chat
-  createChatRequestModalContent(user) {
-    const mainPhoto =
-      user.profile.photos?.[0] || '/images/avatar-placeholder.png';
-
-    return `
-            <div class="chat-request-modal" style="
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.8);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 2000;
-            ">
-                <div class="modal-content" style="
-                    background: white;
-                    padding: 2rem;
-                    border-radius: 10px;
-                    max-width: 500px;
-                    width: 90%;
-                    max-height: 90vh;
-                    overflow-y: auto;
-                ">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h2 style="margin: 0;">Demander à chatter avec ${user.profile.nom}</h2>
-                        <button onclick="this.closest('.chat-request-modal').remove()" style="
-                            background: none;
-                            border: none;
-                            font-size: 1.5rem;
-                            cursor: pointer;
-                        ">×</button>
-                    </div>
-                    
-                    <div style="text-align: center; margin-bottom: 1.5rem;">
-                        <img src="${mainPhoto}" alt="${user.profile.nom}" style="
-                            width: 100px;
-                            height: 100px;
-                            border-radius: 50%;
-                            object-fit: cover;
-                            margin-bottom: 1rem;
-                        " onerror="this.src='/images/avatar-placeholder.png'">
-                        
-                        <div style="font-size: 1.1rem; font-weight: bold; margin-bottom: 0.5rem;">
-                            ${user.profile.nom}, ${user.profile.age} ans
-                        </div>
-                        <div style="color: #666; margin-bottom: 1rem;">
-                            ${user.profile.sexe.charAt(0).toUpperCase() + user.profile.sexe.slice(1)} • ${this.getOrientationName(user.orientation)}
-                        </div>
-                    </div>
-                    
-                    <div style="margin-bottom: 1.5rem;">
-                        <label for="chatMessage" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                            Votre message d'introduction :
-                        </label>
-                        <textarea id="chatMessage" placeholder="Présentez-vous brièvement..." style="
-                            width: 100%;
-                            height: 100px;
-                            padding: 0.75rem;
-                            border: 2px solid #ddd;
-                            border-radius: 5px;
-                            font-family: inherit;
-                            resize: vertical;
-                        "></textarea>
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                        <div style="text-align: center;">
-                            <div style="font-weight: bold; color: #666;">Statut</div>
-                            <div>${user.isOnline ? '🟢 En ligne' : '⚫ Hors ligne'}</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-weight: bold; color: #666;">Dernière activité</div>
-                            <div>${this.formatLastActive(user.lastActive)}</div>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-top: 1.5rem; text-align: center;">
-                        <button class="btn-primary" id="sendRequestBtn" style="margin-right: 0.5rem;">
-                            Envoyer la demande
-                        </button>
-                        <button class="btn-secondary" id="cancelRequestBtn">
-                            Annuler
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-  }
-
   // Mise à jour de la pagination
   updatePagination(pagination) {
     const paginationContainer = document.getElementById('pagination');
@@ -878,21 +498,32 @@ class DirectoryManager {
 
     // Bouton précédent
     if (pagination.page > 1) {
-      paginationHTML += `<button class="pagination-btn" data-page="${pagination.page - 1}">← Précédent</button>`;
+      paginationHTML +=
+        '<button class="pagination-btn" data-page="' +
+        (pagination.page - 1) +
+        '">← Précédent</button>';
     }
 
     // Pages
     for (let i = 1; i <= pagination.pages; i++) {
       if (i === pagination.page) {
-        paginationHTML += `<span class="pagination-current">${i}</span>`;
+        paginationHTML += '<span class="pagination-current">' + i + '</span>';
       } else if (i >= pagination.page - 2 && i <= pagination.page + 2) {
-        paginationHTML += `<button class="pagination-btn" data-page="${i}">${i}</button>`;
+        paginationHTML +=
+          '<button class="pagination-btn" data-page="' +
+          i +
+          '">' +
+          i +
+          '</button>';
       }
     }
 
     // Bouton suivant
     if (pagination.page < pagination.pages) {
-      paginationHTML += `<button class="pagination-btn" data-page="${pagination.page + 1}">Suivant →</button>`;
+      paginationHTML +=
+        '<button class="pagination-btn" data-page="' +
+        (pagination.page + 1) +
+        '">Suivant →</button>';
     }
 
     paginationHTML += '</div>';
@@ -924,7 +555,7 @@ class DirectoryManager {
 
   // Mise à jour de l'UI en fonction de l'authentification
   updateUIForAuth() {
-    if (window.coolMeetApp?.currentUser) {
+    if (window.hotMeetApp?.currentUser) {
       // Cacher les boutons de connexion/inscription si l'utilisateur est connecté
       const loginBtn = document.getElementById('loginBtn');
       const registerBtn = document.getElementById('registerBtn');

@@ -9,6 +9,30 @@
     <link rel="stylesheet" href="/css/animations.css" />
   </head>
   <body>
+    <!-- Modal de vérification d'âge -->
+    <div id="ageVerificationModal" class="age-modal">
+      <div class="age-modal-content">
+        <div class="age-modal-header">
+          <h2>Vérification d'âge requise</h2>
+        </div>
+        <div class="age-modal-body">
+          <p>Ce site est réservé aux adultes de 18 ans et plus.</p>
+          <p>
+            En cliquant sur "J'ai plus de 18 ans", vous confirmez que vous êtes
+            majeur et acceptez nos conditions d'utilisation.
+          </p>
+          <div class="age-verification-actions">
+            <button class="btn-primary" id="confirmAgeBtn">
+              J'ai plus de 18 ans
+            </button>
+            <button class="btn-secondary" id="exitSiteBtn">
+              Quitter le site
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Header -->
     <header class="header">
       <nav class="nav">
@@ -266,5 +290,133 @@
 
     <!-- JavaScript pour l'authentification -->
     <script src="/js/auth.js"></script>
+
+    <!-- Script pour la vérification d'âge -->
+    <script>
+      // Vérification d'âge
+      document.addEventListener('DOMContentLoaded', function () {
+        const ageModal = document.getElementById('ageVerificationModal');
+        const confirmAgeBtn = document.getElementById('confirmAgeBtn');
+        const exitSiteBtn = document.getElementById('exitSiteBtn');
+
+        // Vérifier si l'âge a déjà été confirmé
+        if (!localStorage.getItem('ageVerified')) {
+          // Afficher la modale après un court délai
+          setTimeout(() => {
+            ageModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+          }, 500);
+        }
+
+        // Confirmer l'âge
+        confirmAgeBtn.addEventListener('click', function () {
+          localStorage.setItem('ageVerified', 'true');
+          ageModal.style.display = 'none';
+          document.body.style.overflow = 'auto';
+        });
+
+        // Quitter le site
+        exitSiteBtn.addEventListener('click', function () {
+          window.location.href = 'https://www.google.com';
+        });
+
+        // Empêcher la fermeture de la modale
+        ageModal.addEventListener('click', function (e) {
+          if (e.target === ageModal) {
+            return false;
+          }
+        });
+      });
+    </script>
+
+    <style>
+      /* Styles pour la modale de vérification d'âge */
+      .age-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .age-modal-content {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .age-modal-header h2 {
+        color: #8a2be2;
+        margin-bottom: 1rem;
+        font-size: 1.8rem;
+      }
+
+      .age-modal-body p {
+        margin-bottom: 1rem;
+        line-height: 1.6;
+        color: #333;
+      }
+
+      .age-verification-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+      }
+
+      .age-verification-actions .btn-primary {
+        background: #8a2be2;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      .age-verification-actions .btn-primary:hover {
+        background: #7b1fa2;
+      }
+
+      .age-verification-actions .btn-secondary {
+        background: #6c757d;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      .age-verification-actions .btn-secondary:hover {
+        background: #545b62;
+      }
+
+      @media (max-width: 768px) {
+        .age-modal-content {
+          padding: 1.5rem;
+        }
+
+        .age-verification-actions {
+          flex-direction: column;
+        }
+
+        .age-verification-actions button {
+          width: 100%;
+        }
+      }
+    </style>
   </body>
 </html>

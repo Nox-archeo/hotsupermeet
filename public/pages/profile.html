@@ -274,15 +274,43 @@
           e.preventDefault();
 
           const formData = {
-            nom: document.getElementById('profileNom').value,
-            age: parseInt(document.getElementById('profileAge').value),
-            sexe: document.getElementById('profileSexe').value,
-            localisation: document.getElementById('profileLocalisation').value,
-            bio: document.getElementById('profileBio').value,
+            profile: {
+              nom: document.getElementById('profileNom').value,
+              age: parseInt(document.getElementById('profileAge').value),
+              sexe: document.getElementById('profileSexe').value,
+              localisation: document.getElementById('profileLocalisation')
+                .value,
+              bio: document.getElementById('profileBio').value,
+            },
           };
+
+          // Validation des données
+          if (
+            !formData.profile.nom ||
+            !formData.profile.age ||
+            !formData.profile.sexe ||
+            !formData.profile.localisation
+          ) {
+            showMessage(
+              'Veuillez remplir tous les champs obligatoires',
+              'error'
+            );
+            return;
+          }
+
+          if (formData.profile.age < 18) {
+            showMessage('Vous devez avoir au moins 18 ans', 'error');
+            return;
+          }
 
           try {
             const token = localStorage.getItem('hotmeet_token');
+            if (!token) {
+              showMessage('Veuillez vous connecter', 'error');
+              window.location.href = '/auth';
+              return;
+            }
+
             const response = await fetch('/api/users/profile', {
               method: 'PUT',
               headers: {
@@ -296,15 +324,21 @@
 
             if (result.success) {
               showMessage('Profil mis à jour avec succès!', 'success');
+              // Mettre à jour l'affichage
+              document.getElementById('profileName').textContent =
+                formData.profile.nom;
+              document.getElementById('profileDetails').textContent =
+                `${formData.profile.age} ans • ${formData.profile.localisation}`;
             } else {
               showMessage(
-                'Erreur lors de la mise à jour: ' + result.error.message,
+                'Erreur lors de la mise à jour: ' +
+                  (result.error?.message || 'Erreur inconnue'),
                 'error'
               );
             }
           } catch (error) {
             console.error('Erreur:', error);
-            showMessage('Erreur de connexion', 'error');
+            showMessage('Erreur de connexion au serveur', 'error');
           }
         });
 

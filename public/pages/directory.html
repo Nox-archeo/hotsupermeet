@@ -4,22 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Annuaire - HotMeet</title>
-    <meta
-      name="description"
-      content="Parcourez l'annuaire des membres HotMeet. Trouvez des personnes partageant vos intérêts pour des rencontres authentiques."
-    />
-
-    <!-- Styles -->
     <link rel="stylesheet" href="/css/style.css?v=6" />
     <link rel="stylesheet" href="/css/pages.css?v=1" />
-    <link rel="stylesheet" href="/css/responsive.css" />
     <link rel="stylesheet" href="/css/animations.css" />
-
-    <!-- Fonts -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap"
-      rel="stylesheet"
-    />
   </head>
   <body>
     <!-- Header -->
@@ -44,7 +31,7 @@
           <a href="/profile" class="nav-link">Mon Profil</a>
         </div>
 
-        <div class="nav-actions" id="navActions">
+        <div class="nav-actions">
           <button class="btn-secondary" id="loginBtn">Connexion</button>
           <button class="btn-primary" id="registerBtn">Inscription</button>
           <div class="mobile-menu-toggle" id="mobileMenuToggle">
@@ -59,171 +46,99 @@
     <!-- Main Content -->
     <main class="pages-container">
       <div class="container">
-        <!-- Page Header -->
-        <div class="page-header">
-          <h1>Annuaire des Membres</h1>
-          <p>Découvrez des personnes authentiques partageant vos intérêts</p>
-        </div>
-
-        <!-- Filters Section -->
-        <section class="filters-section">
-          <div class="filters-header">
-            <h2>Filtres de Recherche</h2>
-            <button class="btn-secondary" id="resetFilters">
-              Réinitialiser
-            </button>
+        <!-- Hero Section -->
+        <section class="hero" style="min-height: 40vh; padding-top: 100px">
+          <div class="hero-content">
+            <div class="hero-text">
+              <h1 class="hero-title">Annuaire des membres</h1>
+              <h2 class="hero-subtitle">
+                Découvrez les profils de notre communauté
+              </h2>
+              <p class="hero-description">
+                Parcourez les profils authentiques de nos membres et trouvez des
+                personnes partageant vos intérêts
+              </p>
+            </div>
           </div>
+        </section>
 
-          <form id="searchForm" class="filters-form">
-            <div class="filter-group">
-              <label for="ageRange">Âge</label>
-              <div class="range-inputs">
+        <!-- Filtres de recherche -->
+        <section class="filters-section">
+          <div class="filters-card">
+            <h3>Filtrer les résultats</h3>
+            <form id="filtersForm" class="filters-form">
+              <div class="filter-group">
+                <label for="ageMin">Âge minimum</label>
                 <input
                   type="number"
                   id="ageMin"
                   name="ageMin"
-                  placeholder="18"
                   min="18"
                   max="100"
+                  placeholder="18"
                 />
-                <span>à</span>
+              </div>
+              <div class="filter-group">
+                <label for="ageMax">Âge maximum</label>
                 <input
                   type="number"
                   id="ageMax"
                   name="ageMax"
-                  placeholder="100"
                   min="18"
                   max="100"
+                  placeholder="100"
                 />
               </div>
-            </div>
-
-            <div class="filter-group">
-              <label for="sexe">Sexe</label>
-              <select id="sexe" name="sexe">
-                <option value="tous">Tous</option>
-                <option value="homme">Homme</option>
-                <option value="femme">Femme</option>
-                <option value="autre">Autre</option>
-              </select>
-            </div>
-
-            <div class="filter-group">
-              <label for="country">Pays</label>
-              <select
-                id="country"
-                name="country"
-                style="
-                  width: 100%;
-                  padding: 0.75rem;
-                  border: 2px solid var(--border-color);
-                  border-radius: var(--radius);
-                "
-              >
-                <option value="tous">Tous les pays</option>
-                <option value="france">France</option>
-                <option value="suisse">Suisse</option>
-                <option value="belgique">Belgique</option>
-                <option value="canada">Canada</option>
-                <option value="espagne">Espagne</option>
-                <option value="italie">Italie</option>
-                <option value="allemagne">Allemagne</option>
-                <option value="royaume-uni">Royaume-Uni</option>
-                <option value="etats-unis">États-Unis</option>
-                <option value="bresil">Brésil</option>
-                <option value="japon">Japon</option>
-                <option value="australie">Australie</option>
-                <option value="autre">Autre pays</option>
-              </select>
-            </div>
-
-            <div class="filter-group">
-              <label for="region">Région/Ville</label>
-              <input
-                type="text"
-                id="region"
-                name="region"
-                placeholder="Région ou ville (ex: Paris, Genève)"
-                list="regionsList"
-                style="
-                  width: 100%;
-                  padding: 0.75rem;
-                  border: 2px solid var(--border-color);
-                  border-radius: var(--radius);
-                "
-              />
-              <datalist id="regionsList">
-                <option value="Paris"></option>
-                <option value="Lyon"></option>
-                <option value="Marseille"></option>
-                <option value="Genève"></option>
-                <option value="Zurich"></option>
-                <option value="Bruxelles"></option>
-                <option value="Montréal"></option>
-                <option value="Toronto"></option>
-                <option value="Madrid"></option>
-                <option value="Barcelone"></option>
-                <option value="Rome"></option>
-                <option value="Milan"></option>
-                <option value="Berlin"></option>
-                <option value="Munich"></option>
-                <option value="Londres"></option>
-                <option value="New York"></option>
-                <option value="Los Angeles"></option>
-                <option value="Tokyo"></option>
-                <option value="Sydney"></option>
-              </datalist>
-            </div>
-
-            <div class="filter-group">
-              <label for="orientation">Orientation sexuelle</label>
-              <select
-                id="orientation"
-                name="orientation"
-                style="
-                  width: 100%;
-                  padding: 0.75rem;
-                  border: 2px solid var(--border-color);
-                  border-radius: var(--radius);
-                "
-              >
-                <option value="tous">Toutes les orientations</option>
-                <option value="hetero">Hétérosexuel(le)</option>
-                <option value="gay">Gay</option>
-                <option value="lesbienne">Lesbienne</option>
-                <option value="bi">Bisexuel(le)</option>
-                <option value="trans">Transgenre</option>
-                <option value="queer">Queer</option>
-                <option value="autre">Autre</option>
-              </select>
-            </div>
-
-            <button type="submit" class="btn-primary">Rechercher</button>
-          </form>
+              <div class="filter-group">
+                <label for="sexe">Genre</label>
+                <select id="sexe" name="sexe">
+                  <option value="">Tous</option>
+                  <option value="homme">Homme</option>
+                  <option value="femme">Femme</option>
+                  <option value="autre">Autre</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label for="localisation">Localisation</label>
+                <input
+                  type="text"
+                  id="localisation"
+                  name="localisation"
+                  placeholder="Ville, région"
+                />
+              </div>
+              <div class="filter-actions">
+                <button type="submit" class="btn-primary">
+                  Appliquer les filtres
+                </button>
+                <button type="button" id="resetFilters" class="btn-secondary">
+                  Réinitialiser
+                </button>
+              </div>
+            </form>
+          </div>
         </section>
 
-        <!-- Results Section -->
+        <!-- Résultats -->
         <section class="results-section">
           <div class="results-header">
-            <h2 id="resultsCount">
-              Membres trouvés: <span class="count">0</span>
-            </h2>
+            <h3 id="resultsCount">Chargement des profils...</h3>
             <div class="sort-options">
+              <label for="sortBy">Trier par:</label>
               <select id="sortBy">
                 <option value="lastActive">Dernière activité</option>
                 <option value="age">Âge</option>
-                <option value="premium">Premium</option>
+                <option value="name">Nom</option>
               </select>
             </div>
           </div>
 
-          <div id="usersGrid" class="users-grid">
-            <!-- Les utilisateurs seront chargés ici par JavaScript -->
-            <div class="loading">Chargement des membres...</div>
+          <div class="profiles-grid" id="profilesGrid">
+            <!-- Les profils seront chargés ici dynamiquement -->
           </div>
 
-          <div id="pagination" class="pagination">
-            <!-- La pagination sera générée par JavaScript -->
+          <div class="pagination" id="pagination">
+            <!-- La pagination sera générée ici -->
           </div>
         </section>
       </div>
@@ -272,12 +187,436 @@
             &copy; 2024 HotMeet. Tous droits réservés. Réservé aux adultes de 18
             ans et plus.
           </p>
+          <p><strong>Vérification d'âge requise</strong></p>
         </div>
       </div>
     </footer>
 
-    <!-- JavaScript -->
+    <!-- JavaScript principal -->
     <script src="/js/app.js"></script>
-    <script src="/js/directory.js"></script>
+
+    <!-- JavaScript pour l'annuaire -->
+    <script>
+      class DirectoryPage {
+        constructor() {
+          this.currentPage = 1;
+          this.limit = 12;
+          this.filters = {};
+          this.sortBy = 'lastActive';
+          this.init();
+        }
+
+        init() {
+          this.setupEventListeners();
+          this.loadUsers();
+        }
+
+        setupEventListeners() {
+          // Formulaire de filtres
+          document
+            .getElementById('filtersForm')
+            .addEventListener('submit', e => {
+              e.preventDefault();
+              this.applyFilters();
+            });
+
+          // Réinitialisation des filtres
+          document
+            .getElementById('resetFilters')
+            .addEventListener('click', () => {
+              this.resetFilters();
+            });
+
+          // Tri
+          document.getElementById('sortBy').addEventListener('change', e => {
+            this.sortBy = e.target.value;
+            this.loadUsers();
+          });
+        }
+
+        applyFilters() {
+          const formData = new FormData(document.getElementById('filtersForm'));
+          this.filters = {
+            ageMin: formData.get('ageMin') || '',
+            ageMax: formData.get('ageMax') || '',
+            sexe: formData.get('sexe') || '',
+            localisation: formData.get('localisation') || '',
+          };
+          this.currentPage = 1;
+          this.loadUsers();
+        }
+
+        resetFilters() {
+          document.getElementById('filtersForm').reset();
+          this.filters = {};
+          this.currentPage = 1;
+          this.loadUsers();
+        }
+
+        async loadUsers() {
+          try {
+            const params = new URLSearchParams({
+              page: this.currentPage,
+              limit: this.limit,
+              ...this.filters,
+            });
+
+            const response = await fetch(`/api/users?${params}`);
+            const result = await response.json();
+
+            if (result.success) {
+              this.displayUsers(result.users);
+              this.updatePagination(result.pagination);
+              this.updateResultsCount(result.pagination.total);
+            } else {
+              this.showError('Erreur lors du chargement des profils');
+            }
+          } catch (error) {
+            console.error('Erreur:', error);
+            this.showError('Erreur de connexion');
+          }
+        }
+
+        displayUsers(users) {
+          const grid = document.getElementById('profilesGrid');
+
+          if (users.length === 0) {
+            grid.innerHTML = `
+              <div class="no-results">
+                <h4>Aucun profil trouvé</h4>
+                <p>Essayez de modifier vos critères de recherche</p>
+              </div>
+            `;
+            return;
+          }
+
+          grid.innerHTML = users
+            .map(
+              user => `
+            <div class="profile-card">
+              <div class="profile-image">
+                <img src="/images/default-avatar.jpg" alt="${user.profile.nom}">
+                ${user.premium.isPremium ? '<span class="premium-badge">PREMIUM</span>' : ''}
+                ${user.isOnline ? '<span class="online-indicator">🟢 En ligne</span>' : ''}
+              </div>
+              <div class="profile-info">
+                <h4>${user.profile.nom}</h4>
+                <p class="profile-age">${user.profile.age} ans</p>
+                <p class="profile-location">${user.profile.localisation}</p>
+                <p class="profile-gender">${this.getGenderLabel(user.profile.sexe)}</p>
+                <div class="profile-actions">
+                  <button class="btn-primary" onclick="directoryPage.viewProfile('${user.id}')">
+                    Voir le profil
+                  </button>
+                </div>
+              </div>
+            </div>
+          `
+            )
+            .join('');
+        }
+
+        getGenderLabel(gender) {
+          const labels = {
+            homme: 'Homme',
+            femme: 'Femme',
+            autre: 'Autre',
+          };
+          return labels[gender] || gender;
+        }
+
+        updatePagination(pagination) {
+          const paginationDiv = document.getElementById('pagination');
+          const { page, pages, total } = pagination;
+
+          if (pages <= 1) {
+            paginationDiv.innerHTML = '';
+            return;
+          }
+
+          let html = '<div class="pagination-controls">';
+
+          // Bouton précédent
+          if (page > 1) {
+            html += `<button class="pagination-btn" onclick="directoryPage.goToPage(${page - 1})">← Précédent</button>`;
+          }
+
+          // Pages
+          for (
+            let i = Math.max(1, page - 2);
+            i <= Math.min(pages, page + 2);
+            i++
+          ) {
+            html += `<button class="pagination-btn ${i === page ? 'active' : ''}" onclick="directoryPage.goToPage(${i})">${i}</button>`;
+          }
+
+          // Bouton suivant
+          if (page < pages) {
+            html += `<button class="pagination-btn" onclick="directoryPage.goToPage(${page + 1})">Suivant →</button>`;
+          }
+
+          html += '</div>';
+          paginationDiv.innerHTML = html;
+        }
+
+        updateResultsCount(total) {
+          document.getElementById('resultsCount').textContent =
+            `${total} profil${total > 1 ? 's' : ''} trouvé${total > 1 ? 's' : ''}`;
+        }
+
+        goToPage(page) {
+          this.currentPage = page;
+          this.loadUsers();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        viewProfile(userId) {
+          window.location.href = `/profile-view?id=${userId}`;
+        }
+
+        showError(message) {
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'error-message';
+          errorDiv.textContent = message;
+          errorDiv.style.cssText = `
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+            text-align: center;
+          `;
+
+          const resultsSection = document.querySelector('.results-section');
+          resultsSection.insertBefore(errorDiv, resultsSection.firstChild);
+
+          setTimeout(() => errorDiv.remove(), 5000);
+        }
+      }
+
+      // Initialisation
+      document.addEventListener('DOMContentLoaded', () => {
+        window.directoryPage = new DirectoryPage();
+      });
+    </script>
+
+    <style>
+      .pages-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding-top: 70px;
+      }
+
+      .filters-section {
+        margin: 2rem 0;
+      }
+
+      .filters-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .filters-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        align-items: end;
+      }
+
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .filter-group label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #2c3e50;
+      }
+
+      .filter-group input,
+      .filter-group select {
+        padding: 0.75rem;
+        border: 2px solid #e1e8ed;
+        border-radius: 8px;
+        font-size: 1rem;
+      }
+
+      .filter-actions {
+        display: flex;
+        gap: 1rem;
+        align-items: end;
+      }
+
+      .results-section {
+        margin: 2rem 0;
+      }
+
+      .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        color: white;
+      }
+
+      .sort-options {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .sort-options select {
+        padding: 0.5rem;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+      }
+
+      .profiles-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .profile-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s;
+      }
+
+      .profile-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .profile-image {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+      }
+
+      .profile-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .premium-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #ffd700;
+        color: #000;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: bold;
+      }
+
+      .online-indicator {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: #4caf50;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: bold;
+      }
+
+      .profile-info {
+        padding: 1.5rem;
+      }
+
+      .profile-info h4 {
+        margin: 0 0 0.5rem 0;
+        color: #2c3e50;
+        font-size: 1.2rem;
+      }
+
+      .profile-age,
+      .profile-location,
+      .profile-gender {
+        margin: 0.25rem 0;
+        color: #7f8c8d;
+      }
+
+      .profile-actions {
+        margin-top: 1rem;
+      }
+
+      .no-results {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 3rem;
+        color: white;
+      }
+
+      .no-results h4 {
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+      }
+
+      .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+      }
+
+      .pagination-controls {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+
+      .pagination-btn {
+        padding: 0.5rem 1rem;
+        border: 1px solid #ddd;
+        background: white;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .pagination-btn:hover {
+        background: #f8f9fa;
+      }
+
+      .pagination-btn.active {
+        background: #8a2be2;
+        color: white;
+        border-color: #8a2be2;
+      }
+
+      @media (max-width: 768px) {
+        .filters-form {
+          grid-template-columns: 1fr;
+        }
+
+        .filter-actions {
+          flex-direction: column;
+        }
+
+        .profiles-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .results-header {
+          flex-direction: column;
+          gap: 1rem;
+          align-items: flex-start;
+        }
+
+        .pagination-controls {
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+      }
+    </style>
   </body>
 </html>

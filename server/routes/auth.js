@@ -5,6 +5,8 @@ const {
   login,
   getMe,
   verifyAge,
+  checkAgeVerified,
+  confirmAge,
   logout,
 } = require('../controllers/authController');
 const { auth, updateLastActivity } = require('../middleware/auth');
@@ -39,13 +41,15 @@ const ageValidation = [
   body('birthDate').isISO8601().withMessage('Date de naissance invalide'),
   body('acceptedTerms')
     .isBoolean()
-    .withMessage("L'acceptation des conditions doit être un booléen"),
+    .withMessage('L\\' + 'acceptation des conditions doit être un booléen'),
 ];
 
 // Routes publiques
 router.post('/register', registerValidation, register);
 router.post('/login', loginValidation, login);
 router.post('/verify-age', ageValidation, verifyAge);
+router.get('/age-verified', checkAgeVerified);
+router.post('/confirm-age', confirmAge);
 
 // Routes protégées
 router.get('/me', auth, updateLastActivity, getMe);

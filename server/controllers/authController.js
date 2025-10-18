@@ -254,6 +254,84 @@ const verifyAge = async (req, res) => {
   }
 };
 
+// Vérifier si l'âge a été confirmé (via session)
+const checkAgeVerified = async (req, res) => {
+  try {
+    // Utiliser la session pour vérifier si l'âge a été confirmé
+    // Si l'utilisateur est connecté, on peut vérifier dans son profil
+    if (req.user) {
+      // L'utilisateur est connecté, on peut vérifier son âge dans la base de données
+      const user = await User.findById(req.user._id);
+      if (user && user.profile.age >= 18) {
+        return res.json({
+          ageVerified: true,
+          message: 'Âge vérifié via profil utilisateur',
+        });
+      }
+    }
+
+    // Vérifier la session (si on utilise des sessions express)
+    if (req.session && req.session.ageVerified) {
+      return res.json({
+        ageVerified: true,
+        message: 'Âge vérifié via session',
+      });
+    }
+
+    res.json({
+      ageVerified: false,
+      message: "Vérification d'âge requise",
+    });
+  } catch (error) {
+    console.error("Erreur lors de la vérification d'âge:", error);
+    res.status(500).json({
+      ageVerified: false,
+      error: {
+        code: 'SERVER_ERROR',
+        message: "Erreur lors de la vérification d'âge",
+      },
+    });
+  }
+};
+
+// Confirmer l'âge (stockage en session)
+const confirmAge = async (req, res) => {
+  try {
+    const { confirmed } = req.body;
+
+    if (!confirmed) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'CONFIRMATION_REQUIRED',
+          message: 'La confirmation est requise',
+        },
+      });
+    }
+
+    // Stocker la confirmation dans la session
+    if (req.session) {
+      req.session.ageVerified = true;
+      req.session.ageVerifiedAt = new Date();
+    }
+
+    res.json({
+      success: true,
+      message: 'Âge confirmé avec succès',
+      ageVerified: true,
+    });
+  } catch (error) {
+    console.error("Erreur lors de la confirmation d'âge:", error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'SERVER_ERROR',
+        message: "Erreur lors de la confirmation d'âge",
+      },
+    });
+  }
+};
+
 // Déconnexion (côté client principalement, mais on peut invalider le token si nécessaire)
 const logout = async (req, res) => {
   try {
@@ -280,5 +358,7 @@ module.exports = {
   login,
   getMe,
   verifyAge,
+  checkAgeVerified,
+  confirmAge,
   logout,
 };
