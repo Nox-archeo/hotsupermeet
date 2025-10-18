@@ -351,32 +351,11 @@
         const confirmAgeBtn = document.getElementById('confirmAgeBtn');
         const exitSiteBtn = document.getElementById('exitSiteBtn');
 
-        // Afficher la modale IMMÉDIATEMENT au chargement de la page
+        // Afficher la modale IMMÉDIATEMENT - SIMPLIFIÉ
+        console.log("🔞 Affichage de la vérification d'âge");
         ageModal.style.display = 'flex';
         document.getElementById('ageOverlay').style.display = 'block';
         document.body.style.overflow = 'hidden';
-
-        // Vérifier si l'âge a déjà été confirmé côté serveur
-        try {
-          const response = await fetch('/api/auth/age-verified', {
-            method: 'GET',
-            credentials: 'include', // Important pour les cookies de session
-          });
-
-          if (response.ok) {
-            const result = await response.json();
-            if (result.ageVerified) {
-              // Âge déjà vérifié, cacher la modale
-              ageModal.style.display = 'none';
-              document.getElementById('ageOverlay').style.display = 'none';
-              document.body.style.overflow = 'auto';
-              return;
-            }
-          }
-        } catch (error) {
-          console.error("Erreur de vérification d'âge:", error);
-          // En cas d'erreur, on laisse la modale affichée
-        }
 
         // Confirmer l'âge côté serveur
         confirmAgeBtn.addEventListener('click', async function () {
@@ -402,11 +381,6 @@
           }
         });
 
-        // Ajouter aussi un lien vers l'inscription pour ceux qui ont déjà confirmé l'âge
-        exitSiteBtn.addEventListener('click', function () {
-          window.location.href = 'https://www.google.com';
-        });
-
         // Quitter le site
         exitSiteBtn.addEventListener('click', function () {
           window.location.href = 'https://www.google.com';
@@ -424,7 +398,7 @@
     <style>
       /* Styles pour l'overlay qui bloque tout le contenu */
       .age-overlay {
-        display: none;
+        display: block; /* AFFICHÉ PAR DÉFAUT */
         position: fixed;
         top: 0;
         left: 0;
@@ -437,7 +411,7 @@
 
       /* Styles pour la modale de vérification d'âge */
       .age-modal {
-        display: none;
+        display: flex; /* AFFICHÉE PAR DÉFAUT */
         position: fixed;
         top: 0;
         left: 0;
