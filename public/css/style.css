@@ -870,41 +870,119 @@ h4 {
 
   /* Menu utilisateur sur mobile */
   .user-menu {
-    position: static;
+    display: none; /* Caché par défaut sur mobile */
+  }
+
+  /* Afficher le menu hamburger sur mobile */
+  .mobile-menu-toggle {
+    display: flex;
+  }
+
+  /* Menu utilisateur intégré dans le menu hamburger */
+  .nav-menu.active .user-menu {
+    display: flex;
     flex-direction: column;
     width: 100%;
     margin-top: 1rem;
+    order: 999; /* Place en dernier */
   }
 
-  .user-info {
+  .nav-menu.active .user-info {
     justify-content: center;
     padding: 1rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 1rem;
   }
 
-  .dropdown-menu {
+  .nav-menu.active .dropdown-menu {
     position: static;
     display: block;
     background: transparent;
     box-shadow: none;
     min-width: auto;
     margin-top: 0;
+    width: 100%;
   }
 
-  .dropdown-item {
+  .nav-menu.active .dropdown-item {
     color: white;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     text-align: center;
     padding: 1rem;
+    font-size: 1rem;
   }
 
-  .dropdown-item:hover {
+  .nav-menu.active .dropdown-item:hover {
     background: rgba(255, 255, 255, 0.1);
     color: white;
   }
 
-  .user-menu:hover .dropdown-menu {
-    display: block;
+  /* Menu utilisateur mobile intégré */
+  .user-menu-mobile {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 1rem;
+  }
+
+  .user-menu-mobile .user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 0.5rem;
+  }
+
+  .user-menu-mobile .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .user-menu-mobile .user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .user-menu-mobile .user-name {
+    color: white;
+    font-weight: 500;
+    font-size: 1rem;
+  }
+
+  .user-menu-mobile .nav-link {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 1rem;
+  }
+
+  .user-menu-mobile .logout-btn-mobile {
+    background: none;
+    border: none;
+    color: white;
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 1rem;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .user-menu-mobile .logout-btn-mobile:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Réorganiser les actions de navigation sur mobile */
+  .nav-actions {
+    gap: 0.5rem;
   }
 }
 
