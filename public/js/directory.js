@@ -72,35 +72,69 @@ class DirectoryManager {
       '<div class="loading">Chargement des membres...</div>';
 
     try {
-      // Simuler des données de démonstration (faux profils)
-      const demoUsers = this.generateDemoUsers();
+      // Construire les paramètres de requête
+      const queryParams = new URLSearchParams();
 
-      // Filtrer les utilisateurs selon les critères
-      const filteredUsers = this.filterUsers(demoUsers, this.filters);
-      const paginatedUsers = this.paginateUsers(
-        filteredUsers,
-        this.currentPage,
-        this.limit
-      );
+      // Ajouter les filtres
+      if (this.filters.ageMin)
+        queryParams.append('ageMin', this.filters.ageMin);
+      if (this.filters.ageMax)
+        queryParams.append('ageMax', this.filters.ageMax);
+      if (this.filters.sexe && this.filters.sexe !== 'tous')
+        queryParams.append('sexe', this.filters.sexe);
+      if (this.filters.region)
+        queryParams.append('localisation', this.filters.region);
 
-      // Simuler une réponse API
-      const data = {
-        success: true,
-        users: paginatedUsers,
-        pagination: {
-          page: this.currentPage,
-          limit: this.limit,
-          total: filteredUsers.length,
-          pages: Math.ceil(filteredUsers.length / this.limit),
-        },
-      };
+      // Ajouter la pagination
+      queryParams.append('page', this.currentPage);
+      queryParams.append('limit', this.limit);
 
-      this.displayUsers(data.users);
-      this.updatePagination(data.pagination);
-      this.updateResultsCount(data.pagination.total);
+      // Faire une requête à l'API réelle
+      const response = await fetch(`/api/users?${queryParams.toString()}`);
+      const data = await response.json();
+
+      if (data.success) {
+        this.displayUsers(data.users);
+        this.updatePagination(data.pagination);
+        this.updateResultsCount(data.pagination.total);
+      } else {
+        throw new Error(
+          data.error?.message || 'Erreur lors du chargement des utilisateurs'
+        );
+      }
     } catch (error) {
       console.error('Erreur lors du chargement des utilisateurs:', error);
-      usersGrid.innerHTML = `<div class="error">Erreur: ${error.message}</div>`;
+
+      // En cas d'erreur, utiliser les données de démonstration comme fallback
+      try {
+        const demoUsers = this.generateDemoUsers();
+        const filteredUsers = this.filterUsers(demoUsers, this.filters);
+        const paginatedUsers = this.paginateUsers(
+          filteredUsers,
+          this.currentPage,
+          this.limit
+        );
+
+        const fallbackData = {
+          success: true,
+          users: paginatedUsers,
+          pagination: {
+            page: this.currentPage,
+            limit: this.limit,
+            total: filteredUsers.length,
+            pages: Math.ceil(filteredUsers.length / this.limit),
+          },
+        };
+
+        this.displayUsers(fallbackData.users);
+        this.updatePagination(fallbackData.pagination);
+        this.updateResultsCount(fallbackData.pagination.total);
+
+        usersGrid.innerHTML +=
+          '<div class="demo-notice">⚠️ Mode démo activé - Utilisation de données de démonstration</div>';
+      } catch (fallbackError) {
+        usersGrid.innerHTML = `<div class="error">Erreur: ${error.message}</div>`;
+      }
     }
   }
 
@@ -117,7 +151,8 @@ class DirectoryManager {
           orientation: 'hetero',
           localisation: 'Paris, France',
           photos: [],
-          description: 'Élégante et sensuelle, à la recherche de connexions profondes. Passionnée de voyage et de cuisine.',
+          description:
+            'Élégante et sensuelle, à la recherche de connexions profondes. Passionnée de voyage et de cuisine.',
         },
         premium: { isPremium: true },
         isOnline: true,
@@ -135,7 +170,8 @@ class DirectoryManager {
           orientation: 'bi',
           localisation: 'Genève, Suisse',
           photos: [],
-          description: 'Dynamique cherchant des rencontres authentiques. Gentleman respectueux à la recherche de moments complices.',
+          description:
+            'Dynamique cherchant des rencontres authentiques. Gentleman respectueux à la recherche de moments complices.',
         },
         premium: { isPremium: false },
         isOnline: false,
@@ -153,7 +189,8 @@ class DirectoryManager {
           orientation: 'queer',
           localisation: 'Berlin, Allemagne',
           photos: [],
-          description: 'Ouvert et authentique, cherchant des rencontres basées sur le respect mutuel. Personne chaleureuse valorisant la complicité.',
+          description:
+            'Ouvert et authentique, cherchant des rencontres basées sur le respect mutuel. Personne chaleureuse valorisant la complicité.',
         },
         premium: { isPremium: true },
         isOnline: true,
@@ -171,7 +208,8 @@ class DirectoryManager {
           orientation: 'lesbienne',
           localisation: 'Montréal, Canada',
           photos: [],
-          description: 'Indépendante appréciant les rencontres raffinées. Passionnée de musique et de nature.',
+          description:
+            'Indépendante appréciant les rencontres raffinées. Passionnée de musique et de nature.',
         },
         premium: { isPremium: true },
         isOnline: true,
@@ -189,7 +227,8 @@ class DirectoryManager {
           orientation: 'gay',
           localisation: 'Madrid, Espagne',
           photos: [],
-          description: 'Passionné et ouvert d\'esprit. À la recherche de moments complices et authentiques.',
+          description:
+            "Passionné et ouvert d'esprit. À la recherche de moments complices et authentiques.",
         },
         premium: { isPremium: false },
         isOnline: false,
@@ -207,7 +246,8 @@ class DirectoryManager {
           orientation: 'hetero',
           localisation: 'Lyon, France',
           photos: [],
-          description: 'Jeune femme énergique cherchant à rencontrer des personnes intéressantes. Amatrice de sport et de cinéma.',
+          description:
+            'Jeune femme énergique cherchant à rencontrer des personnes intéressantes. Amatrice de sport et de cinéma.',
         },
         premium: { isPremium: true },
         isOnline: true,
@@ -215,7 +255,7 @@ class DirectoryManager {
         country: 'france',
         region: 'Lyon',
         orientation: 'hetero',
-      }
+      },
     ];
 
     return predefinedUsers;
@@ -268,7 +308,7 @@ class DirectoryManager {
     ];
     const descriptions = {
       homme: [
-        'Passionné et ouvert d\\' + 'esprit.',
+        "Passionné et ouvert d'esprit.",
         'Dynamique cherchant des rencontres authentiques.',
         'Gentleman respectueux à la recherche de moments complices.',
       ],
@@ -423,9 +463,9 @@ class DirectoryManager {
                     <p class="description-text">${shortDescription}</p>
                     ${
                       cleanDescription.length > 100
-                        ? '<button class="read-more-btn" onclick="this.parentElement.querySelector(\\'.description-text\\').textContent = \\'' +
-                          cleanDescription.replace(/'/g, '\\\\\\'') +
-                          '\\'; this.style.display=\\'none\\'">Lire la suite</button>'
+                        ? '<button class="read-more-btn" onclick="this.parentElement.querySelector(\'.description-text\').textContent = \'' +
+                          cleanDescription.replace(/'/g, "\\\\'") +
+                          "'; this.style.display='none'\">Lire la suite</button>"
                         : ''
                     }
                 </div>
@@ -447,7 +487,7 @@ class DirectoryManager {
       femme:
         'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNFOjE2MyIvPgo8c3ZnPgo8c3ZnIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMjAgMjhDMjQuNDE4MyAyOCAyOCAyNC40MTgzIDI4IDIwQzI4IDE1LjU4MTcgMjQuNDE4MyAxMiAyMCAxMkMxNS41ODE3IDEyIDEyIDE1LjU4MTcgMTIgMjBDMTIgMjQuNDE4MyAxNS41ODE3IDI4IDIwIDI4WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTI2IDE2QzI2IDE4LjIwOTEgMjQuMjA5MSAyMCAyMiAyMEMxOS43OTA5IDIwIDE4IDE4LjIwOTEgMTggMTZDMTggMTMuNzkwOSAxOS43OTA5IDEyIDIyIDEyQzI0LjIwOTEgMTIgMjYgMTMuNzkwOSAyNiAxNloiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0xOCAzMkwyMiAzMkwyMiAyOEwxOCAyOEwxOCAzMloiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo8L3N2Zz4=',
       autre:
-        'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiM5QzI3QjAiLz4KPHN2Zz4KPHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIwIDI4QzI0LjQxODMgMjggMjggMjQuNDE4MyAyOCAyMEMyOCAxNS41ODE3IDI0LjQxODMgMTIgMjAgMTJDMTUuNTgxNyAxMiAxMiAxNS41ODE3IDEyIDIwQzEyIDI0LjQxODMgMTUuNTgxNyAyOCAyMCAyOFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yNiAxNkMyNiAxOC4yMDkxIDI0LjIwOTEgMjAgMjIgMjBDMTkuNzkwOSAyMCAxOCAxOC4yMDkxIDE4IDE2QzE4IDEzLjc5MDkgMTkuNzkwOSAxMiAyMiAxMkMyNC4yMDkxIDEyIDI2IDEzLjc5MDkgMjYgMTZaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4KPC9zdmc+',
+        'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiM5QzI3QjAiLz4KPHN2Zz4KPHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIwIDI4QzI0LjQxODMgMjggMjggMjQuNDE4MyAyOCAyMEMyOCAxNS41ODE3IDI0LjQxODMgMTIgMjAgMTJDMTUuNTgxNyAxMiAxMiAxNS41ODE3IDEyIDIwQzEyIDI0LjQxODMgMTUuNTgxcyAyOCAyMCAyOFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yNiAxNkMyNiAxOC4yMDkxIDI0LjIwOTEgMjAgMjIgMjBDMTkuNzkwOSAyMCAxOCAxOC4yMDkxIDE4IDE2QzE4IDEzLjc5MDkgMTkuNzkwOSAxMiAyMiAxMkMyNC4yMDkxIDEyIDI2IDEzLjc5MDkgMjYgMTZaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4KPC9zdmc+',
     };
     return avatars[gender] || avatars.autre;
   }
@@ -541,11 +581,11 @@ class DirectoryManager {
       } else {
         const errorData = await response.json();
         throw new Error(
-          errorData.error?.message || 'Erreur lors de l\\' + 'envoi du message'
+          errorData.error?.message || "Erreur lors de l'envoi du message"
         );
       }
     } catch (error) {
-      console.error('Erreur lors de l\\' + 'envoi du message:', error);
+      console.error("Erreur lors de l'envoi du message:", error);
       alert('Erreur: ' + error.message);
     }
   }
