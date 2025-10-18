@@ -343,53 +343,24 @@
     <!-- JavaScript -->
     <script src="/js/app.js"></script>
 
-    <!-- Script pour la vérification d'âge avec MongoDB -->
+    <!-- Script pour la vérification d'âge - VERSION SIMPLIFIÉE -->
     <script>
-      // Vérification d'âge avec sessions serveur
-      document.addEventListener('DOMContentLoaded', async function () {
-        const ageModal = document.getElementById('ageVerificationModal');
-        const confirmAgeBtn = document.getElementById('confirmAgeBtn');
-        const exitSiteBtn = document.getElementById('exitSiteBtn');
-
-        // Vérifier que les éléments existent
-        console.log('🔞 Vérification des éléments:');
-        console.log('Modal:', ageModal);
-        console.log('Bouton confirmer:', confirmAgeBtn);
-        console.log('Bouton quitter:', exitSiteBtn);
-
-        if (!ageModal || !confirmAgeBtn || !exitSiteBtn) {
-          console.error('❌ Éléments manquants!');
-          return;
-        }
-
-        // Afficher la modale IMMÉDIATEMENT - SIMPLIFIÉ
-        console.log("🔞 Affichage de la vérification d'âge");
-        ageModal.style.display = 'flex';
+      // Afficher la modale IMMÉDIATEMENT
+      document.addEventListener('DOMContentLoaded', function () {
+        // Afficher la modale et bloquer le contenu
+        document.getElementById('ageVerificationModal').style.display = 'flex';
         document.getElementById('ageOverlay').style.display = 'block';
         document.body.style.overflow = 'hidden';
 
-        // Confirmer l'âge côté serveur - VERSION SIMPLIFIÉE
-        confirmAgeBtn.addEventListener('click', function () {
-          console.log('✅ Bouton confirmation cliqué');
-          console.log('Bouton confirmAgeBtn:', confirmAgeBtn);
-          console.log('Fonction déclenchée');
-          // Rediriger directement vers l'inscription
+        // Fonction pour confirmer l'âge
+        document.getElementById('confirmAgeBtn').onclick = function () {
           window.location.href = '/auth?register=true';
-        });
+        };
 
-        // Quitter le site
-        exitSiteBtn.addEventListener('click', function () {
-          console.log('❌ Bouton quitter cliqué');
-          console.log('Bouton exitSiteBtn:', exitSiteBtn);
+        // Fonction pour quitter le site
+        document.getElementById('exitSiteBtn').onclick = function () {
           window.location.href = 'https://www.google.com';
-        });
-
-        // Empêcher la fermeture de la modale
-        ageModal.addEventListener('click', function (e) {
-          if (e.target === ageModal) {
-            return false;
-          }
-        });
+        };
       });
     </script>
 
