@@ -5,20 +5,44 @@ const { validationResult } = require('express-validator');
 // Inscription d'un nouvel utilisateur
 const register = async (req, res) => {
   try {
-    // Validation des données
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: 'Données invalides',
-          details: errors.array(),
-        },
-      });
-    }
+    // Vérifier si c'est une requête multipart (avec fichier)
+    const isMultipart = req.headers['content-type']?.includes(
+      'multipart/form-data'
+    );
 
-    const { email, password, profile } = req.body;
+    let email, password, profile, profilePhoto;
+
+    if (isMultipart) {
+      // Traitement des données multipart
+      email = req.body.email;
+      password = req.body.password;
+      profile = {
+        nom: req.body.nom,
+        age: parseInt(req.body.age),
+        sexe: req.body.sexe,
+        localisation: req.body.localisation,
+        bio: req.body.bio || '',
+      };
+      profilePhoto = req.files?.profilePhoto;
+    } else {
+      // Traitement des données JSON
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Données invalides',
+            details: errors.array(),
+          },
+        });
+      }
+
+      const data = req.body;
+      email = data.email;
+      password = data.password;
+      profile = data.profile;
+    }
 
     // Vérifier si l'utilisateur existe déjà
     const existingUser = await User.findOne({ email });
@@ -50,6 +74,26 @@ const register = async (req, res) => {
       profile,
     });
 
+    // Gérer l'upload de photo si présent
+    if (profilePhoto && profilePhoto.size > 0) {
+      const fileName = `profile-${user._id}-${Date.now()}-${profilePhoto.name}`;
+      const uploadPath = `./uploads/profile-photos/${fileName}`;
+
+      // Déplacer le fichier
+      await profilePhoto.mv(uploadPath);
+
+      // Ajouter la photo au profil
+      const photoData = {
+        filename: fileName,
+        path: `/uploads/profile-photos/${fileName}`,
+        isBlurred: true, // Floutée par défaut
+        isProfile: true, // Photo de profil principale
+        uploadedAt: new Date(),
+      };
+
+      user.profile.photos = [photoData];
+    }
+
     await user.save();
 
     // Générer le token JWT
@@ -70,12 +114,12 @@ const register = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Erreur lors de l'inscription:", error);
+    console.error('Erreur lors de l\\' + 'inscription:', error);
     res.status(500).json({
       success: false,
       error: {
         code: 'SERVER_ERROR',
-        message: "Erreur lors de l'inscription",
+        message: 'Erreur lors de l\\' + 'inscription',
       },
     });
   }
@@ -240,15 +284,15 @@ const verifyAge = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Vérification d'âge réussie",
+      message: 'Vérification d\\' + 'âge réussie',
     });
   } catch (error) {
-    console.error("Erreur lors de la vérification d'âge:", error);
+    console.error('Erreur lors de la vérification d\\' + 'âge:', error);
     res.status(500).json({
       success: false,
       error: {
         code: 'SERVER_ERROR',
-        message: "Erreur lors de la vérification d'âge",
+        message: 'Erreur lors de la vérification d\\' + 'âge',
       },
     });
   }
@@ -280,15 +324,15 @@ const checkAgeVerified = async (req, res) => {
 
     res.json({
       ageVerified: false,
-      message: "Vérification d'âge requise",
+      message: 'Vérification d\\' + 'âge requise',
     });
   } catch (error) {
-    console.error("Erreur lors de la vérification d'âge:", error);
+    console.error('Erreur lors de la vérification d\\' + 'âge:', error);
     res.status(500).json({
       ageVerified: false,
       error: {
         code: 'SERVER_ERROR',
-        message: "Erreur lors de la vérification d'âge",
+        message: 'Erreur lors de la vérification d\\' + 'âge',
       },
     });
   }
@@ -321,12 +365,12 @@ const confirmAge = async (req, res) => {
       ageVerified: true,
     });
   } catch (error) {
-    console.error("Erreur lors de la confirmation d'âge:", error);
+    console.error('Erreur lors de la confirmation d\\' + 'âge:', error);
     res.status(500).json({
       success: false,
       error: {
         code: 'SERVER_ERROR',
-        message: "Erreur lors de la confirmation d'âge",
+        message: 'Erreur lors de la confirmation d\\' + 'âge',
       },
     });
   }

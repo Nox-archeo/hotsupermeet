@@ -54,7 +54,9 @@ class AuthPage {
   // Configuration du formulaire de connexion
   setupLoginForm() {
     const form = document.getElementById('loginForm');
-    if (!form) return;
+    if (!form) {
+      return;
+    }
 
     form.addEventListener('submit', async e => {
       e.preventDefault();
@@ -65,7 +67,9 @@ class AuthPage {
   // Configuration du formulaire d'inscription
   setupRegisterForm() {
     const form = document.getElementById('registerForm');
-    if (!form) return;
+    if (!form) {
+      return;
+    }
 
     form.addEventListener('submit', async e => {
       e.preventDefault();
@@ -150,36 +154,32 @@ class AuthPage {
     const formData = new FormData(form);
     const profilePhoto = formData.get('profilePhoto');
 
-    // Préparer les données
-    const data = {
-      email: formData.get('email'),
-      password: formData.get('password'),
-      profile: {
-        nom: formData.get('nom'),
-        age: parseInt(formData.get('age')),
-        sexe: formData.get('sexe'),
-        localisation: formData.get('localisation'),
-        bio: formData.get('bio') || '',
-      },
-    };
+    // Créer un FormData pour envoyer tout en une seule requête
+    const registrationData = new FormData();
+
+    // Ajouter les données de base
+    registrationData.append('email', formData.get('email'));
+    registrationData.append('password', formData.get('password'));
+    registrationData.append('nom', formData.get('nom'));
+    registrationData.append('age', formData.get('age'));
+    registrationData.append('sexe', formData.get('sexe'));
+    registrationData.append('localisation', formData.get('localisation'));
+    registrationData.append('bio', formData.get('bio') || '');
+
+    // Ajouter la photo si elle existe
+    if (profilePhoto && profilePhoto.size > 0) {
+      registrationData.append('profilePhoto', profilePhoto);
+    }
 
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+        body: registrationData,
       });
 
       const result = await response.json();
 
       if (result.success) {
-        // Si une photo a été uploadée, l'envoyer séparément
-        if (profilePhoto && profilePhoto.size > 0) {
-          await this.uploadProfilePhoto(result.user.id, profilePhoto);
-        }
-
         this.showSuccess('Inscription réussie !');
         localStorage.setItem('hotmeet_token', result.token);
 
@@ -210,7 +210,7 @@ class AuthPage {
 
     // Vérifier l'acceptation des conditions
     if (!acceptTerms) {
-      this.showError("Veuillez accepter les conditions d'utilisation");
+      this.showError('Veuillez accepter les conditions d\\' + 'utilisation');
       return false;
     }
 

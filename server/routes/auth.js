@@ -1,4 +1,5 @@
 const express = require('express');
+const fileUpload = require('express-fileupload');
 const { body } = require('express-validator');
 const {
   register,
@@ -12,6 +13,18 @@ const {
 const { auth, updateLastActivity } = require('../middleware/auth');
 
 const router = express.Router();
+
+// Configuration du middleware d'upload pour la route d'inscription
+router.use(
+  '/register',
+  fileUpload({
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+    abortOnLimit: true,
+    createParentPath: true,
+    useTempFiles: true,
+    tempFileDir: '/tmp/',
+  })
+);
 
 // Validation rules
 const registerValidation = [
