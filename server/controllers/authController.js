@@ -10,7 +10,11 @@ const register = async (req, res) => {
       'multipart/form-data'
     );
 
-    let email, password, profile, profilePhoto;
+    let email,
+      password,
+      profile,
+      profilePhoto,
+      blurPhoto = true; // Par défaut floutée
 
     if (isMultipart) {
       // Traitement des données multipart
@@ -24,6 +28,7 @@ const register = async (req, res) => {
         bio: req.body.bio || '',
       };
       profilePhoto = req.files?.profilePhoto;
+      blurPhoto = req.body.blurPhoto === 'on'; // Checkbox renvoie 'on' si cochée
     } else {
       // Traitement des données JSON
       const errors = validationResult(req);
@@ -82,11 +87,11 @@ const register = async (req, res) => {
       // Déplacer le fichier
       await profilePhoto.mv(uploadPath);
 
-      // Ajouter la photo au profil
+      // Ajouter la photo au profil avec le choix de floutage de l'utilisateur
       const photoData = {
         filename: fileName,
         path: `/uploads/profile-photos/${fileName}`,
-        isBlurred: true, // Floutée par défaut
+        isBlurred: blurPhoto, // Respecter le choix de l'utilisateur
         isProfile: true, // Photo de profil principale
         uploadedAt: new Date(),
       };

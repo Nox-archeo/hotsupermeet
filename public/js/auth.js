@@ -153,6 +153,7 @@ class AuthPage {
 
     const formData = new FormData(form);
     const profilePhoto = formData.get('profilePhoto');
+    const blurPhoto = formData.get('blurPhoto') === 'on'; // Récupérer l'état de la checkbox
 
     // Créer un FormData pour envoyer tout en une seule requête
     const registrationData = new FormData();
@@ -165,6 +166,7 @@ class AuthPage {
     registrationData.append('sexe', formData.get('sexe'));
     registrationData.append('localisation', formData.get('localisation'));
     registrationData.append('bio', formData.get('bio') || '');
+    registrationData.append('blurPhoto', blurPhoto ? 'on' : ''); // Ajouter l'état de floutage
 
     // Ajouter la photo si elle existe
     if (profilePhoto && profilePhoto.size > 0) {
