@@ -295,7 +295,7 @@
               user => `
             <div class="profile-card">
               <div class="profile-image">
-                <img src="/images/default-avatar.jpg" alt="${user.profile.nom}">
+                ${this.getProfileImage(user)}
                 ${user.premium.isPremium ? '<span class="premium-badge">PREMIUM</span>' : ''}
                 ${user.isOnline ? '<span class="online-indicator">🟢 En ligne</span>' : ''}
               </div>
@@ -316,6 +316,35 @@
             .join('');
         }
 
+        getProfileImage(user) {
+          // Vérifier si l'utilisateur a des photos
+          if (user.profile.photos && user.profile.photos.length > 0) {
+            // Trouver la photo de profil principale ou prendre la première
+            const profilePhoto =
+              user.profile.photos.find(photo => photo.isProfile) ||
+              user.profile.photos[0];
+
+            // Si la photo est floutée, afficher une version floutée
+            if (profilePhoto.isBlurred) {
+              return `
+                <div class="blurred-photo-container">
+                  <img src="${profilePhoto.path}" alt="${user.profile.nom}" class="blurred-photo">
+                  <div class="unblur-overlay">
+                    <button class="unblur-btn" onclick="directoryPage.requestUnblur('${user.id}', '${profilePhoto._id}')">
+                      👁️ Dévoiler la photo
+                    </button>
+                  </div>
+                </div>
+              `;
+            } else {
+              return `<img src="${profilePhoto.path}" alt="${user.profile.nom}">`;
+            }
+          } else {
+            // Photo par défaut si aucune photo n'est disponible
+            return `<img src="/images/default-avatar.jpg" alt="${user.profile.nom}">`;
+          }
+        }
+
         getGenderLabel(gender) {
           const labels = {
             homme: 'Homme',
@@ -323,6 +352,39 @@
             autre: 'Autre',
           };
           return labels[gender] || gender;
+        }
+
+        // Fonction pour demander le dévoilement d'une photo
+        async requestUnblur(userId, photoId) {
+          try {
+            const token = localStorage.getItem('hotmeet_token');
+            const response = await fetch(
+              `/api/uploads/photo/${photoId}/unblur-request`,
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  ...(token && { Authorization: `Bearer ${token}` }),
+                },
+                body: JSON.stringify({ targetUserId: userId }),
+              }
+            );
+
+            const result = await response.json();
+
+            if (result.success) {
+              this.showSuccess('Demande de dévoilement envoyée');
+              // Recharger les utilisateurs pour mettre à jour l'affichage
+              this.loadUsers();
+            } else {
+              this.showError(
+                result.error.message || 'Erreur lors de la demande'
+              );
+            }
+          } catch (error) {
+            console.error('Erreur demande dévoilement:', error);
+            this.showError('Erreur lors de la demande de dévoilement');
+          }
         }
 
         updatePagination(pagination) {
@@ -593,6 +655,61 @@
         border-color: #8a2be2;
       }
 
+      /* Styles pour les photos floutées et le système de dévoilement */
+      .blurred-photo-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .blurred-photo {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: blur(20px);
+        transition: filter 0.3s ease;
+      }
+
+      .unblur-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .blurred-photo-container:hover .unblur-overlay {
+        opacity: 1;
+      }
+
+      .unblur-btn {
+        background: #8a2be2;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.3s ease;
+      }
+
+      .unblur-btn:hover {
+        background: #7b1fa2;
+      }
+
+      .unblurred-photo {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
       @media (max-width: 768px) {
         .filters-form {
           grid-template-columns: 1fr;
@@ -615,6 +732,10 @@
         .pagination-controls {
           flex-wrap: wrap;
           justify-content: center;
+        }
+
+        .unblur-overlay {
+          opacity: 1; /* Toujours visible sur mobile */
         }
       }
     </style>

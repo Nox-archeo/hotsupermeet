@@ -81,7 +81,7 @@ const uploadProfilePhoto = async (req, res) => {
     const photoData = {
       filename: fileName,
       path: `/uploads/profile-photos/${fileName}`,
-      isBlurred: false, // Par défaut non floutée
+      isBlurred: true, // Par défaut floutée pour la confidentialité
       isProfile: true, // Photo de profil principale
       uploadedAt: new Date(),
     };
@@ -177,7 +177,7 @@ const uploadGalleryPhoto = async (req, res) => {
     const photoData = {
       filename: fileName,
       path: `/uploads/profile-photos/${fileName}`,
-      isBlurred: Boolean(isBlurred),
+      isBlurred: true, // Par défaut floutée pour la confidentialité
       isProfile: false, // Photo de galerie
       uploadedAt: new Date(),
     };
@@ -383,10 +383,82 @@ const setProfilePhoto = async (req, res) => {
   }
 };
 
+// Gérer une demande de dévoilement de photo
+const handleUnblurRequest = async (req, res) => {
+  try {
+    const { photoId } = req.params;
+    const { targetUserId } = req.body;
+    const requestingUserId = req.user._id;
+
+    // Vérifier que l'utilisateur cible existe
+    const targetUser = await User.findById(targetUserId);
+    if (!targetUser) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'USER_NOT_FOUND',
+          message: 'Utilisateur cible non trouvé',
+        },
+      });
+    }
+
+    // Trouver la photo dans le profil de l'utilisateur cible
+    const photoIndex = targetUser.profile.photos.findIndex(
+      photo => photo._id.toString() === photoId
+    );
+
+    if (photoIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'PHOTO_NOT_FOUND',
+          message: 'Photo non trouvée',
+        },
+      });
+    }
+
+    const photo = targetUser.profile.photos[photoIndex];
+
+    // Vérifier si la photo est déjà dévoilée
+    if (!photo.isBlurred) {
+      return res.json({
+        success: true,
+        message: 'La photo est déjà dévoilée',
+        photo: photo,
+      });
+    }
+
+    // Ici, on pourrait implémenter une logique de validation :
+    // - Vérifier si l'utilisateur a le droit de voir la photo (premium, etc.)
+    // - Envoyer une notification à l'utilisateur cible
+    // - Loguer la demande pour la modération
+
+    // Pour l'instant, on dévoile directement la photo
+    targetUser.profile.photos[photoIndex].isBlurred = false;
+    await targetUser.save();
+
+    res.json({
+      success: true,
+      message: 'Photo dévoilée avec succès',
+      photo: targetUser.profile.photos[photoIndex],
+    });
+  } catch (error) {
+    console.error('Erreur lors de la demande de dévoilement:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'UNBLUR_ERROR',
+        message: 'Erreur lors de la demande de dévoilement',
+      },
+    });
+  }
+};
+
 module.exports = {
   uploadProfilePhoto,
   uploadGalleryPhoto,
   togglePhotoBlur,
   deletePhoto,
   setProfilePhoto,
+  handleUnblurRequest,
 };
