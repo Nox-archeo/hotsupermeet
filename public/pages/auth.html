@@ -207,14 +207,59 @@
             </div>
 
             <div class="form-group">
-              <label for="localisation">Localisation</label>
+              <label for="pays">Pays</label>
+              <select id="pays" name="pays" required class="form-input">
+                <option value="">Choisir un pays...</option>
+                <option value="france">France</option>
+                <option value="suisse">Suisse</option>
+                <option value="belgique">Belgique</option>
+                <option value="allemagne">Allemagne</option>
+                <option value="italie">Italie</option>
+                <option value="espagne">Espagne</option>
+                <option value="portugal">Portugal</option>
+                <option value="pays-bas">Pays-Bas</option>
+                <option value="luxembourg">Luxembourg</option>
+                <option value="autriche">Autriche</option>
+                <option value="royaume-uni">Royaume-Uni</option>
+                <option value="irlande">Irlande</option>
+                <option value="danemark">Danemark</option>
+                <option value="suede">Suède</option>
+                <option value="norvege">Norvège</option>
+                <option value="finlande">Finlande</option>
+                <option value="pologne">Pologne</option>
+                <option value="republique-tcheque">République Tchèque</option>
+                <option value="slovaquie">Slovaquie</option>
+                <option value="hongrie">Hongrie</option>
+                <option value="roumanie">Roumanie</option>
+                <option value="bulgarie">Bulgarie</option>
+                <option value="grece">Grèce</option>
+                <option value="croatie">Croatie</option>
+                <option value="slovenie">Slovénie</option>
+                <option value="estonie">Estonie</option>
+                <option value="lettonie">Lettonie</option>
+                <option value="lituanie">Lituanie</option>
+                <option value="malte">Malte</option>
+                <option value="chypre">Chypre</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="region">Région</label>
+              <select id="region" name="region" required class="form-input">
+                <option value="">Choisir une région...</option>
+                <!-- Les régions seront chargées dynamiquement selon le pays -->
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="ville">Ville</label>
               <input
                 type="text"
-                id="localisation"
-                name="localisation"
+                id="ville"
+                name="ville"
                 required
                 class="form-input"
-                placeholder="Ville, région"
+                placeholder="Nom de la ville"
               />
             </div>
 

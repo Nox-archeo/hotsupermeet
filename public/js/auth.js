@@ -11,6 +11,7 @@ class AuthPage {
     this.setupLoginForm();
     this.setupRegisterForm();
     this.setupPhotoUpload();
+    this.setupLocationSelectors();
     this.checkUrlParams();
   }
 
@@ -99,6 +100,105 @@ class AuthPage {
     }
   }
 
+  // Configuration des sélecteurs de localisation
+  setupLocationSelectors() {
+    const paysSelect = document.getElementById('pays');
+    const regionSelect = document.getElementById('region');
+
+    if (paysSelect && regionSelect) {
+      paysSelect.addEventListener('change', () => {
+        this.updateRegions(paysSelect.value, regionSelect);
+      });
+    }
+  }
+
+  // Mise à jour des régions en fonction du pays sélectionné
+  updateRegions(pays, regionSelect) {
+    // Vider le sélecteur de régions
+    regionSelect.innerHTML = '<option value="">Choisir une région...</option>';
+
+    if (!pays) {
+      return;
+    }
+
+    const regions = this.getRegionsByCountry(pays);
+
+    regions.forEach(region => {
+      const option = document.createElement('option');
+      option.value = region.value;
+      option.textContent = region.name;
+      regionSelect.appendChild(option);
+    });
+  }
+
+  // Obtenir les régions par pays
+  getRegionsByCountry(pays) {
+    const regionsByCountry = {
+      france: [
+        { value: 'auvergne-rhone-alpes', name: 'Auvergne-Rhône-Alpes' },
+        { value: 'bourgogne-franche-comte', name: 'Bourgogne-Franche-Comté' },
+        { value: 'bretagne', name: 'Bretagne' },
+        { value: 'centre-val-de-loire', name: 'Centre-Val de Loire' },
+        { value: 'corse', name: 'Corse' },
+        { value: 'grand-est', name: 'Grand Est' },
+        { value: 'hauts-de-france', name: 'Hauts-de-France' },
+        { value: 'ile-de-france', name: 'Île-de-France' },
+        { value: 'normandie', name: 'Normandie' },
+        { value: 'nouvelle-aquitaine', name: 'Nouvelle-Aquitaine' },
+        { value: 'occitanie', name: 'Occitanie' },
+        { value: 'pays-de-la-loire', name: 'Pays de la Loire' },
+        {
+          value: 'provence-alpes-cote-dazur',
+          name: 'Provence-Alpes-Côte d\\' + 'Azur',
+        },
+      ],
+      suisse: [
+        { value: 'zurich', name: 'Zurich' },
+        { value: 'berne', name: 'Berne' },
+        { value: 'vaud', name: 'Vaud' },
+        { value: 'geneve', name: 'Genève' },
+        { value: 'bale-ville', name: 'Bâle-Ville' },
+        { value: 'lausanne', name: 'Lausanne' },
+        { value: 'lucerne', name: 'Lucerne' },
+        { value: 'saint-gall', name: 'Saint-Gall' },
+        { value: 'ticino', name: 'Ticino' },
+        { value: 'valais', name: 'Valais' },
+      ],
+      belgique: [
+        { value: 'bruxelles', name: 'Bruxelles-Capitale' },
+        { value: 'flandre', name: 'Région flamande' },
+        { value: 'wallonie', name: 'Région wallonne' },
+      ],
+      allemagne: [
+        { value: 'baden-wurttemberg', name: 'Bade-Wurtemberg' },
+        { value: 'baviere', name: 'Bavière' },
+        { value: 'berlin', name: 'Berlin' },
+        { value: 'brandebourg', name: 'Brandebourg' },
+        { value: 'breme', name: 'Brême' },
+        { value: 'hambourg', name: 'Hambourg' },
+        { value: 'hesse', name: 'Hesse' },
+        { value: 'basse-saxe', name: 'Basse-Saxe' },
+        { value: 'meckenbourg', name: 'Mecklembourg-Poméranie-Occidentale' },
+        { value: 'rhin-du-nord', name: 'Rhénanie-du-Nord-Westphalie' },
+        { value: 'rhin-palatinat', name: 'Rhénanie-Palatinat' },
+        { value: 'sarre', name: 'Sarre' },
+        { value: 'saxe', name: 'Saxe' },
+        { value: 'saxe-anhalt', name: 'Saxe-Anhalt' },
+        { value: 'schleswig', name: 'Schleswig-Holstein' },
+        { value: 'thuringe', name: 'Thuringe' },
+      ],
+      'royaume-uni': [
+        { value: 'angleterre', name: 'Angleterre' },
+        { value: 'ecosse', name: 'Écosse' },
+        { value: 'pays-de-galles', name: 'Pays de Galles' },
+        { value: 'irlande-nord', name: 'Irlande du Nord' },
+      ],
+      // Ajouter d'autres pays avec leurs régions si nécessaire
+    };
+
+    return regionsByCountry[pays] || [];
+  }
+
   // Vérification des paramètres d'URL
   checkUrlParams() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -164,7 +264,9 @@ class AuthPage {
     registrationData.append('nom', formData.get('nom'));
     registrationData.append('age', formData.get('age'));
     registrationData.append('sexe', formData.get('sexe'));
-    registrationData.append('localisation', formData.get('localisation'));
+    registrationData.append('pays', formData.get('pays'));
+    registrationData.append('region', formData.get('region'));
+    registrationData.append('ville', formData.get('ville'));
     registrationData.append('bio', formData.get('bio') || '');
     registrationData.append('blurPhoto', blurPhoto ? 'on' : ''); // Ajouter l'état de floutage
 

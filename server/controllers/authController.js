@@ -24,7 +24,11 @@ const register = async (req, res) => {
         nom: req.body.nom,
         age: parseInt(req.body.age),
         sexe: req.body.sexe,
-        localisation: req.body.localisation,
+        localisation: {
+          pays: req.body.pays,
+          region: req.body.region,
+          ville: req.body.ville,
+        },
         bio: req.body.bio || '',
       };
       profilePhoto = req.files?.profilePhoto;
