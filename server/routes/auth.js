@@ -20,17 +20,14 @@ const registerValidation = [
   body('password')
     .isLength({ min: 6 })
     .withMessage('Le mot de passe doit contenir au moins 6 caractères'),
-  body('profile.nom').notEmpty().trim().withMessage('Le nom est requis'),
-  body('profile.age')
+  body('nom').notEmpty().trim().withMessage('Le nom est requis'),
+  body('age')
     .isInt({ min: 18, max: 100 })
     .withMessage('Vous devez avoir entre 18 et 100 ans'),
-  body('profile.sexe')
-    .isIn(['homme', 'femme', 'autre'])
-    .withMessage('Sexe invalide'),
-  body('profile.localisation')
-    .notEmpty()
-    .trim()
-    .withMessage('La localisation est requise'),
+  body('sexe').isIn(['homme', 'femme', 'autre']).withMessage('Sexe invalide'),
+  body('pays').notEmpty().trim().withMessage('Le pays est requis'),
+  body('region').notEmpty().trim().withMessage('La région est requise'),
+  body('ville').notEmpty().trim().withMessage('La ville est requise'),
 ];
 
 const loginValidation = [

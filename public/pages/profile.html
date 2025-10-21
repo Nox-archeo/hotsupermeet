@@ -430,23 +430,32 @@
       // Chargement des données du profil
       async function loadProfileData() {
         try {
+          console.log('=== DÉBUT CHARGEMENT PROFIL ===');
           const token = localStorage.getItem('hotmeet_token');
+          console.log('Token trouvé dans localStorage:', token ? 'OUI' : 'NON');
+
           if (!token) {
+            console.log('Aucun token trouvé, redirection vers /auth');
             window.location.href = '/auth';
             return;
           }
 
+          console.log('Appel API /api/auth/me...');
           const response = await fetch('/api/auth/me', {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
 
+          console.log('Réponse API reçue - Status:', response.status);
+          console.log('Réponse API reçue - OK:', response.ok);
+
           if (response.ok) {
             const data = await response.json();
-            const user = data.user;
+            console.log("Données brutes reçues de l'API:", data);
 
-            console.log('Données utilisateur reçues:', user); // Debug
+            const user = data.user;
+            console.log('Données utilisateur extraites:', user);
 
             if (!user || !user.profile) {
               console.error('Données utilisateur incomplètes:', user);

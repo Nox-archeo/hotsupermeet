@@ -5,6 +5,11 @@ const { validationResult } = require('express-validator');
 // Inscription d'un nouvel utilisateur
 const register = async (req, res) => {
   try {
+    console.log('=== DÉBUT INSCRIPTION ===');
+    console.log('Headers Content-Type:', req.headers['content-type']);
+    console.log('Body reçu:', req.body);
+    console.log('Files reçus:', req.files);
+
     // Vérifier si c'est une requête multipart (avec fichier)
     const isMultipart = req.headers['content-type']?.includes(
       'multipart/form-data'
@@ -17,8 +22,10 @@ const register = async (req, res) => {
       blurPhoto = true; // Par défaut floutée
 
     if (isMultipart) {
+      console.log('Traitement multipart détecté');
       // Vérifier que les données multipart sont complètes
       if (!req.body || Object.keys(req.body).length === 0) {
+        console.log('Erreur: données multipart incomplètes');
         return res.status(400).json({
           success: false,
           error: {
@@ -31,6 +38,16 @@ const register = async (req, res) => {
       // Traitement des données multipart avec express-fileupload
       email = req.body.email;
       password = req.body.password;
+
+      console.log('Données extraites - Email:', email);
+      console.log('Données extraites - Nom:', req.body.nom);
+      console.log('Données extraites - Âge:', req.body.age);
+      console.log('Données extraites - Sexe:', req.body.sexe);
+      console.log('Données extraites - Pays:', req.body.pays);
+      console.log('Données extraites - Région:', req.body.region);
+      console.log('Données extraites - Ville:', req.body.ville);
+      console.log('Données extraites - Bio:', req.body.bio);
+      console.log('Données extraites - BlurPhoto:', req.body.blurPhoto);
 
       // Construire l'objet localisation à partir des champs individuels
       const localisation = {
@@ -47,11 +64,15 @@ const register = async (req, res) => {
         bio: req.body.bio || '',
       };
 
+      console.log('Profil construit:', profile);
+
       // Vérifier que req.files existe et contient la photo
       if (req.files && req.files.profilePhoto) {
         profilePhoto = req.files.profilePhoto;
+        console.log('Photo de profil détectée:', profilePhoto.name);
       }
       blurPhoto = req.body.blurPhoto === 'on'; // Checkbox renvoie 'on' si cochée
+      console.log('Blur photo:', blurPhoto);
     } else {
       // Traitement des données JSON
       const errors = validationResult(req);
@@ -75,6 +96,7 @@ const register = async (req, res) => {
     // Vérifier si l'utilisateur existe déjà
     const existingUser = await User.findOne({ email });
     if (existingUser) {
+      console.log('Erreur: utilisateur existe déjà avec email:', email);
       return res.status(400).json({
         success: false,
         error: {
@@ -86,6 +108,7 @@ const register = async (req, res) => {
 
     // Vérification de l'âge (18+)
     if (profile.age < 18) {
+      console.log('Erreur: âge insuffisant:', profile.age);
       return res.status(400).json({
         success: false,
         error: {
@@ -95,11 +118,17 @@ const register = async (req, res) => {
       });
     }
 
+    console.log('Création du nouvel utilisateur...');
     // Créer le nouvel utilisateur
     const user = new User({
       email,
       password,
       profile,
+    });
+
+    console.log('Utilisateur créé (avant sauvegarde):', {
+      email: user.email,
+      profile: user.profile,
     });
 
     // Gérer l'upload de photo si présent
@@ -139,14 +168,18 @@ const register = async (req, res) => {
     }
 
     await user.save();
+    console.log('Utilisateur sauvegardé avec succès. ID:', user._id);
+    console.log('Profil sauvegardé:', user.profile);
 
     // Générer le token JWT
     const token = generateToken(user._id);
+    console.log('Token JWT généré');
 
     // Mettre à jour la dernière activité
     await user.updateLastActive();
+    console.log('Dernière activité mise à jour');
 
-    res.status(201).json({
+    const responseData = {
       success: true,
       token,
       user: {
@@ -156,7 +189,11 @@ const register = async (req, res) => {
         premium: user.premium,
         stats: user.stats,
       },
-    });
+    };
+
+    console.log('Réponse envoyée au client:', responseData);
+    res.status(201).json(responseData);
+    console.log('=== FIN INSCRIPTION - RÉPONSE ENVOYÉE ===');
   } catch (error) {
     console.error('Erreur lors de l\\' + 'inscription:', error);
     res.status(500).json({
@@ -253,9 +290,14 @@ const login = async (req, res) => {
 // Récupération du profil utilisateur
 const getMe = async (req, res) => {
   try {
+    console.log('=== DÉBUT GETME ===');
+    console.log('User ID de la requête:', req.user._id);
+
     const user = await User.findById(req.user._id).select('-password');
+    console.log('Utilisateur trouvé dans la base:', user);
 
     if (!user) {
+      console.log('Erreur: utilisateur non trouvé pour ID:', req.user._id);
       return res.status(404).json({
         success: false,
         error: {
@@ -265,7 +307,7 @@ const getMe = async (req, res) => {
       });
     }
 
-    res.json({
+    const responseData = {
       success: true,
       user: {
         id: user._id,
@@ -275,7 +317,11 @@ const getMe = async (req, res) => {
         preferences: user.preferences,
         stats: user.stats,
       },
-    });
+    };
+
+    console.log('Données utilisateur envoyées:', responseData.user);
+    console.log('=== FIN GETME - RÉPONSE ENVOYÉE ===');
+    res.json(responseData);
   } catch (error) {
     console.error('Erreur lors de la récupération du profil:', error);
     res.status(500).json({
