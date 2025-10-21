@@ -492,12 +492,17 @@
             localStorage.removeItem('hotmeet_user_stats');
 
             console.log('Données du profil chargées depuis localStorage');
+
+            // Mettre à jour les boutons de navigation
+            updateNavigationButtons(true);
             return;
           }
 
           if (!token) {
-            console.log('Aucun token trouvé, redirection vers /auth');
-            window.location.href = '/auth';
+            console.log(
+              'Aucun token trouvé, affichage du message de connexion'
+            );
+            showLoginMessage();
             return;
           }
 
@@ -613,6 +618,9 @@
               }
 
               console.log('Formulaire rempli avec succès');
+
+              // Mettre à jour les boutons de navigation
+              updateNavigationButtons(true);
             } catch (error) {
               console.error('Erreur lors du remplissage du formulaire:', error);
             }
@@ -620,7 +628,11 @@
             console.error('Erreur API:', response.status);
             if (response.status === 401) {
               localStorage.removeItem('hotmeet_token');
-              window.location.href = '/auth';
+              showLoginMessage();
+            } else {
+              // Pour les autres erreurs, essayer de charger des données par défaut
+              showMessage('Erreur lors du chargement du profil', 'error');
+              loadDefaultProfileData();
             }
           }
         } catch (error) {
@@ -631,6 +643,54 @@
           ) {
             showMessage('Erreur de connexion au serveur', 'error');
           }
+          // Charger des données par défaut en cas d'erreur
+          loadDefaultProfileData();
+        }
+      }
+
+      // Charger des données par défaut si aucune donnée n'est trouvée
+      function loadDefaultProfileData() {
+        console.log('Chargement des données par défaut du profil');
+
+        // Réinitialiser tous les champs à leurs valeurs par défaut
+        const fields = {
+          profileNom: '',
+          profileAge: '',
+          profileSexe: '',
+          profilePays: '',
+          profileRegion: '',
+          profileVille: '',
+          profileBio: '',
+        };
+
+        Object.entries(fields).forEach(([fieldId, defaultValue]) => {
+          const field = document.getElementById(fieldId);
+          if (field) {
+            field.value = defaultValue;
+          }
+        });
+
+        // Réinitialiser l'affichage
+        const profileNameElem = document.getElementById('profileName');
+        const profileDetailsElem = document.getElementById('profileDetails');
+        const bioCharCountElem = document.getElementById('bioCharCount');
+        const profileViewsElem = document.getElementById('profileViews');
+        const profileMessagesElem = document.getElementById('profileMessages');
+
+        if (profileNameElem) {
+          profileNameElem.textContent = 'Votre nom';
+        }
+        if (profileDetailsElem) {
+          profileDetailsElem.textContent = 'Âge • Ville';
+        }
+        if (bioCharCountElem) {
+          bioCharCountElem.textContent = '0';
+        }
+        if (profileViewsElem) {
+          profileViewsElem.textContent = '0';
+        }
+        if (profileMessagesElem) {
+          profileMessagesElem.textContent = '0';
         }
       }
 
@@ -713,6 +773,84 @@
         setTimeout(() => {
           messageDiv.remove();
         }, 3000);
+      }
+
+      // Afficher le message de connexion
+      function showLoginMessage() {
+        const profileManagement = document.querySelector('.profile-management');
+        const premiumSection = document.querySelector('.premium');
+
+        if (profileManagement) {
+          profileManagement.innerHTML = `
+            <div class="login-required-message">
+              <div class="login-card">
+                <h3>Connexion requise</h3>
+                <p>Vous devez être connecté pour accéder à votre profil.</p>
+                <div class="login-actions">
+                  <button class="btn-primary" onclick="window.location.href='/auth'">Se connecter</button>
+                  <button class="btn-secondary" onclick="window.location.href='/auth?register=true'">S'inscrire</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        // Masquer la section premium
+        if (premiumSection) {
+          premiumSection.style.display = 'none';
+        }
+
+        // Mettre à jour les boutons de navigation
+        updateNavigationButtons(false);
+      }
+
+      // Masquer le message de connexion
+      function hideLoginMessage() {
+        const profileManagement = document.querySelector('.profile-management');
+        const premiumSection = document.querySelector('.premium');
+
+        if (premiumSection) {
+          premiumSection.style.display = 'block';
+        }
+
+        // Mettre à jour les boutons de navigation
+        updateNavigationButtons(true);
+      }
+
+      // Mettre à jour les boutons de navigation selon l'état de connexion
+      function updateNavigationButtons(isLoggedIn) {
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+
+        if (isLoggedIn) {
+          // Utilisateur connecté
+          if (loginBtn) {
+            loginBtn.textContent = 'Déconnexion';
+            loginBtn.onclick = function () {
+              localStorage.removeItem('hotmeet_token');
+              localStorage.removeItem('hotmeet_user_profile');
+              localStorage.removeItem('hotmeet_user_stats');
+              window.location.reload();
+            };
+          }
+          if (registerBtn) {
+            registerBtn.style.display = 'none';
+          }
+        } else {
+          // Utilisateur non connecté
+          if (loginBtn) {
+            loginBtn.textContent = 'Connexion';
+            loginBtn.onclick = function () {
+              window.location.href = '/auth';
+            };
+          }
+          if (registerBtn) {
+            registerBtn.style.display = 'inline-block';
+            registerBtn.onclick = function () {
+              window.location.href = '/auth?register=true';
+            };
+          }
+        }
       }
 
       // Charger les régions en fonction du pays sélectionné
@@ -807,7 +945,7 @@
       document.addEventListener('DOMContentLoaded', function () {
         console.log('=== INITIALISATION PAGE PROFIL ===');
 
-        // Vérifier l'authentification - redirection immédiate si non connecté
+        // Vérifier l'authentification
         const token = localStorage.getItem('hotmeet_token');
         const savedProfile = localStorage.getItem('hotmeet_user_profile');
 
@@ -815,14 +953,17 @@
         console.log('Profil sauvegardé présent:', !!savedProfile);
 
         if (!token && !savedProfile) {
-          // Utilisateur non connecté et pas d'inscription en cours -> redirection vers auth
-          console.log('Redirection vers /auth - utilisateur non connecté');
-          window.location.href = '/auth';
+          // Utilisateur non connecté -> afficher message de connexion
+          console.log(
+            'Utilisateur non connecté - affichage du message de connexion'
+          );
+          showLoginMessage();
           return;
         }
 
         // Utilisateur connecté ou vient de s'inscrire -> charger les données du profil
         console.log('Chargement des données du profil...');
+        hideLoginMessage();
         loadProfileData();
       });
     </script>
@@ -1037,6 +1178,49 @@
         gap: 1rem;
         align-items: center;
         margin-bottom: 1rem;
+      }
+
+      .login-required-message {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 400px;
+      }
+
+      .login-card {
+        background: white;
+        border-radius: 15px;
+        padding: 3rem;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        max-width: 500px;
+        width: 100%;
+      }
+
+      .login-card h3 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        font-size: 1.8rem;
+      }
+
+      .login-card p {
+        color: #7f8c8d;
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+      }
+
+      .login-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .login-actions .btn-primary,
+      .login-actions .btn-secondary {
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+        min-width: 150px;
       }
 
       @media (max-width: 768px) {
