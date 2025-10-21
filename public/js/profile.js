@@ -474,7 +474,98 @@ function updateNavigationButtons(isLoggedIn) {
   }
 }
 
-// Initialisation de la page profil
+// Masquer le message de connexion
+function hideLoginMessage() {
+  const loginRequired = document.querySelector('.login-required');
+  if (loginRequired) {
+    loginRequired.style.display = 'none';
+  }
+}
+
+// Gestion des régions européennes
+const regionsEurope = {
+  france: [
+    'Auvergne-Rhône-Alpes',
+    'Bourgogne-Franche-Comté',
+    'Bretagne',
+    'Centre-Val de Loire',
+    'Corse',
+    'Grand Est',
+    'Hauts-de-France',
+    'Île-de-France',
+    'Normandie',
+    'Nouvelle-Aquitaine',
+    'Occitanie',
+    'Pays de la Loire',
+    "Provence-Alpes-Côte d'Azur",
+  ],
+  suisse: [
+    'Zurich',
+    'Berne',
+    'Lucerne',
+    'Uri',
+    'Schwyz',
+    'Obwald',
+    'Nidwald',
+    'Glaris',
+    'Zoug',
+    'Fribourg',
+    'Soleure',
+    'Bâle-Ville',
+    'Bâle-Campagne',
+    'Schaffhouse',
+    'Appenzell Rhodes-Extérieures',
+    'Appenzell Rhodes-Intérieures',
+    'Saint-Gall',
+    'Grisons',
+    'Argovie',
+    'Thurgovie',
+    'Tessin',
+    'Vaud',
+    'Valais',
+    'Neuchâtel',
+    'Genève',
+    'Jura',
+  ],
+  belgique: [
+    'Anvers',
+    'Limbourg',
+    'Flandre-Orientale',
+    'Brabant flamand',
+    'Flandre-Occidentale',
+    'Hainaut',
+    'Liège',
+    'Luxembourg',
+    'Namur',
+    'Brabant wallon',
+    'Bruxelles-Capitale',
+  ],
+};
+
+// Initialisation des événements pour les pays/régions
+document.addEventListener('DOMContentLoaded', function () {
+  const paysSelect = document.getElementById('profilePays');
+  const regionSelect = document.getElementById('profileRegion');
+
+  if (paysSelect && regionSelect) {
+    paysSelect.addEventListener('change', function () {
+      const selectedCountry = this.value.toLowerCase();
+      regionSelect.innerHTML =
+        '<option value="">Sélectionnez votre région</option>';
+
+      if (regionsEurope[selectedCountry]) {
+        regionsEurope[selectedCountry].forEach(region => {
+          const option = document.createElement('option');
+          option.value = region.toLowerCase().replace(/\s+/g, '-');
+          option.textContent = region;
+          regionSelect.appendChild(option);
+        });
+      }
+    });
+  }
+});
+
+// Initialisation de la page profil - VERSION COMPLÈTE
 document.addEventListener('DOMContentLoaded', function () {
   try {
     console.log('=== INITIALISATION PAGE PROFIL ===');
@@ -495,4 +586,28 @@ document.addEventListener('DOMContentLoaded', function () {
   } catch (error) {
     console.error("Erreur lors de l'initialisation de la page profil:", error);
   }
+});
+
+// Initialisation avec vérification d'authentification
+document.addEventListener('DOMContentLoaded', function () {
+  console.log('=== INITIALISATION PAGE PROFIL ===');
+
+  // Vérifier l'authentification
+  const token = localStorage.getItem('hotmeet_token');
+  const savedProfile = localStorage.getItem('hotmeet_user_profile');
+
+  console.log('Token présent:', !!token);
+  console.log('Profil sauvegardé présent:', !!savedProfile);
+
+  if (!token && !savedProfile) {
+    // Utilisateur non connecté -> afficher message de connexion
+    console.log('Utilisateur non connecté - affichage du message de connexion');
+    showLoginMessage();
+    return;
+  }
+
+  // Utilisateur connecté ou vient de s'inscrire -> charger les données du profil
+  console.log('Chargement des données du profil...');
+  hideLoginMessage();
+  loadProfileData();
 });
