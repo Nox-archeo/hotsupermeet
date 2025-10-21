@@ -214,6 +214,11 @@ app.get('/:page', (req, res) => {
   }
 });
 
+// Route de santé pour Render
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
 // Charger les routes API (elles gèrent elles-mêmes les erreurs MongoDB)
 app.use('/api/auth', require('./server/routes/auth'));
 app.use('/api/users', require('./server/routes/users'));
