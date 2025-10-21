@@ -208,7 +208,12 @@ app.get('/:page', (req, res) => {
   ];
 
   if (validPages.includes(page)) {
-    res.sendFile(__dirname + `/public/pages/${page}.html`);
+    // CORRECTION CACHE: Utiliser profile-v2.html pour contourner le cache
+    if (page === 'profile') {
+      res.sendFile(__dirname + `/public/pages/profile-v2.html`);
+    } else {
+      res.sendFile(__dirname + `/public/pages/${page}.html`);
+    }
   } else {
     res.status(404).sendFile(__dirname + '/public/pages/404.html');
   }
