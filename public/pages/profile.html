@@ -604,9 +604,12 @@
           const previewHTML = `
           <div class="preview-modal">
             <div class="preview-content">
-              <h3>Aperçu de votre profil</h3>
+              <div class="preview-header">
+                <h3>Aperçu de votre profil</h3>
+                <button class="close-preview" onclick="this.closest('.preview-modal').remove()">×</button>
+              </div>
               <div class="preview-card">
-                <div class="preview-header">
+                <div class="preview-profile">
                   <img src="/images/default-avatar.jpg" alt="Photo de profil">
                   <div class="preview-info">
                     <h4>${previewData.nom}</h4>
@@ -932,6 +935,38 @@
       .preview-bio p {
         color: #7f8c8d;
         line-height: 1.5;
+      }
+
+      .preview-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .close-preview {
+        background: none;
+        border: none;
+        font-size: 2rem;
+        color: #7f8c8d;
+        cursor: pointer;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .close-preview:hover {
+        color: #ff6b6b;
+      }
+
+      .preview-profile {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin-bottom: 1rem;
       }
 
       @media (max-width: 768px) {
