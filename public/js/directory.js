@@ -362,7 +362,14 @@ class DirectoryManager {
   // Afficher une modale avec les détails du profil
   async showProfileModal(userId) {
     try {
-      const response = await fetch(`/api/users/${userId}`);
+      // Sécuriser l'ID utilisateur pour éviter [object Object]
+      const safeUserId = String(userId || '').replace(/[^a-zA-Z0-9]/g, '');
+      if (!safeUserId) {
+        console.error('ID utilisateur invalide:', userId);
+        return null;
+      }
+
+      const response = await fetch(`/api/users/${safeUserId}`);
       const data = await response.json();
 
       if (!data.success) {

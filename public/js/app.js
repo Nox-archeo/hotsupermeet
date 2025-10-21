@@ -117,9 +117,17 @@ class HotMeetApp {
 
     if (token) {
       try {
+        // Sécuriser la requête avec validation du token
+        const cleanToken = String(token).trim();
+        if (!cleanToken || cleanToken.length < 10) {
+          console.error('Token JWT invalide');
+          localStorage.removeItem('hotmeet_token');
+          return;
+        }
+
         const response = await fetch('/api/auth/me', {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${cleanToken}`,
             'Content-Type': 'application/json',
           },
         });

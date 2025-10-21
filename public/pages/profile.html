@@ -446,6 +446,8 @@
             const data = await response.json();
             const user = data.user;
 
+            console.log('Données utilisateur reçues:', user); // Debug
+
             if (!user || !user.profile) {
               console.error('Données utilisateur incomplètes:', user);
               return;
@@ -459,18 +461,25 @@
             document.getElementById('profileSexe').value =
               user.profile.sexe || '';
 
-            // Remplir les champs de localisation
-            if (
-              user.profile.localisation &&
-              typeof user.profile.localisation === 'object'
-            ) {
-              document.getElementById('profilePays').value =
-                user.profile.localisation.pays || '';
-              document.getElementById('profileRegion').value =
-                user.profile.localisation.region || '';
-              document.getElementById('profileVille').value =
-                user.profile.localisation.ville || '';
+            // Remplir les champs de localisation avec gestion robuste
+            let pays = '';
+            let region = '';
+            let ville = '';
+
+            if (user.profile.localisation) {
+              if (typeof user.profile.localisation === 'object') {
+                pays = user.profile.localisation.pays || '';
+                region = user.profile.localisation.region || '';
+                ville = user.profile.localisation.ville || '';
+              } else {
+                // Fallback si localisation est une chaîne
+                ville = user.profile.localisation;
+              }
             }
+
+            document.getElementById('profilePays').value = pays;
+            document.getElementById('profileRegion').value = region;
+            document.getElementById('profileVille').value = ville;
 
             document.getElementById('profileBio').value =
               user.profile.bio || '';
@@ -478,9 +487,8 @@
             // Mettre à jour l'affichage
             document.getElementById('profileName').textContent =
               user.profile.nom || 'Votre nom';
-            const ville = user.profile.localisation?.ville || 'Ville';
             document.getElementById('profileDetails').textContent =
-              `${user.profile.age || 'Âge'} • ${ville}`;
+              `${user.profile.age || 'Âge'} • ${ville || 'Ville'}`;
 
             // Mettre à jour le compteur de caractères
             document.getElementById('bioCharCount').textContent =
@@ -489,6 +497,8 @@
             // Mettre à jour les statistiques
             document.getElementById('profileViews').textContent =
               user.stats?.profileViews || 0;
+            document.getElementById('profileMessages').textContent =
+              user.stats?.messagesReceived || 0;
           } else {
             console.error('Erreur API:', response.status);
             if (response.status === 401) {
