@@ -739,12 +739,18 @@
 
       // Initialisation
       document.addEventListener('DOMContentLoaded', function () {
-        loadProfileData();
+        // Vérifier l'authentification - redirection immédiate si non connecté
+        const token = localStorage.getItem('hotmeet_token');
+        const savedProfile = localStorage.getItem('hotmeet_user_profile');
 
-        // Vérifier l'authentification
-        if (!localStorage.getItem('hotmeet_token')) {
+        if (!token && !savedProfile) {
+          // Utilisateur non connecté et pas d'inscription en cours -> redirection vers auth
           window.location.href = '/auth';
+          return;
         }
+
+        // Utilisateur connecté ou vient de s'inscrire -> charger les données du profil
+        loadProfileData();
       });
     </script>
 
