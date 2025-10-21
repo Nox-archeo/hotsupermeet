@@ -19,7 +19,11 @@ const userSchema = new mongoose.Schema(
       nom: { type: String, required: true, trim: true },
       age: { type: Number, required: true, min: 18, max: 100 },
       sexe: { type: String, enum: ['homme', 'femme', 'autre'], required: true },
-      localisation: { type: String, required: true, trim: true },
+      localisation: {
+        pays: { type: String, required: true, trim: true },
+        region: { type: String, required: true, trim: true },
+        ville: { type: String, required: true, trim: true },
+      },
       bio: { type: String, maxlength: 500, trim: true },
       pratiques: [{ type: String, trim: true }],
       photos: [
@@ -104,7 +108,9 @@ userSchema.methods.isEligibleForFreePremium = function () {
 
 // Index pour les recherches fréquentes
 userSchema.index({ email: 1 });
-userSchema.index({ 'profile.localisation': 1 });
+userSchema.index({ 'profile.localisation.pays': 1 });
+userSchema.index({ 'profile.localisation.region': 1 });
+userSchema.index({ 'profile.localisation.ville': 1 });
 userSchema.index({ 'profile.age': 1 });
 userSchema.index({ 'profile.sexe': 1 });
 userSchema.index({ 'premium.isPremium': 1 });
