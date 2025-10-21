@@ -133,70 +133,7 @@ class AuthPage {
 
   // Obtenir les régions par pays
   getRegionsByCountry(pays) {
-    const regionsByCountry = {
-      france: [
-        { value: 'auvergne-rhone-alpes', name: 'Auvergne-Rhône-Alpes' },
-        { value: 'bourgogne-franche-comte', name: 'Bourgogne-Franche-Comté' },
-        { value: 'bretagne', name: 'Bretagne' },
-        { value: 'centre-val-de-loire', name: 'Centre-Val de Loire' },
-        { value: 'corse', name: 'Corse' },
-        { value: 'grand-est', name: 'Grand Est' },
-        { value: 'hauts-de-france', name: 'Hauts-de-France' },
-        { value: 'ile-de-france', name: 'Île-de-France' },
-        { value: 'normandie', name: 'Normandie' },
-        { value: 'nouvelle-aquitaine', name: 'Nouvelle-Aquitaine' },
-        { value: 'occitanie', name: 'Occitanie' },
-        { value: 'pays-de-la-loire', name: 'Pays de la Loire' },
-        {
-          value: 'provence-alpes-cote-dazur',
-          name: 'Provence-Alpes-Côte d\\' + 'Azur',
-        },
-      ],
-      suisse: [
-        { value: 'zurich', name: 'Zurich' },
-        { value: 'berne', name: 'Berne' },
-        { value: 'vaud', name: 'Vaud' },
-        { value: 'geneve', name: 'Genève' },
-        { value: 'bale-ville', name: 'Bâle-Ville' },
-        { value: 'lausanne', name: 'Lausanne' },
-        { value: 'lucerne', name: 'Lucerne' },
-        { value: 'saint-gall', name: 'Saint-Gall' },
-        { value: 'ticino', name: 'Ticino' },
-        { value: 'valais', name: 'Valais' },
-      ],
-      belgique: [
-        { value: 'bruxelles', name: 'Bruxelles-Capitale' },
-        { value: 'flandre', name: 'Région flamande' },
-        { value: 'wallonie', name: 'Région wallonne' },
-      ],
-      allemagne: [
-        { value: 'baden-wurttemberg', name: 'Bade-Wurtemberg' },
-        { value: 'baviere', name: 'Bavière' },
-        { value: 'berlin', name: 'Berlin' },
-        { value: 'brandebourg', name: 'Brandebourg' },
-        { value: 'breme', name: 'Brême' },
-        { value: 'hambourg', name: 'Hambourg' },
-        { value: 'hesse', name: 'Hesse' },
-        { value: 'basse-saxe', name: 'Basse-Saxe' },
-        { value: 'meckenbourg', name: 'Mecklembourg-Poméranie-Occidentale' },
-        { value: 'rhin-du-nord', name: 'Rhénanie-du-Nord-Westphalie' },
-        { value: 'rhin-palatinat', name: 'Rhénanie-Palatinat' },
-        { value: 'sarre', name: 'Sarre' },
-        { value: 'saxe', name: 'Saxe' },
-        { value: 'saxe-anhalt', name: 'Saxe-Anhalt' },
-        { value: 'schleswig', name: 'Schleswig-Holstein' },
-        { value: 'thuringe', name: 'Thuringe' },
-      ],
-      'royaume-uni': [
-        { value: 'angleterre', name: 'Angleterre' },
-        { value: 'ecosse', name: 'Écosse' },
-        { value: 'pays-de-galles', name: 'Pays de Galles' },
-        { value: 'irlande-nord', name: 'Irlande du Nord' },
-      ],
-      // Ajouter d'autres pays avec leurs régions si nécessaire
-    };
-
-    return regionsByCountry[pays] || [];
+    return window.europeanRegions?.[pays] || [];
   }
 
   // Vérification des paramètres d'URL
