@@ -117,6 +117,20 @@ async function loadProfileData() {
 
       document.getElementById('profileBio').value = profile.bio || '';
 
+      // NOUVEAU: Mettre à jour la photo de profil depuis localStorage
+      const profileAvatarElem = document.getElementById('profileAvatar');
+      if (profileAvatarElem && profile.photos && profile.photos.length > 0) {
+        const firstPhoto = profile.photos[0];
+        if (firstPhoto && firstPhoto.url) {
+          console.log(
+            'Photo utilisateur trouvée dans localStorage:',
+            firstPhoto.url
+          );
+          profileAvatarElem.src = firstPhoto.url;
+          profileAvatarElem.alt = `Photo de ${profile.nom || 'profil'}`;
+        }
+      }
+
       // Mettre à jour l'affichage
       document.getElementById('profileName').textContent =
         profile.nom || 'Votre nom';
@@ -231,6 +245,25 @@ async function loadProfileData() {
           villeField.value = ville;
 
           bioField.value = user.profile.bio || '';
+
+          // NOUVEAU: Mettre à jour la photo de profil
+          const profileAvatarElem = document.getElementById('profileAvatar');
+          if (
+            profileAvatarElem &&
+            user.profile.photos &&
+            user.profile.photos.length > 0
+          ) {
+            const firstPhoto = user.profile.photos[0];
+            if (firstPhoto && firstPhoto.url) {
+              console.log('Photo utilisateur trouvée:', firstPhoto.url);
+              profileAvatarElem.src = firstPhoto.url;
+              profileAvatarElem.alt = `Photo de ${user.profile.nom || 'profil'}`;
+            } else {
+              console.log("Pas d'URL de photo, utilisation du placeholder");
+            }
+          } else {
+            console.log('Pas de photos dans le profil utilisateur');
+          }
 
           // Mettre à jour l'affichage du profil si les éléments existent
           if (profileNameElem) {
