@@ -19,7 +19,7 @@ const CLIENT_URL =
 
 const io = new Server(server, {
   cors: {
-    origin: CLIENT_URL,
+    origin: ['https://hotsupermeet.com', 'https://hotsupermeet.onrender.com'],
     methods: ['GET', 'POST'],
   },
 });
@@ -42,7 +42,7 @@ app.use(limiter);
 // Middleware CORS
 app.use(
   cors({
-    origin: CLIENT_URL,
+    origin: ['https://hotsupermeet.com', 'https://hotsupermeet.onrender.com'],
     credentials: true,
   })
 );
