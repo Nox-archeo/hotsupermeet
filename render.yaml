@@ -11,4 +11,3 @@ services:
       - key: PORT
         value: 10000
     healthCheckPath: /health
-    autoDeploy: true
