@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mon Profil - HotMeet</title>
     <link rel="stylesheet" href="/css/style.css?v=6" />
-    <link rel="stylesheet" href="/css/pages.css?v=1" />
-    <link rel="stylesheet" href="/css/animations.css" />
+    <link rel="stylesheet" href="/css/pages.css?v=2" />
+    <link rel="stylesheet" href="/css/animations.css?v=2" />
   </head>
   <body>
     <!-- Header identique à la page d'accueil -->
@@ -310,8 +310,9 @@
     <!-- JavaScript principal -->
     <script src="/js/app.js"></script>
 
-    <!-- JavaScript spécifique au profil -->
+    <!-- JavaScript spécifique au profil - Version 2.0 avec corrections -->
     <script>
+      console.log('🔧 PROFIL PAGE VERSION 2.0 - CORRECTIONS APPLIQUÉES');
       // Gestion du formulaire de profil
       document
         .getElementById('profileForm')
@@ -618,6 +619,13 @@
               }
 
               console.log('Formulaire rempli avec succès');
+              console.log('✅ DONNÉES AFFICHÉES:', {
+                nom: user.profile.nom,
+                age: user.profile.age,
+                ville: ville,
+                profileNameElem: profileNameElem?.textContent,
+                profileDetailsElem: profileDetailsElem?.textContent,
+              });
 
               // Mettre à jour les boutons de navigation
               updateNavigationButtons(true);
