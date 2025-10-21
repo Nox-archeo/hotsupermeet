@@ -524,6 +524,11 @@
             }
 
             // Remplir le formulaire avec les données existantes
+            console.log(
+              'Remplissage du formulaire avec les données utilisateur:',
+              user.profile
+            );
+
             document.getElementById('profileNom').value =
               user.profile.nom || '';
             document.getElementById('profileAge').value =
@@ -547,6 +552,8 @@
               }
             }
 
+            console.log('Localisation extraite:', { pays, region, ville });
+
             document.getElementById('profilePays').value = pays;
             document.getElementById('profileRegion').value = region;
             document.getElementById('profileVille').value = ville;
@@ -569,6 +576,8 @@
               user.stats?.profileViews || 0;
             document.getElementById('profileMessages').textContent =
               user.stats?.messagesReceived || 0;
+
+            console.log('Formulaire rempli avec succès');
           } else {
             console.error('Erreur API:', response.status);
             if (response.status === 401) {
@@ -742,17 +751,24 @@
 
       // Initialisation
       document.addEventListener('DOMContentLoaded', function () {
+        console.log('=== INITIALISATION PAGE PROFIL ===');
+
         // Vérifier l'authentification - redirection immédiate si non connecté
         const token = localStorage.getItem('hotmeet_token');
         const savedProfile = localStorage.getItem('hotmeet_user_profile');
 
+        console.log('Token présent:', !!token);
+        console.log('Profil sauvegardé présent:', !!savedProfile);
+
         if (!token && !savedProfile) {
           // Utilisateur non connecté et pas d'inscription en cours -> redirection vers auth
+          console.log('Redirection vers /auth - utilisateur non connecté');
           window.location.href = '/auth';
           return;
         }
 
         // Utilisateur connecté ou vient de s'inscrire -> charger les données du profil
+        console.log('Chargement des données du profil...');
         loadProfileData();
       });
     </script>
