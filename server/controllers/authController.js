@@ -31,11 +31,19 @@ const register = async (req, res) => {
       // Traitement des données multipart avec express-fileupload
       email = req.body.email;
       password = req.body.password;
+
+      // Construire l'objet localisation à partir des champs individuels
+      const localisation = {
+        pays: req.body.pays,
+        region: req.body.region,
+        ville: req.body.ville,
+      };
+
       profile = {
         nom: req.body.nom,
         age: parseInt(req.body.age),
         sexe: req.body.sexe,
-        localisation: req.body.localisation,
+        localisation: localisation,
         bio: req.body.bio || '',
       };
 

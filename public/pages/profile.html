@@ -140,12 +140,57 @@
                         </select>
                       </div>
                       <div class="form-group">
-                        <label for="profileLocalisation">Localisation</label>
+                        <label for="profilePays">Pays</label>
+                        <select id="profilePays" class="form-input" required>
+                          <option value="">Choisir un pays...</option>
+                          <option value="france">France</option>
+                          <option value="suisse">Suisse</option>
+                          <option value="belgique">Belgique</option>
+                          <option value="allemagne">Allemagne</option>
+                          <option value="italie">Italie</option>
+                          <option value="espagne">Espagne</option>
+                          <option value="portugal">Portugal</option>
+                          <option value="pays-bas">Pays-Bas</option>
+                          <option value="luxembourg">Luxembourg</option>
+                          <option value="autriche">Autriche</option>
+                          <option value="royaume-uni">Royaume-Uni</option>
+                          <option value="irlande">Irlande</option>
+                          <option value="danemark">Danemark</option>
+                          <option value="suede">Suède</option>
+                          <option value="norvege">Norvège</option>
+                          <option value="finlande">Finlande</option>
+                          <option value="pologne">Pologne</option>
+                          <option value="republique-tcheque">
+                            République Tchèque
+                          </option>
+                          <option value="slovaquie">Slovaquie</option>
+                          <option value="hongrie">Hongrie</option>
+                          <option value="roumanie">Roumanie</option>
+                          <option value="bulgarie">Bulgarie</option>
+                          <option value="grece">Grèce</option>
+                          <option value="croatie">Croatie</option>
+                          <option value="slovenie">Slovénie</option>
+                          <option value="estonie">Estonie</option>
+                          <option value="lettonie">Lettonie</option>
+                          <option value="lituanie">Lituanie</option>
+                          <option value="malte">Malte</option>
+                          <option value="chypre">Chypre</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="profileRegion">Région</label>
+                        <select id="profileRegion" class="form-input" required>
+                          <option value="">Choisir une région...</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="profileVille">Ville</label>
                         <input
                           type="text"
-                          id="profileLocalisation"
+                          id="profileVille"
                           class="form-input"
-                          placeholder="Ville, région"
+                          placeholder="Nom de la ville"
+                          required
                         />
                       </div>
                     </div>
@@ -278,9 +323,11 @@
               nom: document.getElementById('profileNom').value.trim(),
               age: parseInt(document.getElementById('profileAge').value),
               sexe: document.getElementById('profileSexe').value,
-              localisation: document
-                .getElementById('profileLocalisation')
-                .value.trim(),
+              localisation: {
+                pays: document.getElementById('profilePays').value,
+                region: document.getElementById('profileRegion').value,
+                ville: document.getElementById('profileVille').value.trim(),
+              },
               bio: document.getElementById('profileBio').value.trim(),
             },
           };
@@ -290,7 +337,9 @@
             !formData.profile.nom ||
             !formData.profile.age ||
             !formData.profile.sexe ||
-            !formData.profile.localisation
+            !formData.profile.localisation.pays ||
+            !formData.profile.localisation.region ||
+            !formData.profile.localisation.ville
           ) {
             showMessage(
               'Veuillez remplir tous les champs obligatoires',
@@ -312,9 +361,9 @@
             return;
           }
 
-          if (formData.profile.localisation.length < 2) {
+          if (formData.profile.localisation.ville.length < 2) {
             showMessage(
-              'La localisation doit contenir au moins 2 caractères',
+              'La ville doit contenir au moins 2 caractères',
               'error'
             );
             return;
@@ -350,7 +399,7 @@
               document.getElementById('profileName').textContent =
                 formData.profile.nom;
               document.getElementById('profileDetails').textContent =
-                `${formData.profile.age} ans • ${formData.profile.localisation}`;
+                `${formData.profile.age} ans • ${formData.profile.localisation.ville}`;
             } else {
               showMessage(
                 'Erreur lors de la mise à jour: ' +
@@ -410,24 +459,18 @@
             document.getElementById('profileSexe').value =
               user.profile.sexe || '';
 
-            // Gérer la localisation (ancien format objet vs nouveau format string)
-            let localisationValue = '';
-            if (typeof user.profile.localisation === 'string') {
-              localisationValue = user.profile.localisation;
-            } else if (
+            // Remplir les champs de localisation
+            if (
               user.profile.localisation &&
               typeof user.profile.localisation === 'object'
             ) {
-              // Ancien format: {pays, region, ville}
-              const loc = user.profile.localisation;
-              localisationValue =
-                `${loc.ville || ''}${loc.region ? ', ' + loc.region : ''}${loc.pays ? ', ' + loc.pays : ''}`.trim();
-              if (localisationValue.startsWith(', ')) {
-                localisationValue = localisationValue.substring(2);
-              }
+              document.getElementById('profilePays').value =
+                user.profile.localisation.pays || '';
+              document.getElementById('profileRegion').value =
+                user.profile.localisation.region || '';
+              document.getElementById('profileVille').value =
+                user.profile.localisation.ville || '';
             }
-            document.getElementById('profileLocalisation').value =
-              localisationValue;
 
             document.getElementById('profileBio').value =
               user.profile.bio || '';
@@ -435,8 +478,9 @@
             // Mettre à jour l'affichage
             document.getElementById('profileName').textContent =
               user.profile.nom || 'Votre nom';
+            const ville = user.profile.localisation?.ville || 'Ville';
             document.getElementById('profileDetails').textContent =
-              `${user.profile.age || 'Âge'} • ${localisationValue || 'Ville'}`;
+              `${user.profile.age || 'Âge'} • ${ville}`;
 
             // Mettre à jour le compteur de caractères
             document.getElementById('bioCharCount').textContent =
@@ -471,7 +515,7 @@
             nom: document.getElementById('profileNom').value || 'Votre nom',
             age: document.getElementById('profileAge').value || 'Âge',
             localisation:
-              document.getElementById('profileLocalisation').value || 'Ville',
+              document.getElementById('profileVille').value || 'Ville',
             bio:
               document.getElementById('profileBio').value ||
               'Bio non renseignée',
@@ -524,6 +568,94 @@
           messageDiv.remove();
         }, 3000);
       }
+
+      // Charger les régions en fonction du pays sélectionné
+      document
+        .getElementById('profilePays')
+        .addEventListener('change', function () {
+          const regionSelect = document.getElementById('profileRegion');
+          regionSelect.innerHTML =
+            '<option value="">Choisir une région...</option>';
+
+          const regions = {
+            france: [
+              'Auvergne-Rhône-Alpes',
+              'Bourgogne-Franche-Comté',
+              'Bretagne',
+              'Centre-Val de Loire',
+              'Corse',
+              'Grand Est',
+              'Hauts-de-France',
+              'Île-de-France',
+              'Normandie',
+              'Nouvelle-Aquitaine',
+              'Occitanie',
+              'Pays de la Loire',
+              "Provence-Alpes-Côte d'Azur",
+            ],
+            suisse: [
+              'Zurich',
+              'Berne',
+              'Lucerne',
+              'Uri',
+              'Schwyz',
+              'Obwald',
+              'Nidwald',
+              'Glaris',
+              'Zoug',
+              'Fribourg',
+              'Soleure',
+              'Bâle-Ville',
+              'Bâle-Campagne',
+              'Schaffhouse',
+              'Appenzell Rhodes-Extérieures',
+              'Appenzell Rhodes-Intérieures',
+              'Saint-Gall',
+              'Grisons',
+              'Argovie',
+              'Thurgovie',
+              'Tessin',
+              'Vaud',
+              'Valais',
+              'Neuchâtel',
+              'Genève',
+              'Jura',
+            ],
+            belgique: [
+              'Bruxelles-Capitale',
+              'Région flamande',
+              'Région wallonne',
+            ],
+            allemagne: [
+              'Baden-Württemberg',
+              'Bavière',
+              'Berlin',
+              'Brandebourg',
+              'Brême',
+              'Hambourg',
+              'Hesse',
+              'Mecklembourg-Poméranie-Occidentale',
+              'Basse-Saxe',
+              'Rhénanie-du-Nord-Westphalie',
+              'Rhénanie-Palatinat',
+              'Sarre',
+              'Saxe',
+              'Saxe-Anhalt',
+              'Schleswig-Holstein',
+              'Thuringe',
+            ],
+          };
+
+          const selectedPays = this.value;
+          if (regions[selectedPays]) {
+            regions[selectedPays].forEach(region => {
+              const option = document.createElement('option');
+              option.value = region.toLowerCase().replace(/\s+/g, '-');
+              option.textContent = region;
+              regionSelect.appendChild(option);
+            });
+          }
+        });
 
       // Initialisation
       document.addEventListener('DOMContentLoaded', function () {
