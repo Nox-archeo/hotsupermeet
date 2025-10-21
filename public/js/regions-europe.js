@@ -837,6 +837,307 @@ const europeanRegions = {
   ],
 };
 
+// Données des villes européennes par pays et région
+const europeanCities = {
+  france: {
+    'auvergne-rhone-alpes': [
+      { value: 'lyon', name: 'Lyon' },
+      { value: 'grenoble', name: 'Grenoble' },
+      { value: 'saint-etienne', name: 'Saint-Étienne' },
+      { value: 'clermont-ferrand', name: 'Clermont-Ferrand' },
+      { value: 'annecy', name: 'Annecy' },
+      { value: 'valence', name: 'Valence' },
+      { value: 'chambery', name: 'Chambéry' },
+      { value: 'villeurbanne', name: 'Villeurbanne' },
+    ],
+    'bourgogne-franche-comte': [
+      { value: 'dijon', name: 'Dijon' },
+      { value: 'besancon', name: 'Besançon' },
+      { value: 'bourg-en-bresse', name: 'Bourg-en-Bresse' },
+      { value: 'nevers', name: 'Nevers' },
+      { value: 'vesoul', name: 'Vesoul' },
+      { value: 'montbeliard', name: 'Montbéliard' },
+    ],
+    bretagne: [
+      { value: 'rennes', name: 'Rennes' },
+      { value: 'brest', name: 'Brest' },
+      { value: 'quimper', name: 'Quimper' },
+      { value: 'lorient', name: 'Lorient' },
+      { value: 'vannes', name: 'Vannes' },
+      { value: 'saint-brieuc', name: 'Saint-Brieuc' },
+      { value: 'saint-malo', name: 'Saint-Malo' },
+    ],
+    'centre-val-de-loire': [
+      { value: 'tours', name: 'Tours' },
+      { value: 'orleans', name: 'Orléans' },
+      { value: 'blois', name: 'Blois' },
+      { value: 'bourges', name: 'Bourges' },
+      { value: 'chartres', name: 'Chartres' },
+      { value: 'chateauroux', name: 'Châteauroux' },
+    ],
+    corse: [
+      { value: 'ajaccio', name: 'Ajaccio' },
+      { value: 'bastia', name: 'Bastia' },
+      { value: 'porte-vecchio', name: 'Porto-Vecchio' },
+      { value: 'calvi', name: 'Calvi' },
+    ],
+    'grand-est': [
+      { value: 'strasbourg', name: 'Strasbourg' },
+      { value: 'reims', name: 'Reims' },
+      { value: 'metz', name: 'Metz' },
+      { value: 'nancy', name: 'Nancy' },
+      { value: 'mulhouse', name: 'Mulhouse' },
+      { value: 'colmar', name: 'Colmar' },
+      { value: 'troyes', name: 'Troyes' },
+    ],
+    guadeloupe: [
+      { value: 'pointe-a-pitre', name: 'Pointe-à-Pitre' },
+      { value: 'les-abymes', name: 'Les Abymes' },
+      { value: 'baie-mahault', name: 'Baie-Mahault' },
+    ],
+    guyane: [
+      { value: 'cayenne', name: 'Cayenne' },
+      { value: 'kourou', name: 'Kourou' },
+      { value: 'saint-laurent-du-maroni', name: 'Saint-Laurent-du-Maroni' },
+    ],
+    'hauts-de-france': [
+      { value: 'lille', name: 'Lille' },
+      { value: 'amiens', name: 'Amiens' },
+      { value: 'roubaix', name: 'Roubaix' },
+      { value: 'tourcoing', name: 'Tourcoing' },
+      { value: 'dunkerque', name: 'Dunkerque' },
+      { value: 'calais', name: 'Calais' },
+      { value: 'arras', name: 'Arras' },
+    ],
+    'ile-de-france': [
+      { value: 'paris', name: 'Paris' },
+      { value: 'boulogne-billancourt', name: 'Boulogne-Billancourt' },
+      { value: 'saint-denis', name: 'Saint-Denis' },
+      { value: 'argenteuil', name: 'Argenteuil' },
+      { value: 'montreuil', name: 'Montreuil' },
+      { value: 'versailles', name: 'Versailles' },
+      { value: 'nanterre', name: 'Nanterre' },
+      { value: 'creteil', name: 'Créteil' },
+      { value: 'colombes', name: 'Colombes' },
+    ],
+    martinique: [
+      { value: 'fort-de-france', name: 'Fort-de-France' },
+      { value: 'le-lamentin', name: 'Le Lamentin' },
+      { value: 'le-robert', name: 'Le Robert' },
+    ],
+    mayotte: [
+      { value: 'mamoudzou', name: 'Mamoudzou' },
+      { value: 'koungou', name: 'Koungou' },
+      { value: 'dzaoudzi', name: 'Dzaoudzi' },
+    ],
+    normandie: [
+      { value: 'rouen', name: 'Rouen' },
+      { value: 'le-havre', name: 'Le Havre' },
+      { value: 'caen', name: 'Caen' },
+      { value: 'cherbourg', name: 'Cherbourg' },
+      { value: 'evreux', name: 'Évreux' },
+      { value: 'dieppe', name: 'Dieppe' },
+    ],
+    'nouvelle-aquitaine': [
+      { value: 'bordeaux', name: 'Bordeaux' },
+      { value: 'limoges', name: 'Limoges' },
+      { value: 'pau', name: 'Pau' },
+      { value: 'la-rochelle', name: 'La Rochelle' },
+      { value: 'bayonne', name: 'Bayonne' },
+      { value: 'agen', name: 'Agen' },
+      { value: 'perpignan', name: 'Perpignan' },
+    ],
+    occitanie: [
+      { value: 'toulouse', name: 'Toulouse' },
+      { value: 'montpellier', name: 'Montpellier' },
+      { value: 'nimes', name: 'Nîmes' },
+      { value: 'perpignan', name: 'Perpignan' },
+      { value: 'carcassonne', name: 'Carcassonne' },
+      { value: 'albi', name: 'Albi' },
+    ],
+    'pays-de-la-loire': [
+      { value: 'nantes', name: 'Nantes' },
+      { value: 'angers', name: 'Angers' },
+      { value: 'le-mans', name: 'Le Mans' },
+      { value: 'saint-nazaire', name: 'Saint-Nazaire' },
+      { value: 'laval', name: 'Laval' },
+      { value: 'la-roche-sur-yon', name: 'La Roche-sur-Yon' },
+    ],
+    'provence-alpes-cote-dazur': [
+      { value: 'marseille', name: 'Marseille' },
+      { value: 'nice', name: 'Nice' },
+      { value: 'toulon', name: 'Toulon' },
+      { value: 'aix-en-provence', name: 'Aix-en-Provence' },
+      { value: 'avignon', name: 'Avignon' },
+      { value: 'cannes', name: 'Cannes' },
+      { value: 'antibes', name: 'Antibes' },
+    ],
+    'la-reunion': [
+      { value: 'saint-denis', name: 'Saint-Denis' },
+      { value: 'saint-paul', name: 'Saint-Paul' },
+      { value: 'saint-pierre', name: 'Saint-Pierre' },
+      { value: 'le-tampon', name: 'Le Tampon' },
+    ],
+  },
+  suisse: {
+    zurich: [
+      { value: 'zurich', name: 'Zurich' },
+      { value: 'winterthour', name: 'Winterthour' },
+      { value: 'uster', name: 'Uster' },
+      { value: 'dubendorf', name: 'Dübendorf' },
+    ],
+    berne: [
+      { value: 'berne', name: 'Berne' },
+      { value: 'bienne', name: 'Bienne' },
+      { value: 'thoune', name: 'Thoune' },
+      { value: 'köniz', name: 'Köniz' },
+    ],
+    vaud: [
+      { value: 'lausanne', name: 'Lausanne' },
+      { value: 'montreux', name: 'Montreux' },
+      { value: 'yonne', name: 'Yverdon-les-Bains' },
+      { value: 'renens', name: 'Renens' },
+    ],
+    geneve: [
+      { value: 'geneve', name: 'Genève' },
+      { value: 'carouge', name: 'Carouge' },
+      { value: 'vernier', name: 'Vernier' },
+    ],
+    fribourg: [
+      { value: 'fribourg', name: 'Fribourg' },
+      { value: 'bulle', name: 'Bulle' },
+      { value: 'estavayer-le-lac', name: 'Estavayer-le-Lac' },
+    ],
+    valais: [
+      { value: 'sion', name: 'Sion' },
+      { value: 'sierre', name: 'Sierre' },
+      { value: 'martigny', name: 'Martigny' },
+      { value: 'monthey', name: 'Monthey' },
+    ],
+    neuchatel: [
+      { value: 'neuchatel', name: 'Neuchâtel' },
+      { value: 'la-chaux-de-fonds', name: 'La Chaux-de-Fonds' },
+      { value: 'le-locle', name: 'Le Locle' },
+    ],
+    lucerne: [
+      { value: 'lucerne', name: 'Lucerne' },
+      { value: 'emmen', name: 'Emmen' },
+      { value: 'kriens', name: 'Kriens' },
+    ],
+    ticino: [
+      { value: 'lugano', name: 'Lugano' },
+      { value: 'bellinzona', name: 'Bellinzona' },
+      { value: 'locarno', name: 'Locarno' },
+    ],
+    'saint-gall': [
+      { value: 'saint-gall', name: 'Saint-Gall' },
+      { value: 'rapperswil-jona', name: 'Rapperswil-Jona' },
+      { value: 'wil', name: 'Wil' },
+    ],
+  },
+  belgique: {
+    anvers: [
+      { value: 'anvers', name: 'Anvers' },
+      { value: 'mechelen', name: 'Malines' },
+      { value: 'turnhout', name: 'Turnhout' },
+    ],
+    'brabant-flamand': [
+      { value: 'leuven', name: 'Louvain' },
+      { value: 'vilvoorde', name: 'Vilvorde' },
+    ],
+    'brabant-wallon': [
+      { value: 'wavre', name: 'Wavre' },
+      { value: 'louvain-la-neuve', name: 'Louvain-la-Neuve' },
+    ],
+    'flandre-occidentale': [
+      { value: 'bruges', name: 'Bruges' },
+      { value: 'courtrai', name: 'Courtrai' },
+      { value: 'ostende', name: 'Ostende' },
+    ],
+    'flandre-orientale': [
+      { value: 'gand', name: 'Gand' },
+      { value: 'saint-nicolas', name: 'Saint-Nicolas' },
+      { value: 'alost', name: 'Alost' },
+    ],
+    hainaut: [
+      { value: 'mons', name: 'Mons' },
+      { value: 'charleroi', name: 'Charleroi' },
+      { value: 'tournai', name: 'Tournai' },
+    ],
+    liege: [
+      { value: 'liege', name: 'Liège' },
+      { value: 'verviers', name: 'Verviers' },
+      { value: 'seraing', name: 'Seraing' },
+    ],
+    limbourg: [
+      { value: 'hasselt', name: 'Hasselt' },
+      { value: 'genk', name: 'Genk' },
+    ],
+    luxembourg: [
+      { value: 'arlon', name: 'Arlon' },
+      { value: 'bastogne', name: 'Bastogne' },
+    ],
+    namur: [
+      { value: 'namur', name: 'Namur' },
+      { value: 'dinant', name: 'Dinant' },
+    ],
+  },
+};
+
+// Fonction pour obtenir les villes d'un pays et d'une région spécifiques
+function getCitiesByCountryAndRegion(countryKey, regionValue) {
+  if (europeanCities[countryKey] && europeanCities[countryKey][regionValue]) {
+    return europeanCities[countryKey][regionValue];
+  }
+  return [];
+}
+
+// Fonction de recherche de villes avec correspondance automatique
+function searchCities(searchTerm, countryKey = null, regionValue = null) {
+  const normalizedSearch = normalizeString(searchTerm);
+  const results = [];
+
+  // Si pays et région sont spécifiés, chercher uniquement dans cette région
+  if (countryKey && regionValue) {
+    const cities = getCitiesByCountryAndRegion(countryKey, regionValue);
+    for (const city of cities) {
+      const normalizedCityName = normalizeString(city.name);
+      if (normalizedCityName.includes(normalizedSearch)) {
+        results.push({
+          ...city,
+          countryKey: countryKey,
+          regionValue: regionValue,
+        });
+      }
+    }
+    return results;
+  }
+
+  // Recherche globale dans toutes les villes
+  for (const country in europeanCities) {
+    for (const region in europeanCities[country]) {
+      const cities = europeanCities[country][region];
+      for (const city of cities) {
+        const normalizedCityName = normalizeString(city.name);
+        if (normalizedCityName.includes(normalizedSearch)) {
+          results.push({
+            ...city,
+            countryKey: country,
+            regionValue: region,
+          });
+        }
+      }
+    }
+  }
+
+  return results;
+}
+
+// Exemple d'utilisation :
+// console.log(getCitiesByCountryAndRegion('france', 'ile-de-france')); // Villes d'Île-de-France
+// console.log(searchCities('par', 'france', 'ile-de-france')); // Recherche de villes contenant "par" en Île-de-France
+// console.log(searchCities('gen')); // Recherche globale de villes contenant "gen"
+
 // Fonction utilitaire pour normaliser les chaînes (enlever accents, mettre en minuscule)
 function normalizeString(str) {
   return str
