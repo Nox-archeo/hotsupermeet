@@ -4,9 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mon Profil - HotMeet</title>
+    <!-- FORCE CACHE BREAK v2.1 -->
     <link rel="stylesheet" href="/css/style.css?v=6" />
-    <link rel="stylesheet" href="/css/pages.css?v=2" />
-    <link rel="stylesheet" href="/css/animations.css?v=2" />
+    <link rel="stylesheet" href="/css/pages.css?v=3" />
+    <link rel="stylesheet" href="/css/animations.css?v=3" />
   </head>
   <body>
     <!-- Header identique à la page d'accueil -->
@@ -310,9 +311,14 @@
     <!-- JavaScript principal -->
     <script src="/js/app.js"></script>
 
-    <!-- JavaScript spécifique au profil - Version 2.0 avec corrections -->
+    <!-- JavaScript spécifique au profil - Version 2.1 FORCED REFRESH -->
     <script>
-      console.log('🔧 PROFIL PAGE VERSION 2.0 - CORRECTIONS APPLIQUÉES');
+      console.log(
+        '🔧 PROFIL PAGE VERSION 2.1 - CACHE FORCÉ - ' + new Date().toISOString()
+      );
+      console.log(
+        '🚨 NOUVELLE VERSION CHARGÉE ! Si vous voyez ce message, la correction est active.'
+      );
       // Gestion du formulaire de profil
       document
         .getElementById('profileForm')
