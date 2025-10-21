@@ -27,6 +27,9 @@ const io = new Server(server, {
 // Configuration du proxy pour Infomaniak
 app.set('trust proxy', 1);
 
+// TIMESTAMP POUR FORCER RESTART COMPLET RENDER
+console.log('🚀 SERVEUR REDÉMARRÉ COMPLÈTEMENT :', new Date().toISOString());
+
 // Middleware de sécurité
 app.use(helmet());
 app.use(compression());
@@ -208,9 +211,12 @@ app.get('/:page', (req, res) => {
   ];
 
   if (validPages.includes(page)) {
-    // CORRECTION CACHE: Utiliser profile-v2.html pour contourner le cache
+    // CACHE KILLER ULTIME: Fichier totalement nouveau pour CASSER le cache
     if (page === 'profile') {
-      res.sendFile(__dirname + `/public/pages/profile-v2.html`);
+      console.log(
+        '🎯 CACHE KILLER: Serving profile-final-fix.html au lieu de profile.html'
+      );
+      res.sendFile(__dirname + '/public/pages/profile-final-fix.html');
     } else {
       res.sendFile(__dirname + `/public/pages/${page}.html`);
     }
