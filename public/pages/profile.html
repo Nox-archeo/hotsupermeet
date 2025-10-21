@@ -529,55 +529,93 @@
               user.profile
             );
 
-            document.getElementById('profileNom').value =
-              user.profile.nom || '';
-            document.getElementById('profileAge').value =
-              user.profile.age || '';
-            document.getElementById('profileSexe').value =
-              user.profile.sexe || '';
+            try {
+              // Vérifier que les éléments existent avant de les manipuler
+              const nomField = document.getElementById('profileNom');
+              const ageField = document.getElementById('profileAge');
+              const sexeField = document.getElementById('profileSexe');
+              const paysField = document.getElementById('profilePays');
+              const regionField = document.getElementById('profileRegion');
+              const villeField = document.getElementById('profileVille');
+              const bioField = document.getElementById('profileBio');
+              const profileNameElem = document.getElementById('profileName');
+              const profileDetailsElem =
+                document.getElementById('profileDetails');
+              const bioCharCountElem = document.getElementById('bioCharCount');
+              const profileViewsElem = document.getElementById('profileViews');
+              const profileMessagesElem =
+                document.getElementById('profileMessages');
 
-            // Remplir les champs de localisation avec gestion robuste
-            let pays = '';
-            let region = '';
-            let ville = '';
-
-            if (user.profile.localisation) {
-              if (typeof user.profile.localisation === 'object') {
-                pays = user.profile.localisation.pays || '';
-                region = user.profile.localisation.region || '';
-                ville = user.profile.localisation.ville || '';
-              } else {
-                // Fallback si localisation est une chaîne
-                ville = user.profile.localisation;
+              if (
+                !nomField ||
+                !ageField ||
+                !sexeField ||
+                !paysField ||
+                !regionField ||
+                !villeField ||
+                !bioField
+              ) {
+                console.error(
+                  'Un ou plusieurs éléments du formulaire sont introuvables'
+                );
+                return;
               }
+
+              // Remplir les champs de base
+              nomField.value = user.profile.nom || '';
+              ageField.value = user.profile.age || '';
+              sexeField.value = user.profile.sexe || '';
+
+              // Remplir les champs de localisation avec gestion robuste
+              let pays = '';
+              let region = '';
+              let ville = '';
+
+              if (user.profile.localisation) {
+                if (typeof user.profile.localisation === 'object') {
+                  pays = user.profile.localisation.pays || '';
+                  region = user.profile.localisation.region || '';
+                  ville = user.profile.localisation.ville || '';
+                } else {
+                  // Fallback si localisation est une chaîne
+                  ville = user.profile.localisation;
+                }
+              }
+
+              console.log('Localisation extraite:', { pays, region, ville });
+
+              paysField.value = pays;
+              regionField.value = region;
+              villeField.value = ville;
+
+              bioField.value = user.profile.bio || '';
+
+              // Mettre à jour l'affichage
+              if (profileNameElem) {
+                profileNameElem.textContent = user.profile.nom || 'Votre nom';
+              }
+              if (profileDetailsElem) {
+                profileDetailsElem.textContent = `${user.profile.age || 'Âge'} • ${ville || 'Ville'}`;
+              }
+
+              // Mettre à jour le compteur de caractères
+              if (bioCharCountElem) {
+                bioCharCountElem.textContent = user.profile.bio?.length || 0;
+              }
+
+              // Mettre à jour les statistiques
+              if (profileViewsElem) {
+                profileViewsElem.textContent = user.stats?.profileViews || 0;
+              }
+              if (profileMessagesElem) {
+                profileMessagesElem.textContent =
+                  user.stats?.messagesReceived || 0;
+              }
+
+              console.log('Formulaire rempli avec succès');
+            } catch (error) {
+              console.error('Erreur lors du remplissage du formulaire:', error);
             }
-
-            console.log('Localisation extraite:', { pays, region, ville });
-
-            document.getElementById('profilePays').value = pays;
-            document.getElementById('profileRegion').value = region;
-            document.getElementById('profileVille').value = ville;
-
-            document.getElementById('profileBio').value =
-              user.profile.bio || '';
-
-            // Mettre à jour l'affichage
-            document.getElementById('profileName').textContent =
-              user.profile.nom || 'Votre nom';
-            document.getElementById('profileDetails').textContent =
-              `${user.profile.age || 'Âge'} • ${ville || 'Ville'}`;
-
-            // Mettre à jour le compteur de caractères
-            document.getElementById('bioCharCount').textContent =
-              user.profile.bio?.length || 0;
-
-            // Mettre à jour les statistiques
-            document.getElementById('profileViews').textContent =
-              user.stats?.profileViews || 0;
-            document.getElementById('profileMessages').textContent =
-              user.stats?.messagesReceived || 0;
-
-            console.log('Formulaire rempli avec succès');
           } else {
             console.error('Erreur API:', response.status);
             if (response.status === 401) {
@@ -600,41 +638,57 @@
       document
         .getElementById('previewProfileBtn')
         .addEventListener('click', function () {
-          const previewData = {
-            nom: document.getElementById('profileNom').value || 'Votre nom',
-            age: document.getElementById('profileAge').value || 'Âge',
-            localisation:
-              document.getElementById('profileVille').value || 'Ville',
-            bio:
-              document.getElementById('profileBio').value ||
-              'Bio non renseignée',
-          };
+          try {
+            const nomField = document.getElementById('profileNom');
+            const ageField = document.getElementById('profileAge');
+            const villeField = document.getElementById('profileVille');
+            const bioField = document.getElementById('profileBio');
 
-          const previewHTML = `
-          <div class="preview-modal">
-            <div class="preview-content">
-              <div class="preview-header">
-                <h3>Aperçu de votre profil</h3>
-                <button class="close-preview" onclick="this.closest('.preview-modal').remove()">×</button>
-              </div>
-              <div class="preview-card">
-                <div class="preview-profile">
-                  <img src="/images/default-avatar.jpg" alt="Photo de profil">
-                  <div class="preview-info">
-                    <h4>${previewData.nom}</h4>
-                    <p>${previewData.age} ans • ${previewData.localisation}</p>
+            if (!nomField || !ageField || !villeField || !bioField) {
+              console.error("Champs du formulaire introuvables pour l'aperçu");
+              showMessage("Erreur lors de l'aperçu du profil", 'error');
+              return;
+            }
+
+            const previewData = {
+              nom: nomField.value || 'Votre nom',
+              age: ageField.value || 'Âge',
+              localisation: villeField.value || 'Ville',
+              bio: bioField.value || 'Bio non renseignée',
+            };
+
+            console.log("Données pour l'aperçu:", previewData);
+
+            const previewHTML = `
+            <div class="preview-modal">
+              <div class="preview-content">
+                <div class="preview-header">
+                  <h3>Aperçu de votre profil</h3>
+                  <button class="close-preview" onclick="this.closest('.preview-modal').remove()">×</button>
+                </div>
+                <div class="preview-card">
+                  <div class="preview-profile">
+                    <img src="/images/default-avatar.jpg" alt="Photo de profil">
+                    <div class="preview-info">
+                      <h4>${previewData.nom}</h4>
+                      <p>${previewData.age} ans • ${previewData.localisation}</p>
+                    </div>
+                  </div>
+                  <div class="preview-bio">
+                    <p>${previewData.bio}</p>
                   </div>
                 </div>
-                <div class="preview-bio">
-                  <p>${previewData.bio}</p>
-                </div>
+                <button class="btn-primary" onclick="this.closest('.preview-modal').remove()">Fermer</button>
               </div>
-              <button class="btn-primary" onclick="this.closest('.preview-modal').remove()">Fermer</button>
             </div>
-          </div>
-        `;
+          `;
 
-          document.body.insertAdjacentHTML('beforeend', previewHTML);
+            document.body.insertAdjacentHTML('beforeend', previewHTML);
+            console.log('Aperçu du profil affiché');
+          } catch (error) {
+            console.error("Erreur lors de l'aperçu du profil:", error);
+            showMessage("Erreur lors de l'aperçu du profil", 'error');
+          }
         });
 
       // Affichage des messages
