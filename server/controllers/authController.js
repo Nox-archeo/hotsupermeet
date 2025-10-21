@@ -17,7 +17,18 @@ const register = async (req, res) => {
       blurPhoto = true; // Par défaut floutée
 
     if (isMultipart) {
-      // Traitement des données multipart
+      // Vérifier que les données multipart sont complètes
+      if (!req.body || Object.keys(req.body).length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'INVALID_FORM_DATA',
+            message: 'Données de formulaire incomplètes',
+          },
+        });
+      }
+
+      // Traitement des données multipart avec express-fileupload
       email = req.body.email;
       password = req.body.password;
       profile = {
@@ -31,7 +42,11 @@ const register = async (req, res) => {
         },
         bio: req.body.bio || '',
       };
-      profilePhoto = req.files?.profilePhoto;
+
+      // Vérifier que req.files existe et contient la photo
+      if (req.files && req.files.profilePhoto) {
+        profilePhoto = req.files.profilePhoto;
+      }
       blurPhoto = req.body.blurPhoto === 'on'; // Checkbox renvoie 'on' si cochée
     } else {
       // Traitement des données JSON
@@ -85,22 +100,38 @@ const register = async (req, res) => {
 
     // Gérer l'upload de photo si présent
     if (profilePhoto && profilePhoto.size > 0) {
-      const fileName = `profile-${user._id}-${Date.now()}-${profilePhoto.name}`;
-      const uploadPath = `./uploads/profile-photos/${fileName}`;
+      try {
+        const fileName = `profile-${user._id}-${Date.now()}-${profilePhoto.name}`;
+        const uploadPath = `./uploads/profile-photos/${fileName}`;
 
-      // Déplacer le fichier
-      await profilePhoto.mv(uploadPath);
+        // Créer le répertoire s'il n'existe pas
+        const fs = require('fs');
+        const path = require('path');
+        const dir = path.dirname(uploadPath);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
 
-      // Ajouter la photo au profil avec le choix de floutage de l'utilisateur
-      const photoData = {
-        filename: fileName,
-        path: `/uploads/profile-photos/${fileName}`,
-        isBlurred: blurPhoto, // Respecter le choix de l'utilisateur
-        isProfile: true, // Photo de profil principale
-        uploadedAt: new Date(),
-      };
+        // Déplacer le fichier
+        await profilePhoto.mv(uploadPath);
 
-      user.profile.photos = [photoData];
+        // Ajouter la photo au profil avec le choix de floutage de l'utilisateur
+        const photoData = {
+          filename: fileName,
+          path: `/uploads/profile-photos/${fileName}`,
+          isBlurred: blurPhoto, // Respecter le choix de l'utilisateur
+          isProfile: true, // Photo de profil principale
+          uploadedAt: new Date(),
+        };
+
+        user.profile.photos = [photoData];
+      } catch (uploadError) {
+        console.error(
+          'Erreur lors de l\\' + 'upload de la photo:',
+          uploadError
+        );
+        // Continuer sans photo plutôt que d'échouer l'inscription
+      }
     }
 
     await user.save();

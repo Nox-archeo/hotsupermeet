@@ -58,6 +58,9 @@ app.use(
     createParentPath: true,
     useTempFiles: true,
     tempFileDir: '/tmp/',
+    abortOnLimit: true,
+    parseNested: true,
+    debug: process.env.NODE_ENV === 'development',
   })
 );
 

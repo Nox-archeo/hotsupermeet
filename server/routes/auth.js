@@ -14,18 +14,6 @@ const { auth, updateLastActivity } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Configuration du middleware d'upload pour la route d'inscription
-router.use(
-  '/register',
-  fileUpload({
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
-    abortOnLimit: true,
-    createParentPath: true,
-    useTempFiles: true,
-    tempFileDir: '/tmp/',
-  })
-);
-
 // Validation rules
 const registerValidation = [
   body('email').isEmail().normalizeEmail().withMessage('Email invalide'),
