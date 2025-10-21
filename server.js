@@ -211,12 +211,12 @@ app.get('/:page', (req, res) => {
   ];
 
   if (validPages.includes(page)) {
-    // CACHE KILLER ULTIME: Fichier totalement nouveau pour CASSER le cache
+    // CSP FIX: Utiliser profile-clean.html avec JavaScript externe pour éviter CSP
     if (page === 'profile') {
       console.log(
-        '🎯 CACHE KILLER: Serving profile-final-fix.html au lieu de profile.html'
+        '🎯 CSP FIX: Serving profile-clean.html avec JavaScript externe'
       );
-      res.sendFile(__dirname + '/public/pages/profile-final-fix.html');
+      res.sendFile(__dirname + '/public/pages/profile-clean.html');
     } else {
       res.sendFile(__dirname + `/public/pages/${page}.html`);
     }
