@@ -224,6 +224,16 @@ class AuthPage {
         this.showSuccess('Inscription réussie !');
         localStorage.setItem('hotmeet_token', result.token);
 
+        // Sauvegarder les données du profil dans le localStorage pour la page de profil
+        localStorage.setItem(
+          'hotmeet_user_profile',
+          JSON.stringify(result.user.profile)
+        );
+        localStorage.setItem(
+          'hotmeet_user_stats',
+          JSON.stringify(result.user.stats)
+        );
+
         setTimeout(() => {
           window.location.href = '/profile';
         }, 1500);

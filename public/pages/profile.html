@@ -434,6 +434,67 @@
           const token = localStorage.getItem('hotmeet_token');
           console.log('Token trouvé dans localStorage:', token ? 'OUI' : 'NON');
 
+          // Vérifier d'abord si on a des données dans le localStorage (après inscription)
+          const savedProfile = localStorage.getItem('hotmeet_user_profile');
+          const savedStats = localStorage.getItem('hotmeet_user_stats');
+
+          if (savedProfile) {
+            console.log('Données de profil trouvées dans localStorage');
+            const profile = JSON.parse(savedProfile);
+            const stats = savedStats
+              ? JSON.parse(savedStats)
+              : { profileViews: 0, messagesReceived: 0 };
+
+            // Remplir le formulaire avec les données sauvegardées
+            document.getElementById('profileNom').value = profile.nom || '';
+            document.getElementById('profileAge').value = profile.age || '';
+            document.getElementById('profileSexe').value = profile.sexe || '';
+
+            // Remplir les champs de localisation
+            let pays = '';
+            let region = '';
+            let ville = '';
+
+            if (profile.localisation) {
+              if (typeof profile.localisation === 'object') {
+                pays = profile.localisation.pays || '';
+                region = profile.localisation.region || '';
+                ville = profile.localisation.ville || '';
+              } else {
+                ville = profile.localisation;
+              }
+            }
+
+            document.getElementById('profilePays').value = pays;
+            document.getElementById('profileRegion').value = region;
+            document.getElementById('profileVille').value = ville;
+
+            document.getElementById('profileBio').value = profile.bio || '';
+
+            // Mettre à jour l'affichage
+            document.getElementById('profileName').textContent =
+              profile.nom || 'Votre nom';
+            document.getElementById('profileDetails').textContent =
+              `${profile.age || 'Âge'} • ${ville || 'Ville'}`;
+
+            // Mettre à jour le compteur de caractères
+            document.getElementById('bioCharCount').textContent =
+              profile.bio?.length || 0;
+
+            // Mettre à jour les statistiques
+            document.getElementById('profileViews').textContent =
+              stats.profileViews || 0;
+            document.getElementById('profileMessages').textContent =
+              stats.messagesReceived || 0;
+
+            // Nettoyer le localStorage après utilisation
+            localStorage.removeItem('hotmeet_user_profile');
+            localStorage.removeItem('hotmeet_user_stats');
+
+            console.log('Données du profil chargées depuis localStorage');
+            return;
+          }
+
           if (!token) {
             console.log('Aucun token trouvé, redirection vers /auth');
             window.location.href = '/auth';
