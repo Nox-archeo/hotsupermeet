@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mon Profil - HotMeet</title>
+    <!-- FORCE CACHE BREAK v2.1 -->
+    <link rel="stylesheet" href="/css/style.css?v=6" />
+    <link rel="stylesheet" href="/css/pages.css?v=3" />
+    <link rel="stylesheet" href="/css/animations.css?v=3" />
+  </head>
+  <body>
+    <!-- Header identique à la page d'accueil -->
+    <header class="header">
+      <nav class="nav">
+        <a href="/" class="nav-brand">
+          <img
+            src="/images/logo-hotmeet.png"
+            alt="HotMeet - Rencontres Adultes Premium"
+            class="logo-img"
+          />
+          <span class="logo-text">HotMeet</span>
+        </a>
+
+        <div class="nav-menu" id="navMenu">
+          <a href="/" class="nav-link">Accueil</a>
+          <a href="/directory" class="nav-link">Annuaire</a>
+          <a href="/ads" class="nav-link">Annonces</a>
+          <a href="/tonight" class="nav-link">Ce Soir</a>
+          <a href="/cam" class="nav-link">Cam-to-Cam</a>
+          <a href="/messages" class="nav-link">Messages</a>
+          <a href="/profile" class="nav-link active">Mon Profil</a>
+        </div>
+
+        <div class="nav-actions">
+          <button class="btn-secondary" id="loginBtn">Connexion</button>
+          <button class="btn-primary" id="registerBtn">Inscription</button>
+          <div class="mobile-menu-toggle" id="mobileMenuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Main Content avec le même design que l'accueil -->
+    <main class="pages-container">
+      <div class="container">
+        <!-- Hero Section pour le profil -->
+        <section class="hero" style="min-height: 60vh; padding-top: 100px">
+          <div class="hero-content">
+            <div class="hero-text">
+              <h1 class="hero-title">Mon Profil</h1>
+              <h2 class="hero-subtitle">Gérez votre présence sur HotMeet</h2>
+              <p class="hero-description">
+                Complétez votre profil pour augmenter votre visibilité et
+                attirer plus de contacts
+              </p>
+            </div>
+            <div class="hero-visual">
+              <div class="visual-placeholder">
+                <div class="floating-elements">
+                  <div class="element element-1"></div>
+                  <div class="element element-2"></div>
+                  <div class="element element-3"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section de gestion du profil -->
+        <section class="features" style="background: rgba(255, 255, 255, 0.95)">
+          <div class="container">
+            <h2 class="section-title" style="color: #2c3e50">
+              Gestion de votre profil
+            </h2>
+
+            <div class="profile-management">
+              <div class="profile-card">
+                <div class="profile-header">
+                  <div class="profile-avatar">
+                    <img
+                      src="/images/default-avatar.jpg"
+                      alt="Votre photo"
+                      id="profileAvatar"
+                    />
+                    <div class="avatar-actions">
+                      <button class="btn-secondary" id="changeAvatarBtn">
+                        Changer la photo
+                      </button>
+                    </div>
+                  </div>
+                  <div class="profile-info">
+                    <h3 id="profileName">Votre nom</h3>
+                    <p id="profileDetails">Âge • Ville</p>
+                    <div class="profile-stats">
+                      <div class="stat">
+                        <span class="stat-number" id="profileViews">0</span>
+                        <span class="stat-label">Vues du profil</span>
+                      </div>
+                      <div class="stat">
+                        <span class="stat-number" id="profileMessages">0</span>
+                        <span class="stat-label">Messages reçus</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="profile-form">
+                  <form id="profileForm">
+                    <div class="form-grid">
+                      <div class="form-group">
+                        <label for="profileNom">Nom d'utilisateur</label>
+                        <input
+                          type="text"
+                          id="profileNom"
+                          class="form-input"
+                          placeholder="Votre nom"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label for="profileAge">Âge</label>
+                        <input
+                          type="number"
+                          id="profileAge"
+                          class="form-input"
+                          min="18"
+                          max="100"
+                          placeholder="Âge"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label for="profileSexe">Genre</label>
+                        <select id="profileSexe" class="form-input">
+                          <option value="">Choisir...</option>
+                          <option value="homme">Homme</option>
+                          <option value="femme">Femme</option>
+                          <option value="autre">Autre</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="profilePays">Pays</label>
+                        <select id="profilePays" class="form-input" required>
+                          <option value="">Choisir un pays...</option>
+                          <option value="france">France</option>
+                          <option value="suisse">Suisse</option>
+                          <option value="belgique">Belgique</option>
+                          <option value="allemagne">Allemagne</option>
+                          <option value="italie">Italie</option>
+                          <option value="espagne">Espagne</option>
+                          <option value="portugal">Portugal</option>
+                          <option value="pays-bas">Pays-Bas</option>
+                          <option value="luxembourg">Luxembourg</option>
+                          <option value="autriche">Autriche</option>
+                          <option value="royaume-uni">Royaume-Uni</option>
+                          <option value="irlande">Irlande</option>
+                          <option value="danemark">Danemark</option>
+                          <option value="suede">Suède</option>
+                          <option value="norvege">Norvège</option>
+                          <option value="finlande">Finlande</option>
+                          <option value="pologne">Pologne</option>
+                          <option value="republique-tcheque">
+                            République Tchèque
+                          </option>
+                          <option value="slovaquie">Slovaquie</option>
+                          <option value="hongrie">Hongrie</option>
+                          <option value="roumanie">Roumanie</option>
+                          <option value="bulgarie">Bulgarie</option>
+                          <option value="grece">Grèce</option>
+                          <option value="croatie">Croatie</option>
+                          <option value="slovenie">Slovénie</option>
+                          <option value="estonie">Estonie</option>
+                          <option value="lettonie">Lettonie</option>
+                          <option value="lituanie">Lituanie</option>
+                          <option value="malte">Malte</option>
+                          <option value="chypre">Chypre</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="profileRegion">Région</label>
+                        <select id="profileRegion" class="form-input" required>
+                          <option value="">Choisir une région...</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="profileVille">Ville</label>
+                        <input
+                          type="text"
+                          id="profileVille"
+                          class="form-input"
+                          placeholder="Nom de la ville"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="profileBio">Bio</label>
+                      <textarea
+                        id="profileBio"
+                        class="form-input"
+                        rows="4"
+                        placeholder="Décrivez-vous en quelques mots..."
+                      ></textarea>
+                      <div class="char-counter">
+                        <span id="bioCharCount">0</span>/500 caractères
+                      </div>
+                    </div>
+
+                    <div class="form-actions">
+                      <button type="submit" class="btn-primary">
+                        Enregistrer les modifications
+                      </button>
+                      <button
+                        type="button"
+                        class="btn-secondary"
+                        id="previewProfileBtn"
+                      >
+                        Aperçu du profil
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section Premium -->
+        <section class="premium">
+          <div class="container">
+            <div class="premium-content">
+              <div class="premium-text">
+                <h2>Passez Premium</h2>
+                <p>Débloquez toutes les fonctionnalités avancées de HotMeet</p>
+                <ul class="premium-features">
+                  <li>Messagerie illimitée avec tous les membres</li>
+                  <li>Publication et réponse aux annonces érotiques</li>
+                  <li>Rencontres "Ce soir" avec critères avancés</li>
+                  <li>Cam-to-cam avec filtres de genre et localisation</li>
+                  <li>Profil mis en avant dans les recherches</li>
+                  <li>Support prioritaire 24/7</li>
+                </ul>
+                <div class="pricing">
+                  <div class="price">5.75 CHF<span>/mois</span></div>
+                  <p>Abonnement mensuel avec renouvellement automatique</p>
+                  <button class="btn-primary" id="premiumBtn">
+                    Devenir Premium
+                  </button>
+                </div>
+              </div>
+              <div class="premium-visual">
+                <div class="premium-badge">PREMIUM</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Footer identique à la page d'accueil -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h4>HotMeet</h4>
+            <p>
+              La plateforme premium de rencontres adultes pour des expériences
+              authentiques et sécurisées.
+            </p>
+          </div>
+          <div class="footer-section">
+            <h4>Navigation</h4>
+            <ul class="footer-links">
+              <li><a href="/">Accueil</a></li>
+              <li><a href="/directory">Annuaire</a></li>
+              <li><a href="/ads">Annonces</a></li>
+              <li><a href="/tonight">Ce Soir</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Légal</h4>
+            <ul class="footer-links">
+              <li><a href="/legal">Mentions légales</a></li>
+              <li><a href="/legal#privacy">Politique de confidentialité</a></li>
+              <li><a href="/legal#terms">Conditions d'utilisation</a></li>
+              <li><a href="/legal#cookies">Cookies</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Contact</h4>
+            <ul class="footer-links">
+              <li><a href="mailto:support@hotmeet.ch">Support</a></li>
+              <li><a href="/help">Aide</a></li>
+              <li><a href="/about">À propos</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>
+            &copy; 2024 HotMeet. Tous droits réservés. Réservé aux adultes de 18
+            ans et plus.
+          </p>
+          <p><strong>Vérification d'âge requise</strong></p>
+        </div>
+      </div>
+    </footer>
+
+<!-- JavaScript principal -->
+<script src="/js/app.js"></script>
+
+<!-- JavaScript spécifique au profil - Fichier externe pour éviter CSP -->
+<script src="/js/profile.js"></script>
+    <style>
+      .pages-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding-top: 70px;
+      }
+
+      .profile-management {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .profile-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .profile-header {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        align-items: flex-start;
+      }
+
+      .profile-avatar {
+        text-align: center;
+        flex-shrink: 0;
+      }
+
+      .profile-avatar img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #8a2be2;
+        margin-bottom: 1rem;
+      }
+
+      .avatar-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .profile-info h3 {
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        font-size: 1.5rem;
+      }
+
+      .profile-info p {
+        color: #7f8c8d;
+        margin-bottom: 1rem;
+      }
+
+      .profile-stats {
+        display: flex;
+        gap: 2rem;
+      }
+
+      .stat {
+        text-align: center;
+      }
+
+      .stat-number {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #8a2be2;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group {
+        margin-bottom: 1rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e1e8ed;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: #8a2be2;
+      }
+
+      .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      .char-counter {
+        text-align: right;
+        font-size: 0.9rem;
+        color: #7f8c8d;
+        margin-top: 0.5rem;
+      }
+
+      .preview-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .preview-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        max-width: 500px;
+        width: 90%;
+      }
+
+      .preview-card {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin: 1rem 0;
+      }
+
+      .preview-header {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .preview-header img {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .preview-header h4 {
+        margin: 0;
+        color: #2c3e50;
+      }
+
+      .preview-header p {
+        margin: 0.25rem 0;
+        color: #7f8c8d;
+      }
+
+      .preview-bio p {
+        color: #7f8c8d;
+        line-height: 1.5;
+      }
+
+      .preview-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .close-preview {
+        background: none;
+        border: none;
+        font-size: 2rem;
+        color: #7f8c8d;
+        cursor: pointer;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .close-preview:hover {
+        color: #ff6b6b;
+      }
+
+      .preview-profile {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .login-required-message {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 400px;
+      }
+
+      .login-card {
+        background: white;
+        border-radius: 15px;
+        padding: 3rem;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        max-width: 500px;
+        width: 100%;
+      }
+
+      .login-card h3 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        font-size: 1.8rem;
+      }
+
+      .login-card p {
+        color: #7f8c8d;
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+      }
+
+      .login-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .login-actions .btn-primary,
+      .login-actions .btn-secondary {
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+        min-width: 150px;
+      }
+
+      @media (max-width: 768px) {
+        .profile-header {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+          flex-direction: column;
+        }
+
+        .profile-stats {
+          justify-content: center;
+        }
+      }
+    </style>
+  </body>
+</html>
