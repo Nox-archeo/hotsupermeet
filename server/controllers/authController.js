@@ -320,6 +320,20 @@ const getMe = async (req, res) => {
     };
 
     console.log('Données utilisateur envoyées:', responseData.user);
+
+    // DEBUG PHOTOS: Log détaillé du contenu des photos
+    if (user.profile && user.profile.photos) {
+      console.log(
+        '🖼️ PHOTOS DEBUG - Nombre de photos:',
+        user.profile.photos.length
+      );
+      user.profile.photos.forEach((photo, index) => {
+        console.log(`🖼️ Photo ${index}:`, JSON.stringify(photo, null, 2));
+      });
+    } else {
+      console.log('🖼️ PHOTOS DEBUG: Aucune photo dans le profil');
+    }
+
     console.log('=== FIN GETME - RÉPONSE ENVOYÉE ===');
     res.json(responseData);
   } catch (error) {
