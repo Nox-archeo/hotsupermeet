@@ -19,11 +19,7 @@ const userSchema = new mongoose.Schema(
       nom: { type: String, required: true, trim: true },
       age: { type: Number, required: true, min: 18, max: 100 },
       sexe: { type: String, enum: ['homme', 'femme', 'autre'], required: true },
-      localisation: {
-        pays: { type: String, required: true, trim: true },
-        region: { type: String, required: true, trim: true },
-        ville: { type: String, required: true, trim: true },
-      },
+      localisation: { type: String, required: true, trim: true },
       bio: { type: String, maxlength: 500, trim: true },
       pratiques: [{ type: String, trim: true }],
       photos: [

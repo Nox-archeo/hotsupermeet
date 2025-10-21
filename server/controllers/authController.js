@@ -35,11 +35,7 @@ const register = async (req, res) => {
         nom: req.body.nom,
         age: parseInt(req.body.age),
         sexe: req.body.sexe,
-        localisation: {
-          pays: req.body.pays,
-          region: req.body.region,
-          ville: req.body.ville,
-        },
+        localisation: req.body.localisation,
         bio: req.body.bio || '',
       };
 

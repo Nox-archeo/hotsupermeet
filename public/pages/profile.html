@@ -275,12 +275,13 @@
 
           const formData = {
             profile: {
-              nom: document.getElementById('profileNom').value,
+              nom: document.getElementById('profileNom').value.trim(),
               age: parseInt(document.getElementById('profileAge').value),
               sexe: document.getElementById('profileSexe').value,
-              localisation: document.getElementById('profileLocalisation')
-                .value,
-              bio: document.getElementById('profileBio').value,
+              localisation: document
+                .getElementById('profileLocalisation')
+                .value.trim(),
+              bio: document.getElementById('profileBio').value.trim(),
             },
           };
 
@@ -298,8 +299,29 @@
             return;
           }
 
-          if (formData.profile.age < 18) {
-            showMessage('Vous devez avoir au moins 18 ans', 'error');
+          if (formData.profile.age < 18 || formData.profile.age > 100) {
+            showMessage(
+              'L\\' + 'âge doit être compris entre 18 et 100 ans',
+              'error'
+            );
+            return;
+          }
+
+          if (formData.profile.nom.length < 2) {
+            showMessage('Le nom doit contenir au moins 2 caractères', 'error');
+            return;
+          }
+
+          if (formData.profile.localisation.length < 2) {
+            showMessage(
+              'La localisation doit contenir au moins 2 caractères',
+              'error'
+            );
+            return;
+          }
+
+          if (formData.profile.bio.length > 500) {
+            showMessage('La bio ne peut pas dépasser 500 caractères', 'error');
             return;
           }
 
@@ -360,6 +382,11 @@
       async function loadProfileData() {
         try {
           const token = localStorage.getItem('hotmeet_token');
+          if (!token) {
+            window.location.href = '/auth';
+            return;
+          }
+
           const response = await fetch('/api/auth/me', {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -370,6 +397,11 @@
             const data = await response.json();
             const user = data.user;
 
+            if (!user || !user.profile) {
+              console.error('Données utilisateur incomplètes:', user);
+              return;
+            }
+
             // Remplir le formulaire avec les données existantes
             document.getElementById('profileNom').value =
               user.profile.nom || '';
@@ -377,8 +409,26 @@
               user.profile.age || '';
             document.getElementById('profileSexe').value =
               user.profile.sexe || '';
+
+            // Gérer la localisation (ancien format objet vs nouveau format string)
+            let localisationValue = '';
+            if (typeof user.profile.localisation === 'string') {
+              localisationValue = user.profile.localisation;
+            } else if (
+              user.profile.localisation &&
+              typeof user.profile.localisation === 'object'
+            ) {
+              // Ancien format: {pays, region, ville}
+              const loc = user.profile.localisation;
+              localisationValue =
+                `${loc.ville || ''}${loc.region ? ', ' + loc.region : ''}${loc.pays ? ', ' + loc.pays : ''}`.trim();
+              if (localisationValue.startsWith(', ')) {
+                localisationValue = localisationValue.substring(2);
+              }
+            }
             document.getElementById('profileLocalisation').value =
-              user.profile.localisation || '';
+              localisationValue;
+
             document.getElementById('profileBio').value =
               user.profile.bio || '';
 
@@ -386,14 +436,30 @@
             document.getElementById('profileName').textContent =
               user.profile.nom || 'Votre nom';
             document.getElementById('profileDetails').textContent =
-              `${user.profile.age || 'Âge'} • ${user.profile.localisation || 'Ville'}`;
+              `${user.profile.age || 'Âge'} • ${localisationValue || 'Ville'}`;
 
             // Mettre à jour le compteur de caractères
             document.getElementById('bioCharCount').textContent =
               user.profile.bio?.length || 0;
+
+            // Mettre à jour les statistiques
+            document.getElementById('profileViews').textContent =
+              user.stats?.profileViews || 0;
+          } else {
+            console.error('Erreur API:', response.status);
+            if (response.status === 401) {
+              localStorage.removeItem('hotmeet_token');
+              window.location.href = '/auth';
+            }
           }
         } catch (error) {
           console.error('Erreur lors du chargement du profil:', error);
+          if (
+            error.message.includes('NetworkError') ||
+            error.message.includes('Failed to fetch')
+          ) {
+            showMessage('Erreur de connexion au serveur', 'error');
+          }
         }
       }
 
