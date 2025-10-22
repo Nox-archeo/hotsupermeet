@@ -68,63 +68,76 @@ const uploadProfilePhoto = async (req, res) => {
     // SOLUTION CLOUDINARY: Upload vers service externe avec CDN
     const fileExtension = path.extname(photo.name);
     const fileName = `profile-${userId}-${Date.now()}${fileExtension}`;
-    
+
     let photoData;
-    
+
     // Vérifier si Cloudinary est configuré
-    if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+    if (
+      process.env.CLOUDINARY_CLOUD_NAME &&
+      process.env.CLOUDINARY_API_KEY &&
+      process.env.CLOUDINARY_API_SECRET
+    ) {
       console.log(`🚀 Upload vers Cloudinary: ${fileName}`);
-      
+
       try {
         // Upload vers Cloudinary
         const uploadResult = await new Promise((resolve, reject) => {
-          cloudinary.uploader.upload_stream(
-            {
-              resource_type: 'image',
-              folder: 'hotsupermeet/profile-photos',
-              public_id: fileName.replace(/\.[^/.]+$/, ''), // sans extension
-              transformation: [
-                { width: 800, height: 800, crop: 'limit' }, // Redimensionner max 800x800
-                { quality: 'auto' }, // Optimisation automatique
-                { format: 'auto' } // Format optimal (WebP si supporté)
-              ],
-              overwrite: true,
-            },
-            (error, result) => {
-              if (error) {
-                reject(error);
-              } else {
-                resolve(result);
+          cloudinary.uploader
+            .upload_stream(
+              {
+                resource_type: 'image',
+                folder: 'hotsupermeet/profile-photos',
+                public_id: fileName.replace(/\.[^/.]+$/, ''), // sans extension
+                transformation: [
+                  { width: 800, height: 800, crop: 'limit' }, // Redimensionner max 800x800
+                  { quality: 'auto' }, // Optimisation automatique
+                  { format: 'auto' }, // Format optimal (WebP si supporté)
+                ],
+                overwrite: true,
+              },
+              (error, result) => {
+                if (error) {
+                  reject(error);
+                } else {
+                  resolve(result);
+                }
               }
-            }
-          ).end(photo.data);
+            )
+            .end(photo.data);
         });
 
-        console.log(`✅ Photo uploadée sur Cloudinary: ${uploadResult.secure_url}`);
-        console.log(`📁 Taille optimisée: ${Math.round(uploadResult.bytes / 1024)}KB`);
+        console.log(
+          `✅ Photo uploadée sur Cloudinary: ${uploadResult.secure_url}`
+        );
+        console.log(
+          `📁 Taille optimisée: ${Math.round(uploadResult.bytes / 1024)}KB`
+        );
 
         // Ajouter la photo au tableau de photos avec URLs Cloudinary
         photoData = {
           filename: fileName,
           path: uploadResult.secure_url, // URL Cloudinary sécurisée
-          url: uploadResult.secure_url,  // URL Cloudinary pour compatibilité
+          url: uploadResult.secure_url, // URL Cloudinary pour compatibilité
           publicId: uploadResult.public_id, // ID Cloudinary pour suppression
           cloudinaryData: {
             width: uploadResult.width,
             height: uploadResult.height,
             format: uploadResult.format,
-            bytes: uploadResult.bytes
+            bytes: uploadResult.bytes,
           },
-          isBlurred: true, // Par défaut floutée pour la confidentialité  
+          isBlurred: true, // Par défaut floutée pour la confidentialité
           isProfile: true, // Photo de profil principale
           uploadedAt: new Date(),
         };
       } catch (cloudinaryError) {
-        console.error('Erreur Cloudinary, fallback vers base64:', cloudinaryError.message);
+        console.error(
+          'Erreur Cloudinary, fallback vers base64:',
+          cloudinaryError.message
+        );
         // Fallback vers stockage base64
         const base64Data = photo.data.toString('base64');
         const dataURL = `data:${photo.mimetype};base64,${base64Data}`;
-        
+
         photoData = {
           filename: fileName,
           path: dataURL,
@@ -139,7 +152,7 @@ const uploadProfilePhoto = async (req, res) => {
       // Fallback vers stockage base64
       const base64Data = photo.data.toString('base64');
       const dataURL = `data:${photo.mimetype};base64,${base64Data}`;
-      
+
       photoData = {
         filename: fileName,
         path: dataURL,
@@ -148,7 +161,7 @@ const uploadProfilePhoto = async (req, res) => {
         isProfile: true,
         uploadedAt: new Date(),
       };
-    }    }
+    }
 
     // Mettre à jour le profil utilisateur avec la nouvelle photo
     const user = await User.findById(userId);
