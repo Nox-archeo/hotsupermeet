@@ -121,12 +121,11 @@ async function loadProfileData() {
       const profileAvatarElem = document.getElementById('profileAvatar');
       if (profileAvatarElem && profile.photos && profile.photos.length > 0) {
         const firstPhoto = profile.photos[0];
-        if (firstPhoto && firstPhoto.url) {
-          console.log(
-            'Photo utilisateur trouvée dans localStorage:',
-            firstPhoto.url
-          );
-          profileAvatarElem.src = firstPhoto.url;
+        // Utiliser 'path' au lieu de 'url' car la structure a 'path' pas 'url'
+        if (firstPhoto && (firstPhoto.url || firstPhoto.path)) {
+          const photoUrl = firstPhoto.url || firstPhoto.path;
+          console.log('Photo utilisateur trouvée dans localStorage:', photoUrl);
+          profileAvatarElem.src = photoUrl;
           profileAvatarElem.alt = `Photo de ${profile.nom || 'profil'}`;
         }
       }
@@ -254,12 +253,16 @@ async function loadProfileData() {
             user.profile.photos.length > 0
           ) {
             const firstPhoto = user.profile.photos[0];
-            if (firstPhoto && firstPhoto.url) {
-              console.log('Photo utilisateur trouvée:', firstPhoto.url);
-              profileAvatarElem.src = firstPhoto.url;
+            // Utiliser 'path' au lieu de 'url' car la structure a 'path' pas 'url'
+            if (firstPhoto && (firstPhoto.url || firstPhoto.path)) {
+              const photoUrl = firstPhoto.url || firstPhoto.path;
+              console.log('Photo utilisateur trouvée:', photoUrl);
+              profileAvatarElem.src = photoUrl;
               profileAvatarElem.alt = `Photo de ${user.profile.nom || 'profil'}`;
             } else {
-              console.log("Pas d'URL de photo, utilisation du placeholder");
+              console.log(
+                "Pas d'URL/path de photo, utilisation du placeholder"
+              );
             }
           } else {
             console.log('Pas de photos dans le profil utilisateur');
