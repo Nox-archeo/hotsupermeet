@@ -21,13 +21,17 @@ Dans votre Dashboard Cloudinary, vous trouverez :
 Dans votre projet Render :
 
 1. Aller dans Settings > Environment
-2. Ajouter ces variables :
+2. Ajouter ces variables (remplacez par vos vraies valeurs) :
 
 ```
 CLOUDINARY_CLOUD_NAME=votre_cloud_name
 CLOUDINARY_API_KEY=votre_api_key
 CLOUDINARY_API_SECRET=votre_api_secret
 ```
+
+**⚠️ Important :** Remplacez `votre_cloud_name`, `votre_api_key` et `votre_api_secret` par vos vraies valeurs depuis votre Dashboard Cloudinary !
+
+**Note :** Cloudinary affiche aussi `CLOUDINARY_URL=cloudinary://...` mais notre code utilise les 3 variables séparées ci-dessus.
 
 ### 4. Capacités et limites
 
