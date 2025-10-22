@@ -646,4 +646,90 @@ document.addEventListener('DOMContentLoaded', function () {
   console.log('Chargement des données du profil...');
   hideLoginMessage();
   loadProfileData();
+
+  // Gestionnaire pour la suppression de compte
+  const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+  if (deleteAccountBtn) {
+    deleteAccountBtn.addEventListener('click', handleDeleteAccount);
+  }
 });
+
+// Fonction pour gérer la suppression de compte
+async function handleDeleteAccount() {
+  const confirmed = confirm(
+    '⚠️ ATTENTION ⚠️\n\n' +
+      'Êtes-vous absolument sûr(e) de vouloir supprimer votre compte ?\n\n' +
+      'Cette action:\n' +
+      '• Supprimera définitivement votre profil\n' +
+      '• Effacera toutes vos photos\n' +
+      '• Supprimera tous vos messages\n' +
+      '• Annulera vos abonnements\n' +
+      '• EST IRRÉVERSIBLE\n\n' +
+      'Tapez "OUI" pour confirmer'
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  // Demander le mot de passe pour confirmation
+  const password = prompt(
+    'Pour confirmer la suppression, veuillez saisir votre mot de passe:'
+  );
+
+  if (!password) {
+    alert('Suppression annulée - mot de passe requis');
+    return;
+  }
+
+  // Confirmation finale
+  const finalConfirm = confirm(
+    '🚨 DERNIÈRE CHANCE 🚨\n\n' +
+      'Vous êtes sur le point de SUPPRIMER DÉFINITIVEMENT votre compte.\n\n' +
+      'Cette action ne peut PAS être annulée.\n\n' +
+      'Voulez-vous vraiment continuer ?'
+  );
+
+  if (!finalConfirm) {
+    return;
+  }
+
+  try {
+    showMessage('Suppression du compte en cours...', 'info');
+
+    const token = localStorage.getItem('hotmeet_token');
+    const response = await fetch('/api/users/delete-account', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        confirmPassword: password,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      showMessage('Compte supprimé avec succès', 'success');
+
+      // Nettoyer le localStorage
+      localStorage.removeItem('hotmeet_token');
+      localStorage.removeItem('hotmeet_user_profile');
+
+      // Rediriger vers la page d'accueil après 2 secondes
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 2000);
+    } else {
+      showMessage(
+        data.error?.message || 'Erreur lors de la suppression',
+        'error'
+      );
+    }
+  } catch (error) {
+    console.error('Erreur lors de la suppression du compte:', error);
+    showMessage('Erreur lors de la suppression du compte', 'error');
+  }
+}

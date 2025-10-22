@@ -6,6 +6,7 @@ const {
   updateUserProfile,
   searchUsers,
   getDirectoryStats,
+  deleteAccount,
 } = require('../controllers/userController');
 const { auth, updateLastActivity } = require('../middleware/auth');
 
@@ -107,5 +108,17 @@ router.put(
   updateUserProfile
 ); // PUT /api/users/profile
 router.post('/search', auth, updateLastActivity, searchValidation, searchUsers); // POST /api/users/search
+
+// Route de suppression de compte
+router.delete(
+  '/delete-account',
+  auth,
+  [
+    body('confirmPassword')
+      .notEmpty()
+      .withMessage('Le mot de passe de confirmation est requis'),
+  ],
+  deleteAccount
+); // DELETE /api/users/delete-account
 
 module.exports = router;
