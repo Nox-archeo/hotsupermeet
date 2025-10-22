@@ -405,10 +405,107 @@ const getDirectoryStats = async (req, res) => {
   }
 };
 
+// Supprimer complètement le compte utilisateur
+const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { confirmPassword } = req.body;
+
+    // Récupérer l'utilisateur pour vérification
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'USER_NOT_FOUND',
+          message: 'Utilisateur non trouvé',
+        },
+      });
+    }
+
+    // Vérifier le mot de passe pour confirmation
+    const bcrypt = require('bcryptjs');
+    const isPasswordValid = await bcrypt.compare(
+      confirmPassword,
+      user.password
+    );
+    if (!isPasswordValid) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_PASSWORD',
+          message: 'Mot de passe incorrect',
+        },
+      });
+    }
+
+    console.log(`🗑️ Suppression du compte utilisateur: ${user.email}`);
+
+    // 1. Supprimer les photos Cloudinary si elles existent
+    if (user.profile.photos && user.profile.photos.length > 0) {
+      const cloudinary = require('cloudinary').v2;
+
+      for (const photo of user.profile.photos) {
+        if (photo.publicId) {
+          try {
+            await cloudinary.uploader.destroy(photo.publicId);
+            console.log(`✅ Photo Cloudinary supprimée: ${photo.publicId}`);
+          } catch (cloudinaryError) {
+            console.error(
+              `❌ Erreur suppression Cloudinary: ${cloudinaryError.message}`
+            );
+          }
+        }
+      }
+    }
+
+    // 2. Supprimer les messages liés à cet utilisateur
+    const Message = require('../models/Message');
+    await Message.deleteMany({
+      $or: [{ sender: userId }, { receiver: userId }],
+    });
+    console.log(`✅ Messages supprimés pour l'utilisateur ${user.email}`);
+
+    // 3. Supprimer les données de Tonight Meet
+    const TonightMeet = require('../models/TonightMeet');
+    await TonightMeet.deleteMany({ user: userId });
+    console.log(`✅ Tonight Meet supprimés pour l'utilisateur ${user.email}`);
+
+    // 4. Supprimer les annonces si le modèle existe
+    try {
+      const Ad = require('../models/Ad');
+      await Ad.deleteMany({ user: userId });
+      console.log(`✅ Annonces supprimées pour l'utilisateur ${user.email}`);
+    } catch (adError) {
+      console.log('ℹ️ Modèle Ad non trouvé, ignore...');
+    }
+
+    // 5. Finalement, supprimer l'utilisateur lui-même
+    await User.findByIdAndDelete(userId);
+    console.log(`✅ Compte utilisateur supprimé: ${user.email}`);
+
+    res.json({
+      success: true,
+      message:
+        'Compte supprimé avec succès. Toutes vos données ont été effacées.',
+    });
+  } catch (error) {
+    console.error('Erreur lors de la suppression du compte:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'DELETE_ERROR',
+        message: 'Erreur lors de la suppression du compte',
+      },
+    });
+  }
+};
+
 module.exports = {
   getUsers,
   getUserProfile,
   updateUserProfile,
   searchUsers,
   getDirectoryStats,
+  deleteAccount,
 };
