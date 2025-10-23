@@ -198,7 +198,11 @@ const register = async (req, res) => {
                 }
               }
             );
-            uploadStream.end(profilePhoto.data);
+
+            // Utiliser tempFilePath au lieu de data car data est vide
+            const fs = require('fs');
+            const fileStream = fs.createReadStream(profilePhoto.tempFilePath);
+            fileStream.pipe(uploadStream);
           });
 
           photoData = {
