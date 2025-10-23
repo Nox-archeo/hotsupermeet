@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const { generateToken } = require('../middleware/auth');
 const { validationResult } = require('express-validator');
+const cloudinary = require('cloudinary').v2;
 
 // Inscription d'un nouvel utilisateur
 const register = async (req, res) => {
@@ -134,33 +135,94 @@ const register = async (req, res) => {
     // Gérer l'upload de photo si présent
     if (profilePhoto && profilePhoto.size > 0) {
       try {
-        const fileName = `profile-${user._id}-${Date.now()}-${profilePhoto.name}`;
-        const uploadPath = `./uploads/profile-photos/${fileName}`;
+        // Configuration Cloudinary
+        const cloudinaryConfigured =
+          process.env.CLOUDINARY_CLOUD_NAME &&
+          process.env.CLOUDINARY_API_KEY &&
+          process.env.CLOUDINARY_API_SECRET;
 
-        // Créer le répertoire s'il n'existe pas
-        const fs = require('fs');
-        const path = require('path');
-        const dir = path.dirname(uploadPath);
-        if (!fs.existsSync(dir)) {
-          fs.mkdirSync(dir, { recursive: true });
+        let photoData;
+
+        if (cloudinaryConfigured) {
+          console.log('🚀 Upload vers Cloudinary pour inscription...');
+
+          // Upload vers Cloudinary
+          const uploadResult = await new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+              {
+                folder: 'hotsupermeet/profile-photos',
+                public_id: `profile-${user._id}-${Date.now()}`,
+                transformation: [
+                  { width: 800, height: 800, crop: 'limit' },
+                  { quality: 'auto' },
+                  { format: 'webp' },
+                ],
+                overwrite: true,
+                invalidate: true,
+              },
+              (error, result) => {
+                if (error) {
+                  console.error('❌ Erreur Cloudinary:', error);
+                  reject(error);
+                } else {
+                  console.log(
+                    '✅ Upload Cloudinary réussi:',
+                    result.secure_url
+                  );
+                  resolve(result);
+                }
+              }
+            );
+            uploadStream.end(profilePhoto.data);
+          });
+
+          photoData = {
+            filename: profilePhoto.name,
+            url: uploadResult.secure_url,
+            publicId: uploadResult.public_id,
+            cloudinaryId: uploadResult.public_id,
+            isBlurred: blurPhoto,
+            isProfile: true,
+            uploadedAt: new Date(),
+            metadata: {
+              width: uploadResult.width,
+              height: uploadResult.height,
+              format: uploadResult.format,
+              size: uploadResult.bytes,
+            },
+          };
+        } else {
+          console.log(
+            '⚠️ Cloudinary non configuré - fallback base64 pour inscription'
+          );
+
+          // Fallback base64
+          const base64Data = profilePhoto.data.toString('base64');
+          const mimeType = profilePhoto.mimetype || 'image/jpeg';
+          const dataUrl = `data:${mimeType};base64,${base64Data}`;
+
+          photoData = {
+            filename: profilePhoto.name,
+            path: dataUrl,
+            url: dataUrl,
+            isBlurred: blurPhoto,
+            isProfile: true,
+            uploadedAt: new Date(),
+            metadata: {
+              size: profilePhoto.size,
+              originalName: profilePhoto.name,
+            },
+          };
         }
 
-        // Déplacer le fichier
-        await profilePhoto.mv(uploadPath);
-
-        // Ajouter la photo au profil avec le choix de floutage de l'utilisateur
-        const photoData = {
-          filename: fileName,
-          path: `/uploads/profile-photos/${fileName}`,
-          isBlurred: blurPhoto, // Respecter le choix de l'utilisateur
-          isProfile: true, // Photo de profil principale
-          uploadedAt: new Date(),
-        };
-
         user.profile.photos = [photoData];
+        console.log(
+          '📸 Photo ajoutée au profil:',
+          photoData.url ? 'Cloudinary' : 'Base64'
+        );
       } catch (uploadError) {
         console.error(
-          'Erreur lors de l\\' + 'upload de la photo:',
+          '❌ Erreur lors de l\\' + 'upload de la photo:',
           uploadError
         );
         // Continuer sans photo plutôt que d'échouer l'inscription
