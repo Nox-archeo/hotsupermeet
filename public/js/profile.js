@@ -253,16 +253,39 @@ async function loadProfileData() {
             user.profile.photos.length > 0
           ) {
             const firstPhoto = user.profile.photos[0];
-            console.log('🔍 DEBUG PHOTO:', firstPhoto);
+            console.log('🔍 DEBUG PHOTO:', JSON.stringify(firstPhoto, null, 2));
             console.log('🔍 firstPhoto.path:', firstPhoto.path);
             console.log('🔍 firstPhoto.url:', firstPhoto.url);
+            console.log('🔍 Type de firstPhoto.path:', typeof firstPhoto.path);
+            console.log('🔍 Type de firstPhoto.url:', typeof firstPhoto.url);
+
             // Utiliser 'path' au lieu de 'url' car la structure a 'path' pas 'url'
             if (firstPhoto && (firstPhoto.url || firstPhoto.path)) {
-              const photoUrl = firstPhoto.url || firstPhoto.path;
+              let photoUrl = '';
+
+              // Sécurité : s'assurer que c'est une string
+              if (
+                typeof firstPhoto.path === 'string' &&
+                firstPhoto.path.trim() !== ''
+              ) {
+                photoUrl = firstPhoto.path;
+              } else if (
+                typeof firstPhoto.url === 'string' &&
+                firstPhoto.url.trim() !== ''
+              ) {
+                photoUrl = firstPhoto.url;
+              }
+
               console.log('🔍 photoUrl final:', photoUrl);
               console.log('🔍 Type de photoUrl:', typeof photoUrl);
-              profileAvatarElem.src = photoUrl;
-              profileAvatarElem.alt = `Photo de ${user.profile.nom || 'profil'}`;
+
+              if (photoUrl && typeof photoUrl === 'string') {
+                profileAvatarElem.src = photoUrl;
+                profileAvatarElem.alt = `Photo de ${user.profile.nom || 'profil'}`;
+                console.log('✅ Photo définie avec succès:', photoUrl);
+              } else {
+                console.log('❌ photoUrl invalide:', photoUrl);
+              }
             } else {
               console.log(
                 "Pas d'URL/path de photo, utilisation du placeholder"
