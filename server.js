@@ -30,8 +30,29 @@ app.set('trust proxy', 1);
 // TIMESTAMP POUR FORCER RESTART COMPLET RENDER
 console.log('🚀 SERVEUR REDÉMARRÉ COMPLÈTEMENT :', new Date().toISOString());
 
-// Middleware de sécurité
-app.use(helmet());
+// Middleware de sécurité avec CSP personnalisée pour Cloudinary
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: [
+          "'self'",
+          'data:',
+          'https://res.cloudinary.com', // Autoriser images Cloudinary
+          'https://*.cloudinary.com', // Toutes les sous-domaines Cloudinary
+        ],
+        fontSrc: ["'self'"],
+        connectSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        frameSrc: ["'none'"],
+      },
+    },
+  })
+);
 app.use(compression());
 
 // Rate limiting
