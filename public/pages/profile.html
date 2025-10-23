@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/css/style.css?v=6" />
     <link rel="stylesheet" href="/css/pages.css?v=3" />
     <link rel="stylesheet" href="/css/animations.css?v=3" />
+    <script src="/js/regions-europe.js"></script>
   </head>
   <body>
     <!-- Header identique à la page d'accueil -->
@@ -946,83 +947,28 @@
           regionSelect.innerHTML =
             '<option value="">Choisir une région...</option>';
 
-          const regions = {
-            france: [
-              'Auvergne-Rhône-Alpes',
-              'Bourgogne-Franche-Comté',
-              'Bretagne',
-              'Centre-Val de Loire',
-              'Corse',
-              'Grand Est',
-              'Hauts-de-France',
-              'Île-de-France',
-              'Normandie',
-              'Nouvelle-Aquitaine',
-              'Occitanie',
-              'Pays de la Loire',
-              "Provence-Alpes-Côte d'Azur",
-            ],
-            suisse: [
-              'Zurich',
-              'Berne',
-              'Lucerne',
-              'Uri',
-              'Schwyz',
-              'Obwald',
-              'Nidwald',
-              'Glaris',
-              'Zoug',
-              'Fribourg',
-              'Soleure',
-              'Bâle-Ville',
-              'Bâle-Campagne',
-              'Schaffhouse',
-              'Appenzell Rhodes-Extérieures',
-              'Appenzell Rhodes-Intérieures',
-              'Saint-Gall',
-              'Grisons',
-              'Argovie',
-              'Thurgovie',
-              'Tessin',
-              'Vaud',
-              'Valais',
-              'Neuchâtel',
-              'Genève',
-              'Jura',
-            ],
-            belgique: [
-              'Bruxelles-Capitale',
-              'Région flamande',
-              'Région wallonne',
-            ],
-            allemagne: [
-              'Baden-Württemberg',
-              'Bavière',
-              'Berlin',
-              'Brandebourg',
-              'Brême',
-              'Hambourg',
-              'Hesse',
-              'Mecklembourg-Poméranie-Occidentale',
-              'Basse-Saxe',
-              'Rhénanie-du-Nord-Westphalie',
-              'Rhénanie-Palatinat',
-              'Sarre',
-              'Saxe',
-              'Saxe-Anhalt',
-              'Schleswig-Holstein',
-              'Thuringe',
-            ],
-          };
-
           const selectedPays = this.value;
-          if (regions[selectedPays]) {
-            regions[selectedPays].forEach(region => {
+          console.log('Pays sélectionné:', selectedPays);
+
+          // Utiliser europeanRegions du fichier externe
+          if (
+            typeof europeanRegions !== 'undefined' &&
+            europeanRegions[selectedPays]
+          ) {
+            console.log(
+              'Régions trouvées pour',
+              selectedPays,
+              ':',
+              europeanRegions[selectedPays]
+            );
+            europeanRegions[selectedPays].forEach(regionData => {
               const option = document.createElement('option');
-              option.value = region.toLowerCase().replace(/\s+/g, '-');
-              option.textContent = region;
+              option.value = regionData.value; // Utiliser la valeur normalisée
+              option.textContent = regionData.name; // Utiliser le nom d'affichage
               regionSelect.appendChild(option);
             });
+          } else {
+            console.log('Aucune région trouvée pour:', selectedPays);
           }
         });
 
@@ -1050,6 +996,18 @@
         console.log('Chargement des données du profil...');
         hideLoginMessage();
         loadProfileData();
+
+        // Forcer le chargement des régions si un pays est déjà sélectionné
+        setTimeout(() => {
+          const paysSelect = document.getElementById('profilePays');
+          if (paysSelect && paysSelect.value) {
+            console.log(
+              'Déclenchement événement change pour pays:',
+              paysSelect.value
+            );
+            paysSelect.dispatchEvent(new Event('change'));
+          }
+        }, 500);
       });
     </script>
 
