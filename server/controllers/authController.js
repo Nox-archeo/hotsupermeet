@@ -152,6 +152,24 @@ const register = async (req, res) => {
 
         if (cloudinaryConfigured) {
           console.log('🚀 Upload vers Cloudinary pour inscription...');
+          console.log('📊 DEBUG - profilePhoto.name:', profilePhoto.name);
+          console.log('📊 DEBUG - profilePhoto.size:', profilePhoto.size);
+          console.log(
+            '📊 DEBUG - profilePhoto.mimetype:',
+            profilePhoto.mimetype
+          );
+          console.log(
+            '📊 DEBUG - profilePhoto.data type:',
+            typeof profilePhoto.data
+          );
+          console.log(
+            '📊 DEBUG - profilePhoto.data length:',
+            profilePhoto.data ? profilePhoto.data.length : 'undefined'
+          );
+          console.log(
+            '📊 DEBUG - profilePhoto.tempFilePath:',
+            profilePhoto.tempFilePath
+          );
 
           // Upload vers Cloudinary
           const uploadResult = await new Promise((resolve, reject) => {
