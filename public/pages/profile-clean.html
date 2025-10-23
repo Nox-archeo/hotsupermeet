@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/css/style.css?v=6" />
     <link rel="stylesheet" href="/css/pages.css?v=3" />
     <link rel="stylesheet" href="/css/animations.css?v=3" />
+    <script src="/js/regions-europe.js"></script>
   </head>
   <body>
     <!-- Header identique à la page d'accueil -->
@@ -384,6 +385,66 @@
 
     <!-- JavaScript spécifique au profil - Fichier externe pour éviter CSP -->
     <script src="/js/profile.js"></script>
+
+    <!-- JavaScript pour gestion des régions -->
+    <script>
+      // Charger les régions en fonction du pays sélectionné
+      document
+        .getElementById('profilePays')
+        .addEventListener('change', function () {
+          const regionSelect = document.getElementById('profileRegion');
+          regionSelect.innerHTML =
+            '<option value="">Choisir une région...</option>';
+
+          const selectedPays = this.value;
+          console.log('🏴 Pays sélectionné:', selectedPays);
+
+          // Utiliser europeanRegions du fichier externe
+          if (
+            typeof europeanRegions !== 'undefined' &&
+            europeanRegions[selectedPays]
+          ) {
+            console.log(
+              '🌍 Régions trouvées pour',
+              selectedPays,
+              ':',
+              europeanRegions[selectedPays]
+            );
+            europeanRegions[selectedPays].forEach(regionData => {
+              const option = document.createElement('option');
+              option.value = regionData.value; // Utiliser la valeur normalisée
+              option.textContent = regionData.name; // Utiliser le nom d'affichage
+              regionSelect.appendChild(option);
+              console.log(
+                '➕ Région ajoutée:',
+                regionData.name,
+                '→',
+                regionData.value
+              );
+            });
+          } else {
+            console.log('❌ Aucune région trouvée pour:', selectedPays);
+            console.log(
+              '📋 europeanRegions disponible:',
+              typeof europeanRegions
+            );
+          }
+        });
+
+      // Au chargement de la page, forcer le chargement des régions si un pays est sélectionné
+      document.addEventListener('DOMContentLoaded', function () {
+        setTimeout(() => {
+          const paysSelect = document.getElementById('profilePays');
+          if (paysSelect && paysSelect.value) {
+            console.log(
+              '🔄 Déclenchement auto event change pour pays:',
+              paysSelect.value
+            );
+            paysSelect.dispatchEvent(new Event('change'));
+          }
+        }, 1000); // Attendre 1 seconde pour être sûr que profile.js a chargé les données
+      });
+    </script>
     <style>
       .pages-container {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
