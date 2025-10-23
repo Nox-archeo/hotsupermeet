@@ -253,10 +253,14 @@ async function loadProfileData() {
             user.profile.photos.length > 0
           ) {
             const firstPhoto = user.profile.photos[0];
+            console.log('🔍 DEBUG PHOTO:', firstPhoto);
+            console.log('🔍 firstPhoto.path:', firstPhoto.path);
+            console.log('🔍 firstPhoto.url:', firstPhoto.url);
             // Utiliser 'path' au lieu de 'url' car la structure a 'path' pas 'url'
             if (firstPhoto && (firstPhoto.url || firstPhoto.path)) {
               const photoUrl = firstPhoto.url || firstPhoto.path;
-              console.log('Photo utilisateur trouvée:', photoUrl);
+              console.log('🔍 photoUrl final:', photoUrl);
+              console.log('🔍 Type de photoUrl:', typeof photoUrl);
               profileAvatarElem.src = photoUrl;
               profileAvatarElem.alt = `Photo de ${user.profile.nom || 'profil'}`;
             } else {
