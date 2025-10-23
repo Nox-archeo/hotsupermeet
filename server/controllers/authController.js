@@ -207,6 +207,7 @@ const register = async (req, res) => {
 
           photoData = {
             filename: profilePhoto.name,
+            path: uploadResult.secure_url, // Champ requis par le modèle MongoDB
             url: uploadResult.secure_url,
             publicId: uploadResult.public_id,
             cloudinaryId: uploadResult.public_id,
