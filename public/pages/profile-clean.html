@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/css/pages.css?v=3" />
     <link rel="stylesheet" href="/css/animations.css?v=3" />
     <script src="/js/regions-europe.js"></script>
+    <script src="/js/profile-regions.js"></script>
   </head>
   <body>
     <!-- Header identique à la page d'accueil -->
@@ -386,104 +387,6 @@
     <!-- JavaScript spécifique au profil - Fichier externe pour éviter CSP -->
     <script src="/js/profile.js"></script>
 
-    <!-- JavaScript pour gestion des régions -->
-    <script>
-      // Fonction pour charger les régions d'un pays
-      function loadRegionsForCountry(countryCode, currentRegion = '') {
-        const regionSelect = document.getElementById('profileRegion');
-        if (!regionSelect) return;
-
-        regionSelect.innerHTML =
-          '<option value="">Choisir une région...</option>';
-
-        console.log('🏴 Chargement régions pour pays:', countryCode);
-
-        // Utiliser europeanRegions du fichier externe
-        if (
-          typeof europeanRegions !== 'undefined' &&
-          europeanRegions[countryCode]
-        ) {
-          console.log(
-            '🌍 Régions trouvées pour',
-            countryCode,
-            ':',
-            europeanRegions[countryCode].length,
-            'régions'
-          );
-
-          europeanRegions[countryCode].forEach(regionData => {
-            const option = document.createElement('option');
-            option.value = regionData.value;
-            option.textContent = regionData.name;
-
-            // Pré-sélectionner la région actuelle si elle existe
-            if (
-              currentRegion &&
-              (regionData.value === currentRegion ||
-                regionData.name.toLowerCase() === currentRegion.toLowerCase())
-            ) {
-              option.selected = true;
-              console.log('✅ Région pré-sélectionnée:', regionData.name);
-            }
-
-            regionSelect.appendChild(option);
-          });
-
-          console.log('✅ Toutes les régions chargées pour', countryCode);
-        } else {
-          console.log('❌ Aucune région trouvée pour:', countryCode);
-          console.log('📋 europeanRegions disponible:', typeof europeanRegions);
-          console.log(
-            '📋 Pays disponibles:',
-            typeof europeanRegions !== 'undefined'
-              ? Object.keys(europeanRegions)
-              : 'N/A'
-          );
-        }
-      }
-
-      // Event listener pour changement de pays
-      document.addEventListener('DOMContentLoaded', function () {
-        const paysSelect = document.getElementById('profilePays');
-        if (paysSelect) {
-          paysSelect.addEventListener('change', function () {
-            loadRegionsForCountry(this.value);
-          });
-        }
-      });
-
-      // Fonction globale pour recharger les régions après chargement du profil
-      window.reloadRegionsAfterProfileLoad = function () {
-        setTimeout(() => {
-          const paysSelect = document.getElementById('profilePays');
-          const regionSelect = document.getElementById('profileRegion');
-
-          if (paysSelect && paysSelect.value) {
-            // Récupérer la région actuelle avant de recharger
-            const currentRegion = regionSelect
-              ? regionSelect.value ||
-                regionSelect.getAttribute('data-current-region')
-              : '';
-
-            console.log(
-              '🔄 Rechargement auto des régions pour:',
-              paysSelect.value,
-              '| Région courante:',
-              currentRegion
-            );
-            loadRegionsForCountry(paysSelect.value, currentRegion);
-          }
-        }, 200);
-      };
-
-      // Auto-trigger au chargement initial
-      document.addEventListener('DOMContentLoaded', function () {
-        // Essayer plusieurs fois au cas où profile.js charge les données
-        setTimeout(() => window.reloadRegionsAfterProfileLoad(), 500);
-        setTimeout(() => window.reloadRegionsAfterProfileLoad(), 1500);
-        setTimeout(() => window.reloadRegionsAfterProfileLoad(), 3000);
-      });
-    </script>
     <style>
       .pages-container {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
