@@ -33,11 +33,12 @@ document.addEventListener('DOMContentLoaded', function () {
       Object.keys(europeanRegions)
     );
 
-    // Charger régions du pays
-    if (europeanRegions[pays]) {
-      console.log('🌍 Régions pour', pays, ':', europeanRegions[pays].length);
+    // Charger régions du pays - essayer avec et sans apostrophes
+    let regionsData = europeanRegions[pays] || europeanRegions[pays];
+    if (regionsData) {
+      console.log('🌍 Régions pour', pays, ':', regionsData.length);
 
-      europeanRegions[pays].forEach(function (regionData) {
+      regionsData.forEach(function (regionData) {
         const option = document.createElement('option');
         option.value = regionData.value;
         option.textContent = regionData.name;
@@ -47,6 +48,10 @@ document.addEventListener('DOMContentLoaded', function () {
       console.log('✅ Régions chargées !');
     } else {
       console.log('❌ Pas de régions pour:', pays);
+      console.log(
+        '🔍 Debug: clés disponibles:',
+        Object.keys(europeanRegions).slice(0, 10)
+      );
     }
   }
 
