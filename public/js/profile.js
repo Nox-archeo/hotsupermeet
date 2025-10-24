@@ -152,6 +152,11 @@ async function loadProfileData() {
 
       console.log('Données du profil chargées depuis localStorage');
 
+      // Recharger les régions maintenant que les données du profil sont chargées
+      if (typeof window.reloadRegionsAfterProfileLoad === 'function') {
+        window.reloadRegionsAfterProfileLoad();
+      }
+
       // Mettre à jour les boutons de navigation
       updateNavigationButtons(true);
       return;
@@ -320,6 +325,11 @@ async function loadProfileData() {
             profileNameElem: profileNameElem?.textContent,
             profileDetailsElem: profileDetailsElem?.textContent,
           });
+
+          // Recharger les régions maintenant que les données du profil sont chargées
+          if (typeof window.reloadRegionsAfterProfileLoad === 'function') {
+            window.reloadRegionsAfterProfileLoad();
+          }
 
           // Mettre à jour les boutons de navigation
           updateNavigationButtons(true);
