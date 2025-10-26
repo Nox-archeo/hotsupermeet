@@ -589,9 +589,26 @@ function setupLocationSelectors() {
     });
 
     // Mettre à jour les régions si un pays est déjà sélectionné
-    if (paysSelect.value) {
-      updateRegions(paysSelect.value, regionSelect);
-    }
+    // Utiliser un timeout pour s'assurer que le DOM est complètement chargé
+    setTimeout(() => {
+      if (paysSelect.value) {
+        console.log(
+          'Chargement automatique des régions pour le pays:',
+          paysSelect.value
+        );
+        updateRegions(paysSelect.value, regionSelect);
+
+        // Sélectionner la région sauvegardée si elle existe
+        const savedRegion = regionSelect.value;
+        if (savedRegion) {
+          // Attendre que les options soient chargées avant de sélectionner
+          setTimeout(() => {
+            regionSelect.value = savedRegion;
+            console.log('Région restaurée:', savedRegion);
+          }, 100);
+        }
+      }
+    }, 100);
   }
 }
 
