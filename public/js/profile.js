@@ -578,17 +578,57 @@ function updateRegions(pays, regionSelect) {
   });
 }
 
+// Charger les villes pour un pays donné
+function loadCitiesForCountry(pays, villeSelect) {
+  villeSelect.innerHTML = '<option value="">Choisir une ville...</option>';
+
+  if (!pays) {
+    return;
+  }
+
+  const cities = window.europeanCities?.[pays] || [];
+  cities.forEach(city => {
+    const option = document.createElement('option');
+    option.value = city.value;
+    option.textContent = city.name;
+    villeSelect.appendChild(option);
+  });
+}
+
+// Mettre à jour les villes en fonction de la région sélectionnée
+function updateCities(pays, regionValue, villeSelect) {
+  villeSelect.innerHTML = '<option value="">Choisir une ville...</option>';
+
+  if (!pays || !regionValue) {
+    // Si pas de pays ou pas de région sélectionnée, charger les villes du pays
+    loadCitiesForCountry(pays, villeSelect);
+    return;
+  }
+
+  // Pour l'instant, charger les villes principales du pays
+  // À améliorer avec une vraie base de données villes par région
+  loadCitiesForCountry(pays, villeSelect);
+}
+
 // Configuration des sélecteurs de localisation pour le profil
 function setupLocationSelectors() {
   const paysSelect = document.getElementById('profilePays');
   const regionSelect = document.getElementById('profileRegion');
+  const villeSelect = document.getElementById('profileVille');
 
-  if (paysSelect && regionSelect) {
+  if (paysSelect && regionSelect && villeSelect) {
+    // Événement changement de pays
     paysSelect.addEventListener('change', () => {
       updateRegions(paysSelect.value, regionSelect);
+      updateCities(paysSelect.value, regionSelect.value, villeSelect);
     });
 
-    // Mettre à jour les régions si un pays est déjà sélectionné
+    // Événement changement de région
+    regionSelect.addEventListener('change', () => {
+      updateCities(paysSelect.value, regionSelect.value, villeSelect);
+    });
+
+    // Mettre à jour les régions et villes si un pays est déjà sélectionné
     // Utiliser un timeout pour s'assurer que le DOM est complètement chargé
     setTimeout(() => {
       if (paysSelect.value) {
@@ -597,6 +637,7 @@ function setupLocationSelectors() {
           paysSelect.value
         );
         updateRegions(paysSelect.value, regionSelect);
+        updateCities(paysSelect.value, regionSelect.value, villeSelect);
 
         // Sélectionner la région sauvegardée si elle existe
         const savedRegion = regionSelect.value;
@@ -605,7 +646,18 @@ function setupLocationSelectors() {
           setTimeout(() => {
             regionSelect.value = savedRegion;
             console.log('Région restaurée:', savedRegion);
+            // Mettre à jour les villes après avoir restauré la région
+            updateCities(paysSelect.value, savedRegion, villeSelect);
           }, 200);
+        }
+
+        // Sélectionner la ville sauvegardée si elle existe
+        const savedVille = villeSelect.value;
+        if (savedVille) {
+          setTimeout(() => {
+            villeSelect.value = savedVille;
+            console.log('Ville restaurée:', savedVille);
+          }, 300);
         }
       }
     }, 500);
