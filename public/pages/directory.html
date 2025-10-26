@@ -62,10 +62,15 @@
           </div>
         </section>
 
-        <!-- Filtres de recherche -->
+        <!-- Filtres de recherche améliorés -->
         <section class="filters-section">
           <div class="filters-card">
-            <h3>Filtrer les résultats</h3>
+            <div class="filters-header">
+              <h3>🔍 Recherche avancée</h3>
+              <p class="filters-description">
+                Affinez votre recherche avec des critères précis
+              </p>
+            </div>
             <form id="filtersForm" class="filters-form">
               <div class="filter-group">
                 <label for="ageMin">Âge minimum</label>
@@ -145,35 +150,37 @@
 
               <div class="filter-group">
                 <label for="filtreVille">Ville</label>
-                <input
-                  type="text"
-                  id="filtreVille"
-                  name="filtreVille"
-                  placeholder="Nom de la ville"
-                />
+                <select id="filtreVille" name="filtreVille">
+                  <option value="">Toutes les villes</option>
+                  <!-- Les villes seront chargées dynamiquement -->
+                </select>
               </div>
               <div class="filter-actions">
-                <button type="submit" class="btn-primary">
-                  Appliquer les filtres
+                <button type="submit" class="btn-primary search-btn">
+                  🔍 Lancer la recherche
                 </button>
                 <button type="button" id="resetFilters" class="btn-secondary">
-                  Réinitialiser
+                  🗑️ Réinitialiser
                 </button>
               </div>
             </form>
           </div>
         </section>
 
-        <!-- Résultats -->
+        <!-- Résultats avec interface améliorée -->
         <section class="results-section">
           <div class="results-header">
-            <h3 id="resultsCount">Chargement des profils...</h3>
+            <div class="results-info">
+              <h3 id="resultsCount">🔎 Chargement des profils...</h3>
+              <p class="results-description" id="resultsDescription"></p>
+            </div>
             <div class="sort-options">
-              <label for="sortBy">Trier par:</label>
+              <label for="sortBy">📊 Trier par:</label>
               <select id="sortBy">
-                <option value="lastActive">Dernière activité</option>
-                <option value="age">Âge</option>
-                <option value="name">Nom</option>
+                <option value="lastActive">🕒 Dernière activité</option>
+                <option value="age">👤 Âge</option>
+                <option value="name">🔤 Nom</option>
+                <option value="distance">📍 Proximité</option>
               </select>
             </div>
           </div>
@@ -239,6 +246,8 @@
 
     <!-- JavaScript principal -->
     <script src="/js/app.js"></script>
+    <script src="/js/regions-europe.js"></script>
+    <script src="/js/cities-europe.js"></script>
 
     <!-- JavaScript pour l'annuaire -->
     <script>
@@ -253,6 +262,7 @@
 
         init() {
           this.setupEventListeners();
+          this.setupLocationFilters();
           this.loadUsers();
         }
 
@@ -277,6 +287,51 @@
             this.sortBy = e.target.value;
             this.loadUsers();
           });
+
+          // Liaison pays-région
+          document
+            .getElementById('filtrePays')
+            .addEventListener('change', e => {
+              this.updateRegions(e.target.value);
+            });
+        }
+
+        setupLocationFilters() {
+          // Initialiser les régions si un pays est déjà sélectionné
+          const paysSelect = document.getElementById('filtrePays');
+          if (paysSelect.value) {
+            this.updateRegions(paysSelect.value);
+          }
+        }
+
+        updateRegions(pays) {
+          const regionSelect = document.getElementById('filtreRegion');
+          const villeSelect = document.getElementById('filtreVille');
+
+          // Vider les listes
+          regionSelect.innerHTML =
+            '<option value="">Toutes les régions</option>';
+          villeSelect.innerHTML = '<option value="">Toutes les villes</option>';
+
+          if (!pays) return;
+
+          // Charger les régions du pays sélectionné
+          const regions = window.europeanRegions?.[pays] || [];
+          regions.forEach(region => {
+            const option = document.createElement('option');
+            option.value = region.value;
+            option.textContent = region.name;
+            regionSelect.appendChild(option);
+          });
+
+          // Charger les villes principales du pays
+          const cities = window.europeanCities?.[pays] || [];
+          cities.forEach(city => {
+            const option = document.createElement('option');
+            option.value = city.value;
+            option.textContent = city.name;
+            villeSelect.appendChild(option);
+          });
         }
 
         applyFilters() {
@@ -285,7 +340,9 @@
             ageMin: formData.get('ageMin') || '',
             ageMax: formData.get('ageMax') || '',
             sexe: formData.get('sexe') || '',
-            localisation: formData.get('localisation') || '',
+            pays: formData.get('filtrePays') || '',
+            region: formData.get('filtreRegion') || '',
+            ville: formData.get('filtreVille') || '',
           };
           this.currentPage = 1;
           this.loadUsers();
@@ -300,11 +357,20 @@
 
         async loadUsers() {
           try {
-            const params = new URLSearchParams({
-              page: this.currentPage,
-              limit: this.limit,
-              ...this.filters,
+            // Construire les paramètres de requête avec tous les filtres
+            const params = new URLSearchParams();
+
+            // Ajouter les filtres non vides
+            Object.keys(this.filters).forEach(key => {
+              if (this.filters[key]) {
+                params.append(key, this.filters[key]);
+              }
             });
+
+            // Ajouter la pagination et le tri
+            params.append('page', this.currentPage);
+            params.append('limit', this.limit);
+            params.append('sortBy', this.sortBy);
 
             const response = await fetch(`/api/users?${params}`);
             const result = await response.json();
@@ -467,8 +533,39 @@
         }
 
         updateResultsCount(total) {
-          document.getElementById('resultsCount').textContent =
-            `${total} profil${total > 1 ? 's' : ''} trouvé${total > 1 ? 's' : ''}`;
+          const resultsCount = document.getElementById('resultsCount');
+          const resultsDescription =
+            document.getElementById('resultsDescription');
+
+          resultsCount.textContent = `${total} profil${total > 1 ? 's' : ''} trouvé${total > 1 ? 's' : ''}`;
+
+          // Mettre à jour la description avec les filtres actifs
+          const activeFilters = [];
+          if (this.filters.ageMin || this.filters.ageMax) {
+            const ageRange = `${this.filters.ageMin || '18'}-${this.filters.ageMax || '100'}`;
+            activeFilters.push(`Âge: ${ageRange} ans`);
+          }
+          if (this.filters.sexe) {
+            const genderLabels = {
+              homme: 'Homme',
+              femme: 'Femme',
+              autre: 'Autre',
+            };
+            activeFilters.push(`Genre: ${genderLabels[this.filters.sexe]}`);
+          }
+          if (this.filters.pays) {
+            activeFilters.push(`Pays: ${this.filters.pays}`);
+          }
+          if (this.filters.ville) {
+            activeFilters.push(`Ville: ${this.filters.ville}`);
+          }
+
+          if (activeFilters.length > 0) {
+            resultsDescription.textContent = `Filtres actifs: ${activeFilters.join(', ')}`;
+          } else {
+            resultsDescription.textContent =
+              'Aucun filtre actif - affichage de tous les profils';
+          }
         }
 
         goToPage(page) {
