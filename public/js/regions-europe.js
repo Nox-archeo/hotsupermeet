@@ -843,60 +843,6 @@ const europeanRegions = {
   ],
 };
 
-// Fonction pour obtenir les villes d'un pays et d'une région spécifiques
-function getCitiesByCountryAndRegion(countryKey, regionValue) {
-  if (europeanCities[countryKey] && europeanCities[countryKey][regionValue]) {
-    return europeanCities[countryKey][regionValue];
-  }
-  return [];
-}
-
-// Fonction de recherche de villes avec correspondance automatique
-function searchCities(searchTerm, countryKey = null, regionValue = null) {
-  const normalizedSearch = normalizeString(searchTerm);
-  const results = [];
-
-  // Si pays et région sont spécifiés, chercher uniquement dans cette région
-  if (countryKey && regionValue) {
-    const cities = getCitiesByCountryAndRegion(countryKey, regionValue);
-    for (const city of cities) {
-      const normalizedCityName = normalizeString(city.name);
-      if (normalizedCityName.includes(normalizedSearch)) {
-        results.push({
-          ...city,
-          countryKey: countryKey,
-          regionValue: regionValue,
-        });
-      }
-    }
-    return results;
-  }
-
-  // Recherche globale dans toutes les villes
-  for (const country in europeanCities) {
-    for (const region in europeanCities[country]) {
-      const cities = europeanCities[country][region];
-      for (const city of cities) {
-        const normalizedCityName = normalizeString(city.name);
-        if (normalizedCityName.includes(normalizedSearch)) {
-          results.push({
-            ...city,
-            countryKey: country,
-            regionValue: region,
-          });
-        }
-      }
-    }
-  }
-
-  return results;
-}
-
-// Exemple d'utilisation :
-// console.log(getCitiesByCountryAndRegion('france', 'ile-de-france')); // Villes d'Île-de-France
-// console.log(searchCities('par', 'france', 'ile-de-france')); // Recherche de villes contenant "par" en Île-de-France
-// console.log(searchCities('gen')); // Recherche globale de villes contenant "gen"
-
 // Fonction utilitaire pour normaliser les chaînes (enlever accents, mettre en minuscule)
 function normalizeString(str) {
   return str
@@ -954,10 +900,5 @@ function formatCountryName(countryKey) {
     .replace('Saint Marin', 'Saint-Marin');
 }
 
-// Exemple d'utilisation :
-// console.log(searchRegions('sui')); // Retourne la Suisse
-// console.log(searchRegions('fri')); // Retourne Fribourg parmi les régions
-
 // Exposer les variables globalement
 window.europeanRegions = europeanRegions;
-window.europeanCities = europeanCities;
