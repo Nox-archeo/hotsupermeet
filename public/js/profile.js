@@ -605,10 +605,10 @@ function setupLocationSelectors() {
           setTimeout(() => {
             regionSelect.value = savedRegion;
             console.log('Région restaurée:', savedRegion);
-          }, 100);
+          }, 200);
         }
       }
-    }, 100);
+    }, 500);
   }
 }
 
@@ -662,7 +662,11 @@ document.addEventListener('DOMContentLoaded', function () {
   // Utilisateur connecté ou vient de s'inscrire -> charger les données du profil
   console.log('Chargement des données du profil...');
   hideLoginMessage();
-  loadProfileData();
+
+  // Charger les données du profil avec un délai pour s'assurer que les sélecteurs sont configurés
+  setTimeout(() => {
+    loadProfileData();
+  }, 300);
 
   // Gestionnaire pour la suppression de compte
   const deleteAccountBtn = document.getElementById('deleteAccountBtn');
