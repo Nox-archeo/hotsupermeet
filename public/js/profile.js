@@ -555,9 +555,45 @@ function hideLoginMessage() {
   }
 }
 
-// Gestion des régions européennes - Utilise maintenant window.europeanRegions comme sur la page d'inscription
-// Cette fonction est maintenant gérée par le script inline dans profile-clean.html qui utilise window.europeanRegions
-// Suppression de l'objet regionsEurope limité pour utiliser la même logique que auth.js
+// Gestion des régions européennes - Exactement comme sur la page d'inscription
+function getRegionsByCountry(pays) {
+  return window.europeanRegions?.[pays] || [];
+}
+
+function updateRegions(pays, regionSelect) {
+  // Vider le sélecteur de régions
+  regionSelect.innerHTML = '<option value="">Choisir une région...</option>';
+
+  if (!pays) {
+    return;
+  }
+
+  const regions = getRegionsByCountry(pays);
+
+  regions.forEach(region => {
+    const option = document.createElement('option');
+    option.value = region.value;
+    option.textContent = region.name;
+    regionSelect.appendChild(option);
+  });
+}
+
+// Configuration des sélecteurs de localisation pour le profil
+function setupLocationSelectors() {
+  const paysSelect = document.getElementById('profilePays');
+  const regionSelect = document.getElementById('profileRegion');
+
+  if (paysSelect && regionSelect) {
+    paysSelect.addEventListener('change', () => {
+      updateRegions(paysSelect.value, regionSelect);
+    });
+
+    // Mettre à jour les régions si un pays est déjà sélectionné
+    if (paysSelect.value) {
+      updateRegions(paysSelect.value, regionSelect);
+    }
+  }
+}
 
 // Initialisation de la page profil - VERSION COMPLÈTE
 document.addEventListener('DOMContentLoaded', function () {
@@ -588,6 +624,9 @@ document.addEventListener('DOMContentLoaded', function () {
 // Initialisation avec vérification d'authentification
 document.addEventListener('DOMContentLoaded', function () {
   console.log('=== INITIALISATION PAGE PROFIL ===');
+
+  // Configuration des sélecteurs de localisation (doit être fait avant le chargement des données)
+  setupLocationSelectors();
 
   // Vérifier l'authentification
   const token = localStorage.getItem('hotmeet_token');
