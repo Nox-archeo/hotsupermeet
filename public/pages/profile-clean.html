@@ -386,35 +386,7 @@
     <!-- JavaScript spécifique au profil - Fichier externe pour éviter CSP -->
     <script src="/js/profile.js"></script>
 
-    <!-- Script régions INLINE comme dans auth.html -->
-    <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        const paysSelect = document.getElementById('profilePays');
-        const regionSelect = document.getElementById('profileRegion');
-
-        if (paysSelect && regionSelect) {
-          paysSelect.addEventListener('change', function () {
-            updateRegions(this.value, regionSelect);
-          });
-        }
-
-        function updateRegions(pays, regionSelect) {
-          regionSelect.innerHTML =
-            '<option value="">Choisir une région...</option>';
-
-          if (!pays) return;
-
-          const regions = window.europeanRegions?.[pays] || [];
-
-          regions.forEach(region => {
-            const option = document.createElement('option');
-            option.value = region.value;
-            option.textContent = region.name;
-            regionSelect.appendChild(option);
-          });
-        }
-      });
-    </script>
+    <!-- Les régions sont maintenant gérées par profile.js -->
 
     <style>
       .pages-container {
