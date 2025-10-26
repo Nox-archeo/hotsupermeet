@@ -22,37 +22,15 @@ document.addEventListener('DOMContentLoaded', function () {
     // Vider régions
     regionSelect.innerHTML = '<option value="">Choisir une région...</option>';
 
-    // Vérifier si europeanRegions existe
-    if (typeof europeanRegions === 'undefined') {
-      console.error('❌ europeanRegions non défini !');
-      return;
-    }
+    // Utiliser EXACTEMENT la même logique que auth.js qui fonctionne
+    const regions = window.europeanRegions?.[pays] || [];
 
-    console.log(
-      '📋 europeanRegions OK, pays disponibles:',
-      Object.keys(europeanRegions)
-    );
-
-    // Charger régions du pays - essayer avec et sans apostrophes
-    let regionsData = europeanRegions[pays] || europeanRegions[pays];
-    if (regionsData) {
-      console.log('🌍 Régions pour', pays, ':', regionsData.length);
-
-      regionsData.forEach(function (regionData) {
-        const option = document.createElement('option');
-        option.value = regionData.value;
-        option.textContent = regionData.name;
-        regionSelect.appendChild(option);
-      });
-
-      console.log('✅ Régions chargées !');
-    } else {
-      console.log('❌ Pas de régions pour:', pays);
-      console.log(
-        '🔍 Debug: clés disponibles:',
-        Object.keys(europeanRegions).slice(0, 10)
-      );
-    }
+    regions.forEach(region => {
+      const option = document.createElement('option');
+      option.value = region.value;
+      option.textContent = region.name;
+      regionSelect.appendChild(option);
+    });
   }
 
   // Event sur changement pays
