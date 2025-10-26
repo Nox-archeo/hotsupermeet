@@ -555,88 +555,9 @@ function hideLoginMessage() {
   }
 }
 
-// Gestion des régions européennes
-const regionsEurope = {
-  france: [
-    'Auvergne-Rhône-Alpes',
-    'Bourgogne-Franche-Comté',
-    'Bretagne',
-    'Centre-Val de Loire',
-    'Corse',
-    'Grand Est',
-    'Hauts-de-France',
-    'Île-de-France',
-    'Normandie',
-    'Nouvelle-Aquitaine',
-    'Occitanie',
-    'Pays de la Loire',
-    "Provence-Alpes-Côte d'Azur",
-  ],
-  suisse: [
-    'Zurich',
-    'Berne',
-    'Lucerne',
-    'Uri',
-    'Schwyz',
-    'Obwald',
-    'Nidwald',
-    'Glaris',
-    'Zoug',
-    'Fribourg',
-    'Soleure',
-    'Bâle-Ville',
-    'Bâle-Campagne',
-    'Schaffhouse',
-    'Appenzell Rhodes-Extérieures',
-    'Appenzell Rhodes-Intérieures',
-    'Saint-Gall',
-    'Grisons',
-    'Argovie',
-    'Thurgovie',
-    'Tessin',
-    'Vaud',
-    'Valais',
-    'Neuchâtel',
-    'Genève',
-    'Jura',
-  ],
-  belgique: [
-    'Anvers',
-    'Limbourg',
-    'Flandre-Orientale',
-    'Brabant flamand',
-    'Flandre-Occidentale',
-    'Hainaut',
-    'Liège',
-    'Luxembourg',
-    'Namur',
-    'Brabant wallon',
-    'Bruxelles-Capitale',
-  ],
-};
-
-// Initialisation des événements pour les pays/régions
-document.addEventListener('DOMContentLoaded', function () {
-  const paysSelect = document.getElementById('profilePays');
-  const regionSelect = document.getElementById('profileRegion');
-
-  if (paysSelect && regionSelect) {
-    paysSelect.addEventListener('change', function () {
-      const selectedCountry = this.value.toLowerCase();
-      regionSelect.innerHTML =
-        '<option value="">Sélectionnez votre région</option>';
-
-      if (regionsEurope[selectedCountry]) {
-        regionsEurope[selectedCountry].forEach(region => {
-          const option = document.createElement('option');
-          option.value = region.toLowerCase().replace(/\s+/g, '-');
-          option.textContent = region;
-          regionSelect.appendChild(option);
-        });
-      }
-    });
-  }
-});
+// Gestion des régions européennes - Utilise maintenant window.europeanRegions comme sur la page d'inscription
+// Cette fonction est maintenant gérée par le script inline dans profile-clean.html qui utilise window.europeanRegions
+// Suppression de l'objet regionsEurope limité pour utiliser la même logique que auth.js
 
 // Initialisation de la page profil - VERSION COMPLÈTE
 document.addEventListener('DOMContentLoaded', function () {
@@ -657,7 +578,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     console.log('Page profil initialisée avec succès');
   } catch (error) {
-    console.error("Erreur lors de l'initialisation de la page profil:", error);
+    console.error(
+      'Erreur lors de l\\' + 'initialisation de la page profil:',
+      error
+    );
   }
 });
 
