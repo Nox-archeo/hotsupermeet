@@ -1202,35 +1202,10 @@ function setupPhotoManagement() {
     });
   }
 
-  // Connecter les boutons d'upload aux inputs
-  console.log('🔍 CONNEXION DES BOUTONS PHOTO');
-  const uploadGalleryBtn = document.getElementById('uploadGalleryBtn');
-  console.log('Bouton galerie trouvé:', !!uploadGalleryBtn);
-  if (uploadGalleryBtn) {
-    uploadGalleryBtn.onclick = () => {
-      console.log('🖱️ CLIC BOUTON GALERIE');
-      const input = document.getElementById('galleryPhotoInput');
-      console.log('Input galerie trouvé:', !!input);
-      if (input) {
-        console.log('📂 OUVERTURE SÉLECTEUR FICHIER GALERIE');
-        input.click();
-      }
-    };
-  }
-
-  const uploadPrivateBtn = document.getElementById('uploadPrivateBtn');
-  console.log('Bouton privé trouvé:', !!uploadPrivateBtn);
-  if (uploadPrivateBtn) {
-    uploadPrivateBtn.onclick = () => {
-      console.log('🖱️ CLIC BOUTON PRIVÉ');
-      const input = document.getElementById('privatePhotoInput');
-      console.log('Input privé trouvé:', !!input);
-      if (input) {
-        console.log('📂 OUVERTURE SÉLECTEUR FICHIER PRIVÉ');
-        input.click();
-      }
-    };
-  }
+  // Les boutons sont maintenant connectés dans setupPhotoUpload()
+  console.log(
+    '� setupPhotoManagement() - boutons gérés par setupPhotoUpload()'
+  );
 }
 
 // Fonction universelle d'upload de photo
