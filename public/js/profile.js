@@ -11,17 +11,36 @@ document
   .addEventListener('submit', async function (e) {
     e.preventDefault();
 
+    // Récupérer les valeurs avec gestion des champs vides
+    const nom = document.getElementById('profileNom').value.trim();
+    const age = document.getElementById('profileAge').value;
+    const sexe = document.getElementById('profileSexe').value;
+    const pays = document.getElementById('profilePays').value.trim();
+    const region = document.getElementById('profileRegion').value.trim();
+    const ville = document.getElementById('profileVille').value.trim();
+    const bio = document.getElementById('profileBio').value.trim();
+
+    // Validation minimale : seulement nom obligatoire
+    if (!nom) {
+      showMessage('Le nom est obligatoire', 'error');
+      return;
+    }
+
     const formData = {
       profile: {
-        nom: document.getElementById('profileNom').value.trim(),
-        age: parseInt(document.getElementById('profileAge').value),
-        sexe: document.getElementById('profileSexe').value,
+        nom: nom,
+        // Age : garder l'ancienne valeur si vide, sinon convertir
+        ...(age ? { age: parseInt(age) } : {}),
+        // Sexe : garder l'ancienne valeur si non sélectionné
+        ...(sexe ? { sexe: sexe } : {}),
         localisation: {
-          pays: document.getElementById('profilePays').value.trim(),
-          region: document.getElementById('profileRegion').value.trim(),
-          ville: document.getElementById('profileVille').value.trim(),
+          // Garder les anciennes valeurs si les champs sont vides
+          ...(pays ? { pays: pays } : {}),
+          ...(region ? { region: region } : {}),
+          ...(ville ? { ville: ville } : {}),
         },
-        bio: document.getElementById('profileBio').value.trim(),
+        // Bio : permettre la bio vide
+        bio: bio,
       },
     };
 
@@ -773,14 +792,40 @@ function setupPhotoUpload() {
 
           if (result.success) {
             showMessage('Photo de profil mise à jour avec succès !', 'success');
-            // Mettre à jour l'affichage de la photo
+
+            // Mettre à jour IMMÉDIATEMENT l'affichage de la photo avec la nouvelle URL
             const profileAvatar = document.getElementById('profileAvatar');
-            if (profileAvatar && result.photo) {
-              profileAvatar.src = result.photo.url;
-              profileAvatar.alt = 'Photo de profil mise à jour';
+            const profilePhotoPreview = document.querySelector(
+              '.profile-photo-preview img'
+            );
+
+            // Utiliser l'URL Cloudinary retournée par le serveur
+            const newPhotoUrl = result.photo?.path || result.photo?.url;
+
+            if (newPhotoUrl) {
+              // Mettre à jour l'avatar principal
+              if (profileAvatar) {
+                profileAvatar.src = newPhotoUrl;
+                profileAvatar.alt = 'Photo de profil mise à jour';
+              }
+
+              // Mettre à jour la prévisualisation si elle existe
+              if (profilePhotoPreview) {
+                profilePhotoPreview.src = newPhotoUrl;
+                profilePhotoPreview.alt = 'Photo de profil mise à jour';
+              }
+
+              // Forcer le rafraîchissement du cache en ajoutant un timestamp
+              const timestamp = new Date().getTime();
+              const urlWithTimestamp = newPhotoUrl + '?t=' + timestamp;
+
+              if (profileAvatar) profileAvatar.src = urlWithTimestamp;
+              if (profilePhotoPreview)
+                profilePhotoPreview.src = urlWithTimestamp;
             }
-            // Recharger les données du profil pour s'assurer que tout est synchronisé
-            loadProfileData();
+
+            // Recharger les données du profil pour synchroniser
+            setTimeout(() => loadProfileData(), 500);
           } else {
             showMessage(
               result.error?.message ||
