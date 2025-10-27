@@ -2,6 +2,7 @@ const express = require('express');
 const {
   uploadProfilePhoto,
   uploadGalleryPhoto,
+  uploadPrivatePhoto,
   togglePhotoBlur,
   deletePhoto,
   setProfilePhoto,
@@ -17,6 +18,7 @@ const router = express.Router();
 // Routes protégées pour l'upload et la gestion des photos
 router.post('/profile-photo', auth, updateLastActivity, uploadProfilePhoto);
 router.post('/gallery-photo', auth, updateLastActivity, uploadGalleryPhoto);
+router.post('/private-photo', auth, updateLastActivity, uploadPrivatePhoto);
 router.patch('/photo/:photoId/blur', auth, updateLastActivity, togglePhotoBlur);
 router.delete('/photo/:photoId', auth, updateLastActivity, deletePhoto);
 router.patch(

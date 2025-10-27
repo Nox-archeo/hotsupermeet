@@ -157,8 +157,9 @@ const uploadProfilePhoto = async (req, res) => {
             format: uploadResult.format,
             bytes: uploadResult.bytes,
           },
-          isBlurred: false, // Par défaut non floutée (conforme à la configuration d'inscription)
-          isProfile: true, // Photo de profil principale
+          isBlurred: false, // Par défaut non floutée
+          type: 'profile', // Type de photo : 'profile', 'gallery', 'private'
+          isProfile: true, // Cette fonction est spécifiquement pour la photo de profil
           uploadedAt: new Date(),
         };
       } catch (cloudinaryError) {
@@ -207,13 +208,18 @@ const uploadProfilePhoto = async (req, res) => {
       });
     }
 
-    // Si c'est la première photo, la définir comme photo de profil
-    if (!user.profile.photos || user.profile.photos.length === 0) {
-      user.profile.photos = [photoData];
-    } else {
-      // Ajouter aux photos existantes
-      user.profile.photos.push(photoData);
+    // LOGIQUE CORRIGÉE : Remplacer l'ancienne photo de profil
+    if (!user.profile.photos) {
+      user.profile.photos = [];
     }
+
+    // Supprimer l'ancienne photo de profil (garder seulement les photos de galerie et privées)
+    user.profile.photos = user.profile.photos.filter(
+      photo => !photo.isProfile && photo.type !== 'profile'
+    );
+
+    // Ajouter la nouvelle photo de profil
+    user.profile.photos.push(photoData);
 
     await user.save();
 
@@ -298,8 +304,9 @@ const uploadGalleryPhoto = async (req, res) => {
     const photoData = {
       filename: fileName,
       path: `/uploads/profile-photos/${fileName}`,
-      isBlurred: false, // Par défaut non floutée (conforme à la configuration d'inscription)
-      isProfile: false, // Photo de galerie
+      type: 'gallery', // Type galerie publique
+      isBlurred: false, // Par défaut non floutée
+      isProfile: false, // Pas une photo de profil
       uploadedAt: new Date(),
     };
 
@@ -327,6 +334,112 @@ const uploadGalleryPhoto = async (req, res) => {
       error: {
         code: 'UPLOAD_ERROR',
         message: 'Erreur lors de l\\' + 'upload de la photo de galerie',
+      },
+    });
+  }
+};
+
+// Upload de photo privée
+const uploadPrivatePhoto = async (req, res) => {
+  try {
+    ensureUploadDirs();
+
+    if (!req.files || !req.files.photo) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'NO_FILE',
+          message: 'Aucune photo fournie',
+        },
+      });
+    }
+
+    const photo = req.files.photo;
+    const userId = req.user._id;
+
+    // Vérifications basiques (même que pour les autres photos)
+    if (!photo.mimetype.startsWith('image/')) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_FILE_TYPE',
+          message: 'Le fichier doit être une image',
+        },
+      });
+    }
+
+    if (photo.size > 5 * 1024 * 1024) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'FILE_TOO_LARGE',
+          message: 'L\\' + 'image ne doit pas dépasser 5MB',
+        },
+      });
+    }
+
+    // Générer un nom de fichier unique pour photo privée
+    const fileExtension = path.extname(photo.name);
+    const fileName = `${userId}_private_${Date.now()}${fileExtension}`;
+    const filePath = path.join(PROFILE_PHOTOS_DIR, fileName);
+
+    // Sauvegarder le fichier
+    await photo.mv(filePath);
+
+    // Mettre à jour le profil utilisateur
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'USER_NOT_FOUND',
+          message: 'Utilisateur non trouvé',
+        },
+      });
+    }
+
+    const photoData = {
+      filename: fileName,
+      path: `/uploads/profile-photos/${fileName}`,
+      type: 'private', // Type photo privée
+      isBlurred: true, // Photos privées sont floutées par défaut
+      isProfile: false, // Pas une photo de profil
+      uploadedAt: new Date(),
+    };
+
+    // Initialiser le tableau de photos si nécessaire
+    if (!user.profile.photos) {
+      user.profile.photos = [];
+    }
+
+    // Vérifier la limite de 5 photos privées
+    const privatePhotos = user.profile.photos.filter(p => p.type === 'private');
+    if (privatePhotos.length >= 5) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'PRIVATE_PHOTO_LIMIT',
+          message: 'Vous ne pouvez avoir que 5 photos privées maximum',
+        },
+      });
+    }
+
+    // Ajouter la photo privée
+    user.profile.photos.push(photoData);
+    await user.save();
+
+    res.json({
+      success: true,
+      photo: photoData,
+      message: 'Photo privée uploadée avec succès',
+    });
+  } catch (error) {
+    console.error('Erreur lors de l\\' + 'upload de la photo privée:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'UPLOAD_ERROR',
+        message: 'Erreur lors de l\\' + 'upload de la photo privée',
       },
     });
   }
@@ -578,6 +691,7 @@ const handleUnblurRequest = async (req, res) => {
 module.exports = {
   uploadProfilePhoto,
   uploadGalleryPhoto,
+  uploadPrivatePhoto,
   togglePhotoBlur,
   deletePhoto,
   setProfilePhoto,
