@@ -125,7 +125,7 @@ const uploadProfilePhoto = async (req, res) => {
             format: uploadResult.format,
             bytes: uploadResult.bytes,
           },
-          isBlurred: true, // Par défaut floutée pour la confidentialité
+          isBlurred: false, // Par défaut non floutée (conforme à la configuration d'inscription)
           isProfile: true, // Photo de profil principale
           uploadedAt: new Date(),
         };
@@ -142,7 +142,7 @@ const uploadProfilePhoto = async (req, res) => {
           filename: fileName,
           path: dataURL,
           url: dataURL,
-          isBlurred: true,
+          isBlurred: false,
           isProfile: true,
           uploadedAt: new Date(),
         };
@@ -157,7 +157,7 @@ const uploadProfilePhoto = async (req, res) => {
         filename: fileName,
         path: dataURL,
         url: dataURL,
-        isBlurred: true,
+        isBlurred: false,
         isProfile: true,
         uploadedAt: new Date(),
       };
@@ -266,7 +266,7 @@ const uploadGalleryPhoto = async (req, res) => {
     const photoData = {
       filename: fileName,
       path: `/uploads/profile-photos/${fileName}`,
-      isBlurred: true, // Par défaut floutée pour la confidentialité
+      isBlurred: false, // Par défaut non floutée (conforme à la configuration d'inscription)
       isProfile: false, // Photo de galerie
       uploadedAt: new Date(),
     };
