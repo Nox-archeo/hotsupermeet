@@ -75,16 +75,15 @@ app.use(
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Middleware pour l'upload de fichiers
+// Middleware pour l'upload de fichiers - CORRECTION POUR RENDER
 app.use(
   fileUpload({
     limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
     createParentPath: true,
-    useTempFiles: true,
-    tempFileDir: '/tmp/',
+    useTempFiles: false, // Désactiver les fichiers temporaires sur Render
     abortOnLimit: true,
-    parseNested: true,
-    debug: process.env.NODE_ENV === 'development',
+    parseNested: false, // Désactiver le parsing nested pour éviter les erreurs
+    debug: false, // Désactiver le debug en production
   })
 );
 
