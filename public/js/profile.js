@@ -1202,61 +1202,8 @@ function setupPhotoManagement() {
     });
   }
 
-  // COPIER EXACTEMENT LA MÊME LOGIQUE QUE POUR LA PHOTO DE PROFIL
-
-  // Créer input caché pour galerie
-  let galleryInput = document.getElementById('galleryPhotoInputHidden');
-  if (!galleryInput) {
-    galleryInput = document.createElement('input');
-    galleryInput.type = 'file';
-    galleryInput.id = 'galleryPhotoInputHidden';
-    galleryInput.accept = 'image/*';
-    galleryInput.style.display = 'none';
-    document.body.appendChild(galleryInput);
-  }
-
-  // Connecter bouton galerie
-  const uploadGalleryBtn = document.getElementById('uploadGalleryBtn');
-  if (uploadGalleryBtn) {
-    uploadGalleryBtn.onclick = () => galleryInput.click();
-  }
-
-  // Upload galerie
-  if (galleryInput) {
-    galleryInput.addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (file) {
-        uploadPhoto(file, 'gallery');
-      }
-    });
-  }
-
-  // Créer input caché pour privé
-  let privateInput = document.getElementById('privatePhotoInputHidden');
-  if (!privateInput) {
-    privateInput = document.createElement('input');
-    privateInput.type = 'file';
-    privateInput.id = 'privatePhotoInputHidden';
-    privateInput.accept = 'image/*';
-    privateInput.style.display = 'none';
-    document.body.appendChild(privateInput);
-  }
-
-  // Connecter bouton privé
-  const uploadPrivateBtn = document.getElementById('uploadPrivateBtn');
-  if (uploadPrivateBtn) {
-    uploadPrivateBtn.onclick = () => privateInput.click();
-  }
-
-  // Upload privé
-  if (privateInput) {
-    privateInput.addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (file) {
-        uploadPhoto(file, 'private');
-      }
-    });
-  }
+  // Les boutons HTML ont maintenant onclick direct - pas besoin de logique supplémentaire
+  console.log('✅ setupPhotoManagement - Système simplifié avec onclick HTML');
 }
 
 // Fonction universelle d'upload de photo
