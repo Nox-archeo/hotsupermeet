@@ -1,10 +1,9 @@
-// JavaScript spécifique au profil - Version 2.1 FORCED REFRESH
+// JavaScript spécifique au profil - Version 2.2 - Gestion des photos
 console.log(
-  '🔧 PROFIL PAGE VERSION 2.1 - CACHE FORCÉ - ' + new Date().toISOString()
+  '🔧 PROFIL PAGE VERSION 2.2 - GESTION DES PHOTOS - ' +
+    new Date().toISOString()
 );
-console.log(
-  '🚨 NOUVELLE VERSION CHARGÉE ! Si vous voyez ce message, la correction est active.'
-);
+console.log('🚨 NOUVELLE VERSION CHARGÉE ! Fonctionnalités photo activées.');
 
 // Gestion du formulaire de profil
 document
@@ -180,7 +179,7 @@ async function loadProfileData() {
 
     if (response.ok) {
       const data = await response.json();
-      console.log("Données brutes reçues de l'API:", data);
+      console.log('Données brutes reçues de l\\' + 'API:', data);
 
       const user = data.user || data;
       console.log('Données utilisateur extraites:', user);
@@ -293,7 +292,7 @@ async function loadProfileData() {
               }
             } else {
               console.log(
-                "Pas d'URL/path de photo, utilisation du placeholder"
+                'Pas d\\' + 'URL/path de photo, utilisation du placeholder'
               );
             }
           } else {
@@ -413,7 +412,7 @@ function showProfilePreview() {
       bio: bioField.value || 'Bio non renseignée',
     };
 
-    console.log("Données pour l'aperçu:", previewData);
+    console.log('Données pour l\\' + 'aperçu:', previewData);
 
     const previewHTML = `
     <div class="preview-modal">
@@ -448,8 +447,8 @@ function showProfilePreview() {
 
     console.log('Aperçu du profil affiché');
   } catch (error) {
-    console.error("Erreur lors de l'affichage de l'aperçu:", error);
-    showMessage("Erreur lors de l'affichage de l'aperçu", 'error');
+    console.error('Erreur lors de l\\' + 'affichage de l\\' + 'aperçu:', error);
+    showMessage('Erreur lors de l\\' + 'affichage de l\\' + 'aperçu', 'error');
   }
 }
 
@@ -690,12 +689,190 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 });
 
+// Gestion du changement de photo de profil
+function setupPhotoUpload() {
+  const changeAvatarBtn = document.getElementById('changeAvatarBtn');
+  const photoInput = document.createElement('input');
+  photoInput.type = 'file';
+  photoInput.accept = 'image/*';
+  photoInput.style.display = 'none';
+
+  document.body.appendChild(photoInput);
+
+  if (changeAvatarBtn) {
+    changeAvatarBtn.addEventListener('click', () => {
+      photoInput.click();
+    });
+  }
+
+  photoInput.addEventListener('change', async e => {
+    const file = e.target.files[0];
+    if (!file) {
+      return;
+    }
+
+    // Vérifier le type de fichier
+    if (!file.type.startsWith('image/')) {
+      showMessage('Le fichier doit être une image', 'error');
+      return;
+    }
+
+    // Vérifier la taille (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      showMessage('L\\' + 'image ne doit pas dépasser 5MB', 'error');
+      return;
+    }
+
+    try {
+      showMessage('Upload de la photo en cours...', 'info');
+
+      const token = localStorage.getItem('hotmeet_token');
+      if (!token) {
+        showMessage('Erreur: Non connecté', 'error');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('photo', file);
+
+      const response = await fetch('/api/uploads/profile-photo', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        showMessage('Photo de profil mise à jour avec succès !', 'success');
+        // Mettre à jour l'affichage de la photo
+        const profileAvatar = document.getElementById('profileAvatar');
+        if (profileAvatar && result.photo) {
+          profileAvatar.src = result.photo.url;
+          profileAvatar.alt = 'Photo de profil mise à jour';
+        }
+        // Recharger les données du profil pour s'assurer que tout est synchronisé
+        loadProfileData();
+      } else {
+        showMessage(
+          result.error?.message || 'Erreur lors de l\\' + 'upload de la photo',
+          'error'
+        );
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\\' + 'upload de la photo:', error);
+      showMessage('Erreur lors de l\\' + 'upload de la photo', 'error');
+    }
+  });
+}
+
+// Gestion du floutage/défloutage des photos
+function setupPhotoBlurToggle() {
+  const blurToggleBtn = document.getElementById('blurToggleBtn');
+
+  // Créer le bouton s'il n'existe pas
+  if (!blurToggleBtn) {
+    const avatarActions = document.querySelector('.avatar-actions');
+    if (avatarActions) {
+      const newButton = document.createElement('button');
+      newButton.id = 'blurToggleBtn';
+      newButton.className = 'btn-secondary';
+      newButton.textContent = 'Flouter/Déflouter la photo';
+      avatarActions.appendChild(newButton);
+    }
+  }
+
+  const toggleBtn = document.getElementById('blurToggleBtn');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', async () => {
+      try {
+        const token = localStorage.getItem('hotmeet_token');
+        if (!token) {
+          showMessage('Erreur: Non connecté', 'error');
+          return;
+        }
+
+        // Récupérer l'ID de la photo de profil principale
+        const userResponse = await fetch('/api/auth/me', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!userResponse.ok) {
+          showMessage('Erreur lors de la récupération du profil', 'error');
+          return;
+        }
+
+        const userData = await userResponse.json();
+        const user = userData.user || userData;
+
+        if (
+          !user.profile ||
+          !user.profile.photos ||
+          user.profile.photos.length === 0
+        ) {
+          showMessage('Aucune photo de profil trouvée', 'error');
+          return;
+        }
+
+        // Trouver la photo de profil principale
+        const profilePhoto =
+          user.profile.photos.find(photo => photo.isProfile) ||
+          user.profile.photos[0];
+        if (!profilePhoto || !profilePhoto._id) {
+          showMessage('Photo de profil non trouvée', 'error');
+          return;
+        }
+
+        showMessage('Modification du floutage en cours...', 'info');
+
+        const response = await fetch(
+          `/api/uploads/photo/${profilePhoto._id}/blur`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const result = await response.json();
+
+        if (result.success) {
+          const newState = result.photo.isBlurred ? 'floutée' : 'défloutée';
+          showMessage(`Photo ${newState} avec succès !`, 'success');
+
+          // Mettre à jour l'affichage
+          loadProfileData();
+        } else {
+          showMessage(
+            result.error?.message ||
+              'Erreur lors de la modification du floutage',
+            'error'
+          );
+        }
+      } catch (error) {
+        console.error('Erreur lors de la modification du floutage:', error);
+        showMessage('Erreur lors de la modification du floutage', 'error');
+      }
+    });
+  }
+}
+
 // Initialisation avec vérification d'authentification
 document.addEventListener('DOMContentLoaded', function () {
   console.log('=== INITIALISATION PAGE PROFIL ===');
 
   // Configuration des sélecteurs de localisation (doit être fait avant le chargement des données)
   setupLocationSelectors();
+
+  // Configuration de l'upload de photos
+  setupPhotoUpload();
+  setupPhotoBlurToggle();
 
   // Vérifier l'authentification
   const token = localStorage.getItem('hotmeet_token');
