@@ -29,17 +29,13 @@ document
     const formData = {
       profile: {
         nom: nom,
-        // Age : garder l'ancienne valeur si vide, sinon convertir
-        ...(age ? { age: parseInt(age) } : {}),
-        // Sexe : garder l'ancienne valeur si non sélectionné
-        ...(sexe ? { sexe: sexe } : {}),
+        age: age ? parseInt(age) : '',
+        sexe: sexe || '',
         localisation: {
-          // Garder les anciennes valeurs si les champs sont vides
-          ...(pays ? { pays: pays } : {}),
-          ...(region ? { region: region } : {}),
-          ...(ville ? { ville: ville } : {}),
+          pays: pays || '',
+          region: region || '',
+          ville: ville || '',
         },
-        // Bio : permettre la bio vide
         bio: bio,
       },
     };
@@ -723,6 +719,9 @@ document.addEventListener('DOMContentLoaded', function () {
       previewBtn.addEventListener('click', showProfilePreview);
     }
 
+    // NOUVEAU: Initialiser la gestion des photos
+    setupPhotoManagement();
+
     console.log('Page profil initialisée avec succès');
   } catch (error) {
     console.error(
@@ -1353,8 +1352,3 @@ async function deletePhoto(photoId) {
     showMessage('Erreur lors de la suppression de la photo', 'error');
   }
 }
-
-// Initialiser la gestion des photos
-document.addEventListener('DOMContentLoaded', () => {
-  setupPhotoManagement();
-});
