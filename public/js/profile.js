@@ -1202,8 +1202,44 @@ function setupPhotoManagement() {
     });
   }
 
-  // Les boutons HTML ont maintenant onclick direct - pas besoin de logique supplémentaire
-  console.log('✅ setupPhotoManagement - Système simplifié avec onclick HTML');
+  // SOLUTION URGENTE POUR CSP - Connexion directe des boutons
+  console.log('🚨 CONNEXION URGENTE DES BOUTONS PHOTOS');
+
+  // Bouton galerie
+  const uploadGalleryBtn = document.getElementById('uploadGalleryBtn');
+  if (uploadGalleryBtn) {
+    console.log('✅ Bouton galerie trouvé, connexion...');
+    uploadGalleryBtn.addEventListener('click', function () {
+      console.log('🖱️ CLIC BOUTON GALERIE DÉTECTÉ !');
+      const input = document.getElementById('galleryPhotoInput');
+      if (input) {
+        console.log('📂 OUVERTURE SÉLECTEUR GALERIE');
+        input.click();
+      } else {
+        console.error('❌ Input galerie non trouvé');
+      }
+    });
+  } else {
+    console.error('❌ Bouton galerie non trouvé');
+  }
+
+  // Bouton privé
+  const uploadPrivateBtn = document.getElementById('uploadPrivateBtn');
+  if (uploadPrivateBtn) {
+    console.log('✅ Bouton privé trouvé, connexion...');
+    uploadPrivateBtn.addEventListener('click', function () {
+      console.log('🖱️ CLIC BOUTON PRIVÉ DÉTECTÉ !');
+      const input = document.getElementById('privatePhotoInput');
+      if (input) {
+        console.log('📂 OUVERTURE SÉLECTEUR PRIVÉ');
+        input.click();
+      } else {
+        console.error('❌ Input privé non trouvé');
+      }
+    });
+  } else {
+    console.error('❌ Bouton privé non trouvé');
+  }
 }
 
 // Fonction universelle d'upload de photo
