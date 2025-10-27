@@ -108,6 +108,190 @@
                   </div>
                 </div>
 
+                <!-- Section complète de gestion des photos -->
+                <div
+                  class="profile-photos"
+                  style="
+                    margin: 2rem 0;
+                    padding: 1.5rem;
+                    background: #f8f9fa;
+                    border-radius: 10px;
+                  "
+                >
+                  <h3
+                    style="
+                      color: #2c3e50;
+                      margin-bottom: 1.5rem;
+                      text-align: center;
+                    "
+                  >
+                    📷 Gestion de vos photos
+                  </h3>
+
+                  <div
+                    class="photos-grid"
+                    style="
+                      display: grid;
+                      grid-template-columns: 1fr 1fr;
+                      gap: 1.5rem;
+                    "
+                  >
+                    <!-- Photos publiques -->
+                    <div
+                      class="photo-section"
+                      style="
+                        background: white;
+                        padding: 1rem;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                      "
+                    >
+                      <h4
+                        style="
+                          color: #007bff;
+                          margin-bottom: 1rem;
+                          display: flex;
+                          align-items: center;
+                          gap: 0.5rem;
+                        "
+                      >
+                        🖼️ Photos publiques
+                        <span
+                          style="
+                            background: #007bff;
+                            color: white;
+                            padding: 0.2rem 0.4rem;
+                            border-radius: 10px;
+                            font-size: 0.7rem;
+                          "
+                        >
+                          Max 5
+                        </span>
+                      </h4>
+                      <p
+                        style="
+                          color: #666;
+                          font-size: 0.9rem;
+                          margin-bottom: 1rem;
+                        "
+                      >
+                        Visibles dans votre profil détaillé
+                      </p>
+
+                      <div
+                        id="galleryPhotos"
+                        style="
+                          display: grid;
+                          grid-template-columns: repeat(
+                            auto-fill,
+                            minmax(60px, 1fr)
+                          );
+                          gap: 0.5rem;
+                          margin-bottom: 1rem;
+                          min-height: 60px;
+                          border: 2px dashed #ddd;
+                          padding: 0.5rem;
+                          border-radius: 5px;
+                        "
+                      >
+                        <!-- Photos publiques affichées ici -->
+                      </div>
+
+                      <input
+                        type="file"
+                        id="galleryPhotoInput"
+                        accept="image/*"
+                        style="display: none"
+                      />
+                      <button
+                        class="btn-secondary"
+                        id="addGalleryPhotoBtn"
+                        onclick="document.getElementById('galleryPhotoInput').click()"
+                        style="width: 100%; font-size: 0.9rem; padding: 0.5rem"
+                      >
+                        ➕ Ajouter photo publique
+                      </button>
+                    </div>
+
+                    <!-- Photos privées -->
+                    <div
+                      class="photo-section"
+                      style="
+                        background: white;
+                        padding: 1rem;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                      "
+                    >
+                      <h4
+                        style="
+                          color: #dc3545;
+                          margin-bottom: 1rem;
+                          display: flex;
+                          align-items: center;
+                          gap: 0.5rem;
+                        "
+                      >
+                        🔒 Photos privées
+                        <span
+                          style="
+                            background: #dc3545;
+                            color: white;
+                            padding: 0.2rem 0.4rem;
+                            border-radius: 10px;
+                            font-size: 0.7rem;
+                          "
+                        >
+                          Max 5
+                        </span>
+                      </h4>
+                      <p
+                        style="
+                          color: #666;
+                          font-size: 0.9rem;
+                          margin-bottom: 1rem;
+                        "
+                      >
+                        Floutées, visibles sur demande
+                      </p>
+
+                      <div
+                        id="privatePhotos"
+                        style="
+                          display: grid;
+                          grid-template-columns: repeat(
+                            auto-fill,
+                            minmax(60px, 1fr)
+                          );
+                          gap: 0.5rem;
+                          margin-bottom: 1rem;
+                          min-height: 60px;
+                          border: 2px dashed #ddd;
+                          padding: 0.5rem;
+                          border-radius: 5px;
+                        "
+                      >
+                        <!-- Photos privées affichées ici -->
+                      </div>
+
+                      <input
+                        type="file"
+                        id="privatePhotoInput"
+                        accept="image/*"
+                        style="display: none"
+                      />
+                      <button
+                        class="btn-danger"
+                        id="addPrivatePhotoBtn"
+                        onclick="document.getElementById('privatePhotoInput').click()"
+                        style="width: 100%; font-size: 0.9rem; padding: 0.5rem"
+                      >
+                        ➕ Ajouter photo privée
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
                 <div class="profile-form">
                   <form id="profileForm">
                     <div class="form-grid">
@@ -218,223 +402,6 @@
                       </button>
                     </div>
                   </form>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Section Gestion des Photos -->
-        <section
-          class="photo-management"
-          style="background: #f8f9fa; padding: 2rem 0"
-        >
-          <div class="container">
-            <h2
-              class="section-title"
-              style="color: #2c3e50; margin-bottom: 2rem"
-            >
-              Gestion de vos photos
-            </h2>
-
-            <div
-              class="photo-sections"
-              style="display: grid; grid-template-columns: 1fr; gap: 2rem"
-            >
-              <!-- Photo de profil -->
-              <div
-                class="photo-section"
-                style="
-                  background: white;
-                  border-radius: 10px;
-                  padding: 1.5rem;
-                  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                "
-              >
-                <h3
-                  style="
-                    color: #2c3e50;
-                    margin-bottom: 1rem;
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                  "
-                >
-                  <span style="font-size: 1.2em">👤</span>
-                  Photo de profil
-                </h3>
-                <p style="color: #666; margin-bottom: 1.5rem">
-                  Votre photo principale affichée sur votre carte dans
-                  l'annuaire
-                </p>
-
-                <div class="current-profile-photo" style="margin-bottom: 1rem">
-                  <img
-                    id="currentProfilePhoto"
-                    src="/images/default-avatar.jpg"
-                    alt="Photo de profil actuelle"
-                    style="
-                      width: 120px;
-                      height: 120px;
-                      border-radius: 10px;
-                      object-fit: cover;
-                      border: 3px solid #007bff;
-                    "
-                  />
-                </div>
-
-                <div class="photo-actions">
-                  <input
-                    type="file"
-                    id="profilePhotoInput"
-                    accept="image/*"
-                    style="display: none"
-                  />
-                  <button
-                    class="btn-primary"
-                    onclick="document.getElementById('profilePhotoInput').click()"
-                  >
-                    Changer la photo de profil
-                  </button>
-                </div>
-              </div>
-
-              <!-- Photos de galerie publique -->
-              <div
-                class="photo-section"
-                style="
-                  background: white;
-                  border-radius: 10px;
-                  padding: 1.5rem;
-                  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                "
-              >
-                <h3
-                  style="
-                    color: #2c3e50;
-                    margin-bottom: 1rem;
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                  "
-                >
-                  <span style="font-size: 1.2em">🖼️</span>
-                  Photos publiques
-                  <span
-                    style="
-                      background: #007bff;
-                      color: white;
-                      padding: 0.2rem 0.5rem;
-                      border-radius: 12px;
-                      font-size: 0.8rem;
-                    "
-                    >Max 5</span
-                  >
-                </h3>
-                <p style="color: #666; margin-bottom: 1.5rem">
-                  Photos visibles par tous les utilisateurs dans votre profil
-                  détaillé
-                </p>
-
-                <div
-                  id="galleryPhotos"
-                  class="photo-grid"
-                  style="
-                    display: grid;
-                    grid-template-columns: repeat(
-                      auto-fill,
-                      minmax(100px, 1fr)
-                    );
-                    gap: 1rem;
-                    margin-bottom: 1rem;
-                  "
-                >
-                  <!-- Les photos seront ajoutées ici par JavaScript -->
-                </div>
-
-                <div class="photo-actions">
-                  <input
-                    type="file"
-                    id="galleryPhotoInput"
-                    accept="image/*"
-                    style="display: none"
-                  />
-                  <button
-                    class="btn-secondary"
-                    id="addGalleryPhotoBtn"
-                    onclick="document.getElementById('galleryPhotoInput').click()"
-                  >
-                    Ajouter une photo publique
-                  </button>
-                </div>
-              </div>
-
-              <!-- Photos privées -->
-              <div
-                class="photo-section"
-                style="
-                  background: white;
-                  border-radius: 10px;
-                  padding: 1.5rem;
-                  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                "
-              >
-                <h3
-                  style="
-                    color: #2c3e50;
-                    margin-bottom: 1rem;
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                  "
-                >
-                  <span style="font-size: 1.2em">🔒</span>
-                  Photos privées
-                  <span
-                    style="
-                      background: #dc3545;
-                      color: white;
-                      padding: 0.2rem 0.5rem;
-                      border-radius: 12px;
-                      font-size: 0.8rem;
-                    "
-                    >Max 5</span
-                  >
-                </h3>
-                <p style="color: #666; margin-bottom: 1.5rem">
-                  Photos floutées visibles seulement sur demande spéciale
-                </p>
-
-                <div
-                  id="privatePhotos"
-                  class="photo-grid"
-                  style="
-                    display: grid;
-                    grid-template-columns: repeat(
-                      auto-fill,
-                      minmax(100px, 1fr)
-                    );
-                    gap: 1rem;
-                    margin-bottom: 1rem;
-                  "
-                >
-                  <!-- Les photos seront ajoutées ici par JavaScript -->
-                </div>
-
-                <div class="photo-actions">
-                  <input
-                    type="file"
-                    id="privatePhotoInput"
-                    accept="image/*"
-                    style="display: none"
-                  />
-                  <button
-                    class="btn-danger"
-                    id="addPrivatePhotoBtn"
-                    onclick="document.getElementById('privatePhotoInput').click()"
-                  >
-                    Ajouter une photo privée
-                  </button>
                 </div>
               </div>
             </div>
