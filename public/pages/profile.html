@@ -254,6 +254,161 @@
                     </div>
                   </form>
                 </div>
+
+                <!-- Section Gestion des Photos -->
+                <div
+                  class="photo-management-section"
+                  style="
+                    margin-top: 2rem;
+                    padding: 1.5rem;
+                    background: #f8f9fa;
+                    border-radius: 10px;
+                  "
+                >
+                  <h3
+                    style="
+                      color: #2c3e50;
+                      margin-bottom: 1rem;
+                      display: flex;
+                      align-items: center;
+                      gap: 0.5rem;
+                    "
+                  >
+                    <span>📸</span> Gestion des Photos
+                  </h3>
+
+                  <div
+                    class="photo-management-grid"
+                    style="
+                      display: grid;
+                      grid-template-columns: 1fr 1fr;
+                      gap: 1.5rem;
+                      margin-top: 1rem;
+                    "
+                  >
+                    <!-- Photos de Galerie -->
+                    <div class="photo-section">
+                      <h4
+                        style="
+                          color: #34495e;
+                          margin-bottom: 0.75rem;
+                          font-size: 1rem;
+                        "
+                      >
+                        Photos de Galerie
+                        <span
+                          id="galleryCount"
+                          style="color: #7f8c8d; font-size: 0.9rem"
+                          >(0/5)</span
+                        >
+                      </h4>
+                      <div
+                        class="photo-upload-area"
+                        style="
+                          border: 2px dashed #bdc3c7;
+                          border-radius: 8px;
+                          padding: 1rem;
+                          text-align: center;
+                          background: white;
+                        "
+                      >
+                        <input
+                          type="file"
+                          id="galleryPhotoInput"
+                          accept="image/*"
+                          style="display: none"
+                        />
+                        <button
+                          type="button"
+                          class="btn-secondary"
+                          id="uploadGalleryBtn"
+                          style="margin-bottom: 0.5rem"
+                        >
+                          Ajouter une photo
+                        </button>
+                        <p style="color: #7f8c8d; font-size: 0.8rem; margin: 0">
+                          Max 5MB - JPG, PNG, GIF
+                        </p>
+                      </div>
+                      <div
+                        id="galleryPhotos"
+                        class="photo-grid"
+                        style="
+                          display: grid;
+                          grid-template-columns: repeat(
+                            auto-fill,
+                            minmax(80px, 1fr)
+                          );
+                          gap: 0.5rem;
+                          margin-top: 1rem;
+                        "
+                      >
+                        <!-- Photos de galerie affichées ici -->
+                      </div>
+                    </div>
+
+                    <!-- Photos Privées -->
+                    <div class="photo-section">
+                      <h4
+                        style="
+                          color: #34495e;
+                          margin-bottom: 0.75rem;
+                          font-size: 1rem;
+                        "
+                      >
+                        Photos Privées
+                        <span
+                          id="privateCount"
+                          style="color: #7f8c8d; font-size: 0.9rem"
+                          >(0/5)</span
+                        >
+                      </h4>
+                      <div
+                        class="photo-upload-area"
+                        style="
+                          border: 2px dashed #e74c3c;
+                          border-radius: 8px;
+                          padding: 1rem;
+                          text-align: center;
+                          background: white;
+                        "
+                      >
+                        <input
+                          type="file"
+                          id="privatePhotoInput"
+                          accept="image/*"
+                          style="display: none"
+                        />
+                        <button
+                          type="button"
+                          class="btn-danger"
+                          id="uploadPrivateBtn"
+                          style="margin-bottom: 0.5rem; background: #e74c3c"
+                        >
+                          Ajouter une photo privée
+                        </button>
+                        <p style="color: #7f8c8d; font-size: 0.8rem; margin: 0">
+                          Max 5MB - JPG, PNG, GIF
+                        </p>
+                      </div>
+                      <div
+                        id="privatePhotos"
+                        class="photo-grid"
+                        style="
+                          display: grid;
+                          grid-template-columns: repeat(
+                            auto-fill,
+                            minmax(80px, 1fr)
+                          );
+                          gap: 0.5rem;
+                          margin-top: 1rem;
+                        "
+                      >
+                        <!-- Photos privées affichées ici -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

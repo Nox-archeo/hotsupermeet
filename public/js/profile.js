@@ -722,6 +722,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // NOUVEAU: Initialiser la gestion des photos
     setupPhotoManagement();
 
+    // Charger les photos existantes
+    loadPhotos();
+
     console.log('Page profil initialisée avec succès');
   } catch (error) {
     console.error(
@@ -1146,6 +1149,23 @@ function setupPhotoManagement() {
         uploadPhoto(file, 'private');
       }
     });
+  }
+
+  // Connecter les boutons d'upload aux inputs
+  const uploadGalleryBtn = document.getElementById('uploadGalleryBtn');
+  if (uploadGalleryBtn) {
+    uploadGalleryBtn.onclick = () => {
+      const input = document.getElementById('galleryPhotoInput');
+      if (input) input.click();
+    };
+  }
+
+  const uploadPrivateBtn = document.getElementById('uploadPrivateBtn');
+  if (uploadPrivateBtn) {
+    uploadPrivateBtn.onclick = () => {
+      const input = document.getElementById('privatePhotoInput');
+      if (input) input.click();
+    };
   }
 }
 
