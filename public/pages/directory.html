@@ -305,69 +305,93 @@
             this.loadUsers();
           });
 
-          // Liaison pays-région
+          // Liaison pays-région (EXACTEMENT comme sur la page profil)
           document
             .getElementById('filtrePays')
             .addEventListener('change', e => {
               this.updateRegions(e.target.value);
             });
 
-          // Liaison région-villes
+          // Liaison région-villes (EXACTEMENT comme sur la page profil)
           document
             .getElementById('filtreRegion')
             .addEventListener('change', e => {
-              this.updateCities(e.target.value);
+              this.updateCities(
+                document.getElementById('filtrePays').value,
+                e.target.value
+              );
             });
         }
 
         setupLocationFilters() {
-          // Initialiser les régions si un pays est déjà sélectionné
+          // Initialiser les régions si un pays est déjà sélectionné (EXACTEMENT comme sur la page profil)
           const paysSelect = document.getElementById('filtrePays');
+          const regionSelect = document.getElementById('filtreRegion');
+          const villeSelect = document.getElementById('filtreVille');
+
           if (paysSelect.value) {
             this.updateRegions(paysSelect.value);
-          }
 
-          // S'assurer que les données sont disponibles
-          setTimeout(() => {
-            console.log('Données régions disponibles:', window.europeanRegions);
-            console.log('Données villes disponibles:', window.europeanCities);
-          }, 1000);
+            // Restaurer les valeurs sauvegardées (EXACTEMENT comme sur la page profil)
+            setTimeout(() => {
+              const savedRegion = regionSelect.value;
+              if (savedRegion) {
+                regionSelect.value = savedRegion;
+                this.updateCities(paysSelect.value, savedRegion);
+              }
+
+              const savedVille = villeSelect.value;
+              if (savedVille) {
+                setTimeout(() => {
+                  villeSelect.value = savedVille;
+                }, 200);
+              }
+            }, 200);
+          } else {
+            // Si aucun pays n'est sélectionné, vider les listes
+            regionSelect.innerHTML =
+              '<option value="">Toutes les régions</option>';
+            villeSelect.innerHTML =
+              '<option value="">Toutes les villes</option>';
+          }
         }
 
-        updateCities(regionValue) {
+        updateCities(pays, regionValue) {
           const villeSelect = document.getElementById('filtreVille');
-          const paysSelect = document.getElementById('filtrePays');
-          const pays = paysSelect.value;
 
-          // Vider la liste des villes
+          // Vider la liste des villes (EXACTEMENT comme sur la page profil)
           villeSelect.innerHTML = '<option value="">Toutes les villes</option>';
 
           if (!pays) {
             return;
           }
 
-          // Charger les villes principales du pays
-          this.loadCitiesForCountry(pays);
-        }
+          // Charger les villes principales du pays (EXACTEMENT comme sur la page profil)
+          const cities = window.europeanCities?.[pays] || [];
+          cities.forEach(city => {
+            const option = document.createElement('option');
+            option.value = city.value;
+            option.textContent = city.name;
+            villeSelect.appendChild(option);
+          });
 
-        getCitiesByRegion(pays, regionValue) {
-          // Pour l'instant, retourner les villes principales du pays
-          // À améliorer avec une vraie base de données villes par région
-          return window.europeanCities?.[pays] || [];
+          console.log(
+            `Villes chargées pour ${pays}: ${cities.length} villes disponibles`
+          );
         }
 
         updateRegions(pays) {
           const regionSelect = document.getElementById('filtreRegion');
           const villeSelect = document.getElementById('filtreVille');
 
-          // Vider les listes
+          // Vider les listes (EXACTEMENT comme sur la page profil)
           regionSelect.innerHTML =
             '<option value="">Toutes les régions</option>';
           villeSelect.innerHTML = '<option value="">Toutes les villes</option>';
 
           if (!pays) return;
 
-          // Charger les régions du pays sélectionné
+          // Charger les régions du pays sélectionné (EXACTEMENT comme sur la page profil)
           const regions = window.europeanRegions?.[pays] || [];
           regions.forEach(region => {
             const option = document.createElement('option');
@@ -376,21 +400,9 @@
             regionSelect.appendChild(option);
           });
 
-          // Charger les villes principales du pays (par défaut)
-          this.loadCitiesForCountry(pays);
-        }
-
-        loadCitiesForCountry(pays) {
-          const villeSelect = document.getElementById('filtreVille');
-          villeSelect.innerHTML = '<option value="">Toutes les villes</option>';
-
-          const cities = window.europeanCities?.[pays] || [];
-          cities.forEach(city => {
-            const option = document.createElement('option');
-            option.value = city.value;
-            option.textContent = city.name;
-            villeSelect.appendChild(option);
-          });
+          console.log(
+            `Régions chargées pour ${pays}: ${regions.length} régions disponibles`
+          );
         }
 
         applyFilters() {
@@ -657,23 +669,32 @@
         }
       }
 
-      // Initialisation avec vérification des données
+      // Initialisation avec vérification des données (EXACTEMENT comme sur la page profil)
       document.addEventListener('DOMContentLoaded', () => {
         console.log('=== INITIALISATION ANNUAIRE ===');
         console.log('Données régions disponibles:', window.europeanRegions);
         console.log('Données villes disponibles:', window.europeanCities);
 
-        // Vérifier que les données sont chargées avant d'initialiser
-        if (!window.europeanRegions || !window.europeanCities) {
-          console.error('ERREUR: Données géographiques non chargées');
-          // Recharger les scripts si nécessaire
-          setTimeout(() => {
-            console.log('Rechargement des données...');
-            window.directoryPage = new DirectoryPage();
-          }, 500);
-        } else {
+        // Attendre que les données soient chargées (comme sur la page profil)
+        const initDirectory = () => {
+          if (!window.europeanRegions || !window.europeanCities) {
+            console.log('Données pas encore chargées, attente...');
+            setTimeout(initDirectory, 100);
+            return;
+          }
+
+          console.log('✅ Données géographiques chargées avec succès');
+          console.log('Pays disponibles:', Object.keys(window.europeanRegions));
+          console.log(
+            'Villes disponibles pour France:',
+            window.europeanCities.france?.length || 0
+          );
+
           window.directoryPage = new DirectoryPage();
-        }
+        };
+
+        // Démarrer l'initialisation
+        initDirectory();
       });
     </script>
 
