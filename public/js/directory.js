@@ -1,580 +1,463 @@
-// HotMeet - JavaScript pour l'Annuaire
-
-class DirectoryManager {
+// HotMeet - Script pour la page d'annuaire
+class DirectoryPage {
   constructor() {
     this.currentPage = 1;
-    this.limit = 20;
+    this.limit = 12;
     this.filters = {};
+    this.sortBy = 'lastActive';
     this.init();
   }
 
-  // Initialisation de l'annuaire
   init() {
     this.setupEventListeners();
+    this.setupLocationFilters();
     this.loadUsers();
-    this.updateUIForAuth();
   }
 
-  // Configuration des écouteurs d'événements
   setupEventListeners() {
-    // Formulaire de recherche
-    document.getElementById('searchForm')?.addEventListener('submit', e => {
+    // Formulaire de filtres
+    document.getElementById('filtersForm').addEventListener('submit', e => {
       e.preventDefault();
-      this.handleSearch();
+      this.applyFilters();
     });
 
     // Réinitialisation des filtres
-    document.getElementById('resetFilters')?.addEventListener('click', () => {
+    document.getElementById('resetFilters').addEventListener('click', () => {
       this.resetFilters();
     });
 
-    // Tri des résultats
-    document.getElementById('sortBy')?.addEventListener('change', () => {
+    // Tri
+    document.getElementById('sortBy').addEventListener('change', e => {
+      this.sortBy = e.target.value;
       this.loadUsers();
+    });
+
+    // Liaison pays-région
+    document.getElementById('filtrePays').addEventListener('change', e => {
+      console.log('Changement de pays:', e.target.value);
+      this.updateRegions(e.target.value);
+    });
+
+    // Liaison région-villes
+    document.getElementById('filtreRegion').addEventListener('change', e => {
+      console.log('Changement de région:', e.target.value);
+      this.updateCities(
+        document.getElementById('filtrePays').value,
+        e.target.value
+      );
     });
   }
 
-  // Gestion de la recherche
-  handleSearch() {
-    const formData = new FormData(document.getElementById('searchForm'));
+  setupLocationFilters() {
+    // Initialiser les régions si un pays est déjà sélectionné
+    const paysSelect = document.getElementById('filtrePays');
+    const regionSelect = document.getElementById('filtreRegion');
+    const villeSelect = document.getElementById('filtreVille');
 
+    if (paysSelect.value) {
+      this.updateRegions(paysSelect.value);
+
+      // Restaurer les valeurs sauvegardées
+      setTimeout(() => {
+        const savedRegion = regionSelect.value;
+        if (savedRegion) {
+          regionSelect.value = savedRegion;
+          this.updateCities(paysSelect.value, savedRegion);
+        }
+
+        const savedVille = villeSelect.value;
+        if (savedVille) {
+          setTimeout(() => {
+            villeSelect.value = savedVille;
+          }, 200);
+        }
+      }, 200);
+    } else {
+      // Si aucun pays n'est sélectionné, vider les listes
+      regionSelect.innerHTML = '<option value="">Toutes les régions</option>';
+      villeSelect.innerHTML = '<option value="">Toutes les villes</option>';
+    }
+  }
+
+  updateCities(pays, regionValue) {
+    const villeSelect = document.getElementById('filtreVille');
+
+    console.log('updateCities appelé avec pays:', pays, 'région:', regionValue);
+
+    // Vider la liste des villes
+    villeSelect.innerHTML = '<option value="">Toutes les villes</option>';
+
+    if (!pays) {
+      console.log('Aucun pays sélectionné pour charger les villes');
+      return;
+    }
+
+    // Vérifier que les données sont disponibles
+    if (!window.europeanCities) {
+      console.error('ERREUR: Données villes non chargées');
+      return;
+    }
+
+    // Charger les villes principales du pays
+    const cities = window.europeanCities[pays];
+    console.log(`Villes trouvées pour ${pays}:`, cities);
+
+    if (!cities || cities.length === 0) {
+      console.warn(`Aucune ville trouvée pour le pays: ${pays}`);
+      return;
+    }
+
+    cities.forEach(city => {
+      const option = document.createElement('option');
+      option.value = city.value;
+      option.textContent = city.name;
+      villeSelect.appendChild(option);
+    });
+
+    console.log(
+      `✅ Villes chargées pour ${pays}: ${cities.length} villes disponibles`
+    );
+  }
+
+  updateRegions(pays) {
+    const regionSelect = document.getElementById('filtreRegion');
+    const villeSelect = document.getElementById('filtreVille');
+
+    console.log('updateRegions appelé avec pays:', pays);
+
+    // Vider les listes
+    regionSelect.innerHTML = '<option value="">Toutes les régions</option>';
+    villeSelect.innerHTML = '<option value="">Toutes les villes</option>';
+
+    if (!pays) {
+      console.log('Aucun pays sélectionné, retour');
+      return;
+    }
+
+    // Vérifier que les données sont disponibles
+    if (!window.europeanRegions) {
+      console.error('ERREUR: Données régions non chargées');
+      return;
+    }
+
+    // Charger les régions du pays sélectionné
+    const regions = window.europeanRegions[pays];
+    console.log(`Régions trouvées pour ${pays}:`, regions);
+
+    if (!regions || regions.length === 0) {
+      console.warn(`Aucune région trouvée pour le pays: ${pays}`);
+      return;
+    }
+
+    regions.forEach(region => {
+      const option = document.createElement('option');
+      option.value = region.value;
+      option.textContent = region.name;
+      regionSelect.appendChild(option);
+    });
+
+    console.log(
+      `✅ Régions chargées pour ${pays}: ${regions.length} régions disponibles`
+    );
+
+    // Charger aussi les villes pour ce pays
+    this.updateCities(pays, '');
+  }
+
+  applyFilters() {
+    const formData = new FormData(document.getElementById('filtersForm'));
     this.filters = {
       ageMin: formData.get('ageMin') || '',
       ageMax: formData.get('ageMax') || '',
-      sexe: formData.get('sexe') || 'tous',
-      orientation: formData.get('orientation') || 'tous',
-      country: formData.get('country') || 'tous',
-      region: formData.get('region') || '',
+      sexe: formData.get('sexe') || '',
+      pays: formData.get('filtrePays') || '',
+      region: formData.get('filtreRegion') || '',
+      ville: formData.get('filtreVille') || '',
     };
-
     this.currentPage = 1;
     this.loadUsers();
   }
 
-  // Réinitialisation des filtres
   resetFilters() {
-    document.getElementById('searchForm').reset();
+    document.getElementById('filtersForm').reset();
     this.filters = {};
     this.currentPage = 1;
     this.loadUsers();
   }
 
-  // Chargement des utilisateurs
   async loadUsers() {
-    const usersGrid = document.getElementById('usersGrid');
-    if (!usersGrid) {
-      return;
-    }
-
-    usersGrid.innerHTML =
-      '<div class="loading">Chargement des membres...</div>';
-
     try {
-      // Construire les paramètres de requête
-      const queryParams = new URLSearchParams();
+      // Construire les paramètres de requête avec tous les filtres
+      const params = new URLSearchParams();
 
-      // Ajouter les filtres
-      if (this.filters.ageMin) {
-        queryParams.append('ageMin', this.filters.ageMin);
-      }
-      if (this.filters.ageMax) {
-        queryParams.append('ageMax', this.filters.ageMax);
-      }
-      if (this.filters.sexe && this.filters.sexe !== 'tous') {
-        queryParams.append('sexe', this.filters.sexe);
-      }
-      if (this.filters.region) {
-        queryParams.append('localisation', this.filters.region);
-      }
+      // Ajouter les filtres non vides
+      Object.keys(this.filters).forEach(key => {
+        if (this.filters[key]) {
+          params.append(key, this.filters[key]);
+        }
+      });
 
-      // Ajouter la pagination
-      queryParams.append('page', this.currentPage);
-      queryParams.append('limit', this.limit);
+      // Ajouter la pagination et le tri
+      params.append('page', this.currentPage);
+      params.append('limit', this.limit);
+      params.append('sortBy', this.sortBy);
 
-      // Faire une requête à l'API réelle
-      const response = await fetch(`/api/users?${queryParams.toString()}`);
-      const data = await response.json();
+      const response = await fetch(`/api/users?${params}`);
+      const result = await response.json();
 
-      if (data.success) {
-        this.displayUsers(data.users);
-        this.updatePagination(data.pagination);
-        this.updateResultsCount(data.pagination.total);
+      if (result.success) {
+        this.displayUsers(result.users);
+        this.updatePagination(result.pagination);
+        this.updateResultsCount(result.pagination.total);
       } else {
-        throw new Error(
-          data.error?.message || 'Erreur lors du chargement des utilisateurs'
-        );
+        this.showError('Erreur lors du chargement des profils');
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des utilisateurs:', error);
-      usersGrid.innerHTML = `<div class="error">Erreur lors du chargement des utilisateurs: ${error.message}</div>`;
+      console.error('Erreur:', error);
+      this.showError('Erreur de connexion');
     }
   }
 
-  // Obtenir le nom du pays
-  getCountryName(countryCode) {
-    const countries = {
-      france: 'France',
-      suisse: 'Suisse',
-      belgique: 'Belgique',
-      canada: 'Canada',
-      espagne: 'Espagne',
-      italie: 'Italie',
-      allemagne: 'Allemagne',
-      'royaume-uni': 'Royaume-Uni',
-      'etats-unis': 'États-Unis',
-      bresil: 'Brésil',
-      japon: 'Japon',
-      australie: 'Australie',
-    };
-    return countries[countryCode] || countryCode;
-  }
-
-  // Obtenir le nom de l'orientation sexuelle
-  getOrientationName(orientationCode) {
-    const orientations = {
-      hetero: 'Hétéro',
-      gay: 'Gay',
-      lesbienne: 'Lesbienne',
-      bi: 'Bisexuel(le)',
-      trans: 'Transgenre',
-      queer: 'Queer',
-      autre: 'Autre',
-    };
-    return orientations[orientationCode] || orientationCode;
-  }
-
-  // Affichage des utilisateurs
   displayUsers(users) {
-    const usersGrid = document.getElementById('usersGrid');
+    const grid = document.getElementById('profilesGrid');
 
     if (users.length === 0) {
-      usersGrid.innerHTML =
-        '<div class="no-results">Aucun membre trouvé avec ces critères.</div>';
+      grid.innerHTML = `
+        <div class="no-results">
+          <h4>Aucun profil trouvé</h4>
+          <p>Essayez de modifier vos critères de recherche</p>
+        </div>
+      `;
       return;
     }
 
-    const usersHTML = users.map(user => this.createUserCard(user)).join('');
-    usersGrid.innerHTML = usersHTML;
-
-    // Ajouter les écouteurs d'événements pour les boutons de message
-    this.setupMessageButtons();
-  }
-
-  // Création d'une carte utilisateur avec nouveau design
-  createUserCard(user) {
-    const defaultAvatar = this.getDefaultAvatar(user.profile.sexe);
-    const mainPhoto = user.profile.photos?.[0]?.path || defaultAvatar;
-    const isOnline = new Date() - new Date(user.lastActive) < 15 * 60 * 1000;
-    const premiumBadge = user.premium.isPremium
-      ? '<span class="premium-badge">PREMIUM</span>'
-      : '';
-    const lastActive = this.formatLastActive(user.lastActive);
-
-    // Nettoyer la description pour éviter les duplications
-    let cleanDescription = user.profile.bio || '';
-    // Supprimer le nom du début de la description s'il y est répété
-    if (cleanDescription.startsWith(user.profile.nom)) {
-      cleanDescription = cleanDescription
-        .substring(user.profile.nom.length)
-        .trim();
-      // Supprimer les virgules ou points en début de phrase
-      if (
-        cleanDescription.startsWith(',') ||
-        cleanDescription.startsWith('.') ||
-        cleanDescription.startsWith('-')
-      ) {
-        cleanDescription = cleanDescription.substring(1).trim();
-      }
-    }
-
-    const shortDescription =
-      cleanDescription.length > 100
-        ? cleanDescription.substring(0, 100) + '...'
-        : cleanDescription;
-
-    const readMoreButton =
-      cleanDescription.length > 100
-        ? '<button class="read-more-btn">Lire la suite</button>'
-        : '';
-
-    return `
-      <div class="user-card" data-user-id="${user.id}">
-        <div class="user-card-header">
-          <div class="user-photo">
-            <img src="${mainPhoto}" alt="${user.profile.nom}" onerror="this.src='${defaultAvatar}'">
-            <div class="user-status ${isOnline ? 'online' : 'offline'}"></div>
-          </div>
-          <div class="user-info">
-            <h3 class="user-name">${user.profile.nom}</h3>
-            <div class="user-details">
-              <span class="user-age">${user.profile.age} ans</span>
-              <span class="user-gender">${this.getGenderDisplayName(user.profile.sexe)}</span>
-              ${premiumBadge}
-            </div>
-            <p class="user-location">📍 ${user.profile.localisation}</p>
-            <p class="user-activity">${lastActive}</p>
-          </div>
+    grid.innerHTML = users
+      .map(
+        user => `
+      <div class="profile-card">
+        <div class="profile-image">
+          ${this.getProfileImage(user)}
+          ${user.premium.isPremium ? '<span class="premium-badge">PREMIUM</span>' : ''}
+          ${user.isOnline ? '<span class="online-indicator">🟢 En ligne</span>' : ''}
         </div>
-        <div class="user-description">
-          <p class="description-text">${shortDescription}</p>
-          ${readMoreButton}
-        </div>
-        <div class="user-card-actions">
-          <button class="btn-secondary view-profile" data-user-id="${user.id}">Voir le profil</button>
-          <button class="btn-primary send-message" data-user-id="${user.id}" ${!window.hotMeetApp?.currentUser?.premium?.isPremium ? 'disabled' : ''}>
-            ${window.hotMeetApp?.currentUser?.premium?.isPremium ? 'Envoyer un message' : 'Premium requis'}
-          </button>
+        <div class="profile-info">
+          <h4>${user.profile.nom}</h4>
+          <p class="profile-age">${user.profile.age} ans</p>
+          <p class="profile-location">${user.profile.localisation}</p>
+          <p class="profile-gender">${this.getGenderLabel(user.profile.sexe)}</p>
+          <div class="profile-actions">
+            <button class="btn-primary" onclick="directoryPage.viewProfile('${user.id}')">
+              Voir le profil
+            </button>
+          </div>
         </div>
       </div>
-    `;
+    `
+      )
+      .join('');
   }
 
-  // Obtenir l'avatar par défaut selon le genre
-  getDefaultAvatar(gender) {
-    const avatars = {
-      homme:
-        'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiMyMTk2RjIiLz4KPHN2Zz4KPHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIwIDI4QzI0LjQxODMgMjggMjggMjQuNDE4MyAyOCAyMEMyOCAxNS41ODE3IDI0LjQxODMgMTIgMjAgMTJDMTUuNTgxNyAxMiAxMiAxNS41ODE3IDEyIDIwQzEyIDI0LjQxODMgMTUuNTgxNyAyOCAyMCAyOFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yNiAxNkMyNiAxOC4yMDkxIDI0LjIwOTEgMjAgMjIgMjBDMTkuNzkwOSAyMCAxOCAxOC4yMDkxIDE4IDE2QzE4IDEzLjc5MDkgMTkuNzkwOSAxMiAyMiAxMkMyNC4yMDkxIDEyIDI2IDEzLjc5MDkgMjYgMTZaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4KPC9zdmc+',
-      femme:
-        'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNFOjE2MyIvPgo8c3ZnPgo8c3ZnIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMjAgMjhDMjQuNDE4MyAyOCAyOCAyNC40MTgzIDI4IDIwQzI4IDE1LjU4MTcgMjQuNDE4MyAxMiAyMCAxMkMxNS41ODE3IDEyIDEyIDE1LjU4MTcgMTIgMjBDMTIgMjQuNDE4MyAxNS41ODE3IDI4IDIwIDI4WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTI2IDE2QzI2IDE4LjIwOTEgMjQuMjA5MSAyMCAyMiAyMEMxOS43OTA5IDIwIDE4IDE4LjIwOTEgMTggMTZDMTggMTMuNzkwOSAxOS43OTA5IDEyIDIyIDEyQzI0LjIwOTEgMTIgMjYgMTMuNzkwOSAyNiAxNloiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0xOCAzMkwyMiAzMkwyMiAyOEwxOCAyOEwxOCAzMloiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo8L3N2Zz4=',
-      autre:
-        'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiM5QzI3QjAiLz4KPHN2Zz4KPHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIwIDI4QzI0LjQxODMgMjggMjggMjQuNDE4MyAyOCAyMEMyOCAxNS41ODE3IDI0LjQxODMgMTIgMjAgMTJDMTUuNTgxNyAxMiAxMiAxNS41ODE3IDEyIDIwQzEyIDI0LjQxODMgMTUuNTgxcyAyOCAyMCAyOFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yNiAxNkMyNiAxOC4yMDkxIDI0LjIwOTEgMjAgMjIgMjBDMTkuNzkwOSAyMCAxOCAxOC4yMDkxIDE4IDE2QzE4IDEzLjc5MDkgMTkuNzkwOSAxMiAyMiAxMkMyNC4yMDkxIDEyIDI2IDEzLjc5MDkgMjYgMTZaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4KPC9zdmc+',
-    };
-    return avatars[gender] || avatars.autre;
+  getProfileImage(user) {
+    // Vérifier si l'utilisateur a des photos
+    if (user.profile.photos && user.profile.photos.length > 0) {
+      // Trouver la photo de profil principale ou prendre la première
+      const profilePhoto =
+        user.profile.photos.find(photo => photo.isProfile) ||
+        user.profile.photos[0];
+
+      // Si la photo est floutée, afficher une version floutée
+      if (profilePhoto.isBlurred) {
+        return `
+          <div class="blurred-photo-container">
+            <img src="${profilePhoto.path}" alt="${user.profile.nom}" class="blurred-photo">
+            <div class="unblur-overlay">
+              <button class="unblur-btn" onclick="directoryPage.requestUnblur('${user.id}', '${profilePhoto._id}')">
+                👁️ Dévoiler la photo
+              </button>
+            </div>
+          </div>
+        `;
+      } else {
+        return `<img src="${profilePhoto.path}" alt="${user.profile.nom}">`;
+      }
+    } else {
+      // Photo par défaut si aucune photo n'est disponible
+      return `<img src="/images/default-avatar.jpg" alt="${user.profile.nom}">`;
+    }
   }
 
-  // Obtenir le nom d'affichage du genre
-  getGenderDisplayName(gender) {
-    const genders = {
+  getGenderLabel(gender) {
+    const labels = {
       homme: 'Homme',
       femme: 'Femme',
       autre: 'Autre',
     };
-    return genders[gender] || gender;
+    return labels[gender] || gender;
   }
 
-  // Formatage de la dernière activité
-  formatLastActive(lastActive) {
-    const now = new Date();
-    const lastActiveDate = new Date(lastActive);
-    const diffMs = now - lastActiveDate;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) {
-      return 'En ligne maintenant';
-    }
-    if (diffMins < 60) {
-      return 'En ligne il y a ' + diffMins + ' min';
-    }
-    if (diffHours < 24) {
-      return 'En ligne il y a ' + diffHours + ' h';
-    }
-    if (diffDays < 7) {
-      return 'En ligne il y a ' + diffDays + ' j';
-    }
-    return 'Dernière connexion: ' + lastActiveDate.toLocaleDateString('fr-FR');
-  }
-
-  // Configuration des boutons de message
-  setupMessageButtons() {
-    document.querySelectorAll('.send-message').forEach(button => {
-      button.addEventListener('click', e => {
-        const userId = e.target.dataset.userId;
-        this.sendMessage(userId);
-      });
-    });
-
-    document.querySelectorAll('.view-profile').forEach(button => {
-      button.addEventListener('click', e => {
-        const userId = e.target.dataset.userId;
-        this.viewUserProfile(userId);
-      });
-    });
-
-    // Gestion des boutons "Lire la suite"
-    document.querySelectorAll('.read-more-btn').forEach(button => {
-      button.addEventListener('click', e => {
-        const descriptionText =
-          e.target.parentElement.querySelector('.description-text');
-        const fullText =
-          descriptionText.getAttribute('data-full-text') ||
-          descriptionText.textContent;
-        descriptionText.textContent = fullText;
-        e.target.style.display = 'none';
-      });
-    });
-  }
-
-  // Envoi d'un message
-  async sendMessage(userId) {
-    if (!window.hotMeetApp?.currentUser) {
-      alert('Veuillez vous connecter pour envoyer un message');
-      window.location.href = '/auth';
-      return;
-    }
-
-    if (!window.hotMeetApp.currentUser.premium.isPremium) {
-      alert('Vous devez être membre premium pour envoyer des messages');
-      window.location.href = '/premium';
-      return;
-    }
-
-    const message = prompt('Votre message:');
-    if (!message || message.trim() === '') {
-      return;
-    }
-
+  // Fonction pour demander le dévoilement d'une photo
+  async requestUnblur(userId, photoId) {
     try {
-      const response = await fetch('/api/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + localStorage.getItem('hotmeet_token'),
-        },
-        body: JSON.stringify({
-          toUserId: userId,
-          content: message.trim(),
-          provenance: 'annuaire',
-        }),
-      });
+      const token = localStorage.getItem('hotmeet_token');
+      const response = await fetch(
+        `/api/uploads/photo/${photoId}/unblur-request`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+          body: JSON.stringify({ targetUserId: userId }),
+        }
+      );
 
-      if (response.ok) {
-        alert('Message envoyé avec succès!');
+      const result = await response.json();
+
+      if (result.success) {
+        this.showSuccess('Demande de dévoilement envoyée');
+        // Recharger les utilisateurs pour mettre à jour l'affichage
+        this.loadUsers();
       } else {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.error?.message || 'Erreur lors de l\\' + 'envoi du message'
-        );
+        this.showError(result.error.message || 'Erreur lors de la demande');
       }
     } catch (error) {
-      console.error('Erreur lors de l\\' + 'envoi du message:', error);
-      alert('Erreur: ' + error.message);
+      console.error('Erreur demande dévoilement:', error);
+      this.showError('Erreur lors de la demande de dévoilement');
     }
   }
 
-  // Affichage du profil utilisateur
-  viewUserProfile(userId) {
-    // Ouvrir une fenêtre modale avec les détails du profil
-    this.showProfileModal(userId);
-  }
-
-  // Afficher une modale avec les détails du profil
-  async showProfileModal(userId) {
-    try {
-      // Sécuriser l'ID utilisateur pour éviter [object Object]
-      const safeUserId = String(userId || '').replace(/[^a-zA-Z0-9]/g, '');
-      if (!safeUserId) {
-        console.error('ID utilisateur invalide:', userId);
-        return null;
-      }
-
-      const response = await fetch(`/api/users/${safeUserId}`);
-      const data = await response.json();
-
-      if (!data.success) {
-        alert('Utilisateur non trouvé');
-        return;
-      }
-
-      const user = data.user;
-      const modalContent = this.createProfileModalContent(user);
-      this.displayModal(modalContent);
-    } catch (error) {
-      console.error('Erreur lors du chargement du profil:', error);
-      alert('Erreur lors du chargement du profil');
-    }
-  }
-
-  // Créer le contenu de la modale de profil
-  createProfileModalContent(user) {
-    const mainPhoto =
-      user.profile.photos?.[0]?.path ||
-      this.getDefaultAvatar(user.profile.sexe);
-    const isOnline =
-      new Date() - new Date(user.stats.lastActive) < 15 * 60 * 1000;
-
-    const bioSection = user.profile.bio
-      ? `
-      <div class="profile-bio">
-        <h4>À propos</h4>
-        <p>${user.profile.bio}</p>
-      </div>
-    `
-      : '';
-
-    const practicesSection =
-      user.profile.pratiques && user.profile.pratiques.length > 0
-        ? `
-      <div class="profile-practices">
-        <h4>Pratiques</h4>
-        <div class="practices-list">
-          ${user.profile.pratiques.map(practice => `<span class="practice-tag">${practice}</span>`).join('')}
-        </div>
-      </div>
-    `
-        : '';
-
-    return `
-      <div class="profile-modal">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h2>Profil de ${user.profile.nom}</h2>
-            <button class="close-modal">×</button>
-          </div>
-          
-          <div class="modal-body">
-            <div class="profile-photo-section">
-              <img src="${mainPhoto}" alt="${user.profile.nom}" onerror="this.src='${this.getDefaultAvatar(user.profile.sexe)}'">
-              <div class="profile-status ${isOnline ? 'online' : 'offline'}">${isOnline ? '🟢 En ligne' : '⚫ Hors ligne'}</div>
-            </div>
-            
-            <div class="profile-info">
-              <h3>${user.profile.nom}, ${user.profile.age} ans</h3>
-              <p class="profile-gender">${this.getGenderDisplayName(user.profile.sexe)}</p>
-              <p class="profile-location">📍 ${user.profile.localisation}</p>
-              
-              ${bioSection}
-              ${practicesSection}
-            </div>
-          </div>
-          
-          <div class="modal-actions">
-            <button class="btn-primary send-message-modal" data-user-id="${user.id}">
-              Envoyer un message
-            </button>
-            <button class="btn-secondary close-modal">Fermer</button>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  // Afficher la modale
-  displayModal(content) {
-    const modal = document.createElement('div');
-    modal.innerHTML = content;
-    document.body.appendChild(modal);
-
-    // Attacher les événements
-    modal.querySelectorAll('.close-modal').forEach(button => {
-      button.addEventListener('click', () => {
-        modal.remove();
-      });
-    });
-
-    modal
-      .querySelector('.send-message-modal')
-      ?.addEventListener('click', () => {
-        const userId = modal.querySelector('.send-message-modal').dataset
-          .userId;
-        modal.remove();
-        this.sendMessage(userId);
-      });
-
-    // Fermer la modale en cliquant à l'extérieur
-    modal.addEventListener('click', e => {
-      if (e.target === modal) {
-        modal.remove();
-      }
-    });
-
-    // Fermer avec la touche Échap
-    const handleEscape = e => {
-      if (e.key === 'Escape') {
-        modal.remove();
-        document.removeEventListener('keydown', handleEscape);
-      }
-    };
-    document.addEventListener('keydown', handleEscape);
-  }
-
-  // Mise à jour de la pagination
   updatePagination(pagination) {
-    const paginationContainer = document.getElementById('pagination');
-    if (!paginationContainer) {
+    const paginationDiv = document.getElementById('pagination');
+    const { page, pages, total } = pagination;
+
+    if (pages <= 1) {
+      paginationDiv.innerHTML = '';
       return;
     }
 
-    if (pagination.pages <= 1) {
-      paginationContainer.innerHTML = '';
-      return;
-    }
-
-    let paginationHTML = '<div class="pagination-controls">';
+    let html = '<div class="pagination-controls">';
 
     // Bouton précédent
-    if (pagination.page > 1) {
-      paginationHTML +=
-        '<button class="pagination-btn" data-page="' +
-        (pagination.page - 1) +
-        '">← Précédent</button>';
+    if (page > 1) {
+      html += `<button class="pagination-btn" onclick="directoryPage.goToPage(${page - 1})">← Précédent</button>`;
     }
 
     // Pages
-    for (let i = 1; i <= pagination.pages; i++) {
-      if (i === pagination.page) {
-        paginationHTML += '<span class="pagination-current">' + i + '</span>';
-      } else if (i >= pagination.page - 2 && i <= pagination.page + 2) {
-        paginationHTML +=
-          '<button class="pagination-btn" data-page="' +
-          i +
-          '">' +
-          i +
-          '</button>';
-      }
+    for (let i = Math.max(1, page - 2); i <= Math.min(pages, page + 2); i++) {
+      html += `<button class="pagination-btn ${i === page ? 'active' : ''}" onclick="directoryPage.goToPage(${i})">${i}</button>`;
     }
 
     // Bouton suivant
-    if (pagination.page < pagination.pages) {
-      paginationHTML +=
-        '<button class="pagination-btn" data-page="' +
-        (pagination.page + 1) +
-        '">Suivant →</button>';
+    if (page < pages) {
+      html += `<button class="pagination-btn" onclick="directoryPage.goToPage(${page + 1})">Suivant →</button>`;
     }
 
-    paginationHTML += '</div>';
-
-    paginationContainer.innerHTML = paginationHTML;
-
-    // Ajouter les écouteurs d'événements pour la pagination
-    this.setupPaginationEvents();
+    html += '</div>';
+    paginationDiv.innerHTML = html;
   }
 
-  // Configuration des événements de pagination
-  setupPaginationEvents() {
-    document.querySelectorAll('.pagination-btn').forEach(button => {
-      button.addEventListener('click', e => {
-        this.currentPage = parseInt(e.target.dataset.page);
-        this.loadUsers();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    });
-  }
-
-  // Mise à jour du compteur de résultats
   updateResultsCount(total) {
     const resultsCount = document.getElementById('resultsCount');
-    if (resultsCount) {
-      resultsCount.querySelector('.count').textContent = total;
+    const resultsDescription = document.getElementById('resultsDescription');
+
+    resultsCount.textContent = `${total} profil${total > 1 ? 's' : ''} trouvé${total > 1 ? 's' : ''}`;
+
+    // Mettre à jour la description avec les filtres actifs
+    const activeFilters = [];
+    if (this.filters.ageMin || this.filters.ageMax) {
+      const ageRange = `${this.filters.ageMin || '18'}-${this.filters.ageMax || '100'}`;
+      activeFilters.push(`Âge: ${ageRange} ans`);
+    }
+    if (this.filters.sexe) {
+      const genderLabels = {
+        homme: 'Homme',
+        femme: 'Femme',
+        autre: 'Autre',
+      };
+      activeFilters.push(`Genre: ${genderLabels[this.filters.sexe]}`);
+    }
+    if (this.filters.pays) {
+      activeFilters.push(`Pays: ${this.filters.pays}`);
+    }
+    if (this.filters.ville) {
+      activeFilters.push(`Ville: ${this.filters.ville}`);
+    }
+
+    if (activeFilters.length > 0) {
+      resultsDescription.textContent = `Filtres actifs: ${activeFilters.join(', ')}`;
+    } else {
+      resultsDescription.textContent =
+        'Aucun filtre actif - affichage de tous les profils';
     }
   }
 
-  // Mise à jour de l'UI en fonction de l'authentification
-  updateUIForAuth() {
-    if (window.hotMeetApp?.currentUser) {
-      // Cacher les boutons de connexion/inscription si l'utilisateur est connecté
-      const loginBtn = document.getElementById('loginBtn');
-      const registerBtn = document.getElementById('registerBtn');
-      if (loginBtn && registerBtn) {
-        loginBtn.style.display = 'none';
-        registerBtn.style.display = 'none';
-      }
-    }
+  goToPage(page) {
+    this.currentPage = page;
+    this.loadUsers();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  viewProfile(userId) {
+    window.location.href = `/profile-view?id=${userId}`;
+  }
+
+  showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.textContent = message;
+    errorDiv.style.cssText = `
+      background: #f8d7da;
+      color: #721c24;
+      padding: 1rem;
+      border-radius: 4px;
+      margin: 1rem 0;
+      text-align: center;
+    `;
+
+    const resultsSection = document.querySelector('.results-section');
+    resultsSection.insertBefore(errorDiv, resultsSection.firstChild);
+
+    setTimeout(() => errorDiv.remove(), 5000);
   }
 }
 
-// Initialisation de l'annuaire lorsque le DOM est chargé
+// Initialisation avec vérification des données
 document.addEventListener('DOMContentLoaded', () => {
-  window.directoryManager = new DirectoryManager();
+  console.log('=== INITIALISATION ANNUAIRE - DOM CHARGÉ ===');
+
+  // Attendre que les données soient chargées
+  const initDirectory = () => {
+    console.log('Vérification des données...');
+    console.log('europeanRegions:', window.europeanRegions);
+    console.log('europeanCities:', window.europeanCities);
+
+    if (!window.europeanRegions || !window.europeanCities) {
+      console.log('❌ Données pas encore chargées, attente 200ms...');
+      setTimeout(initDirectory, 200);
+      return;
+    }
+
+    console.log('✅ Données géographiques chargées avec succès');
+    console.log('Pays disponibles:', Object.keys(window.europeanRegions));
+    console.log(
+      'Villes disponibles pour France:',
+      window.europeanCities.france?.length || 0
+    );
+
+    // Vérifier que les sélecteurs existent
+    const paysSelect = document.getElementById('filtrePays');
+    const regionSelect = document.getElementById('filtreRegion');
+    const villeSelect = document.getElementById('filtreVille');
+
+    if (!paysSelect || !regionSelect || !villeSelect) {
+      console.error('❌ ERREUR: Sélecteurs non trouvés');
+      return;
+    }
+
+    console.log('✅ Sélecteurs trouvés, initialisation DirectoryPage');
+    window.directoryPage = new DirectoryPage();
+  };
+
+  // Démarrer l'initialisation après un court délai
+  setTimeout(initDirectory, 100);
 });
