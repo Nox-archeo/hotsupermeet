@@ -188,9 +188,42 @@
                       </div>
                       <div class="form-group">
                         <label for="profileVille">Ville</label>
-                        <select id="profileVille" class="form-input" required>
-                          <option value="">Choisir une ville...</option>
-                        </select>
+                        <div
+                          style="
+                            display: flex;
+                            gap: 0.5rem;
+                            align-items: center;
+                          "
+                        >
+                          <select
+                            id="profileVille"
+                            class="form-input"
+                            style="flex: 1"
+                          >
+                            <option value="">Choisir une ville...</option>
+                          </select>
+                          <span style="color: #7f8c8d; font-size: 0.9rem"
+                            >ou</span
+                          >
+                          <input
+                            type="text"
+                            id="profileVilleManual"
+                            class="form-input"
+                            placeholder="Écrire une ville..."
+                            style="flex: 1"
+                          />
+                        </div>
+                        <small
+                          style="
+                            color: #7f8c8d;
+                            font-size: 0.8rem;
+                            display: block;
+                            margin-top: 0.25rem;
+                          "
+                        >
+                          Utilisez le select ou écrivez directement le nom de
+                          votre ville
+                        </small>
                       </div>
                     </div>
 
@@ -402,7 +435,9 @@
               localisation: {
                 pays: document.getElementById('profilePays').value,
                 region: document.getElementById('profileRegion').value,
-                ville: document.getElementById('profileVille').value.trim(),
+                ville:
+                  document.getElementById('profileVilleManual').value.trim() ||
+                  document.getElementById('profileVille').value.trim(),
               },
               bio: document.getElementById('profileBio').value.trim(),
             },
@@ -544,6 +579,7 @@
             document.getElementById('profilePays').value = pays;
             document.getElementById('profileRegion').value = region;
             document.getElementById('profileVille').value = ville;
+            document.getElementById('profileVilleManual').value = '';
 
             document.getElementById('profileBio').value = profile.bio || '';
 
@@ -667,7 +703,8 @@
 
               paysField.value = pays;
               regionField.value = region;
-              villeField.value = ville;
+              document.getElementById('profileVille').value = ville;
+              document.getElementById('profileVilleManual').value = '';
 
               bioField.value = user.profile.bio || '';
 
@@ -743,6 +780,7 @@
           profilePays: '',
           profileRegion: '',
           profileVille: '',
+          profileVilleManual: '',
           profileBio: '',
         };
 
