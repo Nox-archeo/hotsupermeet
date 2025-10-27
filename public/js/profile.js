@@ -337,6 +337,11 @@ async function loadProfileData() {
             }
           }
 
+          // NOUVEAU: Afficher toutes les photos dans les galeries
+          if (user.profile.photos) {
+            displayPhotos(user.profile.photos);
+          }
+
           // Mettre à jour l'affichage du profil si les éléments existent
           if (profileNameElem) {
             profileNameElem.textContent = user.profile.nom || 'Votre nom';
@@ -1088,3 +1093,268 @@ async function handleDeleteAccount() {
     showMessage('Erreur lors de la suppression du compte', 'error');
   }
 }
+
+// ========================
+// NOUVEAU SYSTÈME DE GESTION DES PHOTOS
+// ========================
+
+// Gestion des uploads de photos par type
+function setupPhotoManagement() {
+  // Upload photo de profil
+  const profilePhotoInput = document.getElementById('profilePhotoInput');
+  if (profilePhotoInput) {
+    profilePhotoInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) {
+        uploadPhoto(file, 'profile');
+      }
+    });
+  }
+
+  // Upload photo de galerie
+  const galleryPhotoInput = document.getElementById('galleryPhotoInput');
+  if (galleryPhotoInput) {
+    galleryPhotoInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) {
+        uploadPhoto(file, 'gallery');
+      }
+    });
+  }
+
+  // Upload photo privée
+  const privatePhotoInput = document.getElementById('privatePhotoInput');
+  if (privatePhotoInput) {
+    privatePhotoInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) {
+        uploadPhoto(file, 'private');
+      }
+    });
+  }
+}
+
+// Fonction universelle d'upload de photo
+async function uploadPhoto(file, type) {
+  try {
+    showMessage(`Upload de la photo ${type} en cours...`, 'info');
+
+    const token = localStorage.getItem('hotmeet_token');
+    if (!token) {
+      showMessage('Erreur: Non connecté', 'error');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('photo', file);
+
+    // Déterminer l'endpoint selon le type
+    let endpoint;
+    switch (type) {
+      case 'profile':
+        endpoint = '/api/uploads/profile-photo';
+        break;
+      case 'gallery':
+        endpoint = '/api/uploads/gallery-photo';
+        break;
+      case 'private':
+        endpoint = '/api/uploads/private-photo';
+        break;
+      default:
+        throw new Error('Type de photo invalide');
+    }
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      showMessage(`Photo ${type} uploadée avec succès !`, 'success');
+
+      // Mettre à jour l'affichage selon le type
+      if (type === 'profile') {
+        updateProfilePhotoDisplay(result.photo);
+      } else {
+        // Recharger toutes les photos pour mettre à jour les galeries
+        loadPhotos();
+      }
+
+      // Recharger les données du profil
+      setTimeout(() => loadProfileData(), 500);
+    } else {
+      showMessage(
+        result.error?.message || `Erreur lors de l'upload de la photo ${type}`,
+        'error'
+      );
+    }
+  } catch (error) {
+    console.error(`Erreur lors de l'upload de la photo ${type}:`, error);
+    showMessage(`Erreur lors de l'upload de la photo ${type}`, 'error');
+  }
+}
+
+// Mettre à jour l'affichage de la photo de profil
+function updateProfilePhotoDisplay(photo) {
+  const currentProfilePhoto = document.getElementById('currentProfilePhoto');
+  const profileAvatar = document.getElementById('profileAvatar');
+
+  if (photo && photo.path) {
+    const photoUrl = photo.path + '?t=' + new Date().getTime();
+
+    if (currentProfilePhoto) {
+      currentProfilePhoto.src = photoUrl;
+    }
+    if (profileAvatar) {
+      profileAvatar.src = photoUrl;
+    }
+  }
+}
+
+// Charger et afficher toutes les photos
+function loadPhotos() {
+  // Cette fonction sera appelée automatiquement par loadProfileData()
+  // qui charge déjà les photos dans la structure existante
+}
+
+// Afficher les photos dans les galeries
+function displayPhotos(photos) {
+  if (!photos || !Array.isArray(photos)) return;
+
+  const galleryContainer = document.getElementById('galleryPhotos');
+  const privateContainer = document.getElementById('privatePhotos');
+
+  if (galleryContainer) galleryContainer.innerHTML = '';
+  if (privateContainer) privateContainer.innerHTML = '';
+
+  photos.forEach(photo => {
+    if (photo.type === 'gallery' || (!photo.type && !photo.isProfile)) {
+      // Photo de galerie publique
+      if (galleryContainer) {
+        const photoElement = createPhotoElement(photo, 'gallery');
+        galleryContainer.appendChild(photoElement);
+      }
+    } else if (photo.type === 'private') {
+      // Photo privée
+      if (privateContainer) {
+        const photoElement = createPhotoElement(photo, 'private');
+        privateContainer.appendChild(photoElement);
+      }
+    } else if (photo.isProfile || photo.type === 'profile') {
+      // Photo de profil - déjà gérée par updateProfilePhotoDisplay
+      updateProfilePhotoDisplay(photo);
+    }
+  });
+
+  // Mettre à jour les compteurs et boutons
+  updatePhotoLimits(photos);
+}
+
+// Créer un élément photo pour les galeries
+function createPhotoElement(photo, type) {
+  const div = document.createElement('div');
+  div.className = 'photo-item';
+  div.style.cssText =
+    'position: relative; border-radius: 8px; overflow: hidden;';
+
+  const img = document.createElement('img');
+  img.src = photo.path;
+  img.alt = `Photo ${type}`;
+  img.style.cssText =
+    'width: 100px; height: 100px; object-fit: cover; cursor: pointer;';
+
+  // Ajouter effet de flou pour les photos privées
+  if (photo.isBlurred && type === 'private') {
+    img.style.filter = 'blur(10px)';
+  }
+
+  const deleteBtn = document.createElement('button');
+  deleteBtn.innerHTML = '✕';
+  deleteBtn.style.cssText =
+    'position: absolute; top: 5px; right: 5px; background: rgba(220,53,69,0.8); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 12px;';
+  deleteBtn.onclick = () => deletePhoto(photo._id);
+
+  div.appendChild(img);
+  div.appendChild(deleteBtn);
+
+  return div;
+}
+
+// Mettre à jour les limites et états des boutons
+function updatePhotoLimits(photos) {
+  const galleryPhotos =
+    photos.filter(p => p.type === 'gallery' || (!p.type && !p.isProfile)) || [];
+  const privatePhotos = photos.filter(p => p.type === 'private') || [];
+
+  const addGalleryBtn = document.getElementById('addGalleryPhotoBtn');
+  const addPrivateBtn = document.getElementById('addPrivatePhotoBtn');
+
+  // Galerie (max 5)
+  if (addGalleryBtn) {
+    if (galleryPhotos.length >= 5) {
+      addGalleryBtn.disabled = true;
+      addGalleryBtn.textContent = 'Limite atteinte (5/5)';
+    } else {
+      addGalleryBtn.disabled = false;
+      addGalleryBtn.textContent = `Ajouter une photo publique (${galleryPhotos.length}/5)`;
+    }
+  }
+
+  // Privées (max 5)
+  if (addPrivateBtn) {
+    if (privatePhotos.length >= 5) {
+      addPrivateBtn.disabled = true;
+      addPrivateBtn.textContent = 'Limite atteinte (5/5)';
+    } else {
+      addPrivateBtn.disabled = false;
+      addPrivateBtn.textContent = `Ajouter une photo privée (${privatePhotos.length}/5)`;
+    }
+  }
+}
+
+// Supprimer une photo
+async function deletePhoto(photoId) {
+  if (!confirm('Êtes-vous sûr de vouloir supprimer cette photo ?')) {
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem('hotmeet_token');
+    if (!token) {
+      showMessage('Erreur: Non connecté', 'error');
+      return;
+    }
+
+    const response = await fetch(`/api/uploads/photo/${photoId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      showMessage('Photo supprimée avec succès !', 'success');
+      loadProfileData(); // Recharger pour mettre à jour l'affichage
+    } else {
+      showMessage(
+        result.error?.message || 'Erreur lors de la suppression',
+        'error'
+      );
+    }
+  } catch (error) {
+    console.error('Erreur lors de la suppression de la photo:', error);
+    showMessage('Erreur lors de la suppression de la photo', 'error');
+  }
+}
+
+// Initialiser la gestion des photos
+document.addEventListener('DOMContentLoaded', () => {
+  setupPhotoManagement();
+});
