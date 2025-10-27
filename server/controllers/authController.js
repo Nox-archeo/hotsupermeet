@@ -27,7 +27,7 @@ const register = async (req, res) => {
       password,
       profile,
       profilePhoto,
-      blurPhoto = true; // Par défaut floutée
+      blurPhoto = false; // Par défaut non floutée
 
     if (isMultipart) {
       console.log('Traitement multipart détecté');
