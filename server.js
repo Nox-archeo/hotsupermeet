@@ -80,7 +80,8 @@ app.use(
   fileUpload({
     limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
     createParentPath: true,
-    useTempFiles: false, // Désactiver les fichiers temporaires sur Render
+    useTempFiles: true, // Activer les fichiers temporaires pour éviter "Unexpected end of form"
+    tempFileDir: '/tmp/', // Utiliser le dossier tmp de Render
     abortOnLimit: true,
     parseNested: false, // Désactiver le parsing nested pour éviter les erreurs
     debug: false, // Désactiver le debug en production
