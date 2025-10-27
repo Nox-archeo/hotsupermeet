@@ -721,6 +721,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // NOUVEAU: Initialiser la gestion des photos
     console.log('🚀 INITIALISATION GESTION PHOTOS');
+    setupPhotoUpload(); // ← CETTE FONCTION N'ÉTAIT PAS APPELÉE !
     setupPhotoManagement();
 
     // Charger les photos existantes
@@ -844,6 +845,55 @@ function setupPhotoUpload() {
         } catch (error) {
           console.error('Erreur lors de l\\' + 'upload de la photo:', error);
           showMessage('Erreur lors de l\\' + 'upload de la photo', 'error');
+        }
+      });
+    });
+  }
+
+  // AJOUTER LES BOUTONS GALERIE ET PRIVÉ ICI AUSSI !
+  const uploadGalleryBtn = document.getElementById('uploadGalleryBtn');
+  if (uploadGalleryBtn) {
+    console.log('🔗 CONNEXION BOUTON GALERIE dans setupPhotoUpload');
+    uploadGalleryBtn.addEventListener('click', () => {
+      console.log('🖱️ CLIC BOUTON GALERIE (setupPhotoUpload)');
+
+      const photoInput = document.createElement('input');
+      photoInput.type = 'file';
+      photoInput.accept = 'image/*';
+      photoInput.style.display = 'none';
+      document.body.appendChild(photoInput);
+      photoInput.click();
+
+      photoInput.addEventListener('change', async function (e) {
+        const file = e.target.files[0];
+        document.body.removeChild(photoInput);
+
+        if (file) {
+          uploadPhoto(file, 'gallery');
+        }
+      });
+    });
+  }
+
+  const uploadPrivateBtn = document.getElementById('uploadPrivateBtn');
+  if (uploadPrivateBtn) {
+    console.log('🔗 CONNEXION BOUTON PRIVÉ dans setupPhotoUpload');
+    uploadPrivateBtn.addEventListener('click', () => {
+      console.log('🖱️ CLIC BOUTON PRIVÉ (setupPhotoUpload)');
+
+      const photoInput = document.createElement('input');
+      photoInput.type = 'file';
+      photoInput.accept = 'image/*';
+      photoInput.style.display = 'none';
+      document.body.appendChild(photoInput);
+      photoInput.click();
+
+      photoInput.addEventListener('change', async function (e) {
+        const file = e.target.files[0];
+        document.body.removeChild(photoInput);
+
+        if (file) {
+          uploadPhoto(file, 'private');
         }
       });
     });
