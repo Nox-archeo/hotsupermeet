@@ -1,5 +1,4 @@
 const express = require('express');
-const fileUpload = require('express-fileupload');
 const {
   uploadProfilePhoto,
   uploadGalleryPhoto,
@@ -12,16 +11,8 @@ const { auth, updateLastActivity } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Configuration du middleware d'upload
-router.use(
-  fileUpload({
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
-    abortOnLimit: true,
-    createParentPath: true,
-    useTempFiles: true,
-    tempFileDir: '/tmp/',
-  })
-);
+// NOTE: Le middleware express-fileupload est déjà configuré globalement dans server.js
+// Pas besoin de le redéfinir ici car cela cause des conflits de parsing multipart
 
 // Routes protégées pour l'upload et la gestion des photos
 router.post('/profile-photo', auth, updateLastActivity, uploadProfilePhoto);
