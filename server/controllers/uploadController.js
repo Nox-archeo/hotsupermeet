@@ -281,15 +281,121 @@ const uploadGalleryPhoto = async (req, res) => {
       });
     }
 
-    // Générer un nom de fichier unique
+    // UTILISER CLOUDINARY comme pour la photo de profil
     const fileExtension = path.extname(photo.name);
-    const fileName = `${userId}_gallery_${Date.now()}${fileExtension}`;
-    const filePath = path.join(PROFILE_PHOTOS_DIR, fileName);
+    const fileName = `gallery-${userId}-${Date.now()}${fileExtension}`;
 
-    // Sauvegarder le fichier
-    await photo.mv(filePath);
+    let photoData;
 
-    // Mettre à jour le profil utilisateur avec la nouvelle photo de galerie
+    // Vérifier si Cloudinary est configuré
+    if (
+      process.env.CLOUDINARY_CLOUD_NAME &&
+      process.env.CLOUDINARY_API_KEY &&
+      process.env.CLOUDINARY_API_SECRET
+    ) {
+      console.log(`🚀 Upload galerie vers Cloudinary: ${fileName}`);
+
+      try {
+        // Upload vers Cloudinary
+        const uploadResult = await new Promise((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            {
+              resource_type: 'image',
+              folder: 'hotsupermeet/gallery-photos',
+              public_id: fileName.replace(/\.[^/.]+$/, ''),
+              transformation: [
+                { width: 800, height: 800, crop: 'limit' },
+                { quality: 'auto' },
+                { format: 'auto' },
+              ],
+              overwrite: true,
+              timeout: 60000,
+            },
+            (error, result) => {
+              if (error) {
+                console.log('❌ Erreur Cloudinary galerie:', error.message);
+                reject(error);
+              } else {
+                console.log('✅ Upload Cloudinary galerie réussi');
+                resolve(result);
+              }
+            }
+          );
+
+          uploadStream.on('error', error => {
+            console.log('❌ Erreur stream Cloudinary galerie:', error.message);
+            reject(error);
+          });
+
+          if (photo.tempFilePath && fs.existsSync(photo.tempFilePath)) {
+            console.log(
+              '📂 Upload galerie depuis tempFile:',
+              photo.tempFilePath
+            );
+            fs.createReadStream(photo.tempFilePath).pipe(uploadStream);
+          } else {
+            console.log('📦 Upload galerie depuis buffer data');
+            uploadStream.end(photo.data);
+          }
+        });
+
+        console.log(
+          `✅ Photo galerie uploadée sur Cloudinary: ${uploadResult.secure_url}`
+        );
+
+        photoData = {
+          filename: fileName,
+          path: uploadResult.secure_url,
+          url: uploadResult.secure_url,
+          publicId: uploadResult.public_id,
+          cloudinaryData: {
+            width: uploadResult.width,
+            height: uploadResult.height,
+            format: uploadResult.format,
+            bytes: uploadResult.bytes,
+          },
+          type: 'gallery',
+          isBlurred: false,
+          isProfile: false,
+          uploadedAt: new Date(),
+        };
+      } catch (cloudinaryError) {
+        console.error(
+          'Erreur Cloudinary galerie, fallback vers base64:',
+          cloudinaryError.message
+        );
+
+        const base64Data = photo.data.toString('base64');
+        const dataURL = `data:${photo.mimetype};base64,${base64Data}`;
+
+        photoData = {
+          filename: fileName,
+          path: dataURL,
+          url: dataURL,
+          type: 'gallery',
+          isBlurred: false,
+          isProfile: false,
+          uploadedAt: new Date(),
+        };
+      }
+    } else {
+      console.log('⚠️ Cloudinary non configuré pour galerie');
+
+      const base64Data = photo.data.toString('base64');
+      const dataURL = `data:${photo.mimetype};base64,${base64Data}`;
+
+      photoData = {
+        filename: fileName,
+        path: dataURL,
+        url: dataURL,
+        type: 'gallery',
+        isBlurred: false,
+        isProfile: false,
+        uploadedAt: new Date(),
+      };
+    }
+
+    // Mettre à jour le profil utilisateur
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({
@@ -301,18 +407,21 @@ const uploadGalleryPhoto = async (req, res) => {
       });
     }
 
-    const photoData = {
-      filename: fileName,
-      path: `/uploads/profile-photos/${fileName}`,
-      type: 'gallery', // Type galerie publique
-      isBlurred: false, // Par défaut non floutée
-      isProfile: false, // Pas une photo de profil
-      uploadedAt: new Date(),
-    };
-
     // Initialiser le tableau de photos si nécessaire
     if (!user.profile.photos) {
       user.profile.photos = [];
+    }
+
+    // Vérifier la limite de 5 photos de galerie
+    const galleryPhotos = user.profile.photos.filter(p => p.type === 'gallery');
+    if (galleryPhotos.length >= 5) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'GALLERY_PHOTO_LIMIT',
+          message: 'Vous ne pouvez avoir que 5 photos publiques maximum',
+        },
+      });
     }
 
     // Ajouter la photo de galerie
@@ -378,13 +487,116 @@ const uploadPrivatePhoto = async (req, res) => {
       });
     }
 
-    // Générer un nom de fichier unique pour photo privée
+    // UTILISER CLOUDINARY pour les photos privées aussi
     const fileExtension = path.extname(photo.name);
-    const fileName = `${userId}_private_${Date.now()}${fileExtension}`;
-    const filePath = path.join(PROFILE_PHOTOS_DIR, fileName);
+    const fileName = `private-${userId}-${Date.now()}${fileExtension}`;
 
-    // Sauvegarder le fichier
-    await photo.mv(filePath);
+    let photoData;
+
+    // Vérifier si Cloudinary est configuré
+    if (
+      process.env.CLOUDINARY_CLOUD_NAME &&
+      process.env.CLOUDINARY_API_KEY &&
+      process.env.CLOUDINARY_API_SECRET
+    ) {
+      console.log(`🚀 Upload privé vers Cloudinary: ${fileName}`);
+
+      try {
+        // Upload vers Cloudinary
+        const uploadResult = await new Promise((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            {
+              resource_type: 'image',
+              folder: 'hotsupermeet/private-photos',
+              public_id: fileName.replace(/\.[^/.]+$/, ''),
+              transformation: [
+                { width: 800, height: 800, crop: 'limit' },
+                { quality: 'auto' },
+                { format: 'auto' },
+              ],
+              overwrite: true,
+              timeout: 60000,
+            },
+            (error, result) => {
+              if (error) {
+                console.log('❌ Erreur Cloudinary privé:', error.message);
+                reject(error);
+              } else {
+                console.log('✅ Upload Cloudinary privé réussi');
+                resolve(result);
+              }
+            }
+          );
+
+          uploadStream.on('error', error => {
+            console.log('❌ Erreur stream Cloudinary privé:', error.message);
+            reject(error);
+          });
+
+          if (photo.tempFilePath && fs.existsSync(photo.tempFilePath)) {
+            console.log('📂 Upload privé depuis tempFile:', photo.tempFilePath);
+            fs.createReadStream(photo.tempFilePath).pipe(uploadStream);
+          } else {
+            console.log('📦 Upload privé depuis buffer data');
+            uploadStream.end(photo.data);
+          }
+        });
+
+        console.log(
+          `✅ Photo privée uploadée sur Cloudinary: ${uploadResult.secure_url}`
+        );
+
+        photoData = {
+          filename: fileName,
+          path: uploadResult.secure_url,
+          url: uploadResult.secure_url,
+          publicId: uploadResult.public_id,
+          cloudinaryData: {
+            width: uploadResult.width,
+            height: uploadResult.height,
+            format: uploadResult.format,
+            bytes: uploadResult.bytes,
+          },
+          type: 'private',
+          isBlurred: true, // Photos privées floutées par défaut
+          isProfile: false,
+          uploadedAt: new Date(),
+        };
+      } catch (cloudinaryError) {
+        console.error(
+          'Erreur Cloudinary privé, fallback vers base64:',
+          cloudinaryError.message
+        );
+
+        const base64Data = photo.data.toString('base64');
+        const dataURL = `data:${photo.mimetype};base64,${base64Data}`;
+
+        photoData = {
+          filename: fileName,
+          path: dataURL,
+          url: dataURL,
+          type: 'private',
+          isBlurred: true,
+          isProfile: false,
+          uploadedAt: new Date(),
+        };
+      }
+    } else {
+      console.log('⚠️ Cloudinary non configuré pour privé');
+
+      const base64Data = photo.data.toString('base64');
+      const dataURL = `data:${photo.mimetype};base64,${base64Data}`;
+
+      photoData = {
+        filename: fileName,
+        path: dataURL,
+        url: dataURL,
+        type: 'private',
+        isBlurred: true,
+        isProfile: false,
+        uploadedAt: new Date(),
+      };
+    }
 
     // Mettre à jour le profil utilisateur
     const user = await User.findById(userId);
@@ -397,15 +609,6 @@ const uploadPrivatePhoto = async (req, res) => {
         },
       });
     }
-
-    const photoData = {
-      filename: fileName,
-      path: `/uploads/profile-photos/${fileName}`,
-      type: 'private', // Type photo privée
-      isBlurred: true, // Photos privées sont floutées par défaut
-      isProfile: false, // Pas une photo de profil
-      uploadedAt: new Date(),
-    };
 
     // Initialiser le tableau de photos si nécessaire
     if (!user.profile.photos) {
