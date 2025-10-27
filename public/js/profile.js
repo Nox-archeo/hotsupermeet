@@ -721,8 +721,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // NOUVEAU: Initialiser la gestion des photos
     console.log('🚀 INITIALISATION GESTION PHOTOS');
-    setupPhotoUpload(); // ← CETTE FONCTION N'ÉTAIT PAS APPELÉE !
     setupPhotoManagement();
+    setupPhotoBlurToggle();
 
     // Charger les photos existantes
     console.log('📂 CHARGEMENT PHOTOS EXISTANTES');
@@ -1202,10 +1202,61 @@ function setupPhotoManagement() {
     });
   }
 
-  // Les boutons sont maintenant connectés dans setupPhotoUpload()
-  console.log(
-    '� setupPhotoManagement() - boutons gérés par setupPhotoUpload()'
-  );
+  // COPIER EXACTEMENT LA MÊME LOGIQUE QUE POUR LA PHOTO DE PROFIL
+
+  // Créer input caché pour galerie
+  let galleryInput = document.getElementById('galleryPhotoInputHidden');
+  if (!galleryInput) {
+    galleryInput = document.createElement('input');
+    galleryInput.type = 'file';
+    galleryInput.id = 'galleryPhotoInputHidden';
+    galleryInput.accept = 'image/*';
+    galleryInput.style.display = 'none';
+    document.body.appendChild(galleryInput);
+  }
+
+  // Connecter bouton galerie
+  const uploadGalleryBtn = document.getElementById('uploadGalleryBtn');
+  if (uploadGalleryBtn) {
+    uploadGalleryBtn.onclick = () => galleryInput.click();
+  }
+
+  // Upload galerie
+  if (galleryInput) {
+    galleryInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) {
+        uploadPhoto(file, 'gallery');
+      }
+    });
+  }
+
+  // Créer input caché pour privé
+  let privateInput = document.getElementById('privatePhotoInputHidden');
+  if (!privateInput) {
+    privateInput = document.createElement('input');
+    privateInput.type = 'file';
+    privateInput.id = 'privatePhotoInputHidden';
+    privateInput.accept = 'image/*';
+    privateInput.style.display = 'none';
+    document.body.appendChild(privateInput);
+  }
+
+  // Connecter bouton privé
+  const uploadPrivateBtn = document.getElementById('uploadPrivateBtn');
+  if (uploadPrivateBtn) {
+    uploadPrivateBtn.onclick = () => privateInput.click();
+  }
+
+  // Upload privé
+  if (privateInput) {
+    privateInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) {
+        uploadPhoto(file, 'private');
+      }
+    });
+  }
 }
 
 // Fonction universelle d'upload de photo
