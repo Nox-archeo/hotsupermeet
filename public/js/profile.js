@@ -1099,10 +1099,26 @@ async function handleDeleteAccount() {
 
 // Gestion des uploads de photos par type
 function setupPhotoManagement() {
+  // Créer un input file caché pour la photo de profil
+  let profileInput = document.getElementById('profilePhotoInput');
+  if (!profileInput) {
+    profileInput = document.createElement('input');
+    profileInput.type = 'file';
+    profileInput.id = 'profilePhotoInput';
+    profileInput.accept = 'image/*';
+    profileInput.style.display = 'none';
+    document.body.appendChild(profileInput);
+  }
+
+  // Connecter le bouton existant "Changer la photo"
+  const changeAvatarBtn = document.getElementById('changeAvatarBtn');
+  if (changeAvatarBtn) {
+    changeAvatarBtn.onclick = () => profileInput.click();
+  }
+
   // Upload photo de profil
-  const profilePhotoInput = document.getElementById('profilePhotoInput');
-  if (profilePhotoInput) {
-    profilePhotoInput.addEventListener('change', e => {
+  if (profileInput) {
+    profileInput.addEventListener('change', e => {
       const file = e.target.files[0];
       if (file) {
         uploadPhoto(file, 'profile');
