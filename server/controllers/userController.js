@@ -36,22 +36,15 @@ const getUsers = async (req, res) => {
       query['profile.sexe'] = sexe;
     }
 
-    // Filtre par localisation (pays, région, ville)
-    if (pays || region || ville) {
-      const locationParts = [];
-      if (pays) {
-        locationParts.push(pays);
-      }
-      if (region) {
-        locationParts.push(region);
-      }
-      if (ville) {
-        locationParts.push(ville);
-      }
-
-      // Créer une regex qui recherche toutes les parties de la localisation
-      const locationRegex = locationParts.map(part => `(?=.*${part})`).join('');
-      query['profile.localisation'] = new RegExp(locationRegex, 'i');
+    // Filtre par localisation (pays, région, ville) - recherche dans la structure objet
+    if (pays) {
+      query['profile.localisation.pays'] = new RegExp(pays, 'i');
+    }
+    if (region) {
+      query['profile.localisation.region'] = new RegExp(region, 'i');
+    }
+    if (ville) {
+      query['profile.localisation.ville'] = new RegExp(ville, 'i');
     }
 
     // Filtre par pratiques

@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/css/pages.css?v=3" />
     <link rel="stylesheet" href="/css/animations.css?v=3" />
     <script src="/js/regions-europe.js"></script>
+    <script src="/js/cities-europe.js"></script>
   </head>
   <body>
     <!-- Header identique à la page d'accueil -->
@@ -187,13 +188,9 @@
                       </div>
                       <div class="form-group">
                         <label for="profileVille">Ville</label>
-                        <input
-                          type="text"
-                          id="profileVille"
-                          class="form-input"
-                          placeholder="Nom de la ville"
-                          required
-                        />
+                        <select id="profileVille" class="form-input" required>
+                          <option value="">Choisir une ville...</option>
+                        </select>
                       </div>
                     </div>
 
@@ -944,8 +941,12 @@
         .getElementById('profilePays')
         .addEventListener('change', function () {
           const regionSelect = document.getElementById('profileRegion');
+          const villeSelect = document.getElementById('profileVille');
+
           regionSelect.innerHTML =
             '<option value="">Choisir une région...</option>';
+          villeSelect.innerHTML =
+            '<option value="">Choisir une ville...</option>';
 
           const selectedPays = this.value;
           console.log('Pays sélectionné:', selectedPays);
@@ -969,6 +970,56 @@
             });
           } else {
             console.log('Aucune région trouvée pour:', selectedPays);
+          }
+        });
+
+      // Charger les villes en fonction de la région sélectionnée
+      document
+        .getElementById('profileRegion')
+        .addEventListener('change', function () {
+          const villeSelect = document.getElementById('profileVille');
+          const paysSelect = document.getElementById('profilePays');
+
+          villeSelect.innerHTML =
+            '<option value="">Choisir une ville...</option>';
+
+          const selectedPays = paysSelect.value;
+          const selectedRegion = this.value;
+
+          console.log(
+            'Région sélectionnée:',
+            selectedRegion,
+            'pour pays:',
+            selectedPays
+          );
+
+          if (!selectedPays || !selectedRegion) {
+            console.log('Pays ou région non sélectionné');
+            return;
+          }
+
+          // Utiliser europeanCities du fichier externe
+          if (
+            typeof europeanCities !== 'undefined' &&
+            europeanCities[selectedPays]
+          ) {
+            console.log(
+              'Villes trouvées pour',
+              selectedPays,
+              ':',
+              europeanCities[selectedPays]
+            );
+
+            // Filtrer les villes par région si nécessaire
+            const cities = europeanCities[selectedPays];
+            cities.forEach(cityData => {
+              const option = document.createElement('option');
+              option.value = cityData.value; // Utiliser la valeur normalisée
+              option.textContent = cityData.name; // Utiliser le nom d'affichage
+              villeSelect.appendChild(option);
+            });
+          } else {
+            console.log('Aucune ville trouvée pour:', selectedPays);
           }
         });
 
