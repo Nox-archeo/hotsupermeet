@@ -720,11 +720,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // NOUVEAU: Initialiser la gestion des photos
+    console.log('🚀 INITIALISATION GESTION PHOTOS');
     setupPhotoManagement();
 
     // Charger les photos existantes
+    console.log('📂 CHARGEMENT PHOTOS EXISTANTES');
     loadPhotos();
-
     console.log('Page profil initialisée avec succès');
   } catch (error) {
     console.error(
@@ -1152,19 +1153,32 @@ function setupPhotoManagement() {
   }
 
   // Connecter les boutons d'upload aux inputs
+  console.log('🔍 CONNEXION DES BOUTONS PHOTO');
   const uploadGalleryBtn = document.getElementById('uploadGalleryBtn');
+  console.log('Bouton galerie trouvé:', !!uploadGalleryBtn);
   if (uploadGalleryBtn) {
     uploadGalleryBtn.onclick = () => {
+      console.log('🖱️ CLIC BOUTON GALERIE');
       const input = document.getElementById('galleryPhotoInput');
-      if (input) input.click();
+      console.log('Input galerie trouvé:', !!input);
+      if (input) {
+        console.log('📂 OUVERTURE SÉLECTEUR FICHIER GALERIE');
+        input.click();
+      }
     };
   }
 
   const uploadPrivateBtn = document.getElementById('uploadPrivateBtn');
+  console.log('Bouton privé trouvé:', !!uploadPrivateBtn);
   if (uploadPrivateBtn) {
     uploadPrivateBtn.onclick = () => {
+      console.log('🖱️ CLIC BOUTON PRIVÉ');
       const input = document.getElementById('privatePhotoInput');
-      if (input) input.click();
+      console.log('Input privé trouvé:', !!input);
+      if (input) {
+        console.log('📂 OUVERTURE SÉLECTEUR FICHIER PRIVÉ');
+        input.click();
+      }
     };
   }
 }
