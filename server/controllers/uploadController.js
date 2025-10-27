@@ -30,7 +30,14 @@ const uploadProfilePhoto = async (req, res) => {
   try {
     ensureUploadDirs();
 
+    console.log('📥 Upload request reçu:', {
+      hasFiles: !!req.files,
+      hasPhoto: !!(req.files && req.files.photo),
+      userId: req.user?._id,
+    });
+
     if (!req.files || !req.files.photo) {
+      console.log('❌ Aucune photo fournie');
       return res.status(400).json({
         success: false,
         error: {
@@ -43,8 +50,16 @@ const uploadProfilePhoto = async (req, res) => {
     const photo = req.files.photo;
     const userId = req.user._id;
 
+    console.log('📷 Détails photo:', {
+      name: photo.name,
+      size: photo.size,
+      mimetype: photo.mimetype,
+      sizeInMB: (photo.size / (1024 * 1024)).toFixed(2),
+    });
+
     // Vérifier le type de fichier
     if (!photo.mimetype.startsWith('image/')) {
+      console.log('❌ Type de fichier invalide:', photo.mimetype);
       return res.status(400).json({
         success: false,
         error: {
@@ -56,6 +71,7 @@ const uploadProfilePhoto = async (req, res) => {
 
     // Vérifier la taille (max 5MB)
     if (photo.size > 5 * 1024 * 1024) {
+      console.log('❌ Fichier trop gros:', photo.size, 'bytes');
       return res.status(400).json({
         success: false,
         error: {
@@ -80,30 +96,46 @@ const uploadProfilePhoto = async (req, res) => {
       console.log(`🚀 Upload vers Cloudinary: ${fileName}`);
 
       try {
-        // Upload vers Cloudinary
+        // Upload vers Cloudinary avec gestion d'erreur améliorée
         const uploadResult = await new Promise((resolve, reject) => {
-          cloudinary.uploader
-            .upload_stream(
-              {
-                resource_type: 'image',
-                folder: 'hotsupermeet/profile-photos',
-                public_id: fileName.replace(/\.[^/.]+$/, ''), // sans extension
-                transformation: [
-                  { width: 800, height: 800, crop: 'limit' }, // Redimensionner max 800x800
-                  { quality: 'auto' }, // Optimisation automatique
-                  { format: 'auto' }, // Format optimal (WebP si supporté)
-                ],
-                overwrite: true,
-              },
-              (error, result) => {
-                if (error) {
-                  reject(error);
-                } else {
-                  resolve(result);
-                }
+          const uploadStream = cloudinary.uploader.upload_stream(
+            {
+              resource_type: 'image',
+              folder: 'hotsupermeet/profile-photos',
+              public_id: fileName.replace(/\.[^/.]+$/, ''), // sans extension
+              transformation: [
+                { width: 800, height: 800, crop: 'limit' }, // Redimensionner max 800x800
+                { quality: 'auto' }, // Optimisation automatique
+                { format: 'auto' }, // Format optimal (WebP si supporté)
+              ],
+              overwrite: true,
+              timeout: 60000, // 60 secondes timeout
+            },
+            (error, result) => {
+              if (error) {
+                console.log('❌ Erreur Cloudinary:', error.message);
+                reject(error);
+              } else {
+                console.log('✅ Upload Cloudinary réussi');
+                resolve(result);
               }
-            )
-            .end(photo.data);
+            }
+          );
+
+          // Gestion d'erreur pour le stream
+          uploadStream.on('error', error => {
+            console.log('❌ Erreur stream Cloudinary:', error.message);
+            reject(error);
+          });
+
+          // Utiliser tempFilePath si disponible, sinon data
+          if (photo.tempFilePath && fs.existsSync(photo.tempFilePath)) {
+            console.log('📂 Upload depuis tempFile:', photo.tempFilePath);
+            fs.createReadStream(photo.tempFilePath).pipe(uploadStream);
+          } else {
+            console.log('📦 Upload depuis buffer data');
+            uploadStream.end(photo.data);
+          }
         });
 
         console.log(
