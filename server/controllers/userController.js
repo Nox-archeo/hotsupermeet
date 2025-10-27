@@ -8,10 +8,13 @@ const getUsers = async (req, res) => {
       ageMin,
       ageMax,
       sexe,
-      localisation,
+      pays,
+      region,
+      ville,
       pratiques,
       page = 1,
       limit = 20,
+      sortBy = 'lastActive',
     } = req.query;
 
     // Construire la requête de filtrage
@@ -33,15 +36,45 @@ const getUsers = async (req, res) => {
       query['profile.sexe'] = sexe;
     }
 
-    // Filtre par localisation
-    if (localisation) {
-      query['profile.localisation'] = new RegExp(localisation, 'i');
+    // Filtre par localisation (pays, région, ville)
+    if (pays || region || ville) {
+      const locationParts = [];
+      if (pays) {
+        locationParts.push(pays);
+      }
+      if (region) {
+        locationParts.push(region);
+      }
+      if (ville) {
+        locationParts.push(ville);
+      }
+
+      // Créer une regex qui recherche toutes les parties de la localisation
+      const locationRegex = locationParts.map(part => `(?=.*${part})`).join('');
+      query['profile.localisation'] = new RegExp(locationRegex, 'i');
     }
 
     // Filtre par pratiques
     if (pratiques) {
       const pratiquesArray = pratiques.split(',');
       query['profile.pratiques'] = { $in: pratiquesArray };
+    }
+
+    // Définir le tri
+    let sortOption = {};
+    switch (sortBy) {
+      case 'age':
+        sortOption = { 'profile.age': 1 };
+        break;
+      case 'name':
+        sortOption = { 'profile.nom': 1 };
+        break;
+      case 'distance':
+        // Pour l'instant, tri par dernière activité si distance n'est pas disponible
+        sortOption = { 'stats.lastActive': -1 };
+        break;
+      default:
+        sortOption = { 'stats.lastActive': -1 };
     }
 
     // Pagination
@@ -52,7 +85,7 @@ const getUsers = async (req, res) => {
       .select(
         'profile.nom profile.age profile.sexe profile.localisation profile.photos profile.disponibilite stats.lastActive premium.isPremium'
       )
-      .sort({ 'stats.lastActive': -1 })
+      .sort(sortOption)
       .skip(skip)
       .limit(parseInt(limit))
       .lean();
