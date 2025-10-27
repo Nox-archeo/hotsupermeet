@@ -243,7 +243,7 @@ class DirectoryPage {
         <div class="profile-info">
           <h4>${user.profile.nom}</h4>
           <p class="profile-age">${user.profile.age} ans</p>
-          <p class="profile-location">${user.profile.localisation}</p>
+          <p class="profile-location">${this.getLocationDisplay(user.profile.localisation)}</p>
           <p class="profile-gender">${this.getGenderLabel(user.profile.sexe)}</p>
           <div class="profile-actions">
             <button class="btn-primary" onclick="directoryPage.viewProfile('${user.id}')">
@@ -293,6 +293,70 @@ class DirectoryPage {
       autre: 'Autre',
     };
     return labels[gender] || gender;
+  }
+
+  // Fonction pour afficher la localisation avec drapeau
+  getLocationDisplay(localisation) {
+    if (!localisation) {
+      return 'Localisation non renseignée';
+    }
+
+    // Si localisation est un objet (nouvelle structure)
+    if (typeof localisation === 'object' && localisation.pays) {
+      const flag = this.getCountryFlag(localisation.pays);
+      let locationText = '';
+
+      if (localisation.ville && localisation.region) {
+        locationText = `${localisation.ville}, ${localisation.region}`;
+      } else if (localisation.ville) {
+        locationText = localisation.ville;
+      } else if (localisation.region) {
+        locationText = localisation.region;
+      }
+
+      return `${flag} ${localisation.pays}${locationText ? ` • ${locationText}` : ''}`;
+    }
+
+    // Si localisation est une chaîne (ancienne structure)
+    return localisation;
+  }
+
+  // Fonction pour obtenir l'emoji drapeau selon le pays
+  getCountryFlag(pays) {
+    const flagMap = {
+      france: '🇫🇷',
+      suisse: '🇨🇭',
+      belgique: '🇧🇪',
+      allemagne: '🇩🇪',
+      italie: '🇮🇹',
+      espagne: '🇪🇸',
+      portugal: '🇵🇹',
+      'pays-bas': '🇳🇱',
+      luxembourg: '🇱🇺',
+      autriche: '🇦🇹',
+      'royaume-uni': '🇬🇧',
+      irlande: '🇮🇪',
+      danemark: '🇩🇰',
+      suede: '🇸🇪',
+      norvege: '🇳🇴',
+      finlande: '🇫🇮',
+      pologne: '🇵🇱',
+      'republique-tcheque': '🇨🇿',
+      slovaquie: '🇸🇰',
+      hongrie: '🇭🇺',
+      roumanie: '🇷🇴',
+      bulgarie: '🇧🇬',
+      grece: '🇬🇷',
+      croatie: '🇭🇷',
+      slovenie: '🇸🇮',
+      estonie: '🇪🇪',
+      lettonie: '🇱🇻',
+      lituanie: '🇱🇹',
+      malte: '🇲🇹',
+      chypre: '🇨🇾',
+    };
+
+    return flagMap[pays] || '🌍';
   }
 
   // Fonction pour demander le dévoilement d'une photo
