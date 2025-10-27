@@ -265,24 +265,25 @@ class DirectoryPage {
         user.profile.photos.find(photo => photo.isProfile) ||
         user.profile.photos[0];
 
-      // Si la photo est floutée, afficher une version floutée
+      // Si la photo est floutée, afficher une version floutée avec indicateur clair
       if (profilePhoto.isBlurred) {
         return `
-          <div class="blurred-photo-container">
-            <img src="${profilePhoto.path}" alt="${user.profile.nom}" class="blurred-photo">
-            <div class="unblur-overlay">
-              <button class="unblur-btn" onclick="directoryPage.requestUnblur('${user.id}', '${profilePhoto._id}')">
-                👁️ Dévoiler la photo
+          <div class="blurred-photo-container" style="position: relative;">
+            <img src="${profilePhoto.path}" alt="${user.profile.nom}" style="filter: blur(20px); width: 100%; height: 200px; object-fit: cover;">
+            <div class="unblur-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; flex-direction: column;">
+              <div style="color: white; font-weight: bold; margin-bottom: 10px;">🔒 Photo floutée</div>
+              <button class="unblur-btn" onclick="directoryPage.requestUnblur('${user.id}', '${profilePhoto._id}')" style="background: #ff6b6b; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                👁️ Demander à dévoiler
               </button>
             </div>
           </div>
         `;
       } else {
-        return `<img src="${profilePhoto.path}" alt="${user.profile.nom}">`;
+        return `<img src="${profilePhoto.path}" alt="${user.profile.nom}" style="width: 100%; height: 200px; object-fit: cover;">`;
       }
     } else {
       // Photo par défaut si aucune photo n'est disponible
-      return `<img src="/images/default-avatar.jpg" alt="${user.profile.nom}">`;
+      return `<img src="/images/default-avatar.jpg" alt="${user.profile.nom}" style="width: 100%; height: 200px; object-fit: cover;">`;
     }
   }
 

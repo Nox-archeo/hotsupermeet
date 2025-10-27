@@ -249,8 +249,10 @@ async function loadProfileData() {
 
           bioField.value = user.profile.bio || '';
 
-          // NOUVEAU: Mettre à jour la photo de profil
+          // NOUVEAU: Mettre à jour la photo de profil avec gestion du floutage
           const profileAvatarElem = document.getElementById('profileAvatar');
+          const blurStatusElem = document.getElementById('blurStatus');
+
           if (
             profileAvatarElem &&
             user.profile.photos &&
@@ -258,10 +260,6 @@ async function loadProfileData() {
           ) {
             const firstPhoto = user.profile.photos[0];
             console.log('🔍 DEBUG PHOTO:', JSON.stringify(firstPhoto, null, 2));
-            console.log('🔍 firstPhoto.path:', firstPhoto.path);
-            console.log('🔍 firstPhoto.url:', firstPhoto.url);
-            console.log('🔍 Type de firstPhoto.path:', typeof firstPhoto.path);
-            console.log('🔍 Type de firstPhoto.url:', typeof firstPhoto.url);
 
             // Utiliser 'path' au lieu de 'url' car la structure a 'path' pas 'url'
             if (firstPhoto && (firstPhoto.url || firstPhoto.path)) {
@@ -281,11 +279,28 @@ async function loadProfileData() {
               }
 
               console.log('🔍 photoUrl final:', photoUrl);
-              console.log('🔍 Type de photoUrl:', typeof photoUrl);
+              console.log('🔍 Photo floutée?:', firstPhoto.isBlurred);
 
               if (photoUrl && typeof photoUrl === 'string') {
                 profileAvatarElem.src = photoUrl;
                 profileAvatarElem.alt = `Photo de ${user.profile.nom || 'profil'}`;
+
+                // Appliquer le flou CSS si la photo est floutée
+                if (firstPhoto.isBlurred) {
+                  profileAvatarElem.style.filter = 'blur(20px)';
+                  if (blurStatusElem) {
+                    blurStatusElem.textContent =
+                      '🔄 Photo floutée - Cliquez pour déflouter';
+                    blurStatusElem.style.color = '#ff6b6b';
+                  }
+                } else {
+                  profileAvatarElem.style.filter = 'none';
+                  if (blurStatusElem) {
+                    blurStatusElem.textContent = '✅ Photo visible';
+                    blurStatusElem.style.color = '#4caf50';
+                  }
+                }
+
                 console.log('✅ Photo définie avec succès:', photoUrl);
               } else {
                 console.log('❌ photoUrl invalide:', photoUrl);
@@ -297,6 +312,10 @@ async function loadProfileData() {
             }
           } else {
             console.log('Pas de photos dans le profil utilisateur');
+            if (blurStatusElem) {
+              blurStatusElem.textContent = '📷 Aucune photo uploadée';
+              blurStatusElem.style.color = '#7f8c8d';
+            }
           }
 
           // Mettre à jour l'affichage du profil si les éléments existent
@@ -692,96 +711,119 @@ document.addEventListener('DOMContentLoaded', function () {
 // Gestion du changement de photo de profil
 function setupPhotoUpload() {
   const changeAvatarBtn = document.getElementById('changeAvatarBtn');
-  const photoInput = document.createElement('input');
-  photoInput.type = 'file';
-  photoInput.accept = 'image/*';
-  photoInput.style.display = 'none';
-
-  document.body.appendChild(photoInput);
 
   if (changeAvatarBtn) {
     changeAvatarBtn.addEventListener('click', () => {
+      // Créer un input file dynamiquement
+      const photoInput = document.createElement('input');
+      photoInput.type = 'file';
+      photoInput.accept = 'image/*';
+      photoInput.style.display = 'none';
+
+      // Ajouter temporairement au DOM
+      document.body.appendChild(photoInput);
+
+      // Déclencher le clic
       photoInput.click();
+
+      // Gérer la sélection de fichier
+      photoInput.addEventListener('change', async function (e) {
+        const file = e.target.files[0];
+
+        // Nettoyer l'input après utilisation
+        document.body.removeChild(photoInput);
+
+        if (!file) {
+          return;
+        }
+
+        // Vérifier le type de fichier
+        if (!file.type.startsWith('image/')) {
+          showMessage('Le fichier doit être une image', 'error');
+          return;
+        }
+
+        // Vérifier la taille (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          showMessage('L\\' + 'image ne doit pas dépasser 5MB', 'error');
+          return;
+        }
+
+        try {
+          showMessage('Upload de la photo en cours...', 'info');
+
+          const token = localStorage.getItem('hotmeet_token');
+          if (!token) {
+            showMessage('Erreur: Non connecté', 'error');
+            return;
+          }
+
+          const formData = new FormData();
+          formData.append('photo', file);
+
+          const response = await fetch('/api/uploads/profile-photo', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            showMessage('Photo de profil mise à jour avec succès !', 'success');
+            // Mettre à jour l'affichage de la photo
+            const profileAvatar = document.getElementById('profileAvatar');
+            if (profileAvatar && result.photo) {
+              profileAvatar.src = result.photo.url;
+              profileAvatar.alt = 'Photo de profil mise à jour';
+            }
+            // Recharger les données du profil pour s'assurer que tout est synchronisé
+            loadProfileData();
+          } else {
+            showMessage(
+              result.error?.message ||
+                'Erreur lors de l\\' + 'upload de la photo',
+              'error'
+            );
+          }
+        } catch (error) {
+          console.error('Erreur lors de l\\' + 'upload de la photo:', error);
+          showMessage('Erreur lors de l\\' + 'upload de la photo', 'error');
+        }
+      });
     });
   }
-
-  photoInput.addEventListener('change', async e => {
-    const file = e.target.files[0];
-    if (!file) {
-      return;
-    }
-
-    // Vérifier le type de fichier
-    if (!file.type.startsWith('image/')) {
-      showMessage('Le fichier doit être une image', 'error');
-      return;
-    }
-
-    // Vérifier la taille (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      showMessage('L\\' + 'image ne doit pas dépasser 5MB', 'error');
-      return;
-    }
-
-    try {
-      showMessage('Upload de la photo en cours...', 'info');
-
-      const token = localStorage.getItem('hotmeet_token');
-      if (!token) {
-        showMessage('Erreur: Non connecté', 'error');
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('photo', file);
-
-      const response = await fetch('/api/uploads/profile-photo', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        showMessage('Photo de profil mise à jour avec succès !', 'success');
-        // Mettre à jour l'affichage de la photo
-        const profileAvatar = document.getElementById('profileAvatar');
-        if (profileAvatar && result.photo) {
-          profileAvatar.src = result.photo.url;
-          profileAvatar.alt = 'Photo de profil mise à jour';
-        }
-        // Recharger les données du profil pour s'assurer que tout est synchronisé
-        loadProfileData();
-      } else {
-        showMessage(
-          result.error?.message || 'Erreur lors de l\\' + 'upload de la photo',
-          'error'
-        );
-      }
-    } catch (error) {
-      console.error('Erreur lors de l\\' + 'upload de la photo:', error);
-      showMessage('Erreur lors de l\\' + 'upload de la photo', 'error');
-    }
-  });
 }
 
 // Gestion du floutage/défloutage des photos
 function setupPhotoBlurToggle() {
   const blurToggleBtn = document.getElementById('blurToggleBtn');
+  const avatarActions = document.querySelector('.avatar-actions');
 
-  // Créer le bouton s'il n'existe pas
-  if (!blurToggleBtn) {
-    const avatarActions = document.querySelector('.avatar-actions');
-    if (avatarActions) {
-      const newButton = document.createElement('button');
-      newButton.id = 'blurToggleBtn';
-      newButton.className = 'btn-secondary';
-      newButton.textContent = 'Flouter/Déflouter la photo';
-      avatarActions.appendChild(newButton);
-    }
+  // Créer le bouton et l'indicateur de statut s'ils n'existent pas
+  if (!blurToggleBtn && avatarActions) {
+    // Créer l'indicateur de statut
+    const statusDiv = document.createElement('div');
+    statusDiv.id = 'blurStatus';
+    statusDiv.style.cssText = `
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      font-weight: 500;
+      text-align: center;
+    `;
+    statusDiv.textContent = '📷 Statut de la photo';
+
+    // Créer le bouton
+    const newButton = document.createElement('button');
+    newButton.id = 'blurToggleBtn';
+    newButton.className = 'btn-secondary';
+    newButton.textContent = 'Flouter/Déflouter la photo';
+    newButton.style.marginTop = '0.5rem';
+
+    avatarActions.appendChild(newButton);
+    avatarActions.appendChild(statusDiv);
   }
 
   const toggleBtn = document.getElementById('blurToggleBtn');
@@ -846,8 +888,26 @@ function setupPhotoBlurToggle() {
           const newState = result.photo.isBlurred ? 'floutée' : 'défloutée';
           showMessage(`Photo ${newState} avec succès !`, 'success');
 
-          // Mettre à jour l'affichage
-          loadProfileData();
+          // Mettre à jour immédiatement l'affichage sans recharger toute la page
+          const profileAvatarElem = document.getElementById('profileAvatar');
+          const blurStatusElem = document.getElementById('blurStatus');
+
+          if (profileAvatarElem) {
+            if (result.photo.isBlurred) {
+              profileAvatarElem.style.filter = 'blur(20px)';
+              if (blurStatusElem) {
+                blurStatusElem.textContent =
+                  '🔄 Photo floutée - Cliquez pour déflouter';
+                blurStatusElem.style.color = '#ff6b6b';
+              }
+            } else {
+              profileAvatarElem.style.filter = 'none';
+              if (blurStatusElem) {
+                blurStatusElem.textContent = '✅ Photo visible';
+                blurStatusElem.style.color = '#4caf50';
+              }
+            }
+          }
         } else {
           showMessage(
             result.error?.message ||
