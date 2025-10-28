@@ -55,9 +55,7 @@
         <!-- Error Message -->
         <div id="errorMessage" class="error-message" style="display: none">
           <p>Erreur lors du chargement du profil.</p>
-          <button class="btn-primary" onclick="window.history.back()">
-            Retour
-          </button>
+          <button class="btn-primary" id="backBtn">Retour</button>
         </div>
 
         <!-- Profile Content -->
@@ -164,9 +162,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h3>Envoyer un message</h3>
-          <button class="modal-close" onclick="closeMessageModal()">
-            &times;
-          </button>
+          <button class="modal-close" id="modalCloseBtn">&times;</button>
         </div>
         <div class="modal-body">
           <form id="messageForm">
@@ -184,11 +180,7 @@
               </small>
             </div>
             <div class="form-actions">
-              <button
-                type="button"
-                class="btn-secondary"
-                onclick="closeMessageModal()"
-              >
+              <button type="button" class="btn-secondary" id="modalCancelBtn">
                 Annuler
               </button>
               <button type="submit" class="btn-primary">Envoyer</button>
