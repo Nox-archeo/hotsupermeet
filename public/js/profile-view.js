@@ -309,11 +309,41 @@ class ProfileView {
     document.getElementById('blockUserBtn').addEventListener('click', () => {
       this.blockUser();
     });
+
+    // CSP FIX: Boutons avec onclick remplacés par addEventListener
+    // Back button
+    const backBtn = document.getElementById('backBtn');
+    if (backBtn) {
+      backBtn.addEventListener('click', () => {
+        window.history.back();
+      });
+    }
+
+    // Modal close buttons
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    if (modalCloseBtn) {
+      modalCloseBtn.addEventListener('click', () => {
+        this.closeMessageModal();
+      });
+    }
+
+    const modalCancelBtn = document.getElementById('modalCancelBtn');
+    if (modalCancelBtn) {
+      modalCancelBtn.addEventListener('click', () => {
+        this.closeMessageModal();
+      });
+    }
   }
 
   openMessageModal() {
     document.getElementById('messageModal').style.display = 'flex';
     document.getElementById('messageContent').focus();
+  }
+
+  closeMessageModal() {
+    document.getElementById('messageModal').style.display = 'none';
+    document.getElementById('messageContent').value = '';
+    document.getElementById('messageCharCount').textContent = '0';
   }
 
   async sendMessage() {
