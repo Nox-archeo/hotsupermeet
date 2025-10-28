@@ -246,7 +246,7 @@ class DirectoryPage {
           <p class="profile-location">${this.getLocationDisplay(user.profile.localisation)}</p>
           <p class="profile-gender">${this.getGenderLabel(user.profile.sexe)}</p>
           <div class="profile-actions">
-            <button class="btn-primary view-profile-btn" data-user-id="${user.id}">
+            <button class="btn-primary" onclick="directoryPage.viewProfile('${user.id}')">
               Voir le profil
             </button>
           </div>
@@ -255,9 +255,6 @@ class DirectoryPage {
     `
       )
       .join('');
-
-    // CSP FIX: Ajouter les event listeners après insertion du HTML
-    this.attachEventListeners();
   }
 
   getProfileImage(user) {
@@ -275,7 +272,7 @@ class DirectoryPage {
             <img src="${profilePhoto.path}" alt="${user.profile.nom}" style="filter: blur(20px); width: 100%; height: 200px; object-fit: cover;">
             <div class="unblur-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; flex-direction: column;">
               <div style="color: white; font-weight: bold; margin-bottom: 10px;">🔒 Photo floutée</div>
-              <button class="unblur-btn" data-user-id="${user.id}" data-photo-id="${profilePhoto._id}" style="background: #ff6b6b; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+              <button class="unblur-btn" onclick="directoryPage.requestUnblur('${user.id}', '${profilePhoto._id}')" style="background: #ff6b6b; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
                 👁️ Demander à dévoiler
               </button>
             </div>
@@ -463,28 +460,6 @@ class DirectoryPage {
     this.currentPage = page;
     this.loadUsers();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  // CSP FIX: Attacher les event listeners après génération du HTML
-  attachEventListeners() {
-    // Boutons "Voir le profil"
-    const viewProfileBtns = document.querySelectorAll('.view-profile-btn');
-    viewProfileBtns.forEach(btn => {
-      btn.addEventListener('click', e => {
-        const userId = e.target.getAttribute('data-user-id');
-        this.viewProfile(userId);
-      });
-    });
-
-    // Boutons "Demander à dévoiler"
-    const unblurBtns = document.querySelectorAll('.unblur-btn');
-    unblurBtns.forEach(btn => {
-      btn.addEventListener('click', e => {
-        const userId = e.target.getAttribute('data-user-id');
-        const photoId = e.target.getAttribute('data-photo-id');
-        this.requestUnblur(userId, photoId);
-      });
-    });
   }
 
   viewProfile(userId) {
