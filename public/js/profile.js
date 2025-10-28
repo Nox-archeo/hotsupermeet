@@ -1202,14 +1202,19 @@ function setupPhotoManagement() {
     });
   }
 
-  // SOLUTION URGENTE POUR CSP - Connexion directe des boutons
+  // SOLUTION URGENTE POUR CSP - Connexion directe des boutons (PROFILE-CLEAN.HTML)
   console.log('🚨 CONNEXION URGENTE DES BOUTONS PHOTOS');
 
-  // Bouton galerie
+  // Bouton galerie (profile-clean.html utilise addGalleryPhotoBtn)
+  const addGalleryPhotoBtn = document.getElementById('addGalleryPhotoBtn');
   const uploadGalleryBtn = document.getElementById('uploadGalleryBtn');
-  if (uploadGalleryBtn) {
-    console.log('✅ Bouton galerie trouvé, connexion...');
-    uploadGalleryBtn.addEventListener('click', function () {
+  const galleryBtn = addGalleryPhotoBtn || uploadGalleryBtn;
+
+  if (galleryBtn) {
+    console.log(
+      '✅ Bouton galerie trouvé (' + galleryBtn.id + '), connexion...'
+    );
+    galleryBtn.addEventListener('click', function () {
       console.log('🖱️ CLIC BOUTON GALERIE DÉTECTÉ !');
       const input = document.getElementById('galleryPhotoInput');
       if (input) {
@@ -1220,14 +1225,19 @@ function setupPhotoManagement() {
       }
     });
   } else {
-    console.error('❌ Bouton galerie non trouvé');
+    console.error(
+      '❌ Bouton galerie non trouvé (ni addGalleryPhotoBtn ni uploadGalleryBtn)'
+    );
   }
 
-  // Bouton privé
+  // Bouton privé (profile-clean.html utilise addPrivatePhotoBtn)
+  const addPrivatePhotoBtn = document.getElementById('addPrivatePhotoBtn');
   const uploadPrivateBtn = document.getElementById('uploadPrivateBtn');
-  if (uploadPrivateBtn) {
-    console.log('✅ Bouton privé trouvé, connexion...');
-    uploadPrivateBtn.addEventListener('click', function () {
+  const privateBtn = addPrivatePhotoBtn || uploadPrivateBtn;
+
+  if (privateBtn) {
+    console.log('✅ Bouton privé trouvé (' + privateBtn.id + '), connexion...');
+    privateBtn.addEventListener('click', function () {
       console.log('🖱️ CLIC BOUTON PRIVÉ DÉTECTÉ !');
       const input = document.getElementById('privatePhotoInput');
       if (input) {
@@ -1238,7 +1248,9 @@ function setupPhotoManagement() {
       }
     });
   } else {
-    console.error('❌ Bouton privé non trouvé');
+    console.error(
+      '❌ Bouton privé non trouvé (ni addPrivatePhotoBtn ni uploadPrivateBtn)'
+    );
   }
 }
 
