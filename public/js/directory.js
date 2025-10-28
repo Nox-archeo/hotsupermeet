@@ -246,7 +246,7 @@ class DirectoryPage {
           <p class="profile-location">${this.getLocationDisplay(user.profile.localisation)}</p>
           <p class="profile-gender">${this.getGenderLabel(user.profile.sexe)}</p>
           <div class="profile-actions">
-            <button class="btn-primary" onclick="directoryPage.viewProfile('${user.id}')">
+            <button class="btn-primary view-profile-btn" data-user-id="${user.id}">
               Voir le profil
             </button>
           </div>
@@ -255,6 +255,9 @@ class DirectoryPage {
     `
       )
       .join('');
+
+    // CSP FIX: Ajouter les event listeners après insertion du HTML
+    this.attachEventListeners();
   }
 
   getProfileImage(user) {
@@ -460,6 +463,18 @@ class DirectoryPage {
     this.currentPage = page;
     this.loadUsers();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // CSP FIX: Attacher les event listeners après génération du HTML
+  attachEventListeners() {
+    // Boutons "Voir le profil"
+    const viewProfileBtns = document.querySelectorAll('.view-profile-btn');
+    viewProfileBtns.forEach(btn => {
+      btn.addEventListener('click', e => {
+        const userId = e.target.getAttribute('data-user-id');
+        window.location.href = `/profile-view?id=${userId}`;
+      });
+    });
   }
 
   viewProfile(userId) {
