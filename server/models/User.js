@@ -30,8 +30,21 @@ const userSchema = new mongoose.Schema(
         {
           filename: { type: String, required: true },
           path: { type: String, required: true },
+          url: { type: String, required: true },
+          type: {
+            type: String,
+            enum: ['profile', 'gallery', 'private'],
+            default: 'gallery',
+          },
           isBlurred: { type: Boolean, default: false },
           isProfile: { type: Boolean, default: false },
+          publicId: { type: String },
+          cloudinaryData: {
+            width: { type: Number },
+            height: { type: Number },
+            format: { type: String },
+            bytes: { type: Number },
+          },
           uploadedAt: { type: Date, default: Date.now },
         },
       ],
