@@ -232,10 +232,12 @@ app.get('/:page', (req, res) => {
   ];
 
   if (validPages.includes(page)) {
-    // Page de profil avec JavaScript externe pour éviter CSP
+    // CSP FIX: Utiliser profile-clean.html avec JavaScript externe pour éviter CSP
     if (page === 'profile') {
-      console.log('🎯 Serving profile.html avec JavaScript externe');
-      res.sendFile(__dirname + '/public/pages/profile.html');
+      console.log(
+        '🎯 CSP FIX: Serving profile-clean.html avec JavaScript externe'
+      );
+      res.sendFile(__dirname + '/public/pages/profile-clean.html');
     } else {
       res.sendFile(__dirname + `/public/pages/${page}.html`);
     }
