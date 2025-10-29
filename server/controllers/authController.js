@@ -643,16 +643,31 @@ const forgotPassword = async (req, res) => {
     );
 
     // Envoyer l'email de réinitialisation
+    console.log('📧 === DÉBUT ENVOI EMAIL ===');
+    console.log('📧 Email destinataire:', email);
+    console.log('📧 Token généré:', resetToken);
+    console.log(
+      '📧 Variables GMAIL_USER:',
+      process.env.GMAIL_USER ? 'Défini' : 'Non défini'
+    );
+    console.log(
+      '📧 Variables GMAIL_PASSWORD:',
+      process.env.GMAIL_PASSWORD ? 'Défini' : 'Non défini'
+    );
+
     try {
       await sendPasswordResetEmail(email, resetToken);
-      console.log(`Email de réinitialisation envoyé à: ${email}`);
+      console.log(`✅ Email de réinitialisation envoyé à: ${email}`);
     } catch (emailError) {
       console.error(
-        'Erreur lors de l\\' + 'envoi de l\\' + 'email:',
+        '❌ Erreur lors de l\\' + 'envoi de l\\' + 'email:',
         emailError
       );
+      console.error('❌ Détails de l\\' + 'erreur:', emailError.message);
       // On continue quand même car l'utilisateur a reçu un message de succès
     }
+
+    console.log('📧 === FIN ENVOI EMAIL ===');
     res.json({
       success: true,
       message: 'Si cet email existe, un lien de réinitialisation a été envoyé',

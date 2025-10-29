@@ -2,13 +2,28 @@ const nodemailer = require('nodemailer');
 
 // Configuration du transporteur Gmail
 const createTransporter = () => {
-  return nodemailer.createTransporter({
+  console.log('🔧 Configuration du transporteur Gmail...');
+  console.log('GMAIL_USER:', process.env.GMAIL_USER ? 'Défini' : 'Non défini');
+  console.log(
+    'GMAIL_PASSWORD:',
+    process.env.GMAIL_PASSWORD ? 'Défini' : 'Non défini'
+  );
+
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_PASSWORD) {
+    console.error('❌ Variables d\\' + 'environnement Gmail manquantes');
+    return null;
+  }
+
+  const transporter = nodemailer.createTransporter({
     service: 'gmail',
     auth: {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_PASSWORD,
     },
   });
+
+  console.log('✅ Transporteur Gmail créé');
+  return transporter;
 };
 
 // Email de réinitialisation de mot de passe
