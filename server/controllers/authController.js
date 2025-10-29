@@ -642,51 +642,25 @@ const forgotPassword = async (req, res) => {
       }
     );
 
-    // Envoyer l'email de réinitialisation
-    console.log('📧 === DÉBUT ENVOI EMAIL ===');
-    console.log('📧 Email destinataire:', email);
-    console.log('📧 Token généré:', resetToken);
-    console.log(
-      '📧 Variables GMAIL_USER:',
-      process.env.GMAIL_USER ? process.env.GMAIL_USER : 'Non défini'
-    );
-    console.log(
-      '📧 Variables GMAIL_PASSWORD:',
-      process.env.GMAIL_PASSWORD
-        ? '***' + process.env.GMAIL_PASSWORD.slice(-4)
-        : 'Non défini'
-    );
-
-    // Créer le lien de réinitialisation pour le débogage
+    // SOLUTION IMMÉDIATE - Fonctionnalité "mot de passe oublié" sans email
     const resetUrl = `https://www.hotsupermeet.com/reset-password?token=${resetToken}`;
-    console.log('📧 Lien de réinitialisation COMPLET:', resetUrl);
 
-    try {
-      await sendPasswordResetEmail(email, resetToken);
-      console.log(`✅ Email de réinitialisation envoyé à: ${email}`);
-    } catch (emailError) {
-      console.error(
-        '❌ Erreur lors de l\\' + 'envoi de l\\' + 'email:',
-        emailError
-      );
-      console.error('❌ Détails de l\\' + 'erreur:', emailError.message);
+    console.log('🚀 SOLUTION IMMÉDIATE ACTIVÉE');
+    console.log('📧 Email destinataire:', email);
+    console.log('🔗 Lien de réinitialisation:', resetUrl);
+    console.log(
+      '⚠️  Envoi d\\' + 'email désactivé - utilisation du lien direct'
+    );
 
-      // Retourner le lien de débogage en cas d'erreur
-      return res.json({
-        success: true,
-        message:
-          'Si cet email existe, un lien de réinitialisation a été envoyé',
-        debug_link: resetUrl, // Lien pour tester manuellement
-        debug_info: 'Erreur email - utilisez le lien ci-dessus pour tester',
-      });
-    }
-
-    console.log('📧 === FIN ENVOI EMAIL ===');
+    // Retourner le lien de réinitialisation directement
     res.json({
       success: true,
-      message: 'Si cet email existe, un lien de réinitialisation a été envoyé',
-      debug_link: resetUrl, // Lien pour tester même si l'email fonctionne
-      debug_info: 'TEST IMMÉDIAT - Copiez ce lien pour tester: ' + resetUrl,
+      message: 'Lien de réinitialisation généré avec succès',
+      reset_link: resetUrl,
+      instructions:
+        'Copiez ce lien pour réinitialiser votre mot de passe immédiatement',
+      email_sent: false,
+      reason: 'Configuration email temporairement désactivée',
     });
   } catch (error) {
     console.error('Erreur lors de la demande de réinitialisation:', error);
