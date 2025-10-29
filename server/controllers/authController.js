@@ -2,6 +2,10 @@ const User = require('../models/User');
 const { generateToken } = require('../middleware/auth');
 const { validationResult } = require('express-validator');
 const cloudinary = require('cloudinary').v2;
+const {
+  sendPasswordResetEmail,
+  sendPasswordResetConfirmation,
+} = require('../services/emailService');
 
 // Configuration Cloudinary
 cloudinary.config({
@@ -638,12 +642,17 @@ const forgotPassword = async (req, res) => {
       }
     );
 
-    // Envoyer l'email (simulation pour l'instant)
-    console.log(
-      `Lien de réinitialisation pour ${email}: https://www.hotsupermeet.com/reset-password?token=${resetToken}`
-    );
-
-    // En production, on utiliserait un service d'email comme Nodemailer
+    // Envoyer l'email de réinitialisation
+    try {
+      await sendPasswordResetEmail(email, resetToken);
+      console.log(`Email de réinitialisation envoyé à: ${email}`);
+    } catch (emailError) {
+      console.error(
+        'Erreur lors de l\\' + 'envoi de l\\' + 'email:',
+        emailError
+      );
+      // On continue quand même car l'utilisateur a reçu un message de succès
+    }
     res.json({
       success: true,
       message: 'Si cet email existe, un lien de réinitialisation a été envoyé',
@@ -720,6 +729,18 @@ const resetPassword = async (req, res) => {
         },
       }
     );
+
+    // Envoyer un email de confirmation
+    try {
+      await sendPasswordResetConfirmation(user.email);
+      console.log(`Email de confirmation envoyé à: ${user.email}`);
+    } catch (emailError) {
+      console.error(
+        'Erreur lors de l\\' + 'envoi de l\\' + 'email de confirmation:',
+        emailError
+      );
+      // On continue quand même car la réinitialisation a réussi
+    }
 
     res.json({
       success: true,
