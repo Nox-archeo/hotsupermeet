@@ -640,7 +640,7 @@ const forgotPassword = async (req, res) => {
 
     // Envoyer l'email (simulation pour l'instant)
     console.log(
-      `Lien de réinitialisation pour ${email}: http://localhost:3000/reset-password?token=${resetToken}`
+      `Lien de réinitialisation pour ${email}: https://www.hotsupermeet.com/reset-password?token=${resetToken}`
     );
 
     // En production, on utiliserait un service d'email comme Nodemailer
