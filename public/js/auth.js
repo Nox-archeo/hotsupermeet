@@ -12,6 +12,7 @@ class AuthPage {
     this.setupRegisterForm();
     this.setupPhotoUpload();
     this.setupLocationSelectors();
+    this.setupForgotPassword();
     this.checkUrlParams();
   }
 
@@ -134,6 +135,111 @@ class AuthPage {
   // Obtenir les régions par pays
   getRegionsByCountry(pays) {
     return window.europeanRegions?.[pays] || [];
+  }
+
+  // Configuration du mot de passe oublié
+  setupForgotPassword() {
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+    if (forgotPasswordLink) {
+      forgotPasswordLink.addEventListener('click', e => {
+        e.preventDefault();
+        this.showForgotPasswordModal();
+      });
+    }
+  }
+
+  // Afficher le modal de mot de passe oublié
+  showForgotPasswordModal() {
+    // Créer le modal
+    const modal = document.createElement('div');
+    modal.className = 'forgot-password-modal';
+    modal.innerHTML = `
+      <div class="forgot-password-content">
+        <div class="modal-header">
+          <h3>Mot de passe oublié</h3>
+          <button class="close-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p>Entrez votre adresse email pour recevoir un lien de réinitialisation</p>
+          <form id="forgotPasswordForm" class="modal-form">
+            <div class="form-group">
+              <label for="forgotEmail">Email</label>
+              <input
+                type="email"
+                id="forgotEmail"
+                name="email"
+                required
+                class="form-input"
+              />
+            </div>
+            <button type="submit" class="btn-primary">Envoyer le lien</button>
+          </form>
+        </div>
+      </div>
+    `;
+
+    // Ajouter le modal à la page
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+
+    // Gérer la fermeture du modal
+    const closeBtn = modal.querySelector('.close-modal');
+    closeBtn.addEventListener('click', () => {
+      modal.remove();
+      document.body.style.overflow = 'auto';
+    });
+
+    // Fermer en cliquant à l'extérieur
+    modal.addEventListener('click', e => {
+      if (e.target === modal) {
+        modal.remove();
+        document.body.style.overflow = 'auto';
+      }
+    });
+
+    // Gérer l'envoi du formulaire
+    const form = modal.querySelector('#forgotPasswordForm');
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      this.handleForgotPassword(form);
+    });
+  }
+
+  // Gérer la demande de réinitialisation
+  async handleForgotPassword(form) {
+    const formData = new FormData(form);
+    const email = formData.get('email');
+
+    try {
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        this.showMessage(result.message, 'success');
+        // Fermer le modal après succès
+        const modal = document.querySelector('.forgot-password-modal');
+        if (modal) {
+          modal.remove();
+          document.body.style.overflow = 'auto';
+        }
+      } else {
+        this.showError(
+          result.error.message || 'Erreur lors de l\\' + 'envoi du lien'
+        );
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      this.showError(
+        'Erreur lors de l\\' + 'envoi du lien. Veuillez réessayer.'
+      );
+    }
   }
 
   // Vérification des paramètres d'URL
@@ -500,6 +606,80 @@ const styles = `
     
     .checkbox-label input {
         margin-top: 0.2rem;
+    }
+    
+    .forgot-password-link {
+        text-align: center;
+        margin-top: 1rem;
+    }
+    
+    .forgot-password-link a {
+        color: #007bff;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    
+    .forgot-password-link a:hover {
+        text-decoration: underline;
+    }
+    
+    .forgot-password-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+    
+    .forgot-password-content {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .modal-header h3 {
+        margin: 0;
+        color: #333;
+    }
+    
+    .close-modal {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #666;
+    }
+    
+    .close-modal:hover {
+        color: #333;
+    }
+    
+    .modal-body p {
+        margin-bottom: 1rem;
+        color: #666;
+    }
+    
+    .modal-form .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .modal-form .btn-primary {
+        width: 100%;
     }
 `;
 
