@@ -657,6 +657,10 @@ const forgotPassword = async (req, res) => {
         : 'Non défini'
     );
 
+    // Créer le lien de réinitialisation pour le débogage
+    const resetUrl = `https://www.hotsupermeet.com/reset-password?token=${resetToken}`;
+    console.log('📧 Lien de réinitialisation COMPLET:', resetUrl);
+
     try {
       await sendPasswordResetEmail(email, resetToken);
       console.log(`✅ Email de réinitialisation envoyé à: ${email}`);
@@ -666,13 +670,22 @@ const forgotPassword = async (req, res) => {
         emailError
       );
       console.error('❌ Détails de l\\' + 'erreur:', emailError.message);
-      // On continue quand même car l'utilisateur a reçu un message de succès
+
+      // Retourner le lien de débogage en cas d'erreur
+      return res.json({
+        success: true,
+        message:
+          'Si cet email existe, un lien de réinitialisation a été envoyé',
+        debug_link: resetUrl, // Lien pour tester manuellement
+        debug_info: 'Erreur email - utilisez le lien ci-dessus pour tester',
+      });
     }
 
     console.log('📧 === FIN ENVOI EMAIL ===');
     res.json({
       success: true,
       message: 'Si cet email existe, un lien de réinitialisation a été envoyé',
+      debug_link: resetUrl, // Lien pour tester même si l'email fonctionne
     });
   } catch (error) {
     console.error('Erreur lors de la demande de réinitialisation:', error);
