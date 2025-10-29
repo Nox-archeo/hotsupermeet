@@ -648,11 +648,13 @@ const forgotPassword = async (req, res) => {
     console.log('📧 Token généré:', resetToken);
     console.log(
       '📧 Variables GMAIL_USER:',
-      process.env.GMAIL_USER ? 'Défini' : 'Non défini'
+      process.env.GMAIL_USER ? process.env.GMAIL_USER : 'Non défini'
     );
     console.log(
       '📧 Variables GMAIL_PASSWORD:',
-      process.env.GMAIL_PASSWORD ? 'Défini' : 'Non défini'
+      process.env.GMAIL_PASSWORD
+        ? '***' + process.env.GMAIL_PASSWORD.slice(-4)
+        : 'Non défini'
     );
 
     try {
