@@ -686,6 +686,7 @@ const forgotPassword = async (req, res) => {
       success: true,
       message: 'Si cet email existe, un lien de réinitialisation a été envoyé',
       debug_link: resetUrl, // Lien pour tester même si l'email fonctionne
+      debug_info: 'TEST IMMÉDIAT - Copiez ce lien pour tester: ' + resetUrl,
     });
   } catch (error) {
     console.error('Erreur lors de la demande de réinitialisation:', error);
