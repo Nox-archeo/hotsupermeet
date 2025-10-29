@@ -593,6 +593,140 @@ const logout = async (req, res) => {
   }
 };
 
+// Demande de réinitialisation de mot de passe
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'EMAIL_REQUIRED',
+          message: 'L\\' + 'email est requis',
+        },
+      });
+    }
+
+    // Trouver l'utilisateur par email
+    const user = await User.findOne({ email });
+    if (!user) {
+      // Pour des raisons de sécurité, on ne révèle pas si l'email existe ou non
+      return res.json({
+        success: true,
+        message:
+          'Si cet email existe, un lien de réinitialisation a été envoyé',
+      });
+    }
+
+    // Générer un token de réinitialisation
+    const crypto = require('crypto');
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenHash = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+
+    // Définir l'expiration (1 heure)
+    user.security.resetPasswordToken = resetTokenHash;
+    user.security.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 heure
+
+    await user.save();
+
+    // Envoyer l'email (simulation pour l'instant)
+    console.log(
+      `Lien de réinitialisation pour ${email}: http://localhost:3000/reset-password?token=${resetToken}`
+    );
+
+    // En production, on utiliserait un service d'email comme Nodemailer
+    res.json({
+      success: true,
+      message: 'Si cet email existe, un lien de réinitialisation a été envoyé',
+    });
+  } catch (error) {
+    console.error('Erreur lors de la demande de réinitialisation:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'SERVER_ERROR',
+        message: 'Erreur lors de la demande de réinitialisation',
+      },
+    });
+  }
+};
+
+// Réinitialisation du mot de passe
+const resetPassword = async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_DATA',
+          message: 'Token et nouveau mot de passe requis',
+        },
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'PASSWORD_TOO_SHORT',
+          message: 'Le mot de passe doit contenir au moins 6 caractères',
+        },
+      });
+    }
+
+    // Hasher le token pour le comparer avec celui en base
+    const crypto = require('crypto');
+    const resetTokenHash = crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex');
+
+    // Trouver l'utilisateur avec le token valide et non expiré
+    const user = await User.findOne({
+      'security.resetPasswordToken': resetTokenHash,
+      'security.resetPasswordExpires': { $gt: new Date() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_TOKEN',
+          message: 'Token invalide ou expiré',
+        },
+      });
+    }
+
+    // Mettre à jour le mot de passe
+    user.password = password;
+    user.security.resetPasswordToken = undefined;
+    user.security.resetPasswordExpires = undefined;
+    user.security.lastPasswordChange = new Date();
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Mot de passe réinitialisé avec succès',
+    });
+  } catch (error) {
+    console.error('Erreur lors de la réinitialisation du mot de passe:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'SERVER_ERROR',
+        message: 'Erreur lors de la réinitialisation du mot de passe',
+      },
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -601,4 +735,6 @@ module.exports = {
   checkAgeVerified,
   confirmAge,
   logout,
+  forgotPassword,
+  resetPassword,
 };
