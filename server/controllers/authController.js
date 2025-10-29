@@ -627,11 +627,16 @@ const forgotPassword = async (req, res) => {
       .update(resetToken)
       .digest('hex');
 
-    // Définir l'expiration (1 heure)
-    user.security.resetPasswordToken = resetTokenHash;
-    user.security.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 heure
-
-    await user.save();
+    // Définir l'expiration (1 heure) - utiliser updateOne pour éviter la validation du schéma complet
+    await User.updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          'security.resetPasswordToken': resetTokenHash,
+          'security.resetPasswordExpires': new Date(Date.now() + 3600000), // 1 heure
+        },
+      }
+    );
 
     // Envoyer l'email (simulation pour l'instant)
     console.log(
@@ -703,13 +708,18 @@ const resetPassword = async (req, res) => {
       });
     }
 
-    // Mettre à jour le mot de passe
-    user.password = password;
-    user.security.resetPasswordToken = undefined;
-    user.security.resetPasswordExpires = undefined;
-    user.security.lastPasswordChange = new Date();
-
-    await user.save();
+    // Mettre à jour le mot de passe - utiliser updateOne pour éviter la validation du schéma complet
+    await User.updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          password: password,
+          'security.resetPasswordToken': undefined,
+          'security.resetPasswordExpires': undefined,
+          'security.lastPasswordChange': new Date(),
+        },
+      }
+    );
 
     res.json({
       success: true,
