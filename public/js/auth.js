@@ -230,15 +230,11 @@ class AuthPage {
           document.body.style.overflow = 'auto';
         }
       } else {
-        this.showError(
-          result.error.message || 'Erreur lors de l\\' + 'envoi du lien'
-        );
+        this.showError(result.error.message || 'Erreur lors de lenvoi du lien');
       }
     } catch (error) {
       console.error('Erreur:', error);
-      this.showError(
-        'Erreur lors de l\\' + 'envoi du lien. Veuillez réessayer.'
-      );
+      this.showError('Erreur lors de lenvoi du lien. Veuillez réessayer.');
     }
   }
 
