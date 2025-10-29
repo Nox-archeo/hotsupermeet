@@ -52,7 +52,6 @@ router.get('/age-verified', checkAgeVerified);
 router.post('/confirm-age', confirmAge);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
-router.post('/reset-password', resetPassword);
 
 // Routes protégées
 router.get('/me', auth, updateLastActivity, getMe);
