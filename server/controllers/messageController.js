@@ -32,17 +32,18 @@ const sendMessage = async (req, res) => {
       });
     }
 
-    // Vérifier si l'utilisateur expéditeur est premium
+    // Vérifier si l'utilisateur expéditeur est premium (temporairement désactivé pour les tests)
     const fromUser = await User.findById(fromUserId);
-    if (!fromUser.premium.isPremium) {
-      return res.status(403).json({
-        success: false,
-        error: {
-          code: 'PREMIUM_REQUIRED',
-          message: 'Vous devez être membre premium pour envoyer des messages',
-        },
-      });
-    }
+    // TODO: Réactiver la restriction premium plus tard
+    // if (!fromUser.premium.isPremium) {
+    //   return res.status(403).json({
+    //     success: false,
+    //     error: {
+    //       code: 'PREMIUM_REQUIRED',
+    //       message: 'Vous devez être membre premium pour envoyer des messages',
+    //     },
+    //   });
+    // }
 
     // Vérifier que l'utilisateur ne s'envoie pas un message à lui-même
     if (fromUserId.toString() === toUserId.toString()) {
