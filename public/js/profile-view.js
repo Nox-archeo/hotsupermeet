@@ -334,8 +334,9 @@ class ProfileViewChat {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          receiverId: this.userId,
+          toUserId: this.userId,
           content: content,
+          provenance: 'annuaire',
         }),
       });
 
