@@ -150,6 +150,7 @@
             }
 
             const data = await response.json();
+            console.log("Données reçues de l'API:", data);
             this.displayProfile(data.user);
             this.hideLoading();
           } catch (error) {
@@ -167,7 +168,7 @@
           const profilePhoto =
             profile.photos?.find(p => p.isProfile) || profile.photos?.[0];
           document.getElementById('profilePhoto').src =
-            profilePhoto?.path || '/images/default-avatar.png';
+            profilePhoto?.path || '/images/default-avatar.jpg';
 
           // Infos
           document.getElementById('profileName').textContent = profile.nom;
