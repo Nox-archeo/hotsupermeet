@@ -274,7 +274,8 @@ class ProfileViewChat {
     const messagesContainer = document.getElementById('chatMessages');
     messagesContainer.innerHTML = this.messages
       .map(message => {
-        const isOwnMessage = message.senderId === this.currentUser.user.id;
+        const isOwnMessage =
+          (message.fromUserId || message.senderId) === this.currentUser.user.id;
         const messageClass = isOwnMessage ? 'own-message' : 'other-message';
 
         return `
@@ -345,9 +346,9 @@ class ProfileViewChat {
 
         // Add message to local array
         this.messages.push({
-          _id: data.message._id,
-          senderId: this.currentUser.user.id,
-          receiverId: this.userId,
+          _id: data.message.id,
+          fromUserId: this.currentUser.user.id,
+          toUserId: this.userId,
           content: content,
           createdAt: new Date().toISOString(),
           status: 'sent',
