@@ -109,6 +109,38 @@
       </div>
     </main>
 
+    <!-- Chat Modal -->
+    <div id="chatModal" class="modal" style="display: none">
+      <div class="modal-content chat-modal">
+        <div class="modal-header">
+          <h3 id="chatTitle">Envoyer un message</h3>
+          <button class="modal-close" id="closeChatBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <!-- Chat Messages Area -->
+          <div id="chatMessages" class="chat-messages">
+            <!-- Messages will appear here -->
+          </div>
+
+          <!-- Message Input -->
+          <div class="chat-input-container">
+            <textarea
+              id="messageInput"
+              placeholder="Tapez votre message..."
+              rows="3"
+              maxlength="500"
+            ></textarea>
+            <div class="chat-actions">
+              <small class="char-count">
+                <span id="charCount">0</span>/500
+              </small>
+              <button id="sendBtn" class="btn-primary">📤 Envoyer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Scripts -->
     <script src="/js/auth.js"></script>
     <script src="/js/profile-view.js"></script>

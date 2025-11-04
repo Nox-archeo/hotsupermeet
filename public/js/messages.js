@@ -13,6 +13,57 @@ class MessagesManager {
     this.setupEventListeners();
     this.loadDemoData();
     this.updateNotificationBadges();
+    this.checkUrlParams();
+  }
+
+  // Vérifier les paramètres d'URL pour ouvrir automatiquement une conversation
+  checkUrlParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('user');
+
+    if (userId) {
+      // Simuler l'ouverture d'une conversation avec l'utilisateur spécifié
+      setTimeout(() => {
+        this.openConversationWithUser(userId);
+      }, 1000);
+    }
+  }
+
+  // Ouvrir une conversation avec un utilisateur spécifique
+  openConversationWithUser(userId) {
+    // Rechercher si une conversation existe déjà avec cet utilisateur
+    const existingConversation = this.conversations.find(
+      conv => conv.withUser.id === userId
+    );
+
+    if (existingConversation) {
+      this.showChatWindow(existingConversation);
+    } else {
+      // Créer une nouvelle conversation avec des données simulées
+      const newConversation = {
+        id: Date.now(),
+        withUser: {
+          id: userId,
+          name: 'Utilisateur',
+          age: 30,
+          gender: 'autre',
+          location: 'Localisation inconnue',
+          photo: '/images/default-avatar.jpg',
+          isOnline: true,
+        },
+        lastMessage: 'Nouvelle conversation',
+        timestamp: new Date(),
+        unread: 0,
+        messages: [],
+      };
+
+      this.conversations.unshift(newConversation);
+      this.renderConversations();
+      this.showChatWindow(newConversation);
+    }
+
+    // Basculer vers l'onglet des conversations
+    this.switchTab('conversations');
   }
 
   // Configuration des écouteurs d'événements
