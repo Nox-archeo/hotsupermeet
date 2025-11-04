@@ -221,6 +221,7 @@ app.get('/:page', (req, res) => {
   const validPages = [
     'auth',
     'profile',
+    'profile-view',
     'directory',
     'messages',
     'ads',
