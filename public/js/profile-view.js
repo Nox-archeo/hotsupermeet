@@ -1,11 +1,16 @@
-// JavaScript pour la page de visualisation de profil
-class SimpleProfileView {
+// Profile View with Chat System
+class ProfileViewChat {
   constructor() {
     this.userId = null;
+    this.userProfile = null;
+    this.currentUser = null;
+    this.conversationId = null;
+    this.messages = [];
     this.init();
   }
 
   init() {
+    // Get user ID from URL
     const urlParams = new URLSearchParams(window.location.search);
     this.userId = urlParams.get('id');
 
@@ -14,11 +19,12 @@ class SimpleProfileView {
       return;
     }
 
-    this.loadProfile();
-    this.initEventListeners();
+    // Check authentication and load profile
+    this.checkAuthAndLoadProfile();
+    this.initializeEventListeners();
   }
 
-  async loadProfile() {
+  async checkAuthAndLoadProfile() {
     try {
       const token = localStorage.getItem('hotmeet_token');
       if (!token) {
@@ -26,51 +32,114 @@ class SimpleProfileView {
         return;
       }
 
+      // Get current user info
+      const currentUserResponse = await fetch('/api/auth/me', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!currentUserResponse.ok) {
+        window.location.href = '/auth';
+        return;
+      }
+
+      this.currentUser = await currentUserResponse.json();
+
+      // Check if viewing own profile
+      if (this.currentUser.user.id === this.userId) {
+        window.location.href = '/profile';
+        return;
+      }
+
+      // Load profile to display
+      await this.loadProfile();
+    } catch (error) {
+      console.error('Authentication error:', error);
+      window.location.href = '/auth';
+    }
+  }
+
+  async loadProfile() {
+    try {
+      const token = localStorage.getItem('hotmeet_token');
       const response = await fetch(`/api/users/${this.userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (!response.ok) {
-        this.showError('Profil non trouvé');
+        if (response.status === 404) {
+          this.showError('Profil non trouvé');
+        } else {
+          this.showError('Erreur lors du chargement du profil');
+        }
         return;
       }
 
       const data = await response.json();
-      console.log('Données reçues de l\\' + 'API:', data);
-      this.displayProfile(data.user);
+      this.userProfile = data.user;
+
+      this.displayProfile();
       this.hideLoading();
+
+      // Check if conversation already exists
+      await this.checkExistingConversation();
     } catch (error) {
-      this.showError('Erreur lors du chargement');
+      console.error('Error loading profile:', error);
+      this.showError('Erreur lors du chargement du profil');
     }
   }
 
-  displayProfile(user) {
-    const profile = user.profile;
+  displayProfile() {
+    const profile = this.userProfile.profile;
+    const stats = this.userProfile.stats;
 
-    // Titre
+    // Page title
     document.title = `${profile.nom} - HotMeet`;
 
-    // Photo
+    // Profile photo
     const profilePhoto =
       profile.photos?.find(p => p.isProfile) || profile.photos?.[0];
-    document.getElementById('profilePhoto').src =
-      profilePhoto?.path || '/images/default-avatar.jpg';
+    if (profilePhoto) {
+      document.getElementById('profilePhoto').src = profilePhoto.path;
+    } else {
+      document.getElementById('profilePhoto').src =
+        '/images/default-avatar.png';
+    }
 
-    // Infos
+    // Basic info
     document.getElementById('profileName').textContent = profile.nom;
-    const location = profile.localisation;
-    const locationText = location
-      ? `${location.ville}, ${location.region}, ${location.pays}`
+
+    const localisation = profile.localisation;
+    const locationText = localisation
+      ? `${localisation.ville}, ${localisation.region}, ${localisation.pays}`
       : '';
     document.getElementById('profileDetails').textContent =
       `${profile.age} ans • ${locationText}`;
 
     // Stats
     document.getElementById('profileViews').textContent =
-      user.stats?.profileViews || 0;
-    const joinDate = new Date(user.stats?.joinDate);
+      stats.profileViews || 0;
+
+    const joinDate = new Date(stats.joinDate);
+    const monthNames = [
+      'Jan',
+      'Fév',
+      'Mar',
+      'Avr',
+      'Mai',
+      'Jun',
+      'Jul',
+      'Aoû',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Déc',
+    ];
     document.getElementById('memberSince').textContent =
-      `${joinDate.getMonth() + 1}/${joinDate.getFullYear()}`;
+      `${monthNames[joinDate.getMonth()]} ${joinDate.getFullYear()}`;
 
     // Bio
     if (profile.bio) {
@@ -80,40 +149,251 @@ class SimpleProfileView {
     }
 
     // Photos
-    const photos = profile.photos?.filter(p => !p.isProfile) || [];
+    this.displayPhotos(profile.photos || []);
+  }
+
+  displayPhotos(photos) {
+    const galleryPhotos = photos.filter(
+      p => p.type === 'gallery' || (!p.type && !p.isProfile)
+    );
+
+    // Gallery photos
     const galleryContainer = document.getElementById('galleryPhotos');
-    if (photos.length > 0) {
-      galleryContainer.innerHTML = photos
+    if (galleryPhotos.length > 0) {
+      galleryContainer.innerHTML = galleryPhotos
         .map(
-          photo =>
-            `<img src="${photo.path}" alt="Photo" class="gallery-photo" style="width: 100px; height: 100px; object-fit: cover; margin: 5px; border-radius: 8px;" />`
+          photo => `
+        <div class="photo-item">
+          <img src="${photo.path}" alt="Photo de galerie" class="gallery-photo" style="width: 100px; height: 100px; object-fit: cover; margin: 5px; border-radius: 8px; cursor: pointer;" onclick="this.style.transform = this.style.transform ? '' : 'scale(2)'; this.style.zIndex = this.style.zIndex ? '' : '1000';" />
+        </div>
+      `
         )
         .join('');
     } else {
-      galleryContainer.innerHTML = '<p>Aucune photo de galerie</p>';
+      galleryContainer.innerHTML =
+        '<p class="no-photos">Aucune photo de galerie</p>';
     }
   }
 
-  initEventListeners() {
-    document.getElementById('sendMessageBtn').addEventListener('click', () => {
-      alert(
-        'Redirection vers la page de messages pour envoyer un message à cet utilisateur'
+  async checkExistingConversation() {
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+      const response = await fetch(
+        `/api/messages/conversation/${this.userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
-      window.location.href = '/messages';
+
+      if (response.ok) {
+        const data = await response.json();
+        this.conversationId = data.conversationId;
+        this.messages = data.messages || [];
+      }
+    } catch (error) {
+      console.error('Error checking conversation:', error);
+    }
+  }
+
+  initializeEventListeners() {
+    // Message button
+    document.getElementById('sendMessageBtn').addEventListener('click', () => {
+      this.openChatModal();
     });
 
+    // Back to directory button
     document
       .getElementById('backToDirectoryBtn')
       .addEventListener('click', () => {
         window.location.href = '/directory';
       });
 
+    // Chat modal close button
+    document.getElementById('closeChatBtn').addEventListener('click', () => {
+      this.closeChatModal();
+    });
+
+    // Send message button
+    document.getElementById('sendBtn').addEventListener('click', () => {
+      this.sendMessage();
+    });
+
+    // Message input
+    const messageInput = document.getElementById('messageInput');
+    messageInput.addEventListener('input', e => {
+      document.getElementById('charCount').textContent = e.target.value.length;
+    });
+
+    // Send on Enter (Shift+Enter for new line)
+    messageInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        this.sendMessage();
+      }
+    });
+
+    // Back button in error message
     const backBtn = document.getElementById('backBtn');
     if (backBtn) {
       backBtn.addEventListener('click', () => {
         window.location.href = '/directory';
       });
     }
+  }
+
+  openChatModal() {
+    document.getElementById('chatModal').style.display = 'flex';
+    document.getElementById('chatTitle').textContent =
+      `Chat avec ${this.userProfile.profile.nom}`;
+
+    // Load existing messages if conversation exists
+    if (this.messages.length > 0) {
+      this.displayMessages();
+    } else {
+      // Show initial message for new conversation
+      document.getElementById('chatMessages').innerHTML = `
+        <div class="system-message">
+          <p>💬 Première conversation avec ${this.userProfile.profile.nom}</p>
+          <p>Votre message sera envoyé comme demande de contact. ${this.userProfile.profile.nom} pourra l'accepter ou le refuser.</p>
+        </div>
+      `;
+    }
+
+    document.getElementById('messageInput').focus();
+  }
+
+  closeChatModal() {
+    document.getElementById('chatModal').style.display = 'none';
+    document.getElementById('messageInput').value = '';
+    document.getElementById('charCount').textContent = '0';
+  }
+
+  displayMessages() {
+    const messagesContainer = document.getElementById('chatMessages');
+    messagesContainer.innerHTML = this.messages
+      .map(message => {
+        const isOwnMessage = message.senderId === this.currentUser.user.id;
+        const messageClass = isOwnMessage ? 'own-message' : 'other-message';
+
+        return `
+        <div class="message ${messageClass}">
+          <div class="message-content">${message.content}</div>
+          <div class="message-time">${this.formatMessageTime(message.createdAt)}</div>
+        </div>
+      `;
+      })
+      .join('');
+
+    // Scroll to bottom
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
+  formatMessageTime(timestamp) {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const messageDate = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
+
+    if (messageDate.getTime() === today.getTime()) {
+      return date.toLocaleTimeString('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } else {
+      return date.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    }
+  }
+
+  async sendMessage() {
+    const messageInput = document.getElementById('messageInput');
+    const content = messageInput.value.trim();
+
+    if (!content) return;
+
+    const sendBtn = document.getElementById('sendBtn');
+    sendBtn.disabled = true;
+    sendBtn.textContent = '📤 Envoi...';
+
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+      const response = await fetch('/api/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          receiverId: this.userId,
+          content: content,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+
+        // Add message to local array
+        this.messages.push({
+          _id: data.message._id,
+          senderId: this.currentUser.user.id,
+          receiverId: this.userId,
+          content: content,
+          createdAt: new Date().toISOString(),
+          status: 'sent',
+        });
+
+        // Update conversation ID if new
+        if (data.message.conversationId) {
+          this.conversationId = data.message.conversationId;
+        }
+
+        // Clear input and refresh display
+        messageInput.value = '';
+        document.getElementById('charCount').textContent = '0';
+        this.displayMessages();
+
+        // Show success message
+        if (this.messages.length === 1) {
+          this.showToast('Demande de contact envoyée ! 📩', 'success');
+        } else {
+          this.showToast('Message envoyé ! ✅', 'success');
+        }
+      } else {
+        const error = await response.json();
+        this.showToast(
+          error.error?.message || "Erreur lors de l'envoi",
+          'error'
+        );
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      this.showToast("Erreur lors de l'envoi du message", 'error');
+    } finally {
+      sendBtn.disabled = false;
+      sendBtn.textContent = '📤 Envoyer';
+    }
+  }
+
+  showLoading() {
+    document.getElementById('loadingIndicator').style.display = 'block';
+    document.getElementById('profileContent').style.display = 'none';
+    document.getElementById('errorMessage').style.display = 'none';
+  }
+
+  hideLoading() {
+    document.getElementById('loadingIndicator').style.display = 'none';
+    document.getElementById('profileContent').style.display = 'block';
+    document.getElementById('errorMessage').style.display = 'none';
   }
 
   showError(message) {
@@ -124,15 +404,54 @@ class SimpleProfileView {
       message;
   }
 
-  hideLoading() {
-    document.getElementById('loadingIndicator').style.display = 'none';
-    document.getElementById('profileContent').style.display = 'block';
+  showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    toast.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      z-index: 10000;
+      animation: slideInRight 0.3s ease;
+    `;
+
+    const colors = {
+      success: '#28a745',
+      error: '#dc3545',
+      info: '#17a2b8',
+      warning: '#ffc107',
+    };
+    toast.style.backgroundColor = colors[type] || colors.info;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.animation = 'slideOutRight 0.3s ease';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
   }
 }
 
-// CSS simple
+// CSS Styles
 const style = document.createElement('style');
 style.textContent = `
+  /* Toast animations */
+  @keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  
+  @keyframes slideOutRight {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+  }
+
+  /* Profile styles */
   .profile-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -140,11 +459,13 @@ style.textContent = `
     border-radius: 12px;
     margin-bottom: 2rem;
   }
+
   .profile-info {
     display: flex;
     align-items: center;
     gap: 2rem;
   }
+
   .profile-photo {
     width: 120px;
     height: 120px;
@@ -152,11 +473,29 @@ style.textContent = `
     object-fit: cover;
     border: 4px solid white;
   }
+
+  .status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+  }
+
+  .status-indicator.online {
+    background: #28a745;
+  }
+
+  .status-indicator.offline {
+    background: #6c757d;
+  }
+
   .profile-actions {
     display: flex;
     gap: 1rem;
     margin-bottom: 2rem;
   }
+
   .profile-section {
     background: white;
     padding: 2rem;
@@ -164,15 +503,161 @@ style.textContent = `
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     margin-bottom: 2rem;
   }
+
   .photo-gallery {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
   }
+
+  .no-photos {
+    color: #666;
+    font-style: italic;
+    padding: 2rem;
+    text-align: center;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+
+  /* Chat Modal Styles */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .chat-modal {
+    width: 90%;
+    max-width: 600px;
+    height: 80vh;
+    max-height: 600px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-content {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #eee;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #999;
+  }
+
+  .modal-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .chat-messages {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    background: #f8f9fa;
+    min-height: 300px;
+  }
+
+  .message {
+    margin-bottom: 1rem;
+    max-width: 70%;
+  }
+
+  .own-message {
+    margin-left: auto;
+    text-align: right;
+  }
+
+  .other-message {
+    margin-right: auto;
+  }
+
+  .message-content {
+    padding: 0.75rem 1rem;
+    border-radius: 18px;
+    word-wrap: break-word;
+  }
+
+  .own-message .message-content {
+    background: #007bff;
+    color: white;
+  }
+
+  .other-message .message-content {
+    background: white;
+    border: 1px solid #e9ecef;
+  }
+
+  .message-time {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 0.25rem;
+  }
+
+  .system-message {
+    text-align: center;
+    padding: 1rem;
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    color: #856404;
+  }
+
+  .chat-input-container {
+    padding: 1rem;
+    border-top: 1px solid #eee;
+    background: white;
+  }
+
+  .chat-input-container textarea {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0.75rem;
+    resize: vertical;
+    font-family: inherit;
+    margin-bottom: 0.5rem;
+  }
+
+  .chat-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .char-count {
+    color: #666;
+    font-size: 0.8rem;
+  }
+
   .loading-container {
     text-align: center;
     padding: 4rem;
   }
+
   .error-message {
     text-align: center;
     padding: 4rem;
@@ -180,19 +665,31 @@ style.textContent = `
     color: #721c24;
     border-radius: 8px;
   }
+
+  /* Responsive */
   @media (max-width: 768px) {
     .profile-info {
       flex-direction: column;
       text-align: center;
     }
+
     .profile-actions {
       flex-direction: column;
+    }
+
+    .chat-modal {
+      width: 95%;
+      height: 90vh;
+    }
+
+    .message {
+      max-width: 85%;
     }
   }
 `;
 document.head.appendChild(style);
 
-// Initialiser
+// Initialize application
 document.addEventListener('DOMContentLoaded', () => {
-  new SimpleProfileView();
+  new ProfileViewChat();
 });
