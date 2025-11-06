@@ -337,7 +337,7 @@ class ProfileViewChat {
         body: JSON.stringify({
           toUserId: this.userId,
           content: content,
-          provenance: 'profile-view',
+          provenance: 'annuaire',
         }),
       });
 
@@ -351,7 +351,7 @@ class ProfileViewChat {
           toUserId: this.userId,
           content: content,
           createdAt: new Date().toISOString(),
-          status: 'sent'
+          status: 'sent',
         });
 
         // Update conversation ID if new
