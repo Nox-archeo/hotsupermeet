@@ -56,6 +56,54 @@ const sendMessage = async (req, res) => {
       });
     }
 
+    // Vérifier l'état de la conversation entre ces deux utilisateurs
+    const existingMessages = await Message.find({
+      $or: [
+        { fromUserId, toUserId },
+        { fromUserId: toUserId, toUserId: fromUserId },
+      ],
+    }).sort({ createdAt: 1 });
+
+    let isInitialRequest = false;
+    let messageStatus = 'approved'; // Par défaut approuvé pour conversations existantes
+
+    if (existingMessages.length === 0) {
+      // Première interaction = demande de chat
+      isInitialRequest = true;
+      messageStatus = 'pending';
+    } else {
+      // Vérifier si la conversation est approuvée
+      const hasApprovedMessages = existingMessages.some(
+        msg => msg.status === 'approved'
+      );
+      const hasInitialRequest = existingMessages.some(
+        msg => msg.isInitialRequest && msg.status === 'pending'
+      );
+
+      if (hasInitialRequest && !hasApprovedMessages) {
+        // Il y a déjà une demande en attente
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'PENDING_REQUEST',
+            message: 'Une demande de chat est déjà en attente de réponse',
+          },
+        });
+      }
+
+      if (!hasApprovedMessages) {
+        // Pas encore approuvé, on ne peut pas envoyer plus de messages
+        return res.status(403).json({
+          success: false,
+          error: {
+            code: 'CHAT_NOT_APPROVED',
+            message:
+              'La demande de chat doit être approuvée avant de pouvoir envoyer des messages',
+          },
+        });
+      }
+    }
+
     // Déterminer le modèle de provenance si originalPostId est fourni
     let provenanceModel;
     if (originalPostId) {
@@ -74,6 +122,8 @@ const sendMessage = async (req, res) => {
       provenance,
       originalPostId,
       provenanceModel,
+      status: messageStatus,
+      isInitialRequest,
       metadata: {
         ipAddress: req.ip,
         userAgent: req.get('User-Agent'),
@@ -357,6 +407,116 @@ const getConversation = async (req, res) => {
   }
 };
 
+// Approuver ou rejeter une demande de chat
+const handleChatRequest = async (req, res) => {
+  try {
+    const { messageId, action } = req.body; // action: 'approve' ou 'reject'
+    const currentUserId = req.user._id;
+
+    // Trouver le message de demande
+    const message = await Message.findById(messageId);
+    if (!message) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'MESSAGE_NOT_FOUND',
+          message: 'Demande de chat non trouvée',
+        },
+      });
+    }
+
+    // Vérifier que c'est bien le destinataire qui répond
+    if (message.toUserId.toString() !== currentUserId.toString()) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: "Vous ne pouvez répondre qu'à vos propres demandes",
+        },
+      });
+    }
+
+    // Vérifier que c'est bien une demande initiale en attente
+    if (!message.isInitialRequest || message.status !== 'pending') {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_REQUEST',
+          message: 'Cette demande ne peut plus être traitée',
+        },
+      });
+    }
+
+    // Mettre à jour le statut
+    const newStatus = action === 'approve' ? 'approved' : 'rejected';
+    message.status = newStatus;
+    await message.save();
+
+    res.json({
+      success: true,
+      message: `Demande de chat ${action === 'approve' ? 'approuvée' : 'rejetée'}`,
+      chatStatus: newStatus,
+    });
+  } catch (error) {
+    console.error('Erreur lors du traitement de la demande:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'SERVER_ERROR',
+        message: 'Erreur lors du traitement de la demande',
+      },
+    });
+  }
+};
+
+// Récupérer les demandes de chat en attente
+const getPendingChatRequests = async (req, res) => {
+  try {
+    const currentUserId = req.user._id;
+
+    const requests = await Message.find({
+      toUserId: currentUserId,
+      isInitialRequest: true,
+      status: 'pending',
+    })
+      .populate(
+        'fromUserId',
+        'profile.nom profile.age profile.sexe profile.localisation profile.photos'
+      )
+      .sort({ createdAt: -1 });
+
+    const formattedRequests = requests.map(request => ({
+      id: request._id,
+      content: request.content,
+      createdAt: request.createdAt,
+      fromUser: {
+        id: request.fromUserId._id,
+        nom: request.fromUserId.profile.nom,
+        age: request.fromUserId.profile.age,
+        sexe: request.fromUserId.profile.sexe,
+        localisation: request.fromUserId.profile.localisation,
+        photo:
+          request.fromUserId.profile.photos?.find(p => p.isProfile)?.path ||
+          null,
+      },
+    }));
+
+    res.json({
+      success: true,
+      requests: formattedRequests,
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des demandes:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'SERVER_ERROR',
+        message: 'Erreur lors de la récupération des demandes',
+      },
+    });
+  }
+};
+
 module.exports = {
   sendMessage,
   getMessages,
@@ -364,4 +524,6 @@ module.exports = {
   getMessageStats,
   deleteMessage,
   getConversation,
+  handleChatRequest,
+  getPendingChatRequests,
 };

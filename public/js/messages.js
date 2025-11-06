@@ -11,7 +11,7 @@ class MessagesManager {
   // Initialisation de la page messages
   init() {
     this.setupEventListeners();
-    this.loadDemoData();
+    this.loadRealData();
     this.updateNotificationBadges();
     this.checkUrlParams();
   }
@@ -103,18 +103,55 @@ class MessagesManager {
     });
   }
 
-  // Charger des données de démonstration
-  loadDemoData() {
-    // Demandes de chat de démonstration - SUPPRIMÉ (plus de messages automatiques)
-    this.chatRequests = [];
+  // Charger les vraies données depuis l'API
+  async loadRealData() {
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+      if (!token) {
+        // Rediriger vers la page de connexion si pas de token
+        window.location.href = '/auth';
+        return;
+      }
 
-    // Conversations de démonstration - SUPPRIMÉ (plus de messages automatiques)
-    this.conversations = [];
+      // Récupérer les demandes de chat en attente
+      const requestsResponse = await fetch('/api/messages/requests', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    // Réponses aux annonces de démonstration - SUPPRIMÉ (plus de messages automatiques)
-    this.adResponses = [];
+      if (requestsResponse.ok) {
+        const requestsData = await requestsResponse.json();
+        this.chatRequests = requestsData.requests.map(request => ({
+          id: request.id,
+          fromUser: {
+            id: request.fromUser.id,
+            name: request.fromUser.nom,
+            age: request.fromUser.age,
+            gender: request.fromUser.sexe,
+            location: `${request.fromUser.localisation?.ville || ''}, ${request.fromUser.localisation?.region || ''}`,
+            photo: request.fromUser.photo || '/images/default-avatar.png',
+            isOnline: false, // À implémenter plus tard
+          },
+          message: request.content,
+          timestamp: new Date(request.createdAt),
+          status: 'pending',
+        }));
+      } else {
+        this.chatRequests = [];
+      }
 
-    this.renderAllData();
+      // Pour l'instant, conversations et adResponses restent vides
+      // TODO: Implémenter la récupération des conversations approuvées
+      this.conversations = [];
+      this.adResponses = [];
+
+      this.renderAllData();
+    } catch (error) {
+      console.error('Erreur lors du chargement des données:', error);
+      this.chatRequests = [];
+      this.conversations = [];
+      this.adResponses = [];
+      this.renderAllData();
+    }
   }
 
   // Basculer entre les onglets
@@ -135,52 +172,89 @@ class MessagesManager {
   }
 
   // Accepter une demande de chat
-  acceptChatRequest(requestItem) {
-    const requestId = parseInt(requestItem.dataset.requestId);
-    const request = this.chatRequests.find(req => req.id === requestId);
+  async acceptChatRequest(requestItem) {
+    const requestId = requestItem.dataset.requestId;
 
-    if (request) {
-      request.status = 'accepted';
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+      const response = await fetch('/api/messages/requests/handle', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          messageId: requestId,
+          action: 'approve',
+        }),
+      });
 
-      // Créer une nouvelle conversation
-      const newConversation = {
-        id: Date.now(),
-        withUser: request.fromUser,
-        lastMessage: request.message,
-        timestamp: new Date(),
-        unread: 0,
-        messages: [
-          {
-            type: 'received',
-            content: request.message,
-            timestamp: request.timestamp,
-          },
-        ],
-      };
+      if (response.ok) {
+        // Supprimer la demande de la liste
+        this.chatRequests = this.chatRequests.filter(
+          req => req.id !== requestId
+        );
+        this.renderRequests();
+        this.updateNotificationBadges();
 
-      this.conversations.unshift(newConversation);
-      this.renderConversations();
-      this.updateNotificationBadges();
+        // Afficher un message de confirmation
+        this.showNotification('Demande de chat acceptée ! ✅', 'success');
 
-      // Afficher un message de confirmation
-      alert(
-        `Demande de chat acceptée ! Vous pouvez maintenant chatter avec ${request.fromUser.name}`
+        // Recharger les données pour mettre à jour les conversations
+        await this.loadRealData();
+      } else {
+        const error = await response.json();
+        this.showNotification(
+          error.error?.message || "Erreur lors de l'acceptation",
+          'error'
+        );
+      }
+    } catch (error) {
+      console.error('Erreur acceptation demande:', error);
+      this.showNotification(
+        "Erreur lors de l'acceptation de la demande",
+        'error'
       );
     }
   }
 
   // Refuser une demande de chat
-  declineChatRequest(requestItem) {
-    const requestId = parseInt(requestItem.dataset.requestId);
-    const request = this.chatRequests.find(req => req.id === requestId);
+  async declineChatRequest(requestItem) {
+    const requestId = requestItem.dataset.requestId;
 
-    if (request) {
-      request.status = 'declined';
-      requestItem.remove();
-      this.updateNotificationBadges();
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+      const response = await fetch('/api/messages/requests/handle', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          messageId: requestId,
+          action: 'reject',
+        }),
+      });
 
-      // Afficher un message de confirmation
-      alert('Demande de chat refusée.');
+      if (response.ok) {
+        // Supprimer la demande de la liste
+        this.chatRequests = this.chatRequests.filter(
+          req => req.id !== requestId
+        );
+        this.renderRequests();
+        this.updateNotificationBadges();
+
+        this.showNotification('Demande de chat refusée', 'info');
+      } else {
+        const error = await response.json();
+        this.showNotification(
+          error.error?.message || 'Erreur lors du refus',
+          'error'
+        );
+      }
+    } catch (error) {
+      console.error('Erreur refus demande:', error);
+      this.showNotification('Erreur lors du refus de la demande', 'error');
     }
   }
 
@@ -501,6 +575,39 @@ class MessagesManager {
       return `Il y a ${diffDays} j`;
     }
     return timestamp.toLocaleDateString('fr-FR');
+  }
+
+  // Afficher une notification
+  showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      z-index: 10000;
+      animation: slideInRight 0.3s ease;
+    `;
+
+    const colors = {
+      success: '#28a745',
+      error: '#dc3545',
+      info: '#17a2b8',
+      warning: '#ffc107',
+    };
+    notification.style.backgroundColor = colors[type] || colors.info;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.style.animation = 'slideOutRight 0.3s ease';
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
   }
 }
 

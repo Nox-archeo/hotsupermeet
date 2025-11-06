@@ -7,6 +7,8 @@ const {
   getMessageStats,
   deleteMessage,
   getConversation,
+  handleChatRequest,
+  getPendingChatRequests,
 } = require('../controllers/messageController');
 const { auth, updateLastActivity } = require('../middleware/auth');
 
@@ -50,5 +52,18 @@ router.get('/stats', auth, updateLastActivity, getMessageStats); // GET /api/mes
 router.get('/conversation/:userId', auth, updateLastActivity, getConversation); // GET /api/messages/conversation/:userId?page=1&limit=50
 router.patch('/:messageId/read', auth, updateLastActivity, markAsRead); // PATCH /api/messages/:messageId/read
 router.delete('/:messageId', auth, updateLastActivity, deleteMessage); // DELETE /api/messages/:messageId
+
+// Routes pour les demandes de chat
+router.get('/requests', auth, updateLastActivity, getPendingChatRequests); // GET /api/messages/requests
+router.post(
+  '/requests/handle',
+  auth,
+  updateLastActivity,
+  [
+    body('messageId').isMongoId().withMessage('ID de message invalide'),
+    body('action').isIn(['approve', 'reject']).withMessage('Action invalide'),
+  ],
+  handleChatRequest
+); // POST /api/messages/requests/handle
 
 module.exports = router;

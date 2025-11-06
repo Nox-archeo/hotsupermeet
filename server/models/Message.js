@@ -35,6 +35,17 @@ const messageSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    // Statut de la demande de chat
+    status: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
+    },
+    // Indique si c'est le premier message (demande initiale)
+    isInitialRequest: {
+      type: Boolean,
+      default: false,
+    },
     metadata: {
       ipAddress: String,
       userAgent: String,
