@@ -409,15 +409,7 @@ class CamToCamSystem {
     // Vider le chat avant de commencer une nouvelle session
     this.clearChat();
 
-    // Message de bienvenue
-    this.addChatMessage(
-      'system',
-      'Connecté à ' +
-        this.currentPartner.nom +
-        ' (' +
-        this.currentPartner.age +
-        ' ans)'
-    );
+    // Plus de message de bienvenue automatique
   }
 
   emitJoinCamQueue(searchCriteria) {
