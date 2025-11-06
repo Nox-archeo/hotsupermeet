@@ -132,6 +132,15 @@ const sendMessage = async (req, res) => {
 
     await message.save();
 
+    console.log('💬 MESSAGE DEBUG - Message créé:', {
+      id: message._id,
+      from: fromUserId,
+      to: toUserId,
+      content: content.substring(0, 50),
+      status: messageStatus,
+      isInitialRequest: isInitialRequest,
+    });
+
     // Populer les informations de l'expéditeur pour la réponse
     await message.populate(
       'fromUserId',
@@ -473,6 +482,10 @@ const handleChatRequest = async (req, res) => {
 const getPendingChatRequests = async (req, res) => {
   try {
     const currentUserId = req.user._id;
+    console.log(
+      '🔍 DEMANDES DEBUG - Recherche demandes pour userId:',
+      currentUserId
+    );
 
     const requests = await Message.find({
       toUserId: currentUserId,
@@ -484,6 +497,21 @@ const getPendingChatRequests = async (req, res) => {
         'profile.nom profile.age profile.sexe profile.localisation profile.photos'
       )
       .sort({ createdAt: -1 });
+
+    console.log(
+      '📨 DEMANDES DEBUG - Nombre de demandes trouvées:',
+      requests.length
+    );
+    console.log(
+      '📨 DEMANDES DEBUG - Demandes:',
+      requests.map(r => ({
+        id: r._id,
+        from: r.fromUserId.profile.nom,
+        content: r.content.substring(0, 50),
+        status: r.status,
+        isInitialRequest: r.isInitialRequest,
+      }))
+    );
 
     const formattedRequests = requests.map(request => ({
       id: request._id,
