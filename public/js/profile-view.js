@@ -337,7 +337,7 @@ class ProfileViewChat {
         body: JSON.stringify({
           toUserId: this.userId,
           content: content,
-          provenance: 'annuaire',
+          provenance: 'profile-view',
         }),
       });
 
@@ -346,12 +346,12 @@ class ProfileViewChat {
 
         // Add message to local array
         this.messages.push({
-          _id: data.message.id,
+          _id: data.message._id,
           fromUserId: this.currentUser.user.id,
           toUserId: this.userId,
           content: content,
           createdAt: new Date().toISOString(),
-          status: 'sent',
+          status: 'sent'
         });
 
         // Update conversation ID if new
