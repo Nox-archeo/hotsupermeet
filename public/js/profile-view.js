@@ -252,13 +252,8 @@ class ProfileViewChat {
     if (this.messages.length > 0) {
       this.displayMessages();
     } else {
-      // Show initial message for new conversation
-      document.getElementById('chatMessages').innerHTML = `
-        <div class="system-message">
-          <p>💬 Première conversation avec ${this.userProfile.profile.nom}</p>
-          <p>Votre message sera envoyé comme demande de contact. ${this.userProfile.profile.nom} pourra l'accepter ou le refuser.</p>
-        </div>
-      `;
+      // Clear messages container for new conversation
+      document.getElementById('chatMessages').innerHTML = '';
     }
 
     document.getElementById('messageInput').focus();
@@ -364,12 +359,7 @@ class ProfileViewChat {
         document.getElementById('charCount').textContent = '0';
         this.displayMessages();
 
-        // Show success message
-        if (this.messages.length === 1) {
-          this.showToast('Demande de contact envoyée ! 📩', 'success');
-        } else {
-          this.showToast('Message envoyé ! ✅', 'success');
-        }
+        // Message sent successfully - no notification needed
       } else {
         const error = await response.json();
         this.showToast(
