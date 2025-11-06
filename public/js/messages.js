@@ -105,89 +105,14 @@ class MessagesManager {
 
   // Charger des données de démonstration
   loadDemoData() {
-    // Demandes de chat de démonstration
-    this.chatRequests = [
-      {
-        id: 1,
-        fromUser: {
-          name: 'Marie',
-          age: 25,
-          gender: 'femme',
-          location: 'Paris',
-          photo: '/images/avatar-femme-2.jpg',
-          isOnline: true,
-        },
-        message: "Bonjour, j'aimerais faire votre connaissance !",
-        timestamp: new Date(Date.now() - 10 * 60 * 1000), // 10 minutes ago
-        status: 'pending',
-      },
-      {
-        id: 2,
-        fromUser: {
-          name: 'David',
-          age: 32,
-          gender: 'homme',
-          location: 'Lyon',
-          photo: '/images/avatar-homme-2.jpg',
-          isOnline: false,
-        },
-        message: "Salut, ton profil m'a beaucoup plu !",
-        timestamp: new Date(Date.now() - 60 * 60 * 1000), // 1 heure ago
-        status: 'pending',
-      },
-    ];
+    // Demandes de chat de démonstration - SUPPRIMÉ (plus de messages automatiques)
+    this.chatRequests = [];
 
-    // Conversations de démonstration
-    this.conversations = [
-      {
-        id: 1,
-        withUser: {
-          name: 'Sophie',
-          age: 28,
-          gender: 'femme',
-          location: 'Marseille',
-          photo: '/images/avatar-femme-1.jpg',
-          isOnline: true,
-        },
-        lastMessage: "Salut ! Comment vas-tu aujourd'hui ?",
-        timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-        unread: 0,
-      },
-      {
-        id: 2,
-        withUser: {
-          name: 'Pierre',
-          age: 35,
-          gender: 'homme',
-          location: 'Lille',
-          photo: '/images/avatar-homme-1.jpg',
-          isOnline: false,
-        },
-        lastMessage: 'Merci pour la conversation hier soir !',
-        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-        unread: 0,
-      },
-    ];
+    // Conversations de démonstration - SUPPRIMÉ (plus de messages automatiques)
+    this.conversations = [];
 
-    // Réponses aux annonces de démonstration
-    this.adResponses = [
-      {
-        id: 1,
-        adTitle: 'Soirée détente',
-        responder: {
-          name: 'Claire',
-          age: 28,
-          gender: 'femme',
-          location: 'Marseille',
-          photo: '/images/avatar-femme-3.jpg',
-          isOnline: true,
-        },
-        message:
-          "Votre annonce m'intéresse beaucoup ! J'aimerais en savoir plus sur votre proposition.",
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-        status: 'unread',
-      },
-    ];
+    // Réponses aux annonces de démonstration - SUPPRIMÉ (plus de messages automatiques)
+    this.adResponses = [];
 
     this.renderAllData();
   }
