@@ -81,6 +81,8 @@ class MessagesManager {
         this.acceptChatRequest(e.target.closest('.request-item'));
       } else if (e.target.classList.contains('decline-request')) {
         this.declineChatRequest(e.target.closest('.request-item'));
+      } else if (e.target.classList.contains('view-profile')) {
+        this.viewUserProfile(e.target);
       } else if (e.target.classList.contains('close-chat')) {
         this.closeChatWindow();
       } else if (e.target.classList.contains('send-message')) {
@@ -449,20 +451,23 @@ class MessagesManager {
         request => `
             <div class="request-item" data-request-id="${request.id}">
                 <div class="request-avatar">
-                    <img src="${request.fromUser.photo}" alt="${request.fromUser.name}" onerror="this.src='/images/avatar-placeholder.png'">
-                    <div class="online-status ${request.fromUser.isOnline ? 'online' : 'offline'}"></div>
+                    <img src="${request.fromUser.photo || '/images/default-avatar.jpg'}" alt="${request.fromUser.nom}" onerror="this.src='/images/default-avatar.jpg'">
+                    <div class="online-status offline"></div>
                 </div>
                 <div class="request-info">
                     <div class="request-header">
-                        <h3>${request.fromUser.name}</h3>
-                        <span class="request-time">${this.formatTimeAgo(request.timestamp)}</span>
+                        <h3>${request.fromUser.nom}</h3>
+                        <span class="request-time">${this.formatTimeAgo(new Date(request.createdAt))}</span>
                     </div>
-                    <p class="request-message">"${request.message}"</p>
+                    <p class="request-message">"${request.content}"</p>
                     <div class="request-details">
-                        <span>${request.fromUser.age} ans • ${request.fromUser.gender.charAt(0).toUpperCase() + request.fromUser.gender.slice(1)} • ${request.fromUser.location}</span>
+                        <span>${request.fromUser.age} ans • ${request.fromUser.sexe.charAt(0).toUpperCase() + request.fromUser.sexe.slice(1)} • ${request.fromUser.localisation}</span>
                     </div>
                 </div>
                 <div class="request-actions">
+                    <button class="btn-outline view-profile" data-user-id="${request.fromUser.id}">
+                        <i class="fas fa-user"></i> Voir le profil
+                    </button>
                     <button class="btn-primary accept-request">Accepter</button>
                     <button class="btn-secondary decline-request">Refuser</button>
                 </div>
@@ -577,6 +582,15 @@ class MessagesManager {
     return timestamp.toLocaleDateString('fr-FR');
   }
 
+  // Voir le profil d'un utilisateur
+  viewUserProfile(button) {
+    const userId = button.getAttribute('data-user-id');
+    if (userId) {
+      // Rediriger vers la page de visualisation du profil avec l'ID de l'utilisateur
+      window.location.href = `/profile-view?id=${userId}`;
+    }
+  }
+
   // Afficher une notification
   showNotification(message, type = 'info') {
     const notification = document.createElement('div');
@@ -614,6 +628,25 @@ class MessagesManager {
 // Styles CSS pour la page messages
 const messagesStyles = `
 <style>
+    .btn-outline {
+        background: transparent;
+        border: 1px solid var(--primary-color);
+        color: var(--primary-color);
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-outline:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+    
     .messages-page {
         padding: 20px 0;
     }
