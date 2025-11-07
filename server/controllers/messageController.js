@@ -141,6 +141,17 @@ const sendMessage = async (req, res) => {
       isInitialRequest: isInitialRequest,
     });
 
+    // NOUVEAU DEBUG - Vérifier immédiatement après sauvegarde
+    const verifyMessage = await Message.findById(message._id);
+    console.log('✅ VERIFICATION DEBUG - Message en base:', {
+      id: verifyMessage._id,
+      fromUserId: verifyMessage.fromUserId,
+      toUserId: verifyMessage.toUserId,
+      status: verifyMessage.status,
+      isInitialRequest: verifyMessage.isInitialRequest,
+      savedCorrectly: !!verifyMessage,
+    });
+
     // Populer les informations de l'expéditeur pour la réponse
     await message.populate(
       'fromUserId',
@@ -485,6 +496,19 @@ const getPendingChatRequests = async (req, res) => {
     console.log(
       '🔍 DEMANDES DEBUG - Recherche demandes pour userId:',
       currentUserId
+    );
+
+    // NOUVEAU DEBUG - Voir tous les messages du destinataire pour comprendre
+    const allMessagesForUser = await Message.find({ toUserId: currentUserId });
+    console.log(
+      '🔍 TOUS MESSAGES DEBUG - Messages reçus par cet utilisateur:',
+      allMessagesForUser.map(m => ({
+        id: m._id,
+        from: m.fromUserId,
+        status: m.status,
+        isInitialRequest: m.isInitialRequest,
+        content: m.content.substring(0, 30),
+      }))
     );
 
     const requests = await Message.find({
