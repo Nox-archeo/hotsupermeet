@@ -122,6 +122,11 @@ class MessagesManager {
 
       if (requestsResponse.ok) {
         const requestsData = await requestsResponse.json();
+        console.log(
+          '📨 FRONTEND DEBUG - Données reçues du serveur:',
+          requestsData
+        );
+
         this.chatRequests = requestsData.requests.map(request => ({
           id: request.id,
           fromUser: {
@@ -137,7 +142,16 @@ class MessagesManager {
           timestamp: new Date(request.createdAt),
           status: 'pending',
         }));
+
+        console.log(
+          '📨 FRONTEND DEBUG - chatRequests après mapping:',
+          this.chatRequests
+        );
       } else {
+        console.error(
+          '❌ FRONTEND DEBUG - Erreur requête:',
+          requestsResponse.status
+        );
         this.chatRequests = [];
       }
 
@@ -433,12 +447,19 @@ class MessagesManager {
   renderChatRequests() {
     const requestsList = document.querySelector('.requests-list');
     if (!requestsList) {
+      console.error('❌ FRONTEND DEBUG - Element .requests-list non trouvé !');
       return;
     }
 
     const pendingRequests = this.chatRequests.filter(
       req => req.status === 'pending'
     );
+
+    console.log(
+      '📨 RENDER DEBUG - Demandes à afficher:',
+      pendingRequests.length
+    );
+    console.log('📨 RENDER DEBUG - Détails:', pendingRequests);
 
     if (pendingRequests.length === 0) {
       requestsList.innerHTML =
