@@ -67,42 +67,33 @@ const sendMessage = async (req, res) => {
     let isInitialRequest = false;
     let messageStatus = 'approved'; // Par défaut approuvé pour conversations existantes
 
-    if (existingMessages.length === 0) {
-      // Première interaction = demande de chat
+    // Vérifier si la conversation est déjà approuvée
+    const hasApprovedMessages = existingMessages.some(
+      msg => msg.status === 'approved'
+    );
+    const hasPendingRequest = existingMessages.some(
+      msg => msg.isInitialRequest && msg.status === 'pending'
+    );
+
+    if (!hasApprovedMessages && !hasPendingRequest) {
+      // Pas de conversation approuvée ET pas de demande en attente = première demande
       isInitialRequest = true;
       messageStatus = 'pending';
-    } else {
-      // Vérifier si la conversation est approuvée
-      const hasApprovedMessages = existingMessages.some(
-        msg => msg.status === 'approved'
-      );
-      const hasInitialRequest = existingMessages.some(
-        msg => msg.isInitialRequest && msg.status === 'pending'
-      );
-
-      if (hasInitialRequest && !hasApprovedMessages) {
-        // Il y a déjà une demande en attente
-        return res.status(400).json({
-          success: false,
-          error: {
-            code: 'PENDING_REQUEST',
-            message: 'Une demande de chat est déjà en attente de réponse',
-          },
-        });
-      }
-
-      if (!hasApprovedMessages) {
-        // Pas encore approuvé, on ne peut pas envoyer plus de messages
-        return res.status(403).json({
-          success: false,
-          error: {
-            code: 'CHAT_NOT_APPROVED',
-            message:
-              'La demande de chat doit être approuvée avant de pouvoir envoyer des messages',
-          },
-        });
-      }
+    } else if (hasPendingRequest && !hasApprovedMessages) {
+      // Il y a déjà une demande en attente
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'PENDING_REQUEST',
+          message: 'Une demande de chat est déjà en attente de réponse',
+        },
+      });
+    } else if (!hasApprovedMessages) {
+      // Pas de messages approuvés, mais pas de demande non plus = première demande
+      isInitialRequest = true;
+      messageStatus = 'pending';
     }
+    // Si hasApprovedMessages = true, on garde messageStatus = 'approved' et isInitialRequest = false
 
     // Déterminer le modèle de provenance si originalPostId est fourni
     let provenanceModel;
