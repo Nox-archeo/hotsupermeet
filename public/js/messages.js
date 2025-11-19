@@ -482,7 +482,7 @@ class MessagesManager {
                     </div>
                     <p class="request-message">"${request.content}"</p>
                     <div class="request-details">
-                        <span>${request.fromUser.age} ans • ${request.fromUser.sexe.charAt(0).toUpperCase() + request.fromUser.sexe.slice(1)} • ${request.fromUser.localisation}</span>
+                        <span>${request.fromUser.age} ans • ${request.fromUser.gender ? request.fromUser.gender.charAt(0).toUpperCase() + request.fromUser.gender.slice(1) : 'Non spécifié'} • ${request.fromUser.location}</span>
                     </div>
                 </div>
                 <div class="request-actions">
