@@ -9,6 +9,7 @@ const {
   getConversation,
   handleChatRequest,
   getPendingChatRequests,
+  getApprovedConversations,
 } = require('../controllers/messageController');
 const { auth, updateLastActivity } = require('../middleware/auth');
 
@@ -65,5 +66,13 @@ router.post(
   ],
   handleChatRequest
 ); // POST /api/messages/requests/handle
+
+// Récupérer les conversations approuvées
+router.get(
+  '/conversations',
+  auth,
+  updateLastActivity,
+  getApprovedConversations
+); // GET /api/messages/conversations - FIXED 2025-11-20
 
 module.exports = router;
