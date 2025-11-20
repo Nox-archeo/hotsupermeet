@@ -28,7 +28,7 @@ const sendMessageValidation = [
     .isLength({ min: 1, max: 1000 })
     .withMessage('Le message doit contenir entre 1 et 1000 caractères'),
   body('provenance')
-    .isIn(['annuaire', 'annonces', 'ce-soir'])
+    .isIn(['annuaire', 'annonces', 'ce-soir', 'conversation'])
     .withMessage('Provenance invalide'),
   body('originalPostId')
     .optional()

@@ -539,9 +539,18 @@ class MessagesManager {
       console.log('📡 Réponse HTTP status:', response.status);
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Erreur API:', errorText);
-        throw new Error(`Erreur HTTP: ${response.status} - ${errorText}`);
+        const errorData = await response.json();
+        console.error('❌ Erreur API détaillée:', errorData);
+
+        let errorMessage = "Erreur lors de l'envoi du message";
+        if (errorData.error && errorData.error.details) {
+          errorMessage +=
+            ': ' + errorData.error.details.map(d => d.msg).join(', ');
+        } else if (errorData.error && errorData.error.message) {
+          errorMessage += ': ' + errorData.error.message;
+        }
+
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
