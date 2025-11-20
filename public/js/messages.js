@@ -155,9 +155,32 @@ class MessagesManager {
         this.chatRequests = [];
       }
 
-      // Pour l'instant, conversations et adResponses restent vides
-      // TODO: Implémenter la récupération des conversations approuvées
-      this.conversations = [];
+      // Récupérer les conversations approuvées
+      const conversationsResponse = await fetch('/api/messages/conversations', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (conversationsResponse.ok) {
+        const conversationsData = await conversationsResponse.json();
+        console.log(
+          '💬 FRONTEND DEBUG - Conversations reçues:',
+          conversationsData
+        );
+
+        // Mapper les données des conversations reçues
+        this.conversations = conversationsData.conversations || [];
+        console.log(
+          '📋 FRONTEND DEBUG - Conversations mappées:',
+          this.conversations.length
+        );
+      } else {
+        console.error(
+          '❌ FRONTEND DEBUG - Erreur conversations:',
+          conversationsResponse.status
+        );
+        this.conversations = [];
+      }
+
       this.adResponses = [];
 
       this.renderAllData();
@@ -218,6 +241,11 @@ class MessagesManager {
 
         // Recharger les données pour mettre à jour les conversations
         await this.loadRealData();
+
+        // Basculer automatiquement vers l'onglet conversations si on a des conversations
+        if (this.conversations && this.conversations.length > 0) {
+          this.switchTab('conversations');
+        }
       } else {
         const error = await response.json();
         this.showNotification(
@@ -519,15 +547,18 @@ class MessagesManager {
         conversation => `
             <div class="conversation-item" data-conversation-id="${conversation.id}">
                 <div class="conversation-avatar">
-                    <img src="${conversation.withUser.photo}" alt="${conversation.withUser.name}" onerror="this.src='/images/avatar-placeholder.png'">
-                    <div class="online-status ${conversation.withUser.isOnline ? 'online' : 'offline'}"></div>
+                    <img src="${conversation.otherUser.photo || '/images/default-avatar.jpg'}" alt="${conversation.otherUser.nom}" onerror="this.src='/images/default-avatar.jpg'">
+                    <div class="online-status offline"></div>
                 </div>
                 <div class="conversation-info">
                     <div class="conversation-header">
-                        <h3>${conversation.withUser.name}</h3>
-                        <span class="conversation-time">${this.formatTimeAgo(conversation.timestamp)}</span>
+                        <h3>${conversation.otherUser.nom}</h3>
+                        <span class="conversation-time">${this.formatTimeAgo(new Date(conversation.lastMessageDate))}</span>
                     </div>
                     <p class="conversation-preview">${conversation.lastMessage}</p>
+                    <div class="conversation-details">
+                        <span>${conversation.otherUser.age} ans • ${conversation.otherUser.sexe} • ${conversation.messageCount} messages</span>
+                    </div>
                 </div>
                 <div class="conversation-actions">
                     <button class="btn-secondary">Ouvrir</button>
