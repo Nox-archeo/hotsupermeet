@@ -602,6 +602,83 @@ const getPendingChatRequests = async (req, res) => {
   }
 };
 
+// Récupérer les conversations approuvées
+const getApprovedConversations = async (req, res) => {
+  try {
+    const currentUserId = req.user._id;
+
+    // Récupérer toutes les conversations où l'utilisateur a des messages approuvés
+    const conversations = await Message.aggregate([
+      {
+        $match: {
+          $or: [{ fromUserId: currentUserId }, { toUserId: currentUserId }],
+          status: 'approved',
+        },
+      },
+      {
+        $group: {
+          _id: {
+            otherUser: {
+              $cond: {
+                if: { $eq: ['$fromUserId', currentUserId] },
+                then: '$toUserId',
+                else: '$fromUserId',
+              },
+            },
+          },
+          lastMessage: { $last: '$content' },
+          lastMessageDate: { $last: '$createdAt' },
+          messageCount: { $sum: 1 },
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id.otherUser',
+          foreignField: '_id',
+          as: 'otherUserData',
+        },
+      },
+      {
+        $unwind: '$otherUserData',
+      },
+      {
+        $sort: { lastMessageDate: -1 },
+      },
+    ]);
+
+    const formattedConversations = conversations.map(conv => ({
+      id: conv._id.otherUser,
+      otherUser: {
+        id: conv.otherUserData._id,
+        nom: conv.otherUserData.profile.nom,
+        age: conv.otherUserData.profile.age,
+        sexe: conv.otherUserData.profile.sexe,
+        photo:
+          conv.otherUserData.profile.photos?.find(p => p.isProfile)?.path ||
+          null,
+      },
+      lastMessage: conv.lastMessage,
+      lastMessageDate: conv.lastMessageDate,
+      messageCount: conv.messageCount,
+    }));
+
+    res.json({
+      success: true,
+      conversations: formattedConversations,
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des conversations:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'SERVER_ERROR',
+        message: 'Erreur lors de la récupération des conversations',
+      },
+    });
+  }
+};
+
 module.exports = {
   sendMessage,
   getMessages,
@@ -611,4 +688,5 @@ module.exports = {
   getConversation,
   handleChatRequest,
   getPendingChatRequests,
+  getApprovedConversations,
 };
