@@ -304,13 +304,15 @@ class MessagesManager {
 
   // Ouvrir une conversation
   openConversation(conversationItem) {
-    const conversationId = parseInt(conversationItem.dataset.conversationId);
+    const conversationId = conversationItem.dataset.conversationId; // Pas de parseInt pour les ObjectId
     const conversation = this.conversations.find(
       conv => conv.id === conversationId
     );
 
     if (conversation) {
       this.showChatWindow(conversation);
+    } else {
+      console.error('Conversation non trouvée:', conversationId);
     }
   }
 
