@@ -485,52 +485,92 @@ class MessagesManager {
   }
 
   // Envoyer un message dans le chat
-  sendChatMessage() {
+  // Envoyer un message dans le chat - VRAIE COMMUNICATION UTILISATEURS
+  async sendChatMessage() {
     const chatInput = document.querySelector('.chat-input textarea');
     const messageContent = chatInput.value.trim();
 
-    if (messageContent) {
-      const newMessage = {
-        type: 'sent',
-        content: messageContent,
-        timestamp: new Date(),
-      };
+    if (!messageContent) return;
 
-      const messageElement = this.createMessageElement(newMessage);
-      document.querySelector('.chat-messages').appendChild(messageElement);
+    // Récupérer l'ID de l'autre utilisateur depuis la conversation active
+    const currentConversation = this.getCurrentConversationUser();
+    if (!currentConversation) {
+      alert('Erreur: conversation non identifiée');
+      return;
+    }
 
-      // Simuler une réponse après 2 secondes
-      setTimeout(() => {
-        const responses = [
-          'Intéressant !',
-          'Je vois, continuez...',
-          "C'est sympa !",
-          'Haha, drôle !',
-          "D'accord, je comprends",
-        ];
-        const randomResponse =
-          responses[Math.floor(Math.random() * responses.length)];
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+      if (!token) {
+        alert("Erreur d'authentification");
+        return;
+      }
 
-        const responseMessage = {
-          type: 'received',
-          content: randomResponse,
-          timestamp: new Date(),
+      // Envoyer le message via l'API
+      const response = await fetch('/api/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          toUserId: currentConversation.otherUserId,
+          content: messageContent,
+          provenance: 'conversation',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Ajouter le message à l'interface immédiatement
+        const newMessage = {
+          id: data.message.id,
+          content: messageContent,
+          createdAt: new Date(),
+          isOwn: true,
+          sender: { nom: 'Vous' },
         };
 
-        const responseElement = this.createMessageElement(responseMessage);
-        document.querySelector('.chat-messages').appendChild(responseElement);
+        const messageElement = this.createChatMessageElement(newMessage);
+        document.querySelector('.chat-messages').appendChild(messageElement);
 
-        // Faire défiler vers le bas
+        // Vider le champ et scroller
+        chatInput.value = '';
         document.querySelector('.chat-messages').scrollTop =
           document.querySelector('.chat-messages').scrollHeight;
-      }, 2000);
 
-      chatInput.value = '';
-
-      // Faire défiler vers le bas
-      document.querySelector('.chat-messages').scrollTop =
-        document.querySelector('.chat-messages').scrollHeight;
+        console.log('✅ Message envoyé avec succès');
+      } else {
+        alert("Erreur lors de l'envoi du message");
+      }
+    } catch (error) {
+      console.error('❌ Erreur envoi message:', error);
+      alert("Erreur lors de l'envoi du message");
     }
+  }
+
+  // Récupérer l'utilisateur de la conversation actuelle
+  getCurrentConversationUser() {
+    // Chercher dans le header de chat actuel
+    const chatHeader = document.querySelector('.chat-partner-info h3');
+    if (!chatHeader) return null;
+
+    const otherUserName = chatHeader.textContent;
+    const conversation = this.conversations.find(
+      conv => conv.otherUser.nom === otherUserName
+    );
+
+    return conversation
+      ? {
+          otherUserId: conversation.otherUser.id,
+          otherUserName: conversation.otherUser.nom,
+        }
+      : null;
   }
 
   // Créer un élément de message
