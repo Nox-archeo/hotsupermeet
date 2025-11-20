@@ -90,10 +90,20 @@ class MessagesManager {
       }
     });
 
-    // Ouvrir une conversation
+    // Ouvrir une conversation - Délégation d'événement
     document.addEventListener('click', e => {
-      if (e.target.textContent === 'Ouvrir') {
-        this.openConversation(e.target.closest('.conversation-item'));
+      if (
+        e.target.classList.contains('btn-secondary') &&
+        e.target.textContent === 'Ouvrir'
+      ) {
+        const conversationItem = e.target.closest('.conversation-item');
+        if (conversationItem) {
+          console.log(
+            '🔍 DEBUG - Bouton Ouvrir cliqué, conversationItem:',
+            conversationItem
+          );
+          this.openConversation(conversationItem);
+        }
       }
     });
 
@@ -131,11 +141,11 @@ class MessagesManager {
           id: request.id,
           fromUser: {
             id: request.fromUser.id,
-            name: request.fromUser.nom,
+            nom: request.fromUser.nom,
             age: request.fromUser.age,
-            gender: request.fromUser.sexe,
+            sexe: request.fromUser.sexe,
             location: `${request.fromUser.localisation?.ville || ''}, ${request.fromUser.localisation?.region || ''}`,
-            photo: request.fromUser.photo || '/images/default-avatar.png',
+            photo: request.fromUser.photo || '/images/default-avatar.jpg',
             isOnline: false, // À implémenter plus tard
           },
           message: request.content,
@@ -507,12 +517,12 @@ class MessagesManager {
                 </div>
                 <div class="request-info">
                     <div class="request-header">
-                        <h3>${request.fromUser.name || 'Utilisateur'}</h3>
+                        <h3>${request.fromUser.nom || 'Utilisateur'}</h3>
                         <span class="request-time">${this.formatTimeAgo(request.timestamp)}</span>
                     </div>
                     <p class="request-message">"${request.message || 'Message vide'}"</p>
                     <div class="request-details">
-                        <span>${request.fromUser.age || 'N/A'} ans • ${request.fromUser.gender ? request.fromUser.gender.charAt(0).toUpperCase() + request.fromUser.gender.slice(1) : 'Non spécifié'} • ${request.fromUser.location || 'Localisation non spécifiée'}</span>
+                        <span>${request.fromUser.age || 'N/A'} ans • ${request.fromUser.sexe ? request.fromUser.sexe.charAt(0).toUpperCase() + request.fromUser.sexe.slice(1) : 'Non spécifié'} • ${request.fromUser.location || 'Localisation non spécifiée'}</span>
                     </div>
                 </div>
                 <div class="request-actions">
