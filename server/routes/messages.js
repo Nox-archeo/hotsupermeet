@@ -79,4 +79,7 @@ router.get(
 // ROUTE TEMPORAIRE DE NETTOYAGE - À SUPPRIMER
 router.delete('/cleanup', auth, cleanAllMessages);
 
+// ROUTE TEMPORAIRE DE NETTOYAGE SIMPLE - GET pour tester dans le navigateur
+router.get('/cleanup-simple', auth, cleanAllMessages);
+
 module.exports = router;
