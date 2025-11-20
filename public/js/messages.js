@@ -522,7 +522,7 @@ class MessagesManager {
       const requestData = {
         toUserId: currentConversation.otherUserId,
         content: messageContent,
-        provenance: 'conversation',
+        provenance: 'annuaire',
       };
       console.log('📤 Données à envoyer:', requestData);
 
