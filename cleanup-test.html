@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Nettoyage MongoDB - TEMPORAIRE</title>
+  </head>
+  <body>
+    <h1>Nettoyage des Messages MongoDB</h1>
+    <button onclick="cleanupMessages()">🧹 NETTOYER TOUS LES MESSAGES</button>
+    <div id="result"></div>
+
+    <script>
+      async function cleanupMessages() {
+        const token = localStorage.getItem('hotmeet_token');
+        if (!token) {
+          document.getElementById('result').innerHTML =
+            '❌ Vous devez être connecté';
+          return;
+        }
+
+        try {
+          const response = await fetch('/api/messages/cleanup', {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const result = await response.json();
+          if (response.ok) {
+            document.getElementById('result').innerHTML =
+              '✅ ' + result.message;
+          } else {
+            document.getElementById('result').innerHTML = '❌ ' + result.error;
+          }
+        } catch (error) {
+          document.getElementById('result').innerHTML =
+            '❌ Erreur: ' + error.message;
+        }
+      }
+    </script>
+  </body>
+</html>
