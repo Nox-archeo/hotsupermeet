@@ -210,7 +210,7 @@ class MessagesManager {
         this.chatRequests = this.chatRequests.filter(
           req => req.id !== requestId
         );
-        this.renderRequests();
+        this.renderChatRequests();
         this.updateNotificationBadges();
 
         // Afficher un message de confirmation
@@ -257,7 +257,7 @@ class MessagesManager {
         this.chatRequests = this.chatRequests.filter(
           req => req.id !== requestId
         );
-        this.renderRequests();
+        this.renderChatRequests();
         this.updateNotificationBadges();
 
         this.showNotification('Demande de chat refusée', 'info');
@@ -477,12 +477,12 @@ class MessagesManager {
                 </div>
                 <div class="request-info">
                     <div class="request-header">
-                        <h3>${request.fromUser.nom}</h3>
-                        <span class="request-time">${this.formatTimeAgo(new Date(request.createdAt))}</span>
+                        <h3>${request.fromUser.name || 'Utilisateur'}</h3>
+                        <span class="request-time">${this.formatTimeAgo(request.timestamp)}</span>
                     </div>
-                    <p class="request-message">"${request.content}"</p>
+                    <p class="request-message">"${request.message || 'Message vide'}"</p>
                     <div class="request-details">
-                        <span>${request.fromUser.age} ans • ${request.fromUser.gender ? request.fromUser.gender.charAt(0).toUpperCase() + request.fromUser.gender.slice(1) : 'Non spécifié'} • ${request.fromUser.location}</span>
+                        <span>${request.fromUser.age || 'N/A'} ans • ${request.fromUser.gender ? request.fromUser.gender.charAt(0).toUpperCase() + request.fromUser.gender.slice(1) : 'Non spécifié'} • ${request.fromUser.location || 'Localisation non spécifiée'}</span>
                     </div>
                 </div>
                 <div class="request-actions">
@@ -496,6 +496,9 @@ class MessagesManager {
         `
       )
       .join('');
+
+    // Mettre à jour les badges après le rendu
+    this.updateNotificationBadges();
   }
 
   // Rendre les conversations
