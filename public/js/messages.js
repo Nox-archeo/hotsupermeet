@@ -487,24 +487,44 @@ class MessagesManager {
   // Envoyer un message dans le chat
   // Envoyer un message dans le chat - VRAIE COMMUNICATION UTILISATEURS
   async sendChatMessage() {
+    console.log('🚀 DEBUT sendChatMessage');
+
     const chatInput = document.querySelector('.chat-input textarea');
     const messageContent = chatInput.value.trim();
 
-    if (!messageContent) return;
+    console.log('📝 Contenu message:', messageContent);
+
+    if (!messageContent) {
+      console.log('❌ Message vide, arrêt');
+      return;
+    }
 
     // Récupérer l'ID de l'autre utilisateur depuis la conversation active
     const currentConversation = this.getCurrentConversationUser();
+    console.log('👥 Conversation actuelle:', currentConversation);
+
     if (!currentConversation) {
+      console.error('❌ Conversation non identifiée');
       alert('Erreur: conversation non identifiée');
       return;
     }
 
     try {
       const token = localStorage.getItem('hotmeet_token');
+      console.log('🔑 Token:', token ? 'PRÉSENT' : 'MANQUANT');
+
       if (!token) {
+        console.error('❌ Token manquant');
         alert("Erreur d'authentification");
         return;
       }
+
+      const requestData = {
+        toUserId: currentConversation.otherUserId,
+        content: messageContent,
+        provenance: 'conversation',
+      };
+      console.log('📤 Données à envoyer:', requestData);
 
       // Envoyer le message via l'API
       const response = await fetch('/api/messages', {
@@ -513,18 +533,19 @@ class MessagesManager {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          toUserId: currentConversation.otherUserId,
-          content: messageContent,
-          provenance: 'conversation',
-        }),
+        body: JSON.stringify(requestData),
       });
 
+      console.log('📡 Réponse HTTP status:', response.status);
+
       if (!response.ok) {
-        throw new Error(`Erreur HTTP: ${response.status}`);
+        const errorText = await response.text();
+        console.error('❌ Erreur API:', errorText);
+        throw new Error(`Erreur HTTP: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('✅ Réponse API:', data);
 
       if (data.success) {
         // Ajouter le message à l'interface immédiatement
