@@ -103,21 +103,25 @@ const sendMessage = async (req, res) => {
       isInitialRequest = true;
       messageStatus = 'pending';
     } else if (hasPendingRequest && !hasApprovedMessages) {
-      // TEMPORAIRE : Permettre de renvoyer une demande pour débugger
+      // Il y a déjà une demande en attente - on la SUPPRIME d'abord pour nettoyer
       console.log(
-        '⚠️ DEMANDE EN ATTENTE - Autorise quand même une nouvelle demande pour debug'
+        '🗑️ NETTOYAGE - Suppression des anciennes demandes en double'
       );
+      await Message.deleteMany({
+        $or: [
+          { fromUserId, toUserId, isInitialRequest: true, status: 'pending' },
+          {
+            fromUserId: toUserId,
+            toUserId: fromUserId,
+            isInitialRequest: true,
+            status: 'pending',
+          },
+        ],
+      });
+
+      // Puis on crée la nouvelle demande proprement
       isInitialRequest = true;
       messageStatus = 'pending';
-
-      // TODO: Remettre cette logique plus tard
-      // return res.status(400).json({
-      //   success: false,
-      //   error: {
-      //     code: 'PENDING_REQUEST',
-      //     message: 'Une demande de chat est déjà en attente de réponse',
-      //   },
-      // });
     } else if (!hasApprovedMessages) {
       // Pas de messages approuvés, mais pas de demande non plus = première demande
       isInitialRequest = true;
