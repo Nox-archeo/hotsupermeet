@@ -2,6 +2,23 @@ const Message = require('../models/Message');
 const User = require('../models/User');
 const { validationResult } = require('express-validator');
 
+// FONCTION TEMPORAIRE DE NETTOYAGE - À SUPPRIMER APRÈS USAGE
+const cleanAllMessages = async (req, res) => {
+  try {
+    const result = await Message.deleteMany({});
+    res.json({
+      success: true,
+      message: `${result.deletedCount} messages supprimés de la base de données`,
+    });
+  } catch (error) {
+    console.error('Erreur lors du nettoyage:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors du nettoyage de la base de données',
+    });
+  }
+};
+
 // Envoyer un message
 const sendMessage = async (req, res) => {
   try {
@@ -689,4 +706,5 @@ module.exports = {
   handleChatRequest,
   getPendingChatRequests,
   getApprovedConversations,
+  cleanAllMessages, // TEMPORAIRE
 };

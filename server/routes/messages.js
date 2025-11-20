@@ -10,6 +10,7 @@ const {
   handleChatRequest,
   getPendingChatRequests,
   getApprovedConversations,
+  cleanAllMessages, // TEMPORAIRE
 } = require('../controllers/messageController');
 const { auth, updateLastActivity } = require('../middleware/auth');
 
@@ -74,5 +75,8 @@ router.get(
   updateLastActivity,
   getApprovedConversations
 ); // GET /api/messages/conversations - FIXED 2025-11-20
+
+// ROUTE TEMPORAIRE DE NETTOYAGE - À SUPPRIMER
+router.delete('/cleanup', auth, cleanAllMessages);
 
 module.exports = router;
