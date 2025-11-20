@@ -391,11 +391,19 @@ class MessagesManager {
     try {
       console.log('🔄 Chargement des messages pour:', otherUserId);
 
+      const token = localStorage.getItem('hotmeet_token');
+      if (!token) {
+        console.error('❌ Token manquant !');
+        chatMessagesContainer.innerHTML =
+          '<div class="error-message">Erreur d\'authentification. Veuillez vous reconnecter.</div>';
+        return;
+      }
+
       const response = await fetch(
         `/api/messages/conversations/${otherUserId}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
