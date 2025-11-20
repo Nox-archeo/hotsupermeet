@@ -679,6 +679,64 @@ const getApprovedConversations = async (req, res) => {
   }
 };
 
+// Récupérer les messages d'une conversation spécifique
+const getConversationMessages = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { otherUserId } = req.params;
+    const { page = 1, limit = 50 } = req.query;
+
+    // Récupérer les messages entre les deux utilisateurs
+    const messages = await Message.find({
+      $and: [
+        {
+          $or: [
+            { fromUserId: userId, toUserId: otherUserId },
+            { fromUserId: otherUserId, toUserId: userId },
+          ],
+        },
+        { status: 'approved' },
+      ],
+    })
+      .populate('fromUserId', 'profile.nom profile.photos')
+      .populate('toUserId', 'profile.nom profile.photos')
+      .sort({ createdAt: 1 }) // Ordre chronologique
+      .limit(parseInt(limit));
+
+    // Formater les messages
+    const formattedMessages = messages.map(message => ({
+      id: message._id,
+      content: message.content,
+      createdAt: message.createdAt,
+      isOwn: message.fromUserId._id.toString() === userId.toString(),
+      sender: {
+        id: message.fromUserId._id,
+        nom: message.fromUserId.profile.nom,
+        photo:
+          message.fromUserId.profile.photos?.find(p => p.isProfile)?.path ||
+          '/images/default-avatar.jpg',
+      },
+    }));
+
+    res.json({
+      success: true,
+      messages: formattedMessages,
+    });
+  } catch (error) {
+    console.error(
+      'Erreur lors de la récupération des messages de conversation:',
+      error
+    );
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'SERVER_ERROR',
+        message: 'Erreur lors de la récupération des messages',
+      },
+    });
+  }
+};
+
 module.exports = {
   sendMessage,
   getMessages,
@@ -689,4 +747,5 @@ module.exports = {
   handleChatRequest,
   getPendingChatRequests,
   getApprovedConversations,
+  getConversationMessages,
 };

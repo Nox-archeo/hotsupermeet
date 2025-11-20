@@ -358,25 +358,17 @@ class MessagesManager {
       return;
     }
 
-    // Mettre à jour l'en-tête du chat - CORRIGÉ: otherUser au lieu de withUser
+    // Mettre à jour l'en-tête du chat - CORRIGÉ: otherUser au lieu de withUser + statut en ligne
     chatHeader.innerHTML = `
             <img src="${conversation.otherUser.photo || '/images/default-avatar.jpg'}" alt="${conversation.otherUser.nom}" onerror="this.src='/images/default-avatar.jpg'">
             <div>
                 <h3>${conversation.otherUser.nom}</h3>
-                <span class="chat-status">Hors ligne</span>
+                <span class="chat-status">En ligne</span>
             </div>
         `;
 
-    // Afficher les messages
-    if (chatMessages) {
-      chatMessages.innerHTML = '';
-      if (conversation.messages) {
-        conversation.messages.forEach(msg => {
-          const messageElement = this.createMessageElement(msg);
-          chatMessages.appendChild(messageElement);
-        });
-      }
-    }
+    // Charger les messages de la conversation
+    this.loadConversationMessages(conversation.otherUser.id, chatMessages);
 
     // Masquer tous les onglets
     document.querySelectorAll('.tab-content').forEach(content => {
@@ -392,6 +384,73 @@ class MessagesManager {
       '🔍 DEBUG - Fenêtre de chat affichée, style.display:',
       chatWindow.style.display
     );
+  }
+
+  // Charger les messages d'une conversation
+  async loadConversationMessages(otherUserId, chatMessagesContainer) {
+    try {
+      console.log('🔄 Chargement des messages pour:', otherUserId);
+
+      const response = await fetch(
+        `/api/messages/conversations/${otherUserId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('📬 Messages reçus:', data);
+
+      if (data.success && data.messages) {
+        // Vider le container
+        chatMessagesContainer.innerHTML = '';
+
+        // Ajouter chaque message
+        data.messages.forEach(message => {
+          const messageElement = this.createChatMessageElement(message);
+          chatMessagesContainer.appendChild(messageElement);
+        });
+
+        // Scroller vers le bas
+        chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+      } else {
+        chatMessagesContainer.innerHTML =
+          '<div class="no-messages">Aucun message dans cette conversation.</div>';
+      }
+    } catch (error) {
+      console.error('❌ Erreur lors du chargement des messages:', error);
+      chatMessagesContainer.innerHTML =
+        '<div class="error-message">Erreur lors du chargement des messages.</div>';
+    }
+  }
+
+  // Créer un élément message pour le chat
+  createChatMessageElement(message) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${message.isOwn ? 'sent' : 'received'}`;
+
+    const messageTime = new Date(message.createdAt).toLocaleTimeString(
+      'fr-FR',
+      {
+        hour: '2-digit',
+        minute: '2-digit',
+      }
+    );
+
+    messageDiv.innerHTML = `
+      <div class="message-content">
+        <p>${message.content}</p>
+        <span class="message-time">${messageTime}</span>
+      </div>
+    `;
+
+    return messageDiv;
   }
 
   // Fermer la fenêtre de chat
