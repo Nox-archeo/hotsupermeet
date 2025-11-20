@@ -337,9 +337,26 @@ class MessagesManager {
 
   // Afficher la fenêtre de chat
   showChatWindow(conversation) {
+    console.log('🔍 DEBUG - showChatWindow appelée avec:', conversation);
+
     const chatWindow = document.getElementById('chatWindow');
+    console.log('🔍 DEBUG - chatWindow trouvé:', chatWindow);
+
+    if (!chatWindow) {
+      console.error('❌ Élément chatWindow non trouvé !');
+      return;
+    }
+
     const chatHeader = chatWindow.querySelector('.chat-partner-info');
     const chatMessages = chatWindow.querySelector('.chat-messages');
+
+    console.log('🔍 DEBUG - chatHeader:', chatHeader);
+    console.log('🔍 DEBUG - chatMessages:', chatMessages);
+
+    if (!chatHeader) {
+      console.error('❌ Élément .chat-partner-info non trouvé !');
+      return;
+    }
 
     // Mettre à jour l'en-tête du chat - CORRIGÉ: otherUser au lieu de withUser
     chatHeader.innerHTML = `
@@ -351,20 +368,30 @@ class MessagesManager {
         `;
 
     // Afficher les messages
-    chatMessages.innerHTML = '';
-    if (conversation.messages) {
-      conversation.messages.forEach(msg => {
-        const messageElement = this.createMessageElement(msg);
-        chatMessages.appendChild(messageElement);
-      });
+    if (chatMessages) {
+      chatMessages.innerHTML = '';
+      if (conversation.messages) {
+        conversation.messages.forEach(msg => {
+          const messageElement = this.createMessageElement(msg);
+          chatMessages.appendChild(messageElement);
+        });
+      }
     }
 
-    // Afficher la fenêtre de chat
+    // Masquer tous les onglets
     document.querySelectorAll('.tab-content').forEach(content => {
       content.style.display = 'none';
     });
+
+    // Afficher la fenêtre de chat
+    console.log('🔍 DEBUG - Affichage de la fenêtre de chat...');
     chatWindow.style.display = 'block';
     chatWindow.classList.add('active');
+
+    console.log(
+      '🔍 DEBUG - Fenêtre de chat affichée, style.display:',
+      chatWindow.style.display
+    );
   }
 
   // Fermer la fenêtre de chat
