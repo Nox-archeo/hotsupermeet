@@ -2,23 +2,6 @@ const Message = require('../models/Message');
 const User = require('../models/User');
 const { validationResult } = require('express-validator');
 
-// FONCTION TEMPORAIRE DE NETTOYAGE - À SUPPRIMER APRÈS USAGE
-const cleanAllMessages = async (req, res) => {
-  try {
-    const result = await Message.deleteMany({});
-    res.json({
-      success: true,
-      message: `${result.deletedCount} messages supprimés de la base de données`,
-    });
-  } catch (error) {
-    console.error('Erreur lors du nettoyage:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Erreur lors du nettoyage de la base de données',
-    });
-  }
-};
-
 // Envoyer un message
 const sendMessage = async (req, res) => {
   try {
@@ -624,21 +607,6 @@ const getApprovedConversations = async (req, res) => {
   try {
     const currentUserId = req.user._id;
 
-    // NETTOYAGE TEMPORAIRE - SUPPRIMER TOUS LES MESSAGES
-    console.log('🧹 NETTOYAGE EN COURS - Suppression de tous les messages...');
-    const deleteResult = await Message.deleteMany({});
-    console.log(
-      `🧹 NETTOYAGE TERMINÉ - ${deleteResult.deletedCount} messages supprimés`
-    );
-
-    return res.json({
-      success: true,
-      message: `🧹 NETTOYAGE EFFECTUÉ: ${deleteResult.deletedCount} messages supprimés de MongoDB`,
-      conversations: [], // Liste vide après nettoyage
-    });
-
-    // CODE ORIGINAL DÉSACTIVÉ TEMPORAIREMENT
-    /*
     // Récupérer toutes les conversations où l'utilisateur a des messages approuvés
     const conversations = await Message.aggregate([
       {
@@ -699,7 +667,6 @@ const getApprovedConversations = async (req, res) => {
       success: true,
       conversations: formattedConversations,
     });
-    */
   } catch (error) {
     console.error('Erreur lors de la récupération des conversations:', error);
     res.status(500).json({
@@ -722,5 +689,4 @@ module.exports = {
   handleChatRequest,
   getPendingChatRequests,
   getApprovedConversations,
-  cleanAllMessages, // TEMPORAIRE
 };
