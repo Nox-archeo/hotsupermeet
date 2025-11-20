@@ -315,14 +315,23 @@ class MessagesManager {
   // Ouvrir une conversation
   openConversation(conversationItem) {
     const conversationId = conversationItem.dataset.conversationId; // Pas de parseInt pour les ObjectId
+    console.log('🔍 DEBUG - Conversation ID:', conversationId);
+    console.log(
+      '🔍 DEBUG - Conversations disponibles:',
+      this.conversations.map(c => ({ id: c.id, nom: c.otherUser.nom }))
+    );
+
     const conversation = this.conversations.find(
       conv => conv.id === conversationId
     );
+
+    console.log('🔍 DEBUG - Conversation trouvée:', conversation);
 
     if (conversation) {
       this.showChatWindow(conversation);
     } else {
       console.error('Conversation non trouvée:', conversationId);
+      alert(`Conversation non trouvée avec l'ID: ${conversationId}`);
     }
   }
 
@@ -332,12 +341,12 @@ class MessagesManager {
     const chatHeader = chatWindow.querySelector('.chat-partner-info');
     const chatMessages = chatWindow.querySelector('.chat-messages');
 
-    // Mettre à jour l'en-tête du chat
+    // Mettre à jour l'en-tête du chat - CORRIGÉ: otherUser au lieu de withUser
     chatHeader.innerHTML = `
-            <img src="${conversation.withUser.photo}" alt="${conversation.withUser.name}" onerror="this.src='/images/avatar-placeholder.png'">
+            <img src="${conversation.otherUser.photo || '/images/default-avatar.jpg'}" alt="${conversation.otherUser.nom}" onerror="this.src='/images/default-avatar.jpg'">
             <div>
-                <h3>${conversation.withUser.name}</h3>
-                <span class="chat-status">${conversation.withUser.isOnline ? 'En ligne' : 'Hors ligne'}</span>
+                <h3>${conversation.otherUser.nom}</h3>
+                <span class="chat-status">Hors ligne</span>
             </div>
         `;
 
@@ -355,6 +364,7 @@ class MessagesManager {
       content.style.display = 'none';
     });
     chatWindow.style.display = 'block';
+    chatWindow.classList.add('active');
   }
 
   // Fermer la fenêtre de chat
