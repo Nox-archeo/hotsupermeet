@@ -10,6 +10,7 @@ const {
   handleChatRequest,
   getPendingChatRequests,
   getApprovedConversations,
+  getConversationMessages,
 } = require('../controllers/messageController');
 const { auth, updateLastActivity } = require('../middleware/auth');
 
@@ -74,5 +75,13 @@ router.get(
   updateLastActivity,
   getApprovedConversations
 ); // GET /api/messages/conversations - FIXED 2025-11-20
+
+// Récupérer les messages d'une conversation spécifique
+router.get(
+  '/conversations/:otherUserId',
+  auth,
+  updateLastActivity,
+  getConversationMessages
+); // GET /api/messages/conversations/:otherUserId
 
 module.exports = router;
