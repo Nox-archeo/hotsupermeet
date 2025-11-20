@@ -392,6 +392,12 @@ class MessagesManager {
       console.log('🔄 Chargement des messages pour:', otherUserId);
 
       const token = localStorage.getItem('hotmeet_token');
+      console.log('🔑 Token trouvé:', token ? 'OUI' : 'NON');
+      console.log(
+        '🔑 Token preview:',
+        token ? token.substring(0, 20) + '...' : 'AUCUN'
+      );
+
       if (!token) {
         console.error('❌ Token manquant !');
         chatMessagesContainer.innerHTML =
@@ -399,12 +405,20 @@ class MessagesManager {
         return;
       }
 
+      console.log(
+        '📡 URL requête:',
+        `/api/messages/conversations/${otherUserId}`
+      );
+
       const response = await fetch(
         `/api/messages/conversations/${otherUserId}`,
         {
+          method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
+          credentials: 'include',
         }
       );
 
