@@ -647,21 +647,30 @@ const getApprovedConversations = async (req, res) => {
       },
     ]);
 
-    const formattedConversations = conversations.map(conv => ({
-      id: conv._id.otherUser,
-      otherUser: {
-        id: conv.otherUserData._id,
-        nom: conv.otherUserData.profile.nom,
-        age: conv.otherUserData.profile.age,
-        sexe: conv.otherUserData.profile.sexe,
-        photo:
-          conv.otherUserData.profile.photos?.find(p => p.isProfile)?.path ||
-          null,
-      },
-      lastMessage: conv.lastMessage,
-      lastMessageDate: conv.lastMessageDate,
-      messageCount: conv.messageCount,
-    }));
+    const formattedConversations = conversations.map(conv => {
+      const profilePhoto = conv.otherUserData.profile.photos?.find(
+        p => p.isProfile
+      );
+      console.log(`🔍 DEBUG - Photo pour ${conv.otherUserData.profile.nom}:`, {
+        photos: conv.otherUserData.profile.photos,
+        profilePhoto: profilePhoto,
+        path: profilePhoto?.path,
+      });
+
+      return {
+        id: conv._id.otherUser,
+        otherUser: {
+          id: conv.otherUserData._id,
+          nom: conv.otherUserData.profile.nom,
+          age: conv.otherUserData.profile.age,
+          sexe: conv.otherUserData.profile.sexe,
+          photo: profilePhoto?.path || '/images/default-avatar.jpg',
+        },
+        lastMessage: conv.lastMessage,
+        lastMessageDate: conv.lastMessageDate,
+        messageCount: conv.messageCount,
+      };
+    });
 
     res.json({
       success: true,
