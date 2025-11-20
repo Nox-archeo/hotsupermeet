@@ -624,6 +624,21 @@ const getApprovedConversations = async (req, res) => {
   try {
     const currentUserId = req.user._id;
 
+    // NETTOYAGE TEMPORAIRE - SUPPRIMER TOUS LES MESSAGES
+    console.log('🧹 NETTOYAGE EN COURS - Suppression de tous les messages...');
+    const deleteResult = await Message.deleteMany({});
+    console.log(
+      `🧹 NETTOYAGE TERMINÉ - ${deleteResult.deletedCount} messages supprimés`
+    );
+
+    return res.json({
+      success: true,
+      message: `🧹 NETTOYAGE EFFECTUÉ: ${deleteResult.deletedCount} messages supprimés de MongoDB`,
+      conversations: [], // Liste vide après nettoyage
+    });
+
+    // CODE ORIGINAL DÉSACTIVÉ TEMPORAIREMENT
+    /*
     // Récupérer toutes les conversations où l'utilisateur a des messages approuvés
     const conversations = await Message.aggregate([
       {
@@ -684,6 +699,7 @@ const getApprovedConversations = async (req, res) => {
       success: true,
       conversations: formattedConversations,
     });
+    */
   } catch (error) {
     console.error('Erreur lors de la récupération des conversations:', error);
     res.status(500).json({
