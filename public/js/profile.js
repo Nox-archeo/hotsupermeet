@@ -250,9 +250,8 @@ async function loadProfileData() {
         window.reloadRegionsAfterProfileLoad();
       }
 
-      // Mettre à jour les boutons de navigation
-      updateNavigationButtons(true);
-      return;
+      // IMPORTANT : Continuer avec l'appel API pour récupérer les photos à jour
+      console.log('🔄 CONTINUANT AVEC API pour récupérer photos à jour...');
     }
 
     if (!token) {
@@ -447,6 +446,9 @@ async function loadProfileData() {
           if (typeof window.reloadRegionsAfterProfileLoad === 'function') {
             window.reloadRegionsAfterProfileLoad();
           }
+
+          // Mettre à jour les boutons de navigation
+          updateNavigationButtons(true);
 
           // Mettre à jour les boutons de navigation
           updateNavigationButtons(true);
