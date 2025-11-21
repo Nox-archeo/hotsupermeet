@@ -980,7 +980,7 @@ class MessagesManager {
     this.isPolling = true;
     this.pollInterval = setInterval(() => {
       this.checkForNewMessages();
-    }, 3000); // Vérifier toutes les 3 secondes
+    }, 2000); // Vérifier toutes les 2 secondes (plus réactif)
   }
 
   // Arrêter le polling
@@ -1066,7 +1066,7 @@ class MessagesManager {
     try {
       const token = localStorage.getItem('hotmeet_token');
       const response = await fetch(
-        `/api/messages/conversation/${this.currentChatUser.otherUserId}`,
+        `/api/messages/conversations/${this.currentChatUser.otherUserId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -1081,18 +1081,21 @@ class MessagesManager {
           if (!chatMessagesContainer) return;
 
           const currentMessages =
-            chatMessagesContainer.querySelectorAll('.chat-message');
+            chatMessagesContainer.querySelectorAll('.message');
           const newMessagesCount = data.messages.length;
 
           if (newMessagesCount > currentMessages.length) {
             // Nouveaux messages détectés, recharger la conversation
             await this.loadConversationMessages(
-              this.currentChatUser.otherUserId
+              this.currentChatUser.otherUserId,
+              chatMessagesContainer
             );
 
             // Faire défiler vers le bas
             chatMessagesContainer.scrollTop =
               chatMessagesContainer.scrollHeight;
+
+            console.log('🔄 Nouveaux messages chargés automatiquement !');
           }
         }
       }
