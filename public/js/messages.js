@@ -1383,6 +1383,9 @@ const messagesStyles = `
         cursor: pointer;
         font-weight: 500;
         position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
     
     .tab-btn.active {
@@ -1398,13 +1401,42 @@ const messagesStyles = `
         display: block;
     }
     
+    /* Badges de notification - styles centralisés */
     .notification-badge {
         background: #ff4757;
         color: white;
         border-radius: 50%;
-        padding: 2px 6px;
-        font-size: 0.8rem;
-        margin-left: 5px;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.7rem;
+        font-weight: bold;
+        min-width: 1.2rem;
+        text-align: center;
+        margin-left: 0.5rem;
+        display: inline-block;
+        line-height: 1;
+        animation: pulse 2s infinite;
+        position: relative;
+        top: -1px; /* Légère correction verticale */
+    }
+    
+    /* Badge actif avec animation renforcée */
+    .notification-badge.active {
+        animation: strongPulse 1.5s infinite;
+    }
+    
+    @keyframes strongPulse {
+        0% { 
+            transform: scale(1); 
+            box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7);
+        }
+        50% { 
+            transform: scale(1.1); 
+            box-shadow: 0 0 0 8px rgba(255, 71, 87, 0);
+        }
+        100% { 
+            transform: scale(1); 
+            box-shadow: 0 0 0 0 rgba(255, 71, 87, 0);
+        }
     }
     
     /* Styles pour les conversations avec messages non lus */
@@ -1699,20 +1731,6 @@ const messagesStyles = `
         right: 1rem;
         font-size: 1.5rem;
         opacity: 0.6;
-    }
-    
-    /* Amélioration des badges de notification */
-    .notification-badge {
-        background: #ff4757;
-        color: white;
-        border-radius: 50%;
-        padding: 0.25rem 0.5rem;
-        font-size: 0.7rem;
-        font-weight: bold;
-        min-width: 1.2rem;
-        text-align: center;
-        margin-left: 0.5rem;
-        animation: pulse 2s infinite;
     }
     
     @keyframes pulse {
