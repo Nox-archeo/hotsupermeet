@@ -30,7 +30,15 @@
           <a href="/ads" class="nav-link">Annonces</a>
           <a href="/tonight" class="nav-link">Ce Soir</a>
           <a href="/cam" class="nav-link">Cam-to-Cam</a>
-          <a href="/messages" class="nav-link">Messages</a>
+          <a href="/messages" class="nav-link"
+            >Messages
+            <span
+              class="notification-badge"
+              id="messageBadge"
+              style="display: none"
+              >0</span
+            ></a
+          >
           <a href="/profile" class="nav-link active">Mon Profil</a>
         </div>
 
@@ -1532,5 +1540,8 @@
 
     <!-- JavaScript spécifique au profil - Version 2.2 FORCED REFRESH -->
     <script src="/js/profile.js"></script>
+
+    <!-- Script de notifications globales -->
+    <script src="/js/global-notifications.js"></script>
   </body>
 </html>
