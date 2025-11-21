@@ -860,6 +860,13 @@ class MessagesManager {
       return total + (conv.unreadCount || 0);
     }, 0);
 
+    console.log('🔔 BADGE DEBUG - Données pour badges:');
+    console.log('   - Conversations non lues:', unreadMessages);
+    console.log('   - Demandes en attente:', pendingRequests);
+    console.log('   - Réponses non lues:', unreadResponses);
+    console.log('   - Demandes Ce Soir:', pendingTonightRequests);
+    console.log('   - Conversations data:', this.conversations);
+
     const totalNotifications =
       pendingRequests +
       unreadResponses +
@@ -882,13 +889,22 @@ class MessagesManager {
     // Badge des conversations dans la page messages
     const conversationsBadge = document.getElementById('conversationsBadge');
     if (conversationsBadge) {
-      if (unreadMessages > 0) {
-        conversationsBadge.textContent = unreadMessages;
+      // FORCE l'affichage du badge pour tester si tu as des conversations
+      const forceShow = this.conversations.length > 0;
+
+      if (unreadMessages > 0 || forceShow) {
+        conversationsBadge.textContent =
+          unreadMessages > 0 ? unreadMessages : '1';
         conversationsBadge.style.display = 'inline';
         conversationsBadge.classList.add('active');
+        console.log(
+          '🔔 BADGE AFFICHÉ - Conversations:',
+          conversationsBadge.textContent
+        );
       } else {
         conversationsBadge.style.display = 'none';
         conversationsBadge.classList.remove('active');
+        console.log('🔔 BADGE CACHÉ - Pas de notifications conversations');
       }
     }
 
