@@ -216,10 +216,13 @@ const updateUserProfile = async (req, res) => {
     const { profile, preferences } = req.body;
     const userId = req.user._id;
 
-    // Mettre à jour le profil
+    // Mettre à jour le profil de façon sélective pour préserver les photos
     const updateData = {};
     if (profile) {
-      updateData.profile = profile;
+      // Au lieu d'écraser tout le profil, on met à jour seulement les champs fournis
+      Object.keys(profile).forEach(key => {
+        updateData[`profile.${key}`] = profile[key];
+      });
     }
     if (preferences) {
       updateData.preferences = preferences;
