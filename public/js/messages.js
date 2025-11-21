@@ -5,6 +5,10 @@ class MessagesManager {
     this.chatRequests = [];
     this.conversations = [];
     this.adResponses = [];
+    this.tonightRequests = []; // Nouveau: demandes Ce Soir
+    this.pollInterval = null; // Pour vérifier les nouveaux messages
+    this.isPolling = false;
+    this.currentChatUser = null; // Utilisateur actuel dans le chat ouvert
     this.init();
   }
 
@@ -14,6 +18,7 @@ class MessagesManager {
     this.loadRealData();
     this.updateNotificationBadges();
     this.checkUrlParams();
+    this.startMessagePolling(); // Démarrer la vérification automatique
   }
 
   // Vérifier les paramètres d'URL pour ouvrir automatiquement une conversation
@@ -81,6 +86,10 @@ class MessagesManager {
         this.acceptChatRequest(e.target.closest('.request-item'));
       } else if (e.target.classList.contains('decline-request')) {
         this.declineChatRequest(e.target.closest('.request-item'));
+      } else if (e.target.classList.contains('accept-tonight-request')) {
+        this.acceptTonightRequest(e.target.closest('.tonight-request-item'));
+      } else if (e.target.classList.contains('decline-tonight-request')) {
+        this.declineTonightRequest(e.target.closest('.tonight-request-item'));
       } else if (e.target.classList.contains('view-profile')) {
         this.viewUserProfile(e.target);
       } else if (e.target.classList.contains('close-chat')) {
@@ -190,6 +199,9 @@ class MessagesManager {
         );
         this.conversations = [];
       }
+
+      // Récupérer les demandes Ce Soir (simulated for now - à connecter avec l'API réelle)
+      this.tonightRequests = []; // Pour l'instant, pas de demandes Ce Soir
 
       this.adResponses = [];
 
@@ -312,6 +324,92 @@ class MessagesManager {
     }
   }
 
+  // Accepter une demande Ce Soir
+  async acceptTonightRequest(requestItem) {
+    const requestId = requestItem.dataset.requestId;
+
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+      const response = await fetch('/api/tonight/handle-request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          requestId: requestId,
+          action: 'approve',
+        }),
+      });
+
+      if (response.ok) {
+        // Supprimer la demande de la liste
+        this.tonightRequests = this.tonightRequests.filter(
+          req => req.id !== requestId
+        );
+        this.renderTonightRequests();
+        this.updateNotificationBadges();
+
+        this.showNotification('Demande Ce Soir acceptée ! 🌃', 'success');
+      } else {
+        const error = await response.json();
+        this.showNotification(
+          error.error?.message || "Erreur lors de l'acceptation",
+          'error'
+        );
+      }
+    } catch (error) {
+      console.error('Erreur acceptation demande Ce Soir:', error);
+      this.showNotification(
+        "Erreur lors de l'acceptation de la demande Ce Soir",
+        'error'
+      );
+    }
+  }
+
+  // Refuser une demande Ce Soir
+  async declineTonightRequest(requestItem) {
+    const requestId = requestItem.dataset.requestId;
+
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+      const response = await fetch('/api/tonight/handle-request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          requestId: requestId,
+          action: 'reject',
+        }),
+      });
+
+      if (response.ok) {
+        // Supprimer la demande de la liste
+        this.tonightRequests = this.tonightRequests.filter(
+          req => req.id !== requestId
+        );
+        this.renderTonightRequests();
+        this.updateNotificationBadges();
+
+        this.showNotification('Demande Ce Soir refusée', 'info');
+      } else {
+        const error = await response.json();
+        this.showNotification(
+          error.error?.message || 'Erreur lors du refus',
+          'error'
+        );
+      }
+    } catch (error) {
+      console.error('Erreur refus demande Ce Soir:', error);
+      this.showNotification(
+        'Erreur lors du refus de la demande Ce Soir',
+        'error'
+      );
+    }
+  }
+
   // Ouvrir une conversation
   openConversation(conversationItem) {
     const conversationId = conversationItem.dataset.conversationId; // Pas de parseInt pour les ObjectId
@@ -357,6 +455,13 @@ class MessagesManager {
       console.error('❌ Élément .chat-partner-info non trouvé !');
       return;
     }
+
+    // Sauvegarder l'utilisateur actuel du chat pour le polling
+    this.currentChatUser = {
+      otherUserId: conversation.otherUser.id,
+      nom: conversation.otherUser.nom,
+      photo: conversation.otherUser.photo,
+    };
 
     // Mettre à jour l'en-tête du chat - CORRIGÉ: otherUser au lieu de withUser + statut en ligne
     chatHeader.innerHTML = `
@@ -482,6 +587,9 @@ class MessagesManager {
   closeChatWindow() {
     const chatWindow = document.getElementById('chatWindow');
     chatWindow.style.display = 'none';
+
+    // Réinitialiser l'utilisateur actuel du chat
+    this.currentChatUser = null;
 
     // Réafficher l'onglet actuel
     document.getElementById(this.currentTab).style.display = 'block';
@@ -682,6 +790,9 @@ class MessagesManager {
     const unreadResponses = this.adResponses.filter(
       resp => resp.status === 'unread'
     ).length;
+    const pendingTonightRequests = this.tonightRequests.filter(
+      req => req.status === 'pending'
+    ).length;
 
     // Compter les messages non lus dans les conversations
     const unreadMessages = this.conversations.reduce((total, conv) => {
@@ -689,7 +800,10 @@ class MessagesManager {
     }, 0);
 
     const totalNotifications =
-      pendingRequests + unreadResponses + unreadMessages;
+      pendingRequests +
+      unreadResponses +
+      unreadMessages +
+      pendingTonightRequests;
 
     // Badge principal (messages) - icône en haut du site
     const messageBadge = document.getElementById('messageBadge');
@@ -723,6 +837,169 @@ class MessagesManager {
         conversationsBadge.style.display = 'none';
       }
     }
+
+    // Badge des réponses aux annonces
+    const responsesBadge = document.getElementById('responsesBadge');
+    if (responsesBadge) {
+      if (unreadResponses > 0) {
+        responsesBadge.textContent = unreadResponses;
+        responsesBadge.style.display = 'inline';
+      } else {
+        responsesBadge.style.display = 'none';
+      }
+    }
+
+    // Badge des demandes Ce Soir
+    const tonightBadge = document.getElementById('tonightBadge');
+    if (tonightBadge) {
+      if (pendingTonightRequests > 0) {
+        tonightBadge.textContent = pendingTonightRequests;
+        tonightBadge.style.display = 'inline';
+      } else {
+        tonightBadge.style.display = 'none';
+      }
+    }
+  }
+
+  // Démarrer le polling pour vérifier les nouveaux messages
+  startMessagePolling() {
+    if (this.isPolling) return;
+
+    this.isPolling = true;
+    this.pollInterval = setInterval(() => {
+      this.checkForNewMessages();
+    }, 3000); // Vérifier toutes les 3 secondes
+  }
+
+  // Arrêter le polling
+  stopMessagePolling() {
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval);
+      this.pollInterval = null;
+    }
+    this.isPolling = false;
+  }
+
+  // Vérifier les nouveaux messages
+  async checkForNewMessages() {
+    if (!localStorage.getItem('hotmeet_token')) return;
+
+    try {
+      // Vérifier les nouvelles demandes de chat
+      await this.checkNewChatRequests();
+
+      // Vérifier les nouveaux messages dans la conversation active
+      if (this.currentChatUser) {
+        await this.checkNewMessagesInChat();
+      }
+
+      // Vérifier les nouvelles notifications
+      await this.checkNewNotifications();
+    } catch (error) {
+      console.error(
+        'Erreur lors de la vérification des nouveaux messages:',
+        error
+      );
+    }
+  }
+
+  // Vérifier les nouvelles demandes de chat
+  async checkNewChatRequests() {
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+      const response = await fetch('/api/messages/requests', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const newRequestsCount = data.requests.length;
+        const oldRequestsCount = this.chatRequests.length;
+
+        if (newRequestsCount > oldRequestsCount) {
+          // Nouvelles demandes détectées
+          this.chatRequests = data.requests.map(request => ({
+            id: request.id,
+            fromUser: {
+              id: request.fromUser.id,
+              nom: request.fromUser.nom,
+              age: request.fromUser.age,
+              sexe: request.fromUser.sexe,
+              location: `${request.fromUser.localisation?.ville || ''}, ${request.fromUser.localisation?.region || ''}`,
+              photo: request.fromUser.photo || '/images/default-avatar.jpg',
+              isOnline: false,
+            },
+            message: request.content,
+            timestamp: new Date(request.createdAt),
+            status: request.status,
+            provenance: request.provenance,
+          }));
+
+          this.renderChatRequests();
+          this.updateNotificationBadges();
+
+          // Afficher une notification pour les nouvelles demandes
+          this.showNotification('Nouvelle demande de chat reçue ! 📨', 'info');
+        }
+      }
+    } catch (error) {
+      console.error('Erreur lors de la vérification des demandes:', error);
+    }
+  }
+
+  // Vérifier les nouveaux messages dans le chat actif
+  async checkNewMessagesInChat() {
+    if (!this.currentChatUser) return;
+
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+      const response = await fetch(
+        `/api/messages/conversation/${this.currentChatUser.otherUserId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+
+        if (data.success && data.messages) {
+          const chatMessagesContainer =
+            document.querySelector('.chat-messages');
+          if (!chatMessagesContainer) return;
+
+          const currentMessages =
+            chatMessagesContainer.querySelectorAll('.chat-message');
+          const newMessagesCount = data.messages.length;
+
+          if (newMessagesCount > currentMessages.length) {
+            // Nouveaux messages détectés, recharger la conversation
+            await this.loadConversationMessages(
+              this.currentChatUser.otherUserId
+            );
+
+            // Faire défiler vers le bas
+            chatMessagesContainer.scrollTop =
+              chatMessagesContainer.scrollHeight;
+          }
+        }
+      }
+    } catch (error) {
+      console.error(
+        'Erreur lors de la vérification des nouveaux messages:',
+        error
+      );
+    }
+  }
+
+  // Vérifier les nouvelles notifications globales
+  async checkNewNotifications() {
+    try {
+      // Recharger toutes les données pour mettre à jour les badges
+      await this.loadRealData();
+    } catch (error) {
+      console.error('Erreur lors de la vérification des notifications:', error);
+    }
   }
 
   // Rendre toutes les données
@@ -730,6 +1007,7 @@ class MessagesManager {
     this.renderChatRequests();
     this.renderConversations();
     this.renderAdResponses();
+    this.renderTonightRequests(); // Nouveau: demandes Ce Soir
   }
 
   // Rendre les demandes de chat
@@ -870,6 +1148,52 @@ class MessagesManager {
                 <div class="ad-response-actions">
                     <button class="btn-primary">Répondre</button>
                     <button class="btn-secondary">Voir le profil</button>
+                </div>
+            </div>
+        `
+      )
+      .join('');
+  }
+
+  // Rendre les demandes Ce Soir
+  renderTonightRequests() {
+    const tonightRequestsList = document.querySelector(
+      '.tonight-requests-list'
+    );
+    if (!tonightRequestsList) {
+      return;
+    }
+
+    const pendingTonightRequests = this.tonightRequests.filter(
+      req => req.status === 'pending'
+    );
+
+    if (pendingTonightRequests.length === 0) {
+      tonightRequestsList.innerHTML =
+        '<div class="no-requests">Aucune demande Ce Soir en attente</div>';
+      return;
+    }
+
+    tonightRequestsList.innerHTML = pendingTonightRequests
+      .map(
+        request => `
+            <div class="request-item tonight-request-item" data-request-id="${request.id}">
+                <div class="request-user-info">
+                    <img src="${request.fromUser.photo}" alt="${request.fromUser.nom}" onerror="this.src='/images/default-avatar.jpg'">
+                    <div class="user-details">
+                        <h3>${request.fromUser.nom}</h3>
+                        <p>${request.fromUser.age} ans • ${request.fromUser.sexe.charAt(0).toUpperCase() + request.fromUser.sexe.slice(1)} • ${request.fromUser.location}</p>
+                        <span class="request-time">${this.formatTimeAgo(request.timestamp)}</span>
+                    </div>
+                    <span class="tonight-badge">Ce Soir</span>
+                </div>
+                <div class="request-message">
+                    <p>"${request.message}"</p>
+                </div>
+                <div class="request-actions">
+                    <button class="btn-primary accept-tonight-request" data-request-id="${request.id}">Accepter</button>
+                    <button class="btn-secondary decline-tonight-request" data-request-id="${request.id}">Refuser</button>
+                    <button class="btn-outline view-profile" data-user-id="${request.fromUser.id}">Voir le profil</button>
                 </div>
             </div>
         `
@@ -1272,6 +1596,53 @@ const messagesStyles = `
         text-align: center;
         padding: 2rem;
         color: #666;
+    }
+    
+    /* Styles pour les demandes Ce Soir */
+    .tonight-badge {
+        background: linear-gradient(45deg, #ff4757, #ff6b7d);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
+    }
+    
+    .tonight-request-item {
+        border-left: 4px solid #ff4757;
+        position: relative;
+    }
+    
+    .tonight-request-item::before {
+        content: '🌃';
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        font-size: 1.5rem;
+        opacity: 0.6;
+    }
+    
+    /* Amélioration des badges de notification */
+    .notification-badge {
+        background: #ff4757;
+        color: white;
+        border-radius: 50%;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.7rem;
+        font-weight: bold;
+        min-width: 1.2rem;
+        text-align: center;
+        margin-left: 0.5rem;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
     }
     
     @media (max-width: 768px) {
