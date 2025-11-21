@@ -41,5 +41,5 @@ Chaque sauvegarde uploade automatiquement le fichier.
 - **Host**: al6rd7.ftp.infomaniak.com
 - **Port**: 21
 - **Username**: al6rd7_system
-- **Password**: Lilith66.666
+- **Password**: [MOVED TO SECURE ENVIRONMENT VARIABLES - Contact admin]
 - **Remote Path**: /sites/hotsupermeet.com/
