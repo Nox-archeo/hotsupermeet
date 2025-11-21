@@ -532,7 +532,8 @@ const deleteTestUsers = async (req, res) => {
   try {
     console.log('🗑️ ADMIN: Suppression des utilisateurs de test...');
 
-    const testUsernames = ['gege', 'jojo', 'kololo', 'lolo'];
+    // MISE À JOUR: ajouter "Lolo" avec majuscule
+    const testUsernames = ['gege', 'jojo', 'kololo', 'lolo', 'Lolo'];
 
     // Rechercher les utilisateurs de test
     const testUsers = await User.find({
