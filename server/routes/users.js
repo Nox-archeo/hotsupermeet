@@ -29,11 +29,22 @@ const updateProfileValidation = [
     .trim()
     .isLength({ max: 500 })
     .withMessage('La bio ne peut pas dépasser 500 caractères'),
-  body('profile.localisation')
+  // Validation pour localisation en tant qu'objet
+  body('profile.localisation.pays')
     .optional()
     .trim()
-    .isLength({ min: 2, max: 100 })
-    .withMessage('La localisation doit contenir entre 2 et 100 caractères'),
+    .isLength({ max: 50 })
+    .withMessage('Le pays ne peut pas dépasser 50 caractères'),
+  body('profile.localisation.region')
+    .optional()
+    .trim()
+    .isLength({ max: 50 })
+    .withMessage('La région ne peut pas dépasser 50 caractères'),
+  body('profile.localisation.ville')
+    .optional()
+    .trim()
+    .isLength({ max: 50 })
+    .withMessage('La ville ne peut pas dépasser 50 caractères'),
   body('profile.pratiques')
     .optional()
     .isArray()
