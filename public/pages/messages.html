@@ -91,6 +91,15 @@
               >0</span
             >
           </button>
+          <button class="tab-btn" data-tab="photo-requests">
+            📸 Demandes de photos
+            <span
+              class="notification-badge"
+              id="photoRequestsBadge"
+              style="display: none"
+              >0</span
+            >
+          </button>
           <button class="tab-btn" data-tab="ad-responses">
             Réponses aux annonces
             <span
@@ -122,6 +131,38 @@
         <div id="requests" class="tab-content">
           <div class="requests-list">
             <!-- Messages de démonstration supprimés - pas de messages automatiques -->
+          </div>
+        </div>
+
+        <!-- Photo Requests Tab -->
+        <div id="photo-requests" class="tab-content">
+          <div class="photo-requests-section">
+            <div class="section-header">
+              <h3 class="section-title">📸 Demandes de photos privées</h3>
+              <p class="section-description">
+                Gérez les demandes d'accès à vos photos privées
+              </p>
+            </div>
+
+            <div class="requests-container">
+              <!-- Demandes reçues -->
+              <div class="requests-section">
+                <h4 class="requests-subtitle">📥 Demandes reçues</h4>
+                <div id="receivedPhotoRequests" class="requests-list">
+                  <!-- Les demandes reçues s'afficheront ici -->
+                  <p class="no-requests">Aucune demande reçue</p>
+                </div>
+              </div>
+
+              <!-- Demandes envoyées -->
+              <div class="requests-section">
+                <h4 class="requests-subtitle">📤 Demandes envoyées</h4>
+                <div id="sentPhotoRequests" class="requests-list">
+                  <!-- Les demandes envoyées s'afficheront ici -->
+                  <p class="no-requests">Aucune demande envoyée</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -248,5 +289,6 @@
 
     <!-- Scripts -->
     <script src="/js/messages.js"></script>
+    <script src="/js/messages-photo.js"></script>
   </body>
 </html>
