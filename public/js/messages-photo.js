@@ -226,4 +226,74 @@ function setupPhotoRequestsExtension() {
       messageEl.remove();
     }, 3000);
   };
+
+  // Ajouter fonction de mise à jour des notifications
+  manager.updatePhotoNotifications = async function () {
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+      if (!token) return;
+
+      // Récupérer le nombre de demandes en attente
+      const receivedResponse = await fetch('/api/private-photos/received', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (receivedResponse.ok) {
+        const receivedData = await receivedResponse.json();
+        const pendingRequests = (receivedData.requests || []).filter(
+          req => req.status === 'pending'
+        );
+
+        // Mettre à jour le badge de l'onglet photo-requests
+        const photoRequestsBadge =
+          document.getElementById('photoRequestsBadge');
+        if (photoRequestsBadge) {
+          if (pendingRequests.length > 0) {
+            photoRequestsBadge.textContent = pendingRequests.length;
+            photoRequestsBadge.style.display = 'inline';
+          } else {
+            photoRequestsBadge.style.display = 'none';
+          }
+        }
+
+        // Mettre à jour le badge général des messages si il existe
+        const messageBadge = document.getElementById('messageBadge');
+        if (messageBadge && pendingRequests.length > 0) {
+          // Ajouter aux notifications existantes sans les écraser
+          let currentCount = parseInt(messageBadge.textContent) || 0;
+          messageBadge.textContent = currentCount + pendingRequests.length;
+          messageBadge.style.display = 'inline';
+        }
+      }
+    } catch (error) {
+      // Erreur silencieuse
+    }
+  };
+
+  // Étendre la fonction loadPrivatePhotoRequests pour inclure les notifications
+  const originalLoadRequests = manager.loadPrivatePhotoRequests;
+  manager.loadPrivatePhotoRequests = function () {
+    // Appeler la fonction originale
+    originalLoadRequests.call(this);
+    // Ajouter la mise à jour des notifications
+    this.updatePhotoNotifications();
+  };
+
+  // Démarrer la vérification périodique des notifications (toutes les 30 secondes)
+  setInterval(() => {
+    manager.updatePhotoNotifications();
+  }, 30000);
+
+  // Vérification initiale
+  manager.updatePhotoNotifications();
 }
+
+// Fonction globale pour notifier qu'une demande de photo a été envoyée
+window.notifyPhotoRequestSent = function () {
+  if (
+    window.messagesManager &&
+    window.messagesManager.updatePhotoNotifications
+  ) {
+    window.messagesManager.updatePhotoNotifications();
+  }
+};
