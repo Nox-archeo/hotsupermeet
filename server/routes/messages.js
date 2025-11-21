@@ -11,6 +11,7 @@ const {
   getPendingChatRequests,
   getApprovedConversations,
   getConversationMessages,
+  markConversationAsRead,
 } = require('../controllers/messageController');
 const { auth, updateLastActivity } = require('../middleware/auth');
 
@@ -83,5 +84,14 @@ router.get(
   updateLastActivity,
   getConversationMessages
 ); // GET /api/messages/conversations/:otherUserId
+
+// Marquer une conversation comme lue
+router.post(
+  '/mark-conversation-read',
+  auth,
+  updateLastActivity,
+  [body('otherUserId').isMongoId().withMessage('ID utilisateur invalide')],
+  markConversationAsRead
+); // POST /api/messages/mark-conversation-read
 
 module.exports = router;

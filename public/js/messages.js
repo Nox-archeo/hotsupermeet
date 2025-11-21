@@ -370,6 +370,9 @@ class MessagesManager {
     // Charger les messages de la conversation
     this.loadConversationMessages(conversation.otherUser.id, chatMessages);
 
+    // Marquer les messages comme lus pour cette conversation
+    this.markConversationAsRead(conversation.otherUser.id);
+
     // Masquer tous les onglets
     document.querySelectorAll('.tab-content').forEach(content => {
       content.style.display = 'none';
@@ -607,6 +610,38 @@ class MessagesManager {
       : null;
   }
 
+  // Marquer une conversation comme lue
+  async markConversationAsRead(otherUserId) {
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+      if (!token) return;
+
+      // Marquer tous les messages non lus de cette conversation comme lus
+      const response = await fetch('/api/messages/mark-conversation-read', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ otherUserId }),
+      });
+
+      if (response.ok) {
+        // Mettre à jour localement le compteur de non lus
+        const conversation = this.conversations.find(
+          conv => conv.otherUser.id === otherUserId
+        );
+        if (conversation) {
+          conversation.unreadCount = 0;
+          this.renderConversations();
+          this.updateNotificationBadges();
+        }
+      }
+    } catch (error) {
+      console.error('Erreur marquage messages lus:', error);
+    }
+  }
+
   // Créer un élément de message
   createMessageElement(message) {
     const messageDiv = document.createElement('div');
@@ -647,24 +682,46 @@ class MessagesManager {
     const unreadResponses = this.adResponses.filter(
       resp => resp.status === 'unread'
     ).length;
-    const totalNotifications = pendingRequests + unreadResponses;
 
-    // Badge principal (messages)
+    // Compter les messages non lus dans les conversations
+    const unreadMessages = this.conversations.reduce((total, conv) => {
+      return total + (conv.unreadCount || 0);
+    }, 0);
+
+    const totalNotifications =
+      pendingRequests + unreadResponses + unreadMessages;
+
+    // Badge principal (messages) - icône en haut du site
     const messageBadge = document.getElementById('messageBadge');
-    if (totalNotifications > 0) {
-      messageBadge.textContent = totalNotifications;
-      messageBadge.style.display = 'inline';
-    } else {
-      messageBadge.style.display = 'none';
+    if (messageBadge) {
+      if (totalNotifications > 0) {
+        messageBadge.textContent = totalNotifications;
+        messageBadge.style.display = 'inline';
+      } else {
+        messageBadge.style.display = 'none';
+      }
     }
 
-    // Badge des demandes
+    // Badge des demandes dans la page messages
     const requestsBadge = document.getElementById('requestsBadge');
-    if (pendingRequests > 0) {
-      requestsBadge.textContent = pendingRequests;
-      requestsBadge.style.display = 'inline';
-    } else {
-      requestsBadge.style.display = 'none';
+    if (requestsBadge) {
+      if (pendingRequests > 0) {
+        requestsBadge.textContent = pendingRequests;
+        requestsBadge.style.display = 'inline';
+      } else {
+        requestsBadge.style.display = 'none';
+      }
+    }
+
+    // Badge des conversations dans la page messages
+    const conversationsBadge = document.getElementById('conversationsBadge');
+    if (conversationsBadge) {
+      if (unreadMessages > 0) {
+        conversationsBadge.textContent = unreadMessages;
+        conversationsBadge.style.display = 'inline';
+      } else {
+        conversationsBadge.style.display = 'none';
+      }
     }
   }
 
@@ -749,23 +806,25 @@ class MessagesManager {
     conversationsList.innerHTML = this.conversations
       .map(
         conversation => `
-            <div class="conversation-item" data-conversation-id="${conversation.id}">
+            <div class="conversation-item ${conversation.unreadCount > 0 ? 'has-unread' : ''}" data-conversation-id="${conversation.id}">
                 <div class="conversation-avatar">
                     <img src="${conversation.otherUser.photo || '/images/default-avatar.jpg'}" alt="${conversation.otherUser.nom}" onerror="this.src='/images/default-avatar.jpg'">
                     <div class="online-status offline"></div>
+                    ${conversation.unreadCount > 0 ? `<div class="unread-badge">${conversation.unreadCount}</div>` : ''}
                 </div>
                 <div class="conversation-info">
                     <div class="conversation-header">
                         <h3>${conversation.otherUser.nom}</h3>
                         <span class="conversation-time">${this.formatTimeAgo(new Date(conversation.lastMessageDate))}</span>
                     </div>
-                    <p class="conversation-preview">${conversation.lastMessage}</p>
+                    <p class="conversation-preview ${conversation.unreadCount > 0 ? 'unread-preview' : ''}">${conversation.lastMessage}</p>
                     <div class="conversation-details">
                         <span>${conversation.otherUser.age} ans • ${conversation.otherUser.sexe} • ${conversation.messageCount} messages</span>
                     </div>
                 </div>
                 <div class="conversation-actions">
                     <button class="btn-secondary">Ouvrir</button>
+                    ${conversation.unreadCount > 0 ? `<span class="unread-count">${conversation.unreadCount}</span>` : ''}
                 </div>
             </div>
         `
@@ -946,6 +1005,51 @@ const messagesStyles = `
         padding: 2px 6px;
         font-size: 0.8rem;
         margin-left: 5px;
+    }
+    
+    /* Styles pour les conversations avec messages non lus */
+    .conversation-item.has-unread {
+        background: #f8fffe;
+        border-left: 3px solid var(--primary-color);
+    }
+    
+    .conversation-item.has-unread:hover {
+        background: #f1f9ff;
+    }
+    
+    .conversation-preview.unread-preview {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .unread-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #ff4757;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: bold;
+        border: 2px solid white;
+        z-index: 1;
+    }
+    
+    .unread-count {
+        background: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        padding: 4px 8px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        margin-left: 8px;
+        min-width: 20px;
+        text-align: center;
     }
     
     .conversation-item, .request-item, .ad-response-item {
