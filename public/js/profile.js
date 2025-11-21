@@ -652,21 +652,19 @@ function updateCities(pays, regionValue, villeSelect) {
 function setupLocationSelectors() {
   const paysSelect = document.getElementById('profilePays');
   const regionSelect = document.getElementById('profileRegion');
-  const villeSelect = document.getElementById('profileVille');
+  const villeInput = document.getElementById('profileVille'); // Maintenant c'est un input texte
 
-  if (paysSelect && regionSelect && villeSelect) {
+  if (paysSelect && regionSelect) {
     // Événement changement de pays
     paysSelect.addEventListener('change', () => {
       updateRegions(paysSelect.value, regionSelect);
-      updateCities(paysSelect.value, regionSelect.value, villeSelect);
+      // Plus besoin de updateCities car la ville est maintenant un champ texte libre
     });
 
-    // Événement changement de région
-    regionSelect.addEventListener('change', () => {
-      updateCities(paysSelect.value, regionSelect.value, villeSelect);
-    });
+    // Événement changement de région - pas besoin de gérer les villes
+    // Les villes sont maintenant en saisie libre
 
-    // Mettre à jour les régions et villes si un pays est déjà sélectionné
+    // Mettre à jour les régions si un pays est déjà sélectionné
     // Utiliser un timeout pour s'assurer que le DOM est complètement chargé
     setTimeout(() => {
       if (paysSelect.value) {
@@ -675,7 +673,6 @@ function setupLocationSelectors() {
           paysSelect.value
         );
         updateRegions(paysSelect.value, regionSelect);
-        updateCities(paysSelect.value, regionSelect.value, villeSelect);
 
         // Sélectionner la région sauvegardée si elle existe
         const savedRegion = regionSelect.value;
@@ -684,18 +681,12 @@ function setupLocationSelectors() {
           setTimeout(() => {
             regionSelect.value = savedRegion;
             console.log('Région restaurée:', savedRegion);
-            // Mettre à jour les villes après avoir restauré la région
-            updateCities(paysSelect.value, savedRegion, villeSelect);
           }, 200);
         }
 
-        // Sélectionner la ville sauvegardée si elle existe
-        const savedVille = villeSelect.value;
-        if (savedVille) {
-          setTimeout(() => {
-            villeSelect.value = savedVille;
-            console.log('Ville restaurée:', savedVille);
-          }, 300);
+        // Pour la ville, simplement conserver la valeur texte - pas de traitement spécial nécessaire
+        if (villeInput && villeInput.value) {
+          console.log('Ville restaurée (texte libre):', villeInput.value);
         }
       }
     }, 500);
