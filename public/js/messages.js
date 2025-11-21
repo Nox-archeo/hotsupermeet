@@ -1120,6 +1120,10 @@ class MessagesManager {
     this.renderConversations();
     this.renderAdResponses();
     this.renderTonightRequests(); // Nouveau: demandes Ce Soir
+
+    // CRUCIAL: Mettre à jour les badges après avoir rendu les données
+    this.updateNotificationBadges();
+    console.log('🔄 renderAllData - Badges mis à jour après rendu des données');
   }
 
   // Rendre les demandes de chat
