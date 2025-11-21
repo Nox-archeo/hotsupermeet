@@ -5,6 +5,9 @@ console.log(
 );
 console.log('🚨 NOUVELLE VERSION CHARGÉE ! Fonctionnalités photo activées.');
 
+// Variable globale pour conserver la région à restaurer
+window.regionToRestore = null;
+
 // Mettre à jour seulement l'affichage de base du profil (nom, âge, ville) sans toucher aux photos
 function updateBasicProfileDisplay(profileData) {
   try {
@@ -208,6 +211,11 @@ async function loadProfileData() {
       document.getElementById('profileRegion').value = region;
       document.getElementById('profileVille').value = ville;
 
+      // Conserver la région pour la restaurer après rechargement des options
+      if (region) {
+        window.regionToRestore = region;
+      }
+
       document.getElementById('profileBio').value = profile.bio || '';
 
       // NOUVEAU: Mettre à jour la photo de profil depuis localStorage
@@ -249,6 +257,39 @@ async function loadProfileData() {
       if (typeof window.reloadRegionsAfterProfileLoad === 'function') {
         window.reloadRegionsAfterProfileLoad();
       }
+
+      // Créer la fonction de rechargement des régions qui utilise la variable globale
+      window.reloadRegionsAfterProfileLoad = function () {
+        const paysSelect = document.getElementById('profilePays');
+        const regionSelect = document.getElementById('profileRegion');
+
+        if (
+          paysSelect &&
+          regionSelect &&
+          paysSelect.value &&
+          window.regionToRestore
+        ) {
+          console.log(
+            '🔄 RECHARGEMENT RÉGIONS - Pays:',
+            paysSelect.value,
+            'Région à restaurer:',
+            window.regionToRestore
+          );
+          updateRegions(paysSelect.value, regionSelect);
+
+          // Restaurer la région après chargement des options
+          setTimeout(() => {
+            if (window.regionToRestore) {
+              regionSelect.value = window.regionToRestore;
+              console.log(
+                '✅ Région restaurée après rechargement:',
+                window.regionToRestore
+              );
+              window.regionToRestore = null; // Nettoyer
+            }
+          }, 300);
+        }
+      };
 
       // IMPORTANT : Continuer avec l'appel API pour récupérer les photos à jour
       console.log('🔄 CONTINUANT AVEC API pour récupérer photos à jour...');
@@ -339,6 +380,11 @@ async function loadProfileData() {
           paysField.value = pays;
           regionField.value = region;
           villeField.value = ville;
+
+          // Conserver la région pour la restaurer après rechargement des options
+          if (region) {
+            window.regionToRestore = region;
+          }
 
           bioField.value = user.profile.bio || '';
 
@@ -444,6 +490,40 @@ async function loadProfileData() {
 
           // Recharger les régions maintenant que les données du profil sont chargées
           if (typeof window.reloadRegionsAfterProfileLoad === 'function') {
+            window.reloadRegionsAfterProfileLoad();
+          } else {
+            // Créer la fonction si elle n'existe pas encore
+            window.reloadRegionsAfterProfileLoad = function () {
+              const paysSelect = document.getElementById('profilePays');
+              const regionSelect = document.getElementById('profileRegion');
+
+              if (
+                paysSelect &&
+                regionSelect &&
+                paysSelect.value &&
+                window.regionToRestore
+              ) {
+                console.log(
+                  '🔄 RECHARGEMENT RÉGIONS - Pays:',
+                  paysSelect.value,
+                  'Région à restaurer:',
+                  window.regionToRestore
+                );
+                updateRegions(paysSelect.value, regionSelect);
+
+                // Restaurer la région après chargement des options
+                setTimeout(() => {
+                  if (window.regionToRestore) {
+                    regionSelect.value = window.regionToRestore;
+                    console.log(
+                      '✅ Région restaurée après rechargement:',
+                      window.regionToRestore
+                    );
+                    window.regionToRestore = null; // Nettoyer
+                  }
+                }, 300);
+              }
+            };
             window.reloadRegionsAfterProfileLoad();
           }
 
@@ -798,12 +878,14 @@ function setupLocationSelectors() {
         updateRegions(paysSelect.value, regionSelect);
 
         // Sélectionner la région sauvegardée si elle existe
-        const savedRegion = regionSelect.value;
+        const savedRegion = window.regionToRestore;
         if (savedRegion) {
           // Attendre que les options soient chargées avant de sélectionner
           setTimeout(() => {
             regionSelect.value = savedRegion;
             console.log('Région restaurée:', savedRegion);
+            // Nettoyer après utilisation
+            window.regionToRestore = null;
           }, 200);
         }
 
