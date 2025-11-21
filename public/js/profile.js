@@ -62,14 +62,14 @@ document
     const formData = {
       profile: {
         nom: nom,
-        age: age ? parseInt(age) : '',
-        sexe: sexe || '',
+        age: age && !isNaN(parseInt(age)) ? parseInt(age) : undefined, // undefined au lieu de string vide
+        sexe: sexe || undefined,
         localisation: {
-          pays: pays || '',
-          region: region || '',
-          ville: ville || '',
+          pays: pays || undefined,
+          region: region || undefined,
+          ville: ville || undefined,
         },
-        bio: bio,
+        bio: bio || undefined,
       },
     };
 
@@ -101,7 +101,7 @@ document
 
       if (response.ok) {
         const updatedData = await response.json();
-        showMessage('Profil mis à jour avec succès !', 'success');
+        showMessage('✅ Profil mis à jour avec succès !', 'success');
 
         // Mettre à jour le localStorage avec les nouvelles données
         if (updatedData.success && updatedData.user) {
