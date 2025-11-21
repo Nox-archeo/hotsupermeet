@@ -1267,6 +1267,9 @@ document.addEventListener('DOMContentLoaded', function () {
   setupPhotoUpload();
   setupPhotoBlurToggle();
 
+  // Configuration de la gestion des photos galerie/privées
+  setupPhotoManagement();
+
   // Vérifier l'authentification
   const token = localStorage.getItem('hotmeet_token');
   const savedProfile = localStorage.getItem('hotmeet_user_profile');
