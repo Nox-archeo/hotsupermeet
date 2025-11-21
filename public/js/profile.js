@@ -580,6 +580,48 @@ function closePreview() {
   }
 }
 
+// Fonction pour mettre à jour SEULEMENT la photo de profil sans toucher le reste
+function updateProfilePhoto(photoData) {
+  if (!photoData) return;
+
+  const profileAvatarElem = document.getElementById('profileAvatar');
+  const blurStatusElem = document.getElementById('blurStatus');
+
+  if (!profileAvatarElem) return;
+
+  console.log('📸 MISE À JOUR PHOTO SEULE:', photoData);
+
+  // Utiliser l'URL de la photo
+  let photoUrl = photoData.url || photoData.path;
+
+  if (photoUrl && typeof photoUrl === 'string') {
+    // Forcer le rafraîchissement avec timestamp
+    const timestamp = new Date().getTime();
+    const urlWithTimestamp = photoUrl + '?t=' + timestamp;
+
+    profileAvatarElem.src = urlWithTimestamp;
+    profileAvatarElem.alt = 'Photo de profil mise à jour';
+
+    // Appliquer le flou si nécessaire
+    if (photoData.isBlurred) {
+      profileAvatarElem.style.filter = 'blur(20px)';
+      if (blurStatusElem) {
+        blurStatusElem.textContent =
+          '🔄 Photo floutée - Cliquez pour déflouter';
+        blurStatusElem.style.color = '#ff6b6b';
+      }
+    } else {
+      profileAvatarElem.style.filter = 'none';
+      if (blurStatusElem) {
+        blurStatusElem.textContent = '✅ Photo visible';
+        blurStatusElem.style.color = '#4caf50';
+      }
+    }
+
+    console.log('✅ PHOTO MISE À JOUR AVEC SUCCÈS:', urlWithTimestamp);
+  }
+}
+
 // Fonction pour afficher les messages
 function showMessage(message, type) {
   const messageContainer =
@@ -905,8 +947,30 @@ function setupPhotoUpload() {
                 profilePhotoPreview.src = urlWithTimestamp;
             }
 
-            // Recharger les données du profil pour synchroniser
-            setTimeout(() => loadProfileData(), 500);
+            // Recharger SEULEMENT les données depuis l'API pour récupérer la vraie photo
+            setTimeout(() => {
+              console.log('🔄 RECHARGEMENT API après upload photo...');
+              // Appeler directement l'API pour récupérer les données fraîches
+              fetch('/api/auth/me', {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem('hotmeet_token')}`,
+                },
+              })
+                .then(response => response.json())
+                .then(data => {
+                  if (data.success && data.user.profile.photos) {
+                    console.log(
+                      '🔄 PHOTOS FRAÎCHES:',
+                      data.user.profile.photos
+                    );
+                    // Mettre à jour JUSTE la photo sans toucher le reste
+                    updateProfilePhoto(data.user.profile.photos[0]);
+                  }
+                })
+                .catch(error =>
+                  console.error('Erreur rechargement photo:', error)
+                );
+            }, 1000);
           } else {
             showMessage(
               result.error?.message ||
