@@ -291,11 +291,6 @@ class MessagesManager {
     document.getElementById(tabName).classList.add('active');
 
     this.currentTab = tabName;
-
-    // Si on clique sur l'onglet Conversations, marquer tous les messages comme lus
-    if (tabName === 'conversations') {
-      this.markAllConversationsAsViewed();
-    }
   }
 
   // Accepter une demande de chat
@@ -908,16 +903,16 @@ class MessagesManager {
     // Badge des conversations dans la page messages
     const conversationsBadge = document.getElementById('conversationsBadge');
     if (conversationsBadge) {
-      // Afficher SEULEMENT si il y a de vrais messages non lus
+      // Même logique que le badge principal - montrer messages non lus
       if (unreadMessages > 0) {
         conversationsBadge.textContent = unreadMessages;
         conversationsBadge.style.display = 'inline';
         conversationsBadge.classList.add('active');
-        console.log('🔔 BADGE AFFICHÉ - Messages non lus:', unreadMessages);
+        console.log('🔔 BADGE CONVERSATIONS AFFICHÉ:', unreadMessages);
       } else {
         conversationsBadge.style.display = 'none';
         conversationsBadge.classList.remove('active');
-        console.log('🔔 BADGE CACHÉ - Pas de messages non lus');
+        console.log('🔔 BADGE CONVERSATIONS CACHÉ');
       }
     }
 
