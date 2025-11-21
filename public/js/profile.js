@@ -5,6 +5,39 @@ console.log(
 );
 console.log('🚨 NOUVELLE VERSION CHARGÉE ! Fonctionnalités photo activées.');
 
+// Mettre à jour seulement l'affichage de base du profil (nom, âge, ville) sans toucher aux photos
+function updateBasicProfileDisplay(profileData) {
+  try {
+    // Mettre à jour le nom dans l'en-tête
+    const profileNameElem = document.getElementById('profileName');
+    if (profileNameElem && profileData.nom) {
+      profileNameElem.textContent = profileData.nom;
+    }
+
+    // Mettre à jour les détails (âge et ville)
+    const profileDetailsElem = document.getElementById('profileDetails');
+    if (profileDetailsElem) {
+      let details = '';
+      if (profileData.age) details += profileData.age;
+      if (profileData.localisation && profileData.localisation.ville) {
+        if (details) details += ' • ';
+        details += profileData.localisation.ville;
+      }
+      profileDetailsElem.textContent = details;
+    }
+
+    // Mettre à jour la bio si nécessaire
+    const bioDisplay = document.querySelector('.profile-bio p');
+    if (bioDisplay && profileData.bio) {
+      bioDisplay.textContent = profileData.bio;
+    }
+
+    console.log('✅ Affichage de base mis à jour sans toucher aux photos');
+  } catch (error) {
+    console.error('Erreur mise à jour affichage de base:', error);
+  }
+}
+
 // Gestion du formulaire de profil
 document
   .getElementById('profileForm')
@@ -49,6 +82,12 @@ document
         return;
       }
 
+      // DEBUG: Afficher ce qu'on va envoyer
+      console.log(
+        '🚀 PROFIL SAVE - Données à envoyer:',
+        JSON.stringify(formData, null, 2)
+      );
+
       const response = await fetch('/api/users/profile', {
         method: 'PUT',
         headers: {
@@ -57,6 +96,8 @@ document
         },
         body: JSON.stringify(formData),
       });
+
+      console.log('📡 PROFIL SAVE - Statut réponse:', response.status);
 
       if (response.ok) {
         const updatedData = await response.json();
@@ -78,10 +119,13 @@ document
               updatedData.user.profile.nom
             );
           }
+
+          // Mettre à jour seulement les informations de base, PAS les photos
+          updateBasicProfileDisplay(updatedData.user.profile);
         }
 
-        // Recharger les données du profil pour mettre à jour l'affichage
-        loadProfileData();
+        // NE PAS recharger loadProfileData() pour éviter de remplacer les photos
+        // loadProfileData(); // COMMENTÉ - causait le remplacement des photos
       } else {
         const errorData = await response.json();
         console.error('Erreur API détaillée:', errorData);
