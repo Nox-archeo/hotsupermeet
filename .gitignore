@@ -10,6 +10,11 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+.env.production
+.env.staging
+
+# ⚠️  CRITIQUE: Tous les fichiers .env avec vraies valeurs
+# Seul .env.example (template générique) peut être committé
 
 # Logs
 logs
