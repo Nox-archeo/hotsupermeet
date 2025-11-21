@@ -20,7 +20,7 @@ const messageSchema = new mongoose.Schema(
     },
     provenance: {
       type: String,
-      enum: ['annuaire', 'annonces', 'ce-soir'],
+      enum: ['annuaire', 'annonces', 'ce-soir', 'conversation'],
       required: true,
     },
     originalPostId: {
