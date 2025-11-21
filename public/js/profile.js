@@ -817,38 +817,9 @@ function setupLocationSelectors() {
 }
 
 // Initialisation de la page profil - VERSION COMPLÈTE
-document.addEventListener('DOMContentLoaded', function () {
-  try {
-    console.log('=== INITIALISATION PAGE PROFIL ===');
-
-    const token = localStorage.getItem('hotmeet_token');
-    console.log('Token présent:', !!token);
-
-    // Charger les données du profil
-    loadProfileData();
-
-    // Configurer le bouton d'aperçu
-    const previewBtn = document.getElementById('previewBtn');
-    if (previewBtn) {
-      previewBtn.addEventListener('click', showProfilePreview);
-    }
-
-    // NOUVEAU: Initialiser la gestion des photos
-    console.log('🚀 INITIALISATION GESTION PHOTOS');
-    setupPhotoManagement();
-    setupPhotoBlurToggle();
-
-    // Charger les photos existantes
-    console.log('📂 CHARGEMENT PHOTOS EXISTANTES');
-    loadPhotos();
-    console.log('Page profil initialisée avec succès');
-  } catch (error) {
-    console.error(
-      'Erreur lors de l\\' + 'initialisation de la page profil:',
-      error
-    );
-  }
-});
+// SUPPRIMÉ - DUPLICATION DU DOMContentLoaded
+// Cette section était dupliquée et causait des conflits d'appels API
+// Voir l'initialisation principale plus bas
 
 // Gestion du changement de photo de profil
 function setupPhotoUpload() {
@@ -1195,6 +1166,12 @@ document.addEventListener('DOMContentLoaded', function () {
   setTimeout(() => {
     loadProfileData();
   }, 300);
+
+  // Configurer le bouton d'aperçu (déplacé de l'ancienne initialisation)
+  const previewBtn = document.getElementById('previewBtn');
+  if (previewBtn) {
+    previewBtn.addEventListener('click', showProfilePreview);
+  }
 
   // Gestionnaire pour la suppression de compte
   const deleteAccountBtn = document.getElementById('deleteAccountBtn');
