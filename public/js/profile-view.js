@@ -150,6 +150,9 @@ class ProfileViewChat {
 
     // Photos
     this.displayPhotos(profile.photos || []);
+
+    // Vérifier l'accès aux photos privées et configurer la section
+    this.setupPrivatePhotosSection(profile.photos || []);
   }
 
   displayPhotos(photos) {
@@ -173,6 +176,150 @@ class ProfileViewChat {
       galleryContainer.innerHTML =
         '<p class="no-photos">Aucune photo de galerie</p>';
     }
+  }
+
+  async setupPrivatePhotosSection(photos) {
+    const privatePhotos = photos.filter(p => p.type === 'private');
+    const privateContainer = document.getElementById('privatePhotos');
+    const requestButton = document.getElementById('requestPrivateAccessBtn');
+    const messageContainer = document.getElementById('privatePhotosMessage');
+
+    if (privatePhotos.length === 0) {
+      privateContainer.innerHTML =
+        '<p class="no-photos">Aucune photo privée</p>';
+      requestButton.style.display = 'none';
+      return;
+    }
+
+    // Vérifier si l'utilisateur a accès aux photos privées
+    const hasAccess = await this.checkPrivatePhotoAccess();
+
+    if (hasAccess) {
+      // L'utilisateur a accès : afficher les photos défloutées
+      this.displayPrivatePhotos(privatePhotos, false);
+      requestButton.style.display = 'none';
+      messageContainer.innerHTML =
+        '<p class="access-granted">✅ Accès accordé aux photos privées</p>';
+    } else {
+      // L'utilisateur n'a pas accès : afficher les photos floutées
+      this.displayPrivatePhotos(privatePhotos, true);
+      requestButton.style.display = 'inline-block';
+      messageContainer.innerHTML =
+        '<p class="access-denied">🔒 Photos privées. Demandez l\'accès pour les voir.</p>';
+
+      // Configurer le bouton de demande
+      this.setupRequestButton();
+    }
+  }
+
+  displayPrivatePhotos(photos, isBlurred) {
+    const privateContainer = document.getElementById('privatePhotos');
+
+    privateContainer.innerHTML = photos
+      .map(
+        photo => `
+        <div class="photo-item private ${isBlurred ? 'blurred' : 'access-granted'}">
+          <img src="${photo.path}" alt="Photo privée" style="width: 100px; height: 100px; object-fit: cover; margin: 5px; border-radius: 8px;" />
+          ${isBlurred ? '<div class="photo-overlay">🔒</div>' : ''}
+        </div>
+      `
+      )
+      .join('');
+  }
+
+  async checkPrivatePhotoAccess() {
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+      const response = await fetch(
+        `/api/private-photos/check-access/${this.userId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        return result.hasAccess;
+      }
+    } catch (error) {
+      console.error('Erreur vérification accès photos privées:', error);
+    }
+    return false;
+  }
+
+  setupRequestButton() {
+    const requestButton = document.getElementById('requestPrivateAccessBtn');
+
+    requestButton.addEventListener('click', async () => {
+      try {
+        requestButton.disabled = true;
+        requestButton.textContent = '📤 Envoi...';
+
+        const token = localStorage.getItem('hotmeet_token');
+        const response = await fetch('/api/private-photos/send-request', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            targetUserId: this.userId,
+            message: 'Aimerais voir vos photos privées',
+          }),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          requestButton.textContent = '✅ Demande envoyée';
+          requestButton.disabled = true;
+          this.showMessage('Demande envoyée avec succès !', 'success');
+        } else {
+          requestButton.textContent = "💌 Demander l'accès";
+          requestButton.disabled = false;
+          this.showMessage(
+            result.error?.message || "Erreur lors de l'envoi",
+            'error'
+          );
+        }
+      } catch (error) {
+        console.error('Erreur envoi demande:', error);
+        requestButton.textContent = "💌 Demander l'accès";
+        requestButton.disabled = false;
+        this.showMessage("Erreur lors de l'envoi de la demande", 'error');
+      }
+    });
+  }
+
+  showMessage(message, type) {
+    // Créer ou utiliser un conteneur de message
+    let messageEl = document.getElementById('profileViewMessage');
+    if (!messageEl) {
+      messageEl = document.createElement('div');
+      messageEl.id = 'profileViewMessage';
+      messageEl.style.cssText = `
+        position: fixed;
+        top: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        z-index: 9999;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      `;
+      document.body.appendChild(messageEl);
+    }
+
+    messageEl.textContent = message;
+    messageEl.style.background = type === 'success' ? '#28a745' : '#dc3545';
+    messageEl.style.display = 'block';
+
+    // Masquer après 4 secondes
+    setTimeout(() => {
+      messageEl.style.display = 'none';
+    }, 4000);
   }
 
   async checkExistingConversation() {

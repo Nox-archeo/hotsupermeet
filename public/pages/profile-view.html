@@ -100,9 +100,31 @@
 
           <!-- Profile Photos -->
           <section class="profile-section">
-            <h2>Photos</h2>
+            <h2>📷 Photos publiques</h2>
             <div class="photo-gallery" id="galleryPhotos">
               <!-- Gallery photos will be loaded here -->
+            </div>
+          </section>
+
+          <!-- Private Photos Section -->
+          <section class="profile-section">
+            <div class="private-photos-header">
+              <h2>🔒 Photos privées</h2>
+              <button
+                id="requestPrivateAccessBtn"
+                class="btn-request-access"
+                style="display: none"
+              >
+                💌 Demander l'accès
+              </button>
+            </div>
+            <div class="private-photos-container">
+              <div class="photo-gallery" id="privatePhotos">
+                <!-- Private photos will be loaded here -->
+              </div>
+              <div id="privatePhotosMessage" class="private-message">
+                <!-- Message about private photos access -->
+              </div>
             </div>
           </section>
         </div>
