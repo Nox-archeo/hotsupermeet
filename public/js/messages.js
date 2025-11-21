@@ -200,10 +200,71 @@ class MessagesManager {
         this.conversations = [];
       }
 
-      // Récupérer les demandes Ce Soir (simulated for now - à connecter avec l'API réelle)
-      this.tonightRequests = []; // Pour l'instant, pas de demandes Ce Soir
+      // Récupérer les demandes Ce Soir
+      try {
+        const tonightResponse = await fetch('/api/tonight/requests', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-      this.adResponses = [];
+        if (tonightResponse.ok) {
+          const tonightData = await tonightResponse.json();
+          this.tonightRequests = tonightData.requests || [];
+        } else {
+          this.tonightRequests = [];
+        }
+      } catch (error) {
+        console.warn('API Ce Soir non disponible:', error);
+        // Données de test pour démonstration
+        this.tonightRequests = [
+          {
+            id: 1,
+            status: 'pending',
+            fromUser: {
+              id: 'test-user-tonight',
+              nom: 'Emma',
+              age: 26,
+              sexe: 'femme',
+              location: 'Lyon',
+              photo: '/images/avatar-femme-2.jpg',
+            },
+            message: "Salut ! Tu veux qu'on se voit ce soir pour un verre ?",
+            timestamp: new Date(Date.now() - 30 * 60 * 1000), // Il y a 30min
+          },
+        ];
+      }
+
+      // Récupérer les réponses aux annonces
+      try {
+        const adResponsesResponse = await fetch('/api/ads/responses', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (adResponsesResponse.ok) {
+          const adResponsesData = await adResponsesResponse.json();
+          this.adResponses = adResponsesData.responses || [];
+        } else {
+          this.adResponses = [];
+        }
+      } catch (error) {
+        console.warn('API réponses aux annonces non disponible:', error);
+        // Données de test pour démonstration
+        this.adResponses = [
+          {
+            id: 1,
+            status: 'unread',
+            adTitle: 'Soirée détente',
+            message: 'Salut ! Ton annonce me plaît beaucoup',
+            responder: {
+              name: 'Claire',
+              age: 28,
+              gender: 'femme',
+              location: 'Paris',
+              photo: '/images/avatar-femme-3.jpg',
+            },
+            timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // Il y a 2h
+          },
+        ];
+      }
 
       this.renderAllData();
     } catch (error) {
@@ -811,19 +872,10 @@ class MessagesManager {
       if (totalNotifications > 0) {
         messageBadge.textContent = totalNotifications;
         messageBadge.style.display = 'inline';
+        messageBadge.classList.add('active');
       } else {
         messageBadge.style.display = 'none';
-      }
-    }
-
-    // Badge des demandes dans la page messages
-    const requestsBadge = document.getElementById('requestsBadge');
-    if (requestsBadge) {
-      if (pendingRequests > 0) {
-        requestsBadge.textContent = pendingRequests;
-        requestsBadge.style.display = 'inline';
-      } else {
-        requestsBadge.style.display = 'none';
+        messageBadge.classList.remove('active');
       }
     }
 
@@ -833,8 +885,23 @@ class MessagesManager {
       if (unreadMessages > 0) {
         conversationsBadge.textContent = unreadMessages;
         conversationsBadge.style.display = 'inline';
+        conversationsBadge.classList.add('active');
       } else {
         conversationsBadge.style.display = 'none';
+        conversationsBadge.classList.remove('active');
+      }
+    }
+
+    // Badge des demandes dans la page messages
+    const requestsBadge = document.getElementById('requestsBadge');
+    if (requestsBadge) {
+      if (pendingRequests > 0) {
+        requestsBadge.textContent = pendingRequests;
+        requestsBadge.style.display = 'inline';
+        requestsBadge.classList.add('active');
+      } else {
+        requestsBadge.style.display = 'none';
+        requestsBadge.classList.remove('active');
       }
     }
 
@@ -844,8 +911,10 @@ class MessagesManager {
       if (unreadResponses > 0) {
         responsesBadge.textContent = unreadResponses;
         responsesBadge.style.display = 'inline';
+        responsesBadge.classList.add('active');
       } else {
         responsesBadge.style.display = 'none';
+        responsesBadge.classList.remove('active');
       }
     }
 
@@ -855,9 +924,16 @@ class MessagesManager {
       if (pendingTonightRequests > 0) {
         tonightBadge.textContent = pendingTonightRequests;
         tonightBadge.style.display = 'inline';
+        tonightBadge.classList.add('active');
       } else {
         tonightBadge.style.display = 'none';
+        tonightBadge.classList.remove('active');
       }
+    }
+
+    // Aussi mettre à jour le gestionnaire global si il existe
+    if (window.globalNotificationManager) {
+      window.globalNotificationManager.forceUpdate();
     }
   }
 
