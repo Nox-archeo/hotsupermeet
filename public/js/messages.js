@@ -541,6 +541,10 @@ class MessagesManager {
       if (!response.ok) {
         const errorData = await response.json();
         console.error('❌ Erreur API détaillée:', errorData);
+        console.error(
+          '📝 FULL ERROR OBJECT:',
+          JSON.stringify(errorData, null, 2)
+        );
 
         let errorMessage = "Erreur lors de l'envoi du message";
         if (errorData.error && errorData.error.details) {
