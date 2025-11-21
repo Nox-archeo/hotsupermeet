@@ -1448,3 +1448,79 @@ h4 {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* Messages de statut pour le profil */
+.message {
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  margin: 10px 0;
+  font-weight: 500;
+  border-left: 4px solid;
+  transition: var(--transition);
+  opacity: 1;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.message-success {
+  background-color: #d4edda;
+  color: #155724;
+  border-left-color: #28a745;
+}
+
+.message-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-left-color: #dc3545;
+}
+
+.message-warning {
+  background-color: #fff3cd;
+  color: #856404;
+  border-left-color: #ffc107;
+}
+
+.message-info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border-left-color: #17a2b8;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Container pour les messages du profil */
+#profileMessage {
+  min-height: 20px;
+  margin: 10px 0;
+}
+
+/* Loading spinner pour le bouton */
+.fa-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Style pour les spans de texte du bouton */
+#loadingText {
+  display: none;
+}
+
+#saveText {
+  display: inline;
+}

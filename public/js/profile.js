@@ -47,6 +47,17 @@ document
   .addEventListener('submit', async function (e) {
     e.preventDefault();
 
+    // Afficher le loading sur le bouton
+    const saveBtn = document.getElementById('saveProfileBtn');
+    const saveText = document.getElementById('saveText');
+    const loadingText = document.getElementById('loadingText');
+
+    if (saveBtn && saveText && loadingText) {
+      saveBtn.disabled = true;
+      saveText.style.display = 'none';
+      loadingText.style.display = 'inline';
+    }
+
     // Récupérer les valeurs avec gestion des champs vides
     const nom = document.getElementById('profileNom').value.trim();
     const age = document.getElementById('profileAge').value;
@@ -58,6 +69,12 @@ document
 
     // Validation minimale : seulement nom obligatoire
     if (!nom) {
+      // Restaurer le bouton en cas d'erreur
+      if (saveBtn && saveText && loadingText) {
+        saveBtn.disabled = false;
+        saveText.style.display = 'inline';
+        loadingText.style.display = 'none';
+      }
       showMessage('Le nom est obligatoire', 'error');
       return;
     }
@@ -77,8 +94,6 @@ document
     };
 
     try {
-      showMessage('Mise à jour en cours...', 'info');
-
       const token = localStorage.getItem('hotmeet_token');
       if (!token) {
         showMessage('Erreur: Non connecté', 'error');
@@ -104,7 +119,13 @@ document
 
       if (response.ok) {
         const updatedData = await response.json();
-        showMessage('✅ Profil mis à jour avec succès !', 'success');
+
+        // Restaurer le bouton et afficher le succès
+        saveBtn.disabled = false;
+        saveText.style.display = 'inline';
+        loadingText.style.display = 'none';
+
+        showMessage('Profil modifié avec succès !', 'success');
 
         // Mettre à jour le localStorage avec les nouvelles données
         if (updatedData.success && updatedData.user) {
@@ -131,6 +152,12 @@ document
         // loadProfileData(); // COMMENTÉ - causait le remplacement des photos
       } else {
         const errorData = await response.json();
+
+        // Restaurer le bouton en cas d'erreur
+        saveBtn.disabled = false;
+        saveText.style.display = 'inline';
+        loadingText.style.display = 'none';
+
         console.error('Erreur API détaillée:', errorData);
 
         let errorMessage = 'Erreur lors de la mise à jour';
@@ -152,6 +179,11 @@ document
         showMessage(errorMessage, 'error');
       }
     } catch (error) {
+      // Restaurer le bouton en cas d'erreur de réseau
+      saveBtn.disabled = false;
+      saveText.style.display = 'inline';
+      loadingText.style.display = 'none';
+
       console.error('Erreur:', error);
       showMessage('Erreur lors de la mise à jour', 'error');
     }
@@ -704,11 +736,16 @@ function updateProfilePhoto(photoData) {
 
 // Fonction pour afficher les messages
 function showMessage(message, type) {
-  const messageContainer =
-    document.getElementById('messageContainer') ||
-    document.createElement('div');
-  messageContainer.id = 'messageContainer';
-  messageContainer.className = 'message-container';
+  // Utiliser le container spécifique au profil si disponible, sinon le container général
+  let messageContainer = document.getElementById('profileMessage');
+
+  if (!messageContainer) {
+    messageContainer =
+      document.getElementById('messageContainer') ||
+      document.createElement('div');
+    messageContainer.id = 'messageContainer';
+    messageContainer.className = 'message-container';
+  }
 
   const messageDiv = document.createElement('div');
   messageDiv.className = `message message-${type}`;
@@ -717,7 +754,11 @@ function showMessage(message, type) {
   messageContainer.innerHTML = '';
   messageContainer.appendChild(messageDiv);
 
-  if (!document.getElementById('messageContainer')) {
+  // Si ce n'est pas le container du profil, l'ajouter au body si nécessaire
+  if (
+    messageContainer.id === 'messageContainer' &&
+    !document.getElementById('messageContainer')
+  ) {
     document.body.appendChild(messageContainer);
   }
 

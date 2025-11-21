@@ -392,8 +392,16 @@
                     </div>
 
                     <div class="form-actions">
-                      <button type="submit" class="btn-primary">
-                        Enregistrer les modifications
+                      <button
+                        type="submit"
+                        class="btn-primary"
+                        id="saveProfileBtn"
+                      >
+                        <span id="saveText">Enregistrer les modifications</span>
+                        <span id="loadingText" style="display: none">
+                          <i class="fas fa-spinner fa-spin"></i>
+                          Enregistrement...
+                        </span>
                       </button>
                       <button
                         type="button"
@@ -403,6 +411,12 @@
                         Aperçu du profil
                       </button>
                     </div>
+
+                    <!-- Zone de messages de succès/erreur -->
+                    <div
+                      id="profileMessage"
+                      style="display: none; margin-top: 1rem"
+                    ></div>
                   </form>
                 </div>
               </div>
