@@ -291,6 +291,11 @@ class MessagesManager {
     document.getElementById(tabName).classList.add('active');
 
     this.currentTab = tabName;
+
+    // Si on clique sur l'onglet Conversations, marquer tous les messages comme lus
+    if (tabName === 'conversations') {
+      this.markAllConversationsAsViewed();
+    }
   }
 
   // Accepter une demande de chat
@@ -811,6 +816,20 @@ class MessagesManager {
     }
   }
 
+  // Marquer toutes les conversations comme vues (quand on clique sur l'onglet)
+  markAllConversationsAsViewed() {
+    // Réinitialiser localement tous les compteurs de non lus
+    this.conversations.forEach(conversation => {
+      conversation.unreadCount = 0;
+    });
+
+    // Mettre à jour l'affichage immédiatement
+    this.renderConversations();
+    this.updateNotificationBadges();
+
+    console.log('🔔 CONVERSATIONS VUES - Badges masqués');
+  }
+
   // Créer un élément de message
   createMessageElement(message) {
     const messageDiv = document.createElement('div');
@@ -889,22 +908,16 @@ class MessagesManager {
     // Badge des conversations dans la page messages
     const conversationsBadge = document.getElementById('conversationsBadge');
     if (conversationsBadge) {
-      // FORCE l'affichage du badge pour tester si tu as des conversations
-      const forceShow = this.conversations.length > 0;
-
-      if (unreadMessages > 0 || forceShow) {
-        conversationsBadge.textContent =
-          unreadMessages > 0 ? unreadMessages : '1';
+      // Afficher SEULEMENT si il y a de vrais messages non lus
+      if (unreadMessages > 0) {
+        conversationsBadge.textContent = unreadMessages;
         conversationsBadge.style.display = 'inline';
         conversationsBadge.classList.add('active');
-        console.log(
-          '🔔 BADGE AFFICHÉ - Conversations:',
-          conversationsBadge.textContent
-        );
+        console.log('🔔 BADGE AFFICHÉ - Messages non lus:', unreadMessages);
       } else {
         conversationsBadge.style.display = 'none';
         conversationsBadge.classList.remove('active');
-        console.log('🔔 BADGE CACHÉ - Pas de notifications conversations');
+        console.log('🔔 BADGE CACHÉ - Pas de messages non lus');
       }
     }
 
