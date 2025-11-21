@@ -127,15 +127,13 @@ const sendMessage = async (req, res) => {
       isInitialRequest = true;
       messageStatus = 'pending';
     } else {
-      // NOUVELLE LOGIQUE: Même s'il y a des messages approuvés,
-      // une NOUVELLE demande doit être pending pour validation
+      // CONVERSATION DÉJÀ APPROUVÉE: nouveaux messages automatiquement approuvés
       console.log(
-        '🔄 NOUVELLE DEMANDE - Conversation existe mais nouvelle demande requiert approbation'
+        '✅ CONVERSATION APPROUVÉE - Nouveau message automatiquement approuvé'
       );
-      isInitialRequest = true;
-      messageStatus = 'pending';
+      isInitialRequest = false;
+      messageStatus = 'approved';
     }
-    // Note: Cette logique permet toujours les nouvelles demandes d'approbation
 
     // Déterminer le modèle de provenance si originalPostId est fourni
     let provenanceModel;
