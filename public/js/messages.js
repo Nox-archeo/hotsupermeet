@@ -903,6 +903,13 @@ class MessagesManager {
     // Badge des conversations dans la page messages
     const conversationsBadge = document.getElementById('conversationsBadge');
     if (conversationsBadge) {
+      console.log('🔔 DEBUG BADGE - Element trouvé:', conversationsBadge);
+      console.log('🔔 DEBUG BADGE - unreadMessages:', unreadMessages);
+      console.log(
+        '🔔 DEBUG BADGE - conversations avec unread:',
+        this.conversations.filter(c => c.unreadCount > 0)
+      );
+
       // Même logique que le badge principal - montrer messages non lus
       if (unreadMessages > 0) {
         conversationsBadge.textContent = unreadMessages;
@@ -912,8 +919,13 @@ class MessagesManager {
       } else {
         conversationsBadge.style.display = 'none';
         conversationsBadge.classList.remove('active');
-        console.log('🔔 BADGE CONVERSATIONS CACHÉ');
+        console.log(
+          '🔔 BADGE CONVERSATIONS CACHÉ - unreadMessages:',
+          unreadMessages
+        );
       }
+    } else {
+      console.error('🔔 DEBUG BADGE - Element conversationsBadge NOT FOUND!');
     }
 
     // Badge des demandes dans la page messages
