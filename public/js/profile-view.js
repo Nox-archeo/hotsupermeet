@@ -274,6 +274,11 @@ class ProfileViewChat {
           requestButton.textContent = '✅ Demande envoyée';
           requestButton.disabled = true;
           this.showMessage('Demande envoyée avec succès !', 'success');
+
+          // Notifier la page messages des nouvelles demandes
+          if (typeof window.notifyPhotoRequestSent === 'function') {
+            window.notifyPhotoRequestSent();
+          }
         } else {
           requestButton.textContent = "💌 Demander l'accès";
           requestButton.disabled = false;
