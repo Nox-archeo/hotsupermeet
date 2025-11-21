@@ -112,3 +112,48 @@ Desktop.ini
 *.swp
 *.swo
 *~
+
+# ======================================================
+# SÉCURITÉ - Fichiers sensibles à ne jamais commiter
+# ======================================================
+# Clés privées
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Configurations avec secrets
+config/production.json
+config/staging.json
+.env.production
+.env.staging
+
+# Dumps et backups de base de données  
+*.sql
+*.dump
+*.backup
+mongo_dump/
+db_backup/
+
+# Logs pouvant contenir des infos sensibles
+*.log.*
+logs/
+log/
+
+# Certificats
+*.crt
+*.cer
+
+# Fichiers temporaires avec potentiels secrets
+temp/
+tmp/
+cache/
+
+# Configuration Docker avec secrets
+docker-compose.override.yml
+.dockerignore
+
+# Fichiers de déploiement avec secrets
+deployment/
+terraform/
+ansible/

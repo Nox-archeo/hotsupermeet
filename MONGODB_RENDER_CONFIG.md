@@ -5,7 +5,12 @@
 ### 1. MONGODB_URI (URI de connexion principale)
 
 ```
-mongodb+srv://sebchappss_db_user:Lilith66.666.7@cluster0.4j9jv.mongodb.net/hotsupermeet?retryWrites=true&w=majority
+# ⚠️ ATTENTION: Ne jamais exposer la vraie URI MongoDB dans ce fichier !
+# Utiliser uniquement des variables d'environnement dans Render
+
+# Format: mongodb+srv://USERNAME:PASSWORD@cluster.mongodb.net/DATABASE?retryWrites=true&w=majority
+# Exemple sécurisé (pour documentation seulement):
+mongodb+srv://YOUR_USERNAME:YOUR_PASSWORD@cluster0.xxxxx.mongodb.net/YOUR_DATABASE?retryWrites=true&w=majority
 ```
 
 ### 2. Variables de base
@@ -19,7 +24,8 @@ CLIENT_URL=https://hotsupermeet.onrender.com
 ### 3. Sécurité
 
 ```
-JWT_SECRET=Lilith66.666.7_super_secret_jwt_key_2024
+# ⚠️ ATTENTION: Générer un JWT_SECRET unique et sécurisé (32+ caractères)
+JWT_SECRET=YOUR_STRONG_JWT_SECRET_HERE_AT_LEAST_32_CHARS_LONG
 TOKEN_EXPIRY=7d
 BCRYPT_ROUNDS=12
 ```
