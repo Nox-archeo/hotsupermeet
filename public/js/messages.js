@@ -1385,7 +1385,7 @@ const messagesStyles = `
         position: relative;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0; /* Pas d'espacement entre texte et badge */
     }
     
     .tab-btn.active {
@@ -1411,7 +1411,7 @@ const messagesStyles = `
         font-weight: bold;
         min-width: 1.2rem;
         text-align: center;
-        margin-left: 0.5rem;
+        margin-left: 0.25rem; /* Très petit espacement - presque collé */
         display: inline-block;
         line-height: 1;
         animation: pulse 2s infinite;
