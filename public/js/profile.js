@@ -59,15 +59,50 @@ document
       });
 
       if (response.ok) {
+        const updatedData = await response.json();
         showMessage('Profil mis à jour avec succès !', 'success');
-        // Recharger les données du profil
+
+        // Mettre à jour le localStorage avec les nouvelles données
+        if (updatedData.success && updatedData.user) {
+          localStorage.setItem(
+            'hotmeet_user_profile',
+            JSON.stringify(updatedData.user.profile)
+          );
+
+          // Mettre à jour aussi l'affichage du nom/âge partout sur le site
+          if (
+            window.globalNotificationManager &&
+            window.globalNotificationManager.updateUserName
+          ) {
+            window.globalNotificationManager.updateUserName(
+              updatedData.user.profile.nom
+            );
+          }
+        }
+
+        // Recharger les données du profil pour mettre à jour l'affichage
         loadProfileData();
       } else {
         const errorData = await response.json();
-        showMessage(
-          errorData.message || 'Erreur lors de la mise à jour',
-          'error'
-        );
+        console.error('Erreur API détaillée:', errorData);
+
+        let errorMessage = 'Erreur lors de la mise à jour';
+        if (
+          errorData.error &&
+          errorData.error.details &&
+          errorData.error.details.length > 0
+        ) {
+          // Afficher les erreurs de validation
+          errorMessage = errorData.error.details
+            .map(detail => detail.msg)
+            .join(', ');
+        } else if (errorData.error && errorData.error.message) {
+          errorMessage = errorData.error.message;
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+
+        showMessage(errorMessage, 'error');
       }
     } catch (error) {
       console.error('Erreur:', error);
