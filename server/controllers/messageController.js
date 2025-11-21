@@ -627,6 +627,20 @@ const getApprovedConversations = async (req, res) => {
           lastMessage: { $last: '$content' },
           lastMessageDate: { $last: '$createdAt' },
           messageCount: { $sum: 1 },
+          unreadCount: {
+            $sum: {
+              $cond: {
+                if: {
+                  $and: [
+                    { $eq: ['$toUserId', currentUserId] },
+                    { $eq: ['$read', false] },
+                  ],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
         },
       },
       {
@@ -667,6 +681,7 @@ const getApprovedConversations = async (req, res) => {
         lastMessage: conv.lastMessage,
         lastMessageDate: conv.lastMessageDate,
         messageCount: conv.messageCount,
+        unreadCount: conv.unreadCount || 0,
       };
     });
 
@@ -744,6 +759,40 @@ const getConversationMessages = async (req, res) => {
   }
 };
 
+// Marquer tous les messages d'une conversation comme lus
+const markConversationAsRead = async (req, res) => {
+  try {
+    const currentUserId = req.user._id;
+    const { otherUserId } = req.body;
+
+    // Marquer tous les messages non lus de cette conversation comme lus
+    const result = await Message.updateMany(
+      {
+        fromUserId: otherUserId,
+        toUserId: currentUserId,
+        read: false,
+      },
+      {
+        read: true,
+      }
+    );
+
+    res.json({
+      success: true,
+      markedCount: result.modifiedCount,
+    });
+  } catch (error) {
+    console.error('Erreur marquage conversation comme lue:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'SERVER_ERROR',
+        message: 'Erreur lors du marquage comme lu',
+      },
+    });
+  }
+};
+
 module.exports = {
   sendMessage,
   getMessages,
@@ -755,4 +804,5 @@ module.exports = {
   getPendingChatRequests,
   getApprovedConversations,
   getConversationMessages,
+  markConversationAsRead,
 };
