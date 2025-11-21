@@ -214,23 +214,8 @@ class MessagesManager {
         }
       } catch (error) {
         console.warn('API Ce Soir non disponible:', error);
-        // Données de test pour démonstration
-        this.tonightRequests = [
-          {
-            id: 1,
-            status: 'pending',
-            fromUser: {
-              id: 'test-user-tonight',
-              nom: 'Emma',
-              age: 26,
-              sexe: 'femme',
-              location: 'Lyon',
-              photo: '/images/avatar-femme-2.jpg',
-            },
-            message: "Salut ! Tu veux qu'on se voit ce soir pour un verre ?",
-            timestamp: new Date(Date.now() - 30 * 60 * 1000), // Il y a 30min
-          },
-        ];
+        // Pas de données de test - utiliser seulement les vraies données API
+        this.tonightRequests = [];
       }
 
       // Récupérer les réponses aux annonces
@@ -247,23 +232,8 @@ class MessagesManager {
         }
       } catch (error) {
         console.warn('API réponses aux annonces non disponible:', error);
-        // Données de test pour démonstration
-        this.adResponses = [
-          {
-            id: 1,
-            status: 'unread',
-            adTitle: 'Soirée détente',
-            message: 'Salut ! Ton annonce me plaît beaucoup',
-            responder: {
-              name: 'Claire',
-              age: 28,
-              gender: 'femme',
-              location: 'Paris',
-              photo: '/images/avatar-femme-3.jpg',
-            },
-            timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // Il y a 2h
-          },
-        ];
+        // Pas de données de test - utiliser seulement les vraies données API
+        this.adResponses = [];
       }
 
       this.renderAllData();
