@@ -1573,9 +1573,35 @@ function updateProfilePhotoDisplay(photo) {
 }
 
 // Charger et afficher toutes les photos
-function loadPhotos() {
-  // Cette fonction sera appelée automatiquement par loadProfileData()
-  // qui charge déjà les photos dans la structure existante
+async function loadPhotos() {
+  try {
+    const token = localStorage.getItem('hotmeet_token');
+    if (!token) {
+      console.log('Pas de token, impossible de charger les photos');
+      return;
+    }
+
+    // Récupérer les données utilisateur avec les photos
+    const response = await fetch('/api/auth/me', {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.user && data.user.profile && data.user.profile.photos) {
+        // Afficher les photos dans les galeries
+        displayPhotos(data.user.profile.photos);
+        console.log('📸 Photos rechargées:', data.user.profile.photos.length);
+      }
+    } else {
+      console.error('Erreur lors du chargement des photos');
+    }
+  } catch (error) {
+    console.error('Erreur lors du chargement des photos:', error);
+  }
 }
 
 // Afficher les photos dans les galeries
