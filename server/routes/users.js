@@ -7,6 +7,7 @@ const {
   searchUsers,
   getDirectoryStats,
   deleteAccount,
+  deleteTestUsers, // Nouveau: fonction temporaire admin
 } = require('../controllers/userController');
 const { auth, updateLastActivity } = require('../middleware/auth');
 
@@ -120,5 +121,8 @@ router.delete(
   ],
   deleteAccount
 ); // DELETE /api/users/delete-account
+
+// ROUTE TEMPORAIRE ADMIN: Supprimer les utilisateurs de test
+router.delete('/admin/delete-test-users', deleteTestUsers); // DELETE /api/users/admin/delete-test-users
 
 module.exports = router;

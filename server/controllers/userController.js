@@ -527,6 +527,62 @@ const deleteAccount = async (req, res) => {
   }
 };
 
+// FONCTION TEMPORAIRE ADMIN: Supprimer les utilisateurs de test
+const deleteTestUsers = async (req, res) => {
+  try {
+    console.log('🗑️ ADMIN: Suppression des utilisateurs de test...');
+
+    const testUsernames = ['gege', 'jojo', 'kololo', 'lolo'];
+
+    // Rechercher les utilisateurs de test
+    const testUsers = await User.find({
+      'profile.nom': { $in: testUsernames },
+    });
+
+    console.log(`📋 Utilisateurs de test trouvés: ${testUsers.length}`);
+
+    if (testUsers.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Aucun utilisateur de test trouvé à supprimer',
+      });
+    }
+
+    // Afficher les détails des utilisateurs trouvés
+    testUsers.forEach(user => {
+      console.log(
+        `   - ID: ${user._id}, Nom: ${user.profile.nom}, Email: ${user.email}`
+      );
+    });
+
+    // Supprimer les utilisateurs de test
+    const deleteResult = await User.deleteMany({
+      'profile.nom': { $in: testUsernames },
+    });
+
+    console.log(`✅ ${deleteResult.deletedCount} utilisateurs supprimés`);
+
+    res.status(200).json({
+      success: true,
+      message: `${deleteResult.deletedCount} utilisateurs de test supprimés avec succès`,
+      deletedUsers: testUsers.map(user => ({
+        id: user._id,
+        nom: user.profile.nom,
+        email: user.email,
+      })),
+    });
+  } catch (error) {
+    console.error('❌ Erreur suppression utilisateurs de test:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        message: 'Erreur lors de la suppression des utilisateurs de test',
+        details: error.message,
+      },
+    });
+  }
+};
+
 module.exports = {
   getUsers,
   getUserProfile,
@@ -534,4 +590,5 @@ module.exports = {
   searchUsers,
   getDirectoryStats,
   deleteAccount,
+  deleteTestUsers, // Nouveau: fonction temporaire admin
 };
