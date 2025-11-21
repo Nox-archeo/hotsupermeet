@@ -1291,6 +1291,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Charger les données du profil avec un délai pour s'assurer que les sélecteurs sont configurés
   setTimeout(() => {
     loadProfileData();
+    loadPrivatePhotoRequests(); // Charger les demandes de photos privées
   }, 300);
 
   // Configurer le bouton d'aperçu (déplacé de l'ancienne initialisation)
@@ -1736,5 +1737,195 @@ async function deletePhoto(photoId) {
   } catch (error) {
     console.error('Erreur lors de la suppression de la photo:', error);
     showMessage('Erreur lors de la suppression de la photo', 'error');
+  }
+}
+
+// ==========================================
+// SYSTÈME DE DEMANDES DE PHOTOS PRIVÉES
+// ==========================================
+
+// Charger les demandes de photos privées
+async function loadPrivatePhotoRequests() {
+  try {
+    const token = localStorage.getItem('hotmeet_token');
+    if (!token) {
+      return;
+    }
+
+    // Charger les demandes reçues et envoyées en parallèle
+    const [receivedResponse, sentResponse] = await Promise.all([
+      fetch('/api/private-photos/received', {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+      fetch('/api/private-photos/sent', {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    ]);
+
+    if (receivedResponse.ok && sentResponse.ok) {
+      const receivedData = await receivedResponse.json();
+      const sentData = await sentResponse.json();
+
+      displayReceivedRequests(receivedData.requests || []);
+      displaySentRequests(sentData.requests || []);
+    }
+  } catch (error) {
+    console.error('Erreur chargement demandes photos privées:', error);
+  }
+}
+
+// Afficher les demandes reçues
+function displayReceivedRequests(requests) {
+  const container = document.getElementById('receivedPhotoRequests');
+  if (!container) return;
+
+  if (requests.length === 0) {
+    container.innerHTML = '<p class="no-requests">Aucune demande reçue</p>';
+    return;
+  }
+
+  container.innerHTML = requests
+    .map(request => {
+      const date = new Date(request.createdAt).toLocaleDateString('fr-FR');
+      const userName = request.requester?.profile?.nom || 'Utilisateur inconnu';
+
+      return `
+      <div class="request-item">
+        <div class="request-header">
+          <span class="request-user">${userName}</span>
+          <span class="request-date">${date}</span>
+        </div>
+        <div class="request-message">${request.message}</div>
+        <div class="request-status ${request.status}">${getStatusText(request.status)}</div>
+        ${
+          request.status === 'pending'
+            ? `
+          <div class="request-actions">
+            <button class="btn-request accept" onclick="respondToPhotoRequest('${request._id}', 'accept')">
+              ✅ Accepter
+            </button>
+            <button class="btn-request reject" onclick="respondToPhotoRequest('${request._id}', 'reject')">
+              ❌ Refuser
+            </button>
+          </div>
+        `
+            : ''
+        }
+      </div>
+    `;
+    })
+    .join('');
+}
+
+// Afficher les demandes envoyées
+function displaySentRequests(requests) {
+  const container = document.getElementById('sentPhotoRequests');
+  if (!container) return;
+
+  if (requests.length === 0) {
+    container.innerHTML = '<p class="no-requests">Aucune demande envoyée</p>';
+    return;
+  }
+
+  container.innerHTML = requests
+    .map(request => {
+      const date = new Date(request.createdAt).toLocaleDateString('fr-FR');
+      const userName = request.target?.profile?.nom || 'Utilisateur inconnu';
+
+      return `
+      <div class="request-item">
+        <div class="request-header">
+          <span class="request-user">À ${userName}</span>
+          <span class="request-date">${date}</span>
+        </div>
+        <div class="request-message">${request.message}</div>
+        <div class="request-status ${request.status}">${getStatusText(request.status)}</div>
+      </div>
+    `;
+    })
+    .join('');
+}
+
+// Répondre à une demande de photo privée
+async function respondToPhotoRequest(requestId, action) {
+  try {
+    const token = localStorage.getItem('hotmeet_token');
+    if (!token) {
+      showMessage('Erreur: Non connecté', 'error');
+      return;
+    }
+
+    const response = await fetch('/api/private-photos/respond', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ requestId, action }),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      showMessage(result.message, 'success');
+      // Recharger les demandes pour mettre à jour l'affichage
+      loadPrivatePhotoRequests();
+    } else {
+      showMessage(
+        result.error?.message || 'Erreur lors de la réponse',
+        'error'
+      );
+    }
+  } catch (error) {
+    console.error('Erreur réponse demande:', error);
+    showMessage('Erreur lors de la réponse à la demande', 'error');
+  }
+}
+
+// Obtenir le texte du statut
+function getStatusText(status) {
+  switch (status) {
+    case 'pending':
+      return 'En attente';
+    case 'accepted':
+      return 'Acceptée';
+    case 'rejected':
+      return 'Refusée';
+    default:
+      return status;
+  }
+}
+
+// Envoyer une demande de photo privée (sera utilisé depuis les profils visitées)
+async function sendPrivatePhotoRequest(
+  targetUserId,
+  message = 'Aimerais voir vos photos privées'
+) {
+  try {
+    const token = localStorage.getItem('hotmeet_token');
+    if (!token) {
+      showMessage('Erreur: Non connecté', 'error');
+      return;
+    }
+
+    const response = await fetch('/api/private-photos/send-request', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ targetUserId, message }),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      showMessage('Demande envoyée avec succès !', 'success');
+    } else {
+      showMessage(result.error?.message || "Erreur lors de l'envoi", 'error');
+    }
+  } catch (error) {
+    console.error('Erreur envoi demande:', error);
+    showMessage("Erreur lors de l'envoi de la demande", 'error');
   }
 }
