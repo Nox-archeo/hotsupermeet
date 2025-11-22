@@ -138,4 +138,142 @@ router.post('/private-photos/send-request', auth, async (req, res) => {
   }
 });
 
+// Route pour récupérer les demandes REÇUES
+router.get('/private-photos/received', auth, async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const requests = await PrivatePhotoRequest.find({ target: userId })
+      .populate('requester', 'profile')
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      requests: requests,
+    });
+  } catch (error) {
+    console.error('Erreur récupération demandes reçues:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur serveur' },
+    });
+  }
+});
+
+// Route pour récupérer les demandes ENVOYÉES
+router.get('/private-photos/sent', auth, async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const requests = await PrivatePhotoRequest.find({ requester: userId })
+      .populate('target', 'profile')
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      requests: requests,
+    });
+  } catch (error) {
+    console.error('Erreur récupération demandes envoyées:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur serveur' },
+    });
+  }
+});
+
+// Route pour RÉPONDRE à une demande (accepter/refuser)
+router.post('/private-photos/respond', auth, async (req, res) => {
+  try {
+    const { requestId, action } = req.body;
+    const userId = req.user._id;
+
+    if (!['accept', 'reject'].includes(action)) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Action invalide' },
+      });
+    }
+
+    const request = await PrivatePhotoRequest.findById(requestId);
+
+    if (!request) {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Demande non trouvée' },
+      });
+    }
+
+    // Vérifier que l'utilisateur est bien le destinataire de la demande
+    if (request.target.toString() !== userId.toString()) {
+      return res.status(403).json({
+        success: false,
+        error: { message: 'Non autorisé' },
+      });
+    }
+
+    // Mettre à jour le statut
+    request.status = action === 'accept' ? 'accepted' : 'rejected';
+    request.respondedAt = new Date();
+    await request.save();
+
+    console.log('✅ DEMANDE PHOTO RÉPONDUE:', {
+      requestId,
+      action,
+      status: request.status,
+    });
+
+    res.json({
+      success: true,
+      message:
+        action === 'accept' ? 'Accès accordé avec succès' : 'Demande refusée',
+      request: request,
+    });
+  } catch (error) {
+    console.error('Erreur réponse demande photo:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur serveur' },
+    });
+  }
+});
+
+// Route pour vérifier l'accès aux photos privées
+router.get(
+  '/private-photos/check-access/:targetUserId',
+  auth,
+  async (req, res) => {
+    try {
+      const { targetUserId } = req.params;
+      const userId = req.user._id;
+
+      if (userId.toString() === targetUserId) {
+        return res.json({
+          success: true,
+          hasAccess: true,
+          reason: 'own_photos',
+        });
+      }
+
+      const acceptedRequest = await PrivatePhotoRequest.findOne({
+        requester: userId,
+        target: targetUserId,
+        status: 'accepted',
+      });
+
+      res.json({
+        success: true,
+        hasAccess: !!acceptedRequest,
+        reason: acceptedRequest ? 'request_accepted' : 'no_access',
+      });
+    } catch (error) {
+      console.error('Erreur vérification accès photos:', error);
+      res.status(500).json({
+        success: false,
+        error: { message: 'Erreur serveur' },
+      });
+    }
+  }
+);
+
 module.exports = router;

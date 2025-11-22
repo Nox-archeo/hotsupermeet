@@ -1371,9 +1371,12 @@ class MessagesManager {
       const token = localStorage.getItem('hotmeet_token');
 
       // Charger les demandes reçues
-      const receivedResponse = await fetch('/api/private-photos/received', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const receivedResponse = await fetch(
+        '/api/auth/private-photos/received',
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (receivedResponse.ok) {
         const receivedData = await receivedResponse.json();
@@ -1381,7 +1384,7 @@ class MessagesManager {
       }
 
       // Charger les demandes envoyées
-      const sentResponse = await fetch('/api/private-photos/sent', {
+      const sentResponse = await fetch('/api/auth/private-photos/sent', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -1485,7 +1488,7 @@ class MessagesManager {
   async handlePhotoRequest(requestId, action) {
     try {
       const token = localStorage.getItem('hotmeet_token');
-      const response = await fetch('/api/private-photos/respond', {
+      const response = await fetch('/api/auth/private-photos/respond', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
