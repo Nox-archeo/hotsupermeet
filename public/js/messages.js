@@ -236,6 +236,9 @@ class MessagesManager {
         this.adResponses = [];
       }
 
+      // Charger les demandes de photos privées
+      await this.loadPhotoRequests();
+
       this.renderAllData();
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
@@ -261,6 +264,11 @@ class MessagesManager {
     document.getElementById(tabName).classList.add('active');
 
     this.currentTab = tabName;
+
+    // Charger les données spécifiques à l'onglet
+    if (tabName === 'photo-requests') {
+      this.loadPhotoRequests();
+    }
   }
 
   // Accepter une demande de chat
@@ -1353,6 +1361,164 @@ class MessagesManager {
       notification.style.animation = 'slideOutRight 0.3s ease';
       setTimeout(() => notification.remove(), 300);
     }, 3000);
+  }
+
+  // ===== GESTION DES DEMANDES DE PHOTOS PRIVÉES =====
+
+  // Charger les demandes de photos (reçues et envoyées)
+  async loadPhotoRequests() {
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+
+      // Charger les demandes reçues
+      const receivedResponse = await fetch('/api/private-photos/received', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (receivedResponse.ok) {
+        const receivedData = await receivedResponse.json();
+        this.displayReceivedPhotoRequests(receivedData.requests || []);
+      }
+
+      // Charger les demandes envoyées
+      const sentResponse = await fetch('/api/private-photos/sent', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (sentResponse.ok) {
+        const sentData = await sentResponse.json();
+        this.displaySentPhotoRequests(sentData.requests || []);
+      }
+    } catch (error) {
+      console.error('Erreur chargement demandes photos:', error);
+    }
+  }
+
+  // Afficher les demandes de photos reçues
+  displayReceivedPhotoRequests(requests) {
+    const container = document.getElementById('receivedPhotoRequests');
+
+    if (requests.length === 0) {
+      container.innerHTML = '<p class="no-requests">Aucune demande reçue</p>';
+      return;
+    }
+
+    container.innerHTML = requests
+      .map(
+        request => `
+      <div class="request-item photo-request" data-request-id="${request._id}">
+        <div class="request-user">
+          <img src="${request.requester.profile.photos[0]?.url || '/images/default-avatar.jpg'}" 
+               alt="${request.requester.profile.nom}" 
+               onerror="this.src='/images/default-avatar.jpg'">
+          <div class="user-info">
+            <h4>${request.requester.profile.nom}</h4>
+            <p class="request-message">"${request.message || 'Aimerais voir vos photos privées'}"</p>
+            <span class="request-time">${this.formatDate(request.createdAt)}</span>
+          </div>
+        </div>
+        <div class="request-actions">
+          ${
+            request.status === 'pending'
+              ? `
+            <button class="btn btn-primary" onclick="messagesManager.handlePhotoRequest('${request._id}', 'accept')">
+              ✅ Accepter
+            </button>
+            <button class="btn btn-outline" onclick="messagesManager.handlePhotoRequest('${request._id}', 'reject')">
+              ❌ Refuser  
+            </button>
+          `
+              : `
+            <span class="request-status ${request.status}">
+              ${request.status === 'accepted' ? '✅ Acceptée' : '❌ Refusée'}
+            </span>
+          `
+          }
+        </div>
+      </div>
+    `
+      )
+      .join('');
+  }
+
+  // Afficher les demandes de photos envoyées
+  displaySentPhotoRequests(requests) {
+    const container = document.getElementById('sentPhotoRequests');
+
+    if (requests.length === 0) {
+      container.innerHTML = '<p class="no-requests">Aucune demande envoyée</p>';
+      return;
+    }
+
+    container.innerHTML = requests
+      .map(
+        request => `
+      <div class="request-item photo-request" data-request-id="${request._id}">
+        <div class="request-user">
+          <img src="${request.target.profile.photos[0]?.url || '/images/default-avatar.jpg'}" 
+               alt="${request.target.profile.nom}" 
+               onerror="this.src='/images/default-avatar.jpg'">
+          <div class="user-info">
+            <h4>${request.target.profile.nom}</h4>
+            <p class="request-message">"${request.message || 'Aimerais voir vos photos privées'}"</p>
+            <span class="request-time">${this.formatDate(request.createdAt)}</span>
+          </div>
+        </div>
+        <div class="request-actions">
+          <span class="request-status ${request.status}">
+            ${
+              request.status === 'pending'
+                ? '⏳ En attente'
+                : request.status === 'accepted'
+                  ? '✅ Acceptée'
+                  : '❌ Refusée'
+            }
+          </span>
+        </div>
+      </div>
+    `
+      )
+      .join('');
+  }
+
+  // Gérer une réponse à une demande de photo (accepter/refuser)
+  async handlePhotoRequest(requestId, action) {
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+      const response = await fetch('/api/private-photos/respond', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ requestId, action }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        this.showNotification(
+          action === 'accept'
+            ? 'Accès accordé avec succès!'
+            : 'Demande refusée',
+          'success'
+        );
+
+        // Recharger les demandes pour mettre à jour l'affichage
+        this.loadPhotoRequests();
+
+        // Mettre à jour les badges de notification
+        this.updateNotificationBadges();
+      } else {
+        this.showNotification(
+          result.error?.message || 'Erreur lors de la réponse',
+          'error'
+        );
+      }
+    } catch (error) {
+      console.error('Erreur réponse demande photo:', error);
+      this.showNotification('Erreur lors de la réponse à la demande', 'error');
+    }
   }
 }
 
