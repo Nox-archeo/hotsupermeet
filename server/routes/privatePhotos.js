@@ -7,7 +7,7 @@ const {
   getReceivedPrivatePhotoRequests,
   getSentPrivatePhotoRequests,
   checkPrivatePhotoAccess,
-} = require('../controllers/privatePhotoController');
+} = require('../controllers/privatePhotoController_simple');
 
 // Envoyer une demande d'accès aux photos privées
 router.post('/send-request', auth, sendPrivatePhotoRequest);
