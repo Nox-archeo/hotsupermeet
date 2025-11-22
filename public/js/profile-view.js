@@ -234,7 +234,7 @@ class ProfileViewChat {
     try {
       const token = localStorage.getItem('hotmeet_token');
       const response = await fetch(
-        `/api/private-photos/check-access/${this.userId}`,
+        `/api/auth/private-photos/check-access/${this.userId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
