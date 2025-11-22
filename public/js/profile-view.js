@@ -22,6 +22,9 @@ class ProfileViewChat {
     // Check authentication and load profile
     this.checkAuthAndLoadProfile();
     this.initializeEventListeners();
+
+    // Écouter les événements de défloutage
+    this.setupPhotoAccessListener();
   }
 
   async checkAuthAndLoadProfile() {
@@ -578,6 +581,44 @@ class ProfileViewChat {
       toast.style.animation = 'slideOutRight 0.3s ease';
       setTimeout(() => toast.remove(), 300);
     }, 3000);
+  }
+
+  // ===== GESTION DU DÉFLOUTAGE AUTOMATIQUE =====
+
+  // Écouter les événements de défloutage depuis la page Messages
+  setupPhotoAccessListener() {
+    window.addEventListener('privatePhotoAccessGranted', event => {
+      console.log('🔓 Accès photos accordé - rechargement en cours...');
+      // Recharger les photos privées pour les déflouter
+      this.reloadPrivatePhotos();
+
+      // Afficher notification de succès
+      this.showMessage(
+        '🎉 Accès accordé! Les photos privées sont maintenant visibles.',
+        'success'
+      );
+    });
+  }
+
+  // Recharger et afficher les photos privées défloutées
+  async reloadPrivatePhotos() {
+    try {
+      // Recharger les données du profil utilisateur
+      const token = localStorage.getItem('hotmeet_token');
+      const response = await fetch(`/api/users/${this.userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        this.userProfile = userData.user;
+
+        // Reconfigurer la section photos privées avec les nouvelles données
+        this.setupPrivatePhotosSection(this.userProfile.profile.photos || []);
+      }
+    } catch (error) {
+      console.error('Erreur rechargement photos:', error);
+    }
   }
 }
 
