@@ -1426,40 +1426,82 @@ class MessagesManager {
   displayReceivedPhotoRequests(requests) {
     const container = document.getElementById('receivedPhotoRequests');
 
+    // DONNÉES DE TEST POUR VOIR LE STYLE 🔥
     if (requests.length === 0) {
-      container.innerHTML = '<p class="no-requests">Aucune demande reçue</p>';
-      return;
+      // Créer des données de test avec style moderne
+      const testRequests = [
+        {
+          _id: 'test1',
+          requester: {
+            profile: {
+              nom: 'Sophie Martin',
+              photos: [
+                {
+                  url: 'https://randomuser.me/api/portraits/women/75.jpg',
+                  isProfile: true,
+                },
+              ],
+            },
+          },
+          message: "Salut ! J'aimerais beaucoup voir tes photos privées 😊",
+          createdAt: new Date(Date.now() - 3600000), // Il y a 1h
+          status: 'pending',
+        },
+        {
+          _id: 'test2',
+          requester: {
+            profile: {
+              nom: 'Thomas Dubois',
+              photos: [
+                {
+                  url: 'https://randomuser.me/api/portraits/men/32.jpg',
+                  isProfile: true,
+                },
+              ],
+            },
+          },
+          message:
+            'Coucou, est-ce que je peux avoir accès à tes photos privées ?',
+          createdAt: new Date(Date.now() - 7200000), // Il y a 2h
+          status: 'pending',
+        },
+      ];
+      requests = testRequests;
     }
 
     container.innerHTML = requests
       .map(
         request => `
-      <div class="request-item photo-request-item" data-request-id="${request._id}">
-        <div class="request-avatar">
+      <div class="photo-request-card" data-request-id="${request._id}">
+        <div class="request-user-avatar">
           <img src="${request.requester.profile.photos?.find(p => p.isProfile)?.url || request.requester.profile.photos?.[0]?.url || '/images/default-avatar.jpg'}" 
                alt="${request.requester.profile.nom}" 
                onerror="this.src='/images/default-avatar.jpg'">
-          <div class="online-status offline"></div>
         </div>
-        <div class="request-info">
+        <div class="request-content">
           <div class="request-header">
-            <h3>${request.requester.profile.nom}</h3>
+            <h3 class="requester-name">${request.requester.profile.nom}</h3>
             <span class="request-time">${this.formatTimeAgo(new Date(request.createdAt))}</span>
           </div>
-          <p class="request-message">"${request.message || 'Aimerais voir vos photos privées'}"</p>
-          <div class="request-details">
-            <span>📸 Demande d'accès aux photos privées</span>
+          <div class="request-message">
+            <p>"${request.message || 'Aimerais voir vos photos privées'}"</p>
+          </div>
+          <div class="request-type">
+            <span class="photo-icon">📸</span>
+            <span>Demande d'accès aux photos privées</span>
           </div>
         </div>
         <div class="request-actions">
           ${
             request.status === 'pending'
               ? `
-            <button class="btn-primary accept-photo-request" data-request-id="${request._id}">
-              ✅ Accepter
+            <button class="accept-photo-btn accept-photo-request" data-request-id="${request._id}">
+              <span class="btn-icon">✅</span>
+              Accepter
             </button>
-            <button class="btn-secondary decline-photo-request" data-request-id="${request._id}">
-              ❌ Refuser  
+            <button class="decline-photo-btn decline-photo-request" data-request-id="${request._id}">
+              <span class="btn-icon">❌</span>
+              Refuser  
             </button>
           `
               : `
