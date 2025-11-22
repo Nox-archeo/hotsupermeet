@@ -1,6 +1,5 @@
 const PrivatePhotoRequest = require('../models/PrivatePhotoRequest');
 const User = require('../models/User');
-const { auth } = require('../middleware/auth');
 
 // Envoyer une demande d'accès aux photos privées
 const sendPrivatePhotoRequest = async (req, res) => {
