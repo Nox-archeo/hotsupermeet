@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const { auth } = require('../middleware/auth');
-const { updateLastActivity } = require('../middleware/updateLastActivity');
 const {
   sendPrivatePhotoRequest,
   respondToPrivatePhotoRequest,
@@ -11,10 +10,10 @@ const {
 } = require('../controllers/privatePhotoController');
 
 // Envoyer une demande d'accès aux photos privées
-router.post('/send-request', auth, updateLastActivity, sendPrivatePhotoRequest);
+router.post('/send-request', auth, sendPrivatePhotoRequest);
 
 // Répondre à une demande (accepter/refuser)
-router.post('/respond', auth, updateLastActivity, respondToPrivatePhotoRequest);
+router.post('/respond', auth, respondToPrivatePhotoRequest);
 
 // Obtenir les demandes reçues
 router.get('/received', auth, getReceivedPrivatePhotoRequests);
