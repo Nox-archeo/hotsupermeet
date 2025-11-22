@@ -14,6 +14,10 @@ const {
 } = require('../controllers/authController');
 const { auth, updateLastActivity } = require('../middleware/auth');
 
+// IMPORTS POUR PRIVATE PHOTOS
+const PrivatePhotoRequest = require('../models/PrivatePhotoRequest');
+const User = require('../models/User');
+
 const router = express.Router();
 
 // Validation rules
@@ -59,26 +63,77 @@ router.post('/logout', auth, logout);
 
 // SOLUTION TEMPORAIRE: Route private-photos dans auth.js car server.js ne se met pas à jour
 router.post('/private-photos/send-request', auth, async (req, res) => {
-  console.log('🚨 ROUTE TEMPORAIRE DANS AUTH.JS APPELÉE !', req.body);
+  console.log('� ROUTE PRIVATE PHOTOS: Fonction appelée avec:', {
+    body: req.body,
+    userId: req.user?._id,
+  });
   try {
     const { targetUserId, message } = req.body;
     const requesterId = req.user._id;
 
-    // Pour le moment, juste confirmer que ça marche
+    // Vérifications de base
+    if (!targetUserId) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'ID utilisateur cible requis' },
+      });
+    }
+
+    if (requesterId.toString() === targetUserId) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Impossible de faire une demande à soi-même' },
+      });
+    }
+
+    // Vérifier que l'utilisateur cible existe
+    const targetUser = await User.findById(targetUserId);
+    if (!targetUser) {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Utilisateur non trouvé' },
+      });
+    }
+
+    // Vérifier si une demande existe déjà
+    const existingRequest = await PrivatePhotoRequest.findOne({
+      requester: requesterId,
+      target: targetUserId,
+    });
+
+    if (existingRequest) {
+      return res.status(409).json({
+        success: false,
+        error: {
+          message:
+            existingRequest.status === 'pending'
+              ? 'Demande déjà envoyée'
+              : `Demande déjà ${existingRequest.status === 'accepted' ? 'acceptée' : 'refusée'}`,
+        },
+      });
+    }
+
+    // Créer la nouvelle demande
+    const newRequest = new PrivatePhotoRequest({
+      requester: requesterId,
+      target: targetUserId,
+      message: message || 'Aimerais voir vos photos privées',
+    });
+
+    await newRequest.save();
+
+    console.log('✅ DEMANDE PHOTO PRIVÉE CRÉÉE:', newRequest);
+
     res.json({
       success: true,
-      message: 'Route temporaire fonctionne !',
-      data: {
-        from: requesterId,
-        to: targetUserId,
-        message: message || "Demande d'accès aux photos privées",
-      },
+      message: "Demande d'accès envoyée avec succès",
+      request: newRequest,
     });
   } catch (error) {
-    console.error('Erreur route temporaire:', error);
+    console.error('Erreur route private photos:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur',
+      error: { message: "Erreur serveur lors de l'envoi de la demande" },
     });
   }
 });
