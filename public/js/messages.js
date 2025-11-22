@@ -90,6 +90,12 @@ class MessagesManager {
         this.acceptTonightRequest(e.target.closest('.tonight-request-item'));
       } else if (e.target.classList.contains('decline-tonight-request')) {
         this.declineTonightRequest(e.target.closest('.tonight-request-item'));
+      } else if (e.target.classList.contains('accept-photo-request')) {
+        const requestId = e.target.dataset.requestId;
+        this.handlePhotoRequest(requestId, 'accept');
+      } else if (e.target.classList.contains('decline-photo-request')) {
+        const requestId = e.target.dataset.requestId;
+        this.handlePhotoRequest(requestId, 'reject');
       } else if (e.target.classList.contains('view-profile')) {
         this.viewUserProfile(e.target);
       } else if (e.target.classList.contains('close-chat')) {
@@ -1409,30 +1415,36 @@ class MessagesManager {
     container.innerHTML = requests
       .map(
         request => `
-      <div class="request-item photo-request" data-request-id="${request._id}">
-        <div class="request-user">
-          <img src="${request.requester.profile.photos[0]?.url || '/images/default-avatar.jpg'}" 
+      <div class="request-item photo-request-item" data-request-id="${request._id}">
+        <div class="request-avatar">
+          <img src="${request.requester.profile.photos?.find(p => p.isProfile)?.url || request.requester.profile.photos?.[0]?.url || '/images/default-avatar.jpg'}" 
                alt="${request.requester.profile.nom}" 
                onerror="this.src='/images/default-avatar.jpg'">
-          <div class="user-info">
-            <h4>${request.requester.profile.nom}</h4>
-            <p class="request-message">"${request.message || 'Aimerais voir vos photos privées'}"</p>
-            <span class="request-time">${this.formatDate(request.createdAt)}</span>
+          <div class="online-status offline"></div>
+        </div>
+        <div class="request-info">
+          <div class="request-header">
+            <h3>${request.requester.profile.nom}</h3>
+            <span class="request-time">${this.formatTimeAgo(new Date(request.createdAt))}</span>
+          </div>
+          <p class="request-message">"${request.message || 'Aimerais voir vos photos privées'}"</p>
+          <div class="request-details">
+            <span>📸 Demande d'accès aux photos privées</span>
           </div>
         </div>
         <div class="request-actions">
           ${
             request.status === 'pending'
               ? `
-            <button class="btn btn-primary" onclick="messagesManager.handlePhotoRequest('${request._id}', 'accept')">
+            <button class="btn-primary accept-photo-request" data-request-id="${request._id}">
               ✅ Accepter
             </button>
-            <button class="btn btn-outline" onclick="messagesManager.handlePhotoRequest('${request._id}', 'reject')">
+            <button class="btn-secondary decline-photo-request" data-request-id="${request._id}">
               ❌ Refuser  
             </button>
           `
               : `
-            <span class="request-status ${request.status}">
+            <span class="request-status status-${request.status}">
               ${request.status === 'accepted' ? '✅ Acceptée' : '❌ Refusée'}
             </span>
           `
@@ -1974,7 +1986,119 @@ const messagesStyles = `
         50% { transform: scale(1.1); }
         100% { transform: scale(1); }
     }
-    
+
+    /* Styles pour les demandes de photos privées */
+    .photo-request-item {
+        background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+        border: 2px solid #e3f2fd;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+
+    .photo-request-item:hover {
+        border-color: #2196f3;
+        box-shadow: 0 6px 20px rgba(33, 150, 243, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .photo-request-item .request-avatar img {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 3px solid #2196f3;
+        object-fit: cover;
+    }
+
+    .photo-request-item .request-header h3 {
+        color: #1976d2;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .photo-request-item .request-message {
+        background: #f3e5f5;
+        border-left: 4px solid #9c27b0;
+        padding: 0.75rem 1rem;
+        border-radius: 0 8px 8px 0;
+        font-style: italic;
+        color: #6a1b9a;
+        margin: 0.75rem 0;
+    }
+
+    .photo-request-item .request-details span {
+        background: linear-gradient(135deg, #ff9800, #f57c00);
+        color: white;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .photo-request-item .request-actions {
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+
+    .photo-request-item .btn-primary {
+        background: linear-gradient(135deg, #4caf50, #45a049);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }
+
+    .photo-request-item .btn-primary:hover {
+        background: linear-gradient(135deg, #45a049, #388e3c);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+    }
+
+    .photo-request-item .btn-secondary {
+        background: linear-gradient(135deg, #f44336, #d32f2f);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+    }
+
+    .photo-request-item .btn-secondary:hover {
+        background: linear-gradient(135deg, #d32f2f, #c62828);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(244, 67, 54, 0.4);
+    }
+
+    .status-accepted {
+        background: linear-gradient(135deg, #4caf50, #45a049);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9em;
+    }
+
+    .status-rejected {
+        background: linear-gradient(135deg, #f44336, #d32f2f);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9em;
+    }
+
     @media (max-width: 768px) {
         .tabs-navigation {
             flex-direction: column;
