@@ -91,10 +91,14 @@ class MessagesManager {
       } else if (e.target.classList.contains('decline-tonight-request')) {
         this.declineTonightRequest(e.target.closest('.tonight-request-item'));
       } else if (e.target.classList.contains('accept-photo-request')) {
+        console.log('🔥 CLICK ACCEPTER DÉTECTÉ !', e.target);
         const requestId = e.target.dataset.requestId;
+        console.log('🔥 REQUEST ID:', requestId);
         this.handlePhotoRequest(requestId, 'accept');
       } else if (e.target.classList.contains('decline-photo-request')) {
+        console.log('🔥 CLICK REFUSER DÉTECTÉ !', e.target);
         const requestId = e.target.dataset.requestId;
+        console.log('🔥 REQUEST ID:', requestId);
         this.handlePhotoRequest(requestId, 'reject');
       } else if (e.target.classList.contains('view-profile')) {
         this.viewUserProfile(e.target);
@@ -948,6 +952,21 @@ class MessagesManager {
       } else {
         tonightBadge.style.display = 'none';
         tonightBadge.classList.remove('active');
+      }
+    }
+
+    // Badge des demandes de photos privées
+    const photoRequestsBadge = document.getElementById('photoRequestsBadge');
+    if (photoRequestsBadge) {
+      // Pour les photos, on peut compter les demandes en attente
+      // Pour l'instant, on affiche un badge fixe pour tester
+      if (this.photoRequests && this.photoRequests.pending > 0) {
+        photoRequestsBadge.textContent = this.photoRequests.pending;
+        photoRequestsBadge.style.display = 'inline';
+        photoRequestsBadge.classList.add('active');
+      } else {
+        photoRequestsBadge.style.display = 'none';
+        photoRequestsBadge.classList.remove('active');
       }
     }
 
