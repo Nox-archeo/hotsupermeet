@@ -1,8 +1,14 @@
 const PrivatePhotoRequest = require('../models/PrivatePhotoRequest');
 const User = require('../models/User');
 
+console.log('📸 CONTROLLER PRIVATE PHOTOS: Module chargé avec succès');
+
 // Envoyer une demande d'accès aux photos privées
 const sendPrivatePhotoRequest = async (req, res) => {
+  console.log('📸 SEND REQUEST: Fonction appelée avec:', {
+    body: req.body,
+    userId: req.user?._id,
+  });
   try {
     const { targetUserId, message } = req.body;
     const requesterId = req.user._id;
@@ -189,6 +195,10 @@ const getSentPrivatePhotoRequests = async (req, res) => {
 
 // Vérifier si l'utilisateur a accès aux photos privées d'un autre utilisateur
 const checkPrivatePhotoAccess = async (req, res) => {
+  console.log('📸 CHECK ACCESS: Fonction appelée avec:', {
+    params: req.params,
+    userId: req.user?._id,
+  });
   try {
     const { targetUserId } = req.params;
     const userId = req.user._id;

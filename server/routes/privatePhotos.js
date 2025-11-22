@@ -1,27 +1,49 @@
 const express = require('express');
 const router = express.Router();
 const { auth } = require('../middleware/auth');
-const {
-  sendPrivatePhotoRequest,
-  respondToPrivatePhotoRequest,
-  getReceivedPrivatePhotoRequests,
-  getSentPrivatePhotoRequests,
-  checkPrivatePhotoAccess,
-} = require('../controllers/privatePhotoController_simple');
 
-// Envoyer une demande d'accès aux photos privées
-router.post('/send-request', auth, sendPrivatePhotoRequest);
+console.log('📸 MODULE PRIVATE PHOTOS ROUTER: Chargement du controller...');
 
-// Répondre à une demande (accepter/refuser)
-router.post('/respond', auth, respondToPrivatePhotoRequest);
+try {
+  const {
+    sendPrivatePhotoRequest,
+    respondToPrivatePhotoRequest,
+    getReceivedPrivatePhotoRequests,
+    getSentPrivatePhotoRequests,
+    checkPrivatePhotoAccess,
+  } = require('../controllers/privatePhotoController');
 
-// Obtenir les demandes reçues
-router.get('/received', auth, getReceivedPrivatePhotoRequests);
+  console.log('✅ PRIVATE PHOTOS: Controller chargé avec succès');
 
-// Obtenir les demandes envoyées
-router.get('/sent', auth, getSentPrivatePhotoRequests);
+  // Envoyer une demande d'accès aux photos privées
+  console.log('🔗 PRIVATE PHOTOS: Montage route POST /send-request');
+  router.post('/send-request', auth, sendPrivatePhotoRequest);
 
-// Vérifier l'accès aux photos privées d'un utilisateur
-router.get('/check-access/:targetUserId', auth, checkPrivatePhotoAccess);
+  // Répondre à une demande (accepter/refuser)
+  console.log('🔗 PRIVATE PHOTOS: Montage route POST /respond');
+  router.post('/respond', auth, respondToPrivatePhotoRequest);
+
+  // Obtenir les demandes reçues
+  console.log('🔗 PRIVATE PHOTOS: Montage route GET /received');
+  router.get('/received', auth, getReceivedPrivatePhotoRequests);
+
+  // Obtenir les demandes envoyées
+  console.log('🔗 PRIVATE PHOTOS: Montage route GET /sent');
+  router.get('/sent', auth, getSentPrivatePhotoRequests);
+
+  // Vérifier l'accès aux photos privées d'un utilisateur
+  console.log(
+    '🔗 PRIVATE PHOTOS: Montage route GET /check-access/:targetUserId'
+  );
+  router.get('/check-access/:targetUserId', auth, checkPrivatePhotoAccess);
+
+  console.log('✅ PRIVATE PHOTOS: Toutes les routes montées avec succès');
+} catch (error) {
+  console.error(
+    '❌ PRIVATE PHOTOS: Erreur lors du chargement du controller:',
+    error
+  );
+  console.error('❌ Stack:', error.stack);
+}
 
 module.exports = router;
