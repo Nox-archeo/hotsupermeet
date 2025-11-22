@@ -671,7 +671,6 @@ class MessagesManager {
 
     try {
       const token = localStorage.getItem('hotmeet_token');
-      console.log('🔑 Token:', token ? 'PRÉSENT' : 'MANQUANT');
 
       if (!token) {
         console.error('❌ Token manquant');
@@ -1426,47 +1425,15 @@ class MessagesManager {
   displayReceivedPhotoRequests(requests) {
     const container = document.getElementById('receivedPhotoRequests');
 
-    // DONNÉES DE TEST POUR VOIR LE STYLE 🔥
-    if (requests.length === 0) {
-      // Créer des données de test avec style moderne
-      const testRequests = [
-        {
-          _id: 'test1',
-          requester: {
-            profile: {
-              nom: 'Sophie Martin',
-              photos: [
-                {
-                  url: 'https://randomuser.me/api/portraits/women/75.jpg',
-                  isProfile: true,
-                },
-              ],
-            },
-          },
-          message: "Salut ! J'aimerais beaucoup voir tes photos privées 😊",
-          createdAt: new Date(Date.now() - 3600000), // Il y a 1h
-          status: 'pending',
-        },
-        {
-          _id: 'test2',
-          requester: {
-            profile: {
-              nom: 'Thomas Dubois',
-              photos: [
-                {
-                  url: 'https://randomuser.me/api/portraits/men/32.jpg',
-                  isProfile: true,
-                },
-              ],
-            },
-          },
-          message:
-            'Coucou, est-ce que je peux avoir accès à tes photos privées ?',
-          createdAt: new Date(Date.now() - 7200000), // Il y a 2h
-          status: 'pending',
-        },
-      ];
-      requests = testRequests;
+    if (!requests || requests.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">📸</div>
+          <h3>Aucune demande de photo</h3>
+          <p>Vous n'avez reçu aucune demande d'accès aux photos privées pour le moment.</p>
+        </div>
+      `;
+      return;
     }
 
     container.innerHTML = requests
