@@ -1504,6 +1504,21 @@ class MessagesManager {
           'success'
         );
 
+        // Si accepté, notifier de manière globale pour les autres onglets
+        if (action === 'accept') {
+          // Déclencher un événement global pour notifier le défloutage
+          window.dispatchEvent(
+            new CustomEvent('privatePhotoAccessGranted', {
+              detail: { requestId, action: 'accepted' },
+            })
+          );
+
+          // Notification persistante pour informer l'utilisateur
+          this.showPhotoAccessNotification(
+            '✅ Accès accordé! Les photos sont maintenant visibles pour cette personne.'
+          );
+        }
+
         // Recharger les demandes pour mettre à jour l'affichage
         this.loadPhotoRequests();
 
@@ -1519,6 +1534,45 @@ class MessagesManager {
       console.error('Erreur réponse demande photo:', error);
       this.showNotification('Erreur lors de la réponse à la demande', 'error');
     }
+  }
+
+  // Notification spéciale pour l'accès accordé aux photos
+  showPhotoAccessNotification(message) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #4CAF50, #45a049);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      z-index: 10000;
+      max-width: 400px;
+      font-weight: 600;
+      border-left: 5px solid #2E7D32;
+      animation: slideInRight 0.5s ease;
+    `;
+
+    notification.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 1.2em;">📸</span>
+        <div>
+          <div style="font-size: 0.9em; margin-bottom: 0.5rem;">Demande de photos</div>
+          <div style="font-size: 0.8em;">${message}</div>
+        </div>
+        <button onclick="this.parentElement.parentElement.remove()" 
+                style="background: transparent; border: none; color: white; cursor: pointer; font-size: 1.2em;">×</button>
+      </div>
+    `;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.style.animation = 'slideOutRight 0.3s ease';
+      setTimeout(() => notification.remove(), 300);
+    }, 8000);
   }
 }
 
