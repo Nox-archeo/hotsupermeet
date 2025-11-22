@@ -57,4 +57,30 @@ router.post('/reset-password', resetPassword);
 router.get('/me', auth, updateLastActivity, getMe);
 router.post('/logout', auth, logout);
 
+// SOLUTION TEMPORAIRE: Route private-photos dans auth.js car server.js ne se met pas à jour
+router.post('/private-photos/send-request', auth, async (req, res) => {
+  console.log('🚨 ROUTE TEMPORAIRE DANS AUTH.JS APPELÉE !', req.body);
+  try {
+    const { targetUserId, message } = req.body;
+    const requesterId = req.user._id;
+
+    // Pour le moment, juste confirmer que ça marche
+    res.json({
+      success: true,
+      message: 'Route temporaire fonctionne !',
+      data: {
+        from: requesterId,
+        to: targetUserId,
+        message: message || "Demande d'accès aux photos privées",
+      },
+    });
+  } catch (error) {
+    console.error('Erreur route temporaire:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+    });
+  }
+});
+
 module.exports = router;

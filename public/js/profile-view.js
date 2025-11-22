@@ -259,7 +259,7 @@ class ProfileViewChat {
         requestButton.textContent = '📤 Envoi...';
 
         const token = localStorage.getItem('hotmeet_token');
-        const response = await fetch('/api/private-photos/send-request', {
+        const response = await fetch('/api/auth/private-photos/send-request', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
