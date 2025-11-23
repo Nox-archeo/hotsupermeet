@@ -36,10 +36,10 @@ function setupPhotoRequestsExtension() {
 
       // Charger les demandes reçues et envoyées en parallèle
       const [receivedResponse, sentResponse] = await Promise.all([
-        fetch('/api/private-photos/received', {
+        fetch('/api/auth/private-photos/received', {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch('/api/private-photos/sent', {
+        fetch('/api/auth/private-photos/sent', {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
@@ -234,9 +234,12 @@ function setupPhotoRequestsExtension() {
       if (!token) return;
 
       // Récupérer le nombre de demandes en attente
-      const receivedResponse = await fetch('/api/private-photos/received', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const receivedResponse = await fetch(
+        '/api/auth/private-photos/received',
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (receivedResponse.ok) {
         const receivedData = await receivedResponse.json();
