@@ -238,69 +238,38 @@ router.post('/private-photos/respond', auth, async (req, res) => {
       });
     }
 
-    // Mettre à jour le statut
-    const newStatus = action === 'accept' ? 'accepted' : 'rejected';
-    console.log('✏️ SERVER - Mise à jour statut vers:', newStatus);
+    // Au lieu de sauvegarder, on supprime directement la demande !
+    console.log('🗑️ SERVER - Suppression de la demande après réponse');
+    
+    // Sauvegarder les infos importantes pour la réponse
+    const responseData = {
+      _id: request._id,
+      requester: request.requester,
+      target: request.target,
+      status: newStatus,
+      message: request.message,
+      createdAt: request.createdAt,
+      respondedAt: new Date()
+    };
 
-    request.status = newStatus;
-    request.respondedAt = new Date();
-    await request.save();
+    // SUPPRIMER la demande de la base de données
+    await PrivatePhotoRequest.findByIdAndDelete(requestId);
 
-    console.log('✅ DEMANDE PHOTO RÉPONDUE:', {
+    console.log('✅ DEMANDE PHOTO SUPPRIMÉE:', {
       requestId,
       action,
-      status: request.status,
+      status: newStatus,
     });
 
     res.json({
       success: true,
       message:
         action === 'accept' ? 'Accès accordé avec succès' : 'Demande refusée',
-      request: request,
+      request: responseData,
       notifyRequester: true, // Signal pour notifier le demandeur
     });
   } catch (error) {
     console.error('Erreur réponse demande photo:', error);
-    res.status(500).json({
-      success: false,
-      error: { message: 'Erreur serveur' },
-    });
-  }
-});
-
-// Route pour récupérer les notifications de réponses aux demandes
-router.get('/private-photos/notifications', auth, async (req, res) => {
-  try {
-    const userId = req.user._id;
-
-    // Trouver les demandes envoyées qui ont été répondues mais pas encore notifiées
-    const notifications = await PrivatePhotoRequest.find({
-      requester: userId,
-      status: { $in: ['accepted', 'rejected'] },
-      notified: { $ne: true }, // Pas encore notifiées
-    }).populate('target', 'profile.nom');
-
-    // Marquer comme notifiées avec timestamp
-    await PrivatePhotoRequest.updateMany(
-      {
-        requester: userId,
-        status: { $in: ['accepted', 'rejected'] },
-        notified: { $ne: true },
-      },
-      { 
-        $set: { 
-          notified: true,
-          notifiedAt: new Date()
-        } 
-      }
-    );
-
-    res.json({
-      success: true,
-      notifications: notifications,
-    });
-  } catch (error) {
-    console.error('Erreur récupération notifications photos:', error);
     res.status(500).json({
       success: false,
       error: { message: 'Erreur serveur' },
