@@ -253,7 +253,7 @@ router.post('/private-photos/respond', auth, async (req, res) => {
     };
 
     // SUPPRIMER la demande de la base de données
-    await PrivatePhotoRequest.findByIdAndDelete(requestId);
+    await PrivatePhotoRequest.findByIdAndRemove(requestId);
 
     console.log('✅ DEMANDE PHOTO SUPPRIMÉE:', {
       requestId,
