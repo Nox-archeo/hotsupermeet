@@ -1557,6 +1557,8 @@ class MessagesManager {
 
       if (result.success) {
         console.log('✅ Succès ! Action:', action);
+        console.log('📋 Résultat complet:', result);
+
         this.showNotification(
           action === 'accept'
             ? 'Accès accordé avec succès!'
@@ -1566,10 +1568,19 @@ class MessagesManager {
 
         // Si accepté, notifier de manière globale pour les autres onglets
         if (action === 'accept') {
+          // Récupérer l'ID de l'utilisateur qui avait fait la demande
+          const requestData = result.request;
+          console.log('🔍 Données de la demande:', requestData);
+
           // Déclencher un événement global pour notifier le défloutage
           window.dispatchEvent(
             new CustomEvent('privatePhotoAccessGranted', {
-              detail: { requestId, action: 'accepted' },
+              detail: {
+                requestId,
+                action: 'accepted',
+                requesterId: requestData.requester,
+                targetId: requestData.target,
+              },
             })
           );
 

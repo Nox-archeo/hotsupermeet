@@ -588,15 +588,28 @@ class ProfileViewChat {
   // Écouter les événements de défloutage depuis la page Messages
   setupPhotoAccessListener() {
     window.addEventListener('privatePhotoAccessGranted', event => {
-      console.log('🔓 Accès photos accordé - rechargement en cours...');
-      // Recharger les photos privées pour les déflouter
-      this.reloadPrivatePhotos();
+      console.log('🔓 Événement accès photos reçu:', event.detail);
+      console.log('🔍 UserId actuel:', this.userId);
+      console.log('🔍 Requester de la demande:', event.detail.requesterId);
 
-      // Afficher notification de succès
-      this.showMessage(
-        '🎉 Accès accordé! Les photos privées sont maintenant visibles.',
-        'success'
-      );
+      // Vérifier si l'événement concerne le profil actuellement consulté
+      // L'accès est accordé PAR le profil consulté POUR l'utilisateur connecté
+      if (
+        event.detail.requesterId &&
+        event.detail.requesterId === this.currentUser.user.id
+      ) {
+        console.log('✅ Événement concerne ce profil - rechargement...');
+        // Recharger les photos privées pour les déflouter
+        this.reloadPrivatePhotos();
+
+        // Afficher notification de succès
+        this.showMessage(
+          '🎉 Accès accordé! Les photos privées sont maintenant visibles.',
+          'success'
+        );
+      } else {
+        console.log('ℹ️ Événement ne concerne pas ce profil');
+      }
     });
   }
 
