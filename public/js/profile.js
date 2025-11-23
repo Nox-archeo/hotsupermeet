@@ -1754,7 +1754,7 @@ async function loadPrivatePhotoRequests() {
 
     // Charger les demandes reçues et envoyées en parallèle
     const [receivedResponse, sentResponse] = await Promise.all([
-      fetch('/api/private-photos/received', {
+      fetch('/api/auth/private-photos/received', {
         headers: { Authorization: `Bearer ${token}` },
       }),
       fetch('/api/private-photos/sent', {
