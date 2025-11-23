@@ -185,27 +185,44 @@ router.get('/private-photos/sent', auth, async (req, res) => {
 // Route pour RÉPONDRE à une demande (accepter/refuser)
 router.post('/private-photos/respond', auth, async (req, res) => {
   try {
+    console.log('🔥 SERVER - Route /private-photos/respond appelée');
+    console.log('🔥 SERVER - Body reçu:', req.body);
+    console.log('🔥 SERVER - User ID:', req.user._id);
+
     const { requestId, action } = req.body;
     const userId = req.user._id;
 
     if (!['accept', 'reject'].includes(action)) {
+      console.log('❌ SERVER - Action invalide:', action);
       return res.status(400).json({
         success: false,
         error: { message: 'Action invalide' },
       });
     }
 
+    console.log('🔍 SERVER - Recherche de la demande:', requestId);
     const request = await PrivatePhotoRequest.findById(requestId);
 
     if (!request) {
+      console.log('❌ SERVER - Demande non trouvée:', requestId);
       return res.status(404).json({
         success: false,
         error: { message: 'Demande non trouvée' },
       });
     }
 
+    console.log('📋 SERVER - Demande trouvée:', request);
+    console.log('🎯 SERVER - Target de la demande:', request.target);
+    console.log('👤 SERVER - User connecté:', userId);
+
     // Vérifier que l'utilisateur est bien le destinataire de la demande
     if (request.target.toString() !== userId.toString()) {
+      console.log(
+        '❌ SERVER - Non autorisé - Target vs User:',
+        request.target.toString(),
+        'vs',
+        userId.toString()
+      );
       return res.status(403).json({
         success: false,
         error: { message: 'Non autorisé' },
@@ -213,7 +230,10 @@ router.post('/private-photos/respond', auth, async (req, res) => {
     }
 
     // Mettre à jour le statut
-    request.status = action === 'accept' ? 'accepted' : 'rejected';
+    const newStatus = action === 'accept' ? 'accepted' : 'rejected';
+    console.log('✏️ SERVER - Mise à jour statut vers:', newStatus);
+
+    request.status = newStatus;
     request.respondedAt = new Date();
     await request.save();
 

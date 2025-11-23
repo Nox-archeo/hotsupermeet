@@ -91,11 +91,23 @@ class MessagesManager {
       } else if (e.target.classList.contains('decline-tonight-request')) {
         this.declineTonightRequest(e.target.closest('.tonight-request-item'));
       } else if (e.target.classList.contains('accept-photo-request')) {
+        console.log('🔥 DEBUG: Bouton ACCEPTER photo cliqué !');
         const requestId = e.target.dataset.requestId;
-        this.handlePhotoRequest(requestId, 'accept');
+        console.log('🔥 DEBUG: Request ID récupéré:', requestId);
+        if (requestId) {
+          this.handlePhotoRequest(requestId, 'accept');
+        } else {
+          console.error('❌ Pas de request ID trouvé !');
+        }
       } else if (e.target.classList.contains('decline-photo-request')) {
+        console.log('🔥 DEBUG: Bouton REFUSER photo cliqué !');
         const requestId = e.target.dataset.requestId;
-        this.handlePhotoRequest(requestId, 'reject');
+        console.log('🔥 DEBUG: Request ID récupéré:', requestId);
+        if (requestId) {
+          this.handlePhotoRequest(requestId, 'reject');
+        } else {
+          console.error('❌ Pas de request ID trouvé !');
+        }
       } else if (e.target.classList.contains('view-profile')) {
         this.viewUserProfile(e.target);
       } else if (e.target.classList.contains('close-chat')) {
@@ -1520,8 +1532,15 @@ class MessagesManager {
 
   // Gérer une réponse à une demande de photo (accepter/refuser)
   async handlePhotoRequest(requestId, action) {
+    console.log('🚀 handlePhotoRequest appelé:', { requestId, action });
+
     try {
       const token = localStorage.getItem('hotmeet_token');
+      console.log('🔑 Token disponible:', token ? 'OUI' : 'NON');
+
+      console.log('📡 Envoi requête vers:', '/api/auth/private-photos/respond');
+      console.log('📤 Données envoyées:', { requestId, action });
+
       const response = await fetch('/api/auth/private-photos/respond', {
         method: 'POST',
         headers: {
@@ -1531,9 +1550,13 @@ class MessagesManager {
         body: JSON.stringify({ requestId, action }),
       });
 
+      console.log('📨 Réponse HTTP status:', response.status);
+
       const result = await response.json();
+      console.log('📋 Réponse complète:', result);
 
       if (result.success) {
+        console.log('✅ Succès ! Action:', action);
         this.showNotification(
           action === 'accept'
             ? 'Accès accordé avec succès!'
@@ -1557,17 +1580,20 @@ class MessagesManager {
         }
 
         // Recharger les demandes pour mettre à jour l'affichage
+        console.log('🔄 Rechargement des demandes...');
         this.loadPhotoRequests();
 
         // Mettre à jour les badges de notification
         this.updateNotificationBadges();
       } else {
+        console.error('❌ Erreur du serveur:', result.error);
         this.showNotification(
           result.error?.message || 'Erreur lors de la réponse',
           'error'
         );
       }
     } catch (error) {
+      console.error('❌ Erreur dans handlePhotoRequest:', error);
       console.error('Erreur réponse demande photo:', error);
       this.showNotification('Erreur lors de la réponse à la demande', 'error');
     }
