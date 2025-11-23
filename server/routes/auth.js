@@ -1,9 +1,3 @@
-
-Camille
-Il y a 6 h
-
-"Aimerais voir vos photos privées"
-📸 Demande d'accès aux photos privées
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const { body } = require('express-validator');
@@ -149,9 +143,9 @@ router.get('/private-photos/received', auth, async (req, res) => {
   try {
     const userId = req.user._id;
 
-    const requests = await PrivatePhotoRequest.find({ 
+    const requests = await PrivatePhotoRequest.find({
       target: userId,
-      status: 'pending'  // Ne montrer que les demandes en attente
+      status: 'pending', // Ne montrer que les demandes en attente
     })
       .populate('requester', 'profile')
       .sort({ createdAt: -1 });
@@ -238,9 +232,12 @@ router.post('/private-photos/respond', auth, async (req, res) => {
       });
     }
 
+    // Définir le nouveau statut
+    const newStatus = action === 'accept' ? 'accepted' : 'rejected';
+
     // Au lieu de sauvegarder, on supprime directement la demande !
     console.log('🗑️ SERVER - Suppression de la demande après réponse');
-    
+
     // Sauvegarder les infos importantes pour la réponse
     const responseData = {
       _id: request._id,
@@ -249,7 +246,7 @@ router.post('/private-photos/respond', auth, async (req, res) => {
       status: newStatus,
       message: request.message,
       createdAt: request.createdAt,
-      respondedAt: new Date()
+      respondedAt: new Date(),
     };
 
     // SUPPRIMER la demande de la base de données
