@@ -502,3 +502,4 @@ server.listen(PORT, '0.0.0.0', () => {
 module.exports = app;
 // Force CSP update
 // Force deploy CSP fix - Sun Nov 23 23:07:28 CET 2025
+// CSP restaurée - Sun Nov 23 23:15:14 CET 2025
