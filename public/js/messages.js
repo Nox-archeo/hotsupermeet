@@ -91,19 +91,27 @@ class MessagesManager {
       } else if (e.target.classList.contains('decline-tonight-request')) {
         this.declineTonightRequest(e.target.closest('.tonight-request-item'));
       } else if (e.target.classList.contains('accept-photo-request')) {
-        console.log('🔥 DEBUG: Bouton ACCEPTER photo cliqué !');
+        console.log('🔥🔥🔥 BOUTON ACCEPTER CLIQUÉ ! 🔥🔥🔥');
+        console.log('🔥 DEBUG: Target element:', e.target);
+        console.log('🔥 DEBUG: Classes:', e.target.classList);
+        console.log('🔥 DEBUG: Dataset:', e.target.dataset);
         const requestId = e.target.dataset.requestId;
         console.log('🔥 DEBUG: Request ID récupéré:', requestId);
         if (requestId) {
+          console.log('🚀 APPEL handlePhotoRequest avec ACCEPT');
           this.handlePhotoRequest(requestId, 'accept');
         } else {
           console.error('❌ Pas de request ID trouvé !');
         }
       } else if (e.target.classList.contains('decline-photo-request')) {
-        console.log('🔥 DEBUG: Bouton REFUSER photo cliqué !');
+        console.log('🔥🔥🔥 BOUTON REFUSER CLIQUÉ ! 🔥🔥🔥');
+        console.log('🔥 DEBUG: Target element:', e.target);
+        console.log('🔥 DEBUG: Classes:', e.target.classList);
+        console.log('🔥 DEBUG: Dataset:', e.target.dataset);
         const requestId = e.target.dataset.requestId;
         console.log('🔥 DEBUG: Request ID récupéré:', requestId);
         if (requestId) {
+          console.log('🚀 APPEL handlePhotoRequest avec REJECT');
           this.handlePhotoRequest(requestId, 'reject');
         } else {
           console.error('❌ Pas de request ID trouvé !');
