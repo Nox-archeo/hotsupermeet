@@ -248,9 +248,45 @@ router.post('/private-photos/respond', auth, async (req, res) => {
       message:
         action === 'accept' ? 'Accès accordé avec succès' : 'Demande refusée',
       request: request,
+      notifyRequester: true, // Signal pour notifier le demandeur
     });
   } catch (error) {
     console.error('Erreur réponse demande photo:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur serveur' },
+    });
+  }
+});
+
+// Route pour récupérer les notifications de réponses aux demandes
+router.get('/private-photos/notifications', auth, async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Trouver les demandes envoyées qui ont été répondues mais pas encore notifiées
+    const notifications = await PrivatePhotoRequest.find({
+      requester: userId,
+      status: { $in: ['accepted', 'rejected'] },
+      notified: { $ne: true }, // Pas encore notifiées
+    }).populate('target', 'username');
+
+    // Marquer comme notifiées
+    await PrivatePhotoRequest.updateMany(
+      {
+        requester: userId,
+        status: { $in: ['accepted', 'rejected'] },
+        notified: { $ne: true },
+      },
+      { $set: { notified: true } }
+    );
+
+    res.json({
+      success: true,
+      notifications: notifications,
+    });
+  } catch (error) {
+    console.error('Erreur récupération notifications photos:', error);
     res.status(500).json({
       success: false,
       error: { message: 'Erreur serveur' },
