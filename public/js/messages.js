@@ -265,6 +265,9 @@ class MessagesManager {
       // Charger les demandes de photos privées
       await this.loadPhotoRequests();
 
+      // Vérifier les notifications de réponses aux demandes photos
+      await this.checkPhotoNotifications();
+
       this.renderAllData();
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
@@ -1655,6 +1658,39 @@ class MessagesManager {
       notification.style.animation = 'slideOutRight 0.3s ease';
       setTimeout(() => notification.remove(), 300);
     }, 8000);
+  }
+
+  // Vérifier les notifications de réponses aux demandes photos
+  async checkPhotoNotifications() {
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+      if (!token) return;
+
+      const response = await fetch('/api/auth/private-photos/notifications', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) return;
+
+      const data = await response.json();
+
+      if (data.success && data.notifications.length > 0) {
+        // Afficher chaque notification
+        for (const notification of data.notifications) {
+          const message =
+            notification.status === 'accepted'
+              ? `${notification.target.username} a accepté votre demande de photos !`
+              : `${notification.target.username} a refusé votre demande de photos.`;
+
+          const type = notification.status === 'accepted' ? 'success' : 'info';
+
+          console.log('📸 NOTIFICATION PHOTO:', message);
+          this.showPhotoAccessNotification(message);
+        }
+      }
+    } catch (error) {
+      console.error('Erreur vérification notifications photos:', error);
+    }
   }
 }
 
