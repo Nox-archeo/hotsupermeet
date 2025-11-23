@@ -91,14 +91,10 @@ class MessagesManager {
       } else if (e.target.classList.contains('decline-tonight-request')) {
         this.declineTonightRequest(e.target.closest('.tonight-request-item'));
       } else if (e.target.classList.contains('accept-photo-request')) {
-        console.log('🔥 CLICK ACCEPTER DÉTECTÉ !', e.target);
         const requestId = e.target.dataset.requestId;
-        console.log('🔥 REQUEST ID:', requestId);
         this.handlePhotoRequest(requestId, 'accept');
       } else if (e.target.classList.contains('decline-photo-request')) {
-        console.log('🔥 CLICK REFUSER DÉTECTÉ !', e.target);
         const requestId = e.target.dataset.requestId;
-        console.log('🔥 REQUEST ID:', requestId);
         this.handlePhotoRequest(requestId, 'reject');
       } else if (e.target.classList.contains('view-profile')) {
         this.viewUserProfile(e.target);
@@ -982,7 +978,7 @@ class MessagesManager {
     this.isPolling = true;
     this.pollInterval = setInterval(() => {
       this.checkForNewMessages();
-    }, 2000); // Vérifier toutes les 2 secondes (plus réactif)
+    }, 30000); // Vérifier toutes les 30 secondes pour éviter le spam
   }
 
   // Arrêter le polling
@@ -1010,10 +1006,7 @@ class MessagesManager {
       // Vérifier les nouvelles notifications
       await this.checkNewNotifications();
     } catch (error) {
-      console.error(
-        'Erreur lors de la vérification des nouveaux messages:',
-        error
-      );
+      // Erreur silencieuse pour éviter le spam de logs
     }
   }
 
@@ -1057,7 +1050,7 @@ class MessagesManager {
         }
       }
     } catch (error) {
-      console.error('Erreur lors de la vérification des demandes:', error);
+      // Erreur silencieuse pour éviter le spam
     }
   }
 
@@ -1112,10 +1105,11 @@ class MessagesManager {
   // Vérifier les nouvelles notifications globales
   async checkNewNotifications() {
     try {
-      // Recharger toutes les données pour mettre à jour les badges
-      await this.loadRealData();
+      // NE PLUS recharger loadRealData() car ça crée une boucle infernale
+      // Juste mettre à jour les badges
+      this.updateNotificationBadges();
     } catch (error) {
-      console.error('Erreur lors de la vérification des notifications:', error);
+      // Erreur silencieuse pour éviter le spam
     }
   }
 
