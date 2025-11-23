@@ -1677,10 +1677,14 @@ class MessagesManager {
       if (data.success && data.notifications.length > 0) {
         // Afficher chaque notification
         for (const notification of data.notifications) {
+          const userName =
+            notification.target?.profile?.nom ||
+            notification.target?.username ||
+            'Un utilisateur';
           const message =
             notification.status === 'accepted'
-              ? `${notification.target.username} a accepté votre demande de photos !`
-              : `${notification.target.username} a refusé votre demande de photos.`;
+              ? `${userName} a accepté votre demande de photos !`
+              : `${userName} a refusé votre demande de photos.`;
 
           const type = notification.status === 'accepted' ? 'success' : 'info';
 

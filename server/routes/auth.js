@@ -1,3 +1,9 @@
+
+Camille
+Il y a 6 h
+
+"Aimerais voir vos photos privées"
+📸 Demande d'accès aux photos privées
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const { body } = require('express-validator');
@@ -143,7 +149,10 @@ router.get('/private-photos/received', auth, async (req, res) => {
   try {
     const userId = req.user._id;
 
-    const requests = await PrivatePhotoRequest.find({ target: userId })
+    const requests = await PrivatePhotoRequest.find({ 
+      target: userId,
+      status: 'pending'  // Ne montrer que les demandes en attente
+    })
       .populate('requester', 'profile')
       .sort({ createdAt: -1 });
 
@@ -269,16 +278,21 @@ router.get('/private-photos/notifications', auth, async (req, res) => {
       requester: userId,
       status: { $in: ['accepted', 'rejected'] },
       notified: { $ne: true }, // Pas encore notifiées
-    }).populate('target', 'username');
+    }).populate('target', 'profile.nom');
 
-    // Marquer comme notifiées
+    // Marquer comme notifiées avec timestamp
     await PrivatePhotoRequest.updateMany(
       {
         requester: userId,
         status: { $in: ['accepted', 'rejected'] },
         notified: { $ne: true },
       },
-      { $set: { notified: true } }
+      { 
+        $set: { 
+          notified: true,
+          notifiedAt: new Date()
+        } 
+      }
     );
 
     res.json({
