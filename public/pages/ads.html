@@ -252,11 +252,11 @@
                 type="text"
                 id="ad-tarifs"
                 class="form-input"
-                placeholder="Ex: 150€/h, 300€/2h"
+                placeholder="Ex: 150€/h, 300€/2h, forfait nuit 800€"
               />
             </div>
 
-            <!-- Informations personnelles (conditionnel) -->
+            <!-- Informations personnelles de base -->
             <div class="form-group" id="info-perso-group" style="display: none">
               <label>Informations personnelles</label>
               <div class="info-grid">
@@ -280,7 +280,156 @@
                   class="form-input"
                   placeholder="Taille (ex: 165cm)"
                 />
+                <input
+                  type="text"
+                  id="ad-poids"
+                  class="form-input"
+                  placeholder="Poids (ex: 55kg)"
+                />
+                <select id="ad-cheveux" class="form-input">
+                  <option value="">Couleur cheveux</option>
+                  <option value="blonds">Blonds</option>
+                  <option value="bruns">Bruns</option>
+                  <option value="chatains">Châtains</option>
+                  <option value="roux">Roux</option>
+                  <option value="noirs">Noirs</option>
+                  <option value="gris-blancs">Gris/Blancs</option>
+                  <option value="colores">Colorés</option>
+                </select>
+                <select id="ad-yeux" class="form-input">
+                  <option value="">Couleur yeux</option>
+                  <option value="bleus">Bleus</option>
+                  <option value="verts">Verts</option>
+                  <option value="marrons">Marrons</option>
+                  <option value="noirs">Noirs</option>
+                  <option value="noisette">Noisette</option>
+                  <option value="gris">Gris</option>
+                </select>
               </div>
+            </div>
+
+            <!-- Informations spécifiques Escort -->
+            <div
+              class="form-group"
+              id="escort-details-group"
+              style="display: none"
+            >
+              <label>Détails escort</label>
+              <div class="info-grid">
+                <select id="ad-bonnet" class="form-input">
+                  <option value="">Bonnet</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                  <option value="D">D</option>
+                  <option value="E">E</option>
+                  <option value="F">F</option>
+                  <option value="G+">G+</option>
+                </select>
+                <select id="ad-origine" class="form-input">
+                  <option value="">Origine</option>
+                  <option value="europeenne">Européenne</option>
+                  <option value="maghrebine">Maghrébine</option>
+                  <option value="africaine">Africaine</option>
+                  <option value="asiatique">Asiatique</option>
+                  <option value="latine">Latine</option>
+                  <option value="mixte">Mixte</option>
+                </select>
+                <select id="ad-silhouette" class="form-input">
+                  <option value="">Silhouette</option>
+                  <option value="mince">Mince</option>
+                  <option value="normale">Normale</option>
+                  <option value="athletique">Athlétique</option>
+                  <option value="pulpeuse">Pulpeuse</option>
+                  <option value="ronde">Ronde</option>
+                </select>
+                <select id="ad-depilation" class="form-input">
+                  <option value="">Dépilation</option>
+                  <option value="integrale">Intégrale</option>
+                  <option value="partielle">Partielle</option>
+                  <option value="naturelle">Naturelle</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Services escort spécialisés -->
+            <div
+              class="form-group"
+              id="escort-services-group"
+              style="display: none"
+            >
+              <label>Services proposés</label>
+              <div class="services-checkboxes">
+                <label class="checkbox-item">
+                  <input type="checkbox" name="services" value="classique" />
+                  <span>Rapport classique</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="services" value="fellation" />
+                  <span>Fellation</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="services" value="cunnilingus" />
+                  <span>Cunnilingus</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="services" value="69" />
+                  <span>69</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="services" value="massage" />
+                  <span>Massage érotique</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="services" value="domination" />
+                  <span>Domination</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="services" value="soumission" />
+                  <span>Soumission</span>
+                </label>
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    name="services"
+                    value="accompagnement"
+                  />
+                  <span>Accompagnement</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Disponibilités -->
+            <div
+              class="form-group"
+              id="disponibilites-group"
+              style="display: none"
+            >
+              <label>Disponibilités</label>
+              <div class="info-grid">
+                <select id="ad-horaires" class="form-input">
+                  <option value="">Horaires</option>
+                  <option value="24h">24h/24</option>
+                  <option value="jour">Journée uniquement</option>
+                  <option value="soir">Soirée uniquement</option>
+                  <option value="nuit">Nuit uniquement</option>
+                  <option value="weekend">Weekend uniquement</option>
+                  <option value="sur-rdv">Sur rendez-vous</option>
+                </select>
+                <select id="ad-deplacement" class="form-input">
+                  <option value="">Déplacement</option>
+                  <option value="domicile">À domicile</option>
+                  <option value="hotel">Hôtel</option>
+                  <option value="salon">En salon</option>
+                  <option value="tous">Tous lieux</option>
+                </select>
+              </div>
+              <textarea
+                id="ad-disponibilites-details"
+                class="form-input"
+                placeholder="Précisez vos disponibilités..."
+                rows="2"
+              ></textarea>
             </div>
 
             <!-- Photos de l'annonce -->

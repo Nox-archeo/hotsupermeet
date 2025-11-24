@@ -247,29 +247,66 @@ function handleCountryChange(e, regionSelectId) {
 
 function handleCategoryChange() {
   const category = document.getElementById('ad-category').value;
+
+  // Récupérer tous les groupes
   const tarifsGroup = document.getElementById('tarifs-group');
   const infoPersoGroup = document.getElementById('info-perso-group');
+  const escortDetailsGroup = document.getElementById('escort-details-group');
+  const escortServicesGroup = document.getElementById('escort-services-group');
+  const disponibilitesGroup = document.getElementById('disponibilites-group');
 
-  // Afficher tarifs pour escort et services
-  if (
-    category.includes('escort') ||
-    category.includes('domination') ||
-    category.includes('massage')
-  ) {
+  // Masquer tous les groupes par défaut
+  tarifsGroup.style.display = 'none';
+  infoPersoGroup.style.display = 'none';
+  escortDetailsGroup.style.display = 'none';
+  escortServicesGroup.style.display = 'none';
+  disponibilitesGroup.style.display = 'none';
+
+  // Logique d'affichage selon la catégorie
+  if (category.includes('escort')) {
+    // Escort complet : toutes les infos
     tarifsGroup.style.display = 'block';
-  } else {
-    tarifsGroup.style.display = 'none';
+    infoPersoGroup.style.display = 'block';
+    escortDetailsGroup.style.display = 'block';
+    escortServicesGroup.style.display = 'block';
+    disponibilitesGroup.style.display = 'block';
+  } else if (category.includes('sugar')) {
+    // Sugar : infos perso + tarifs + disponibilités
+    tarifsGroup.style.display = 'block';
+    infoPersoGroup.style.display = 'block';
+    disponibilitesGroup.style.display = 'block';
+  } else if (
+    category.includes('domination') ||
+    category.includes('massage') ||
+    category.includes('cam-sexting')
+  ) {
+    // Services érotiques : tarifs + infos perso + services + disponibilités
+    tarifsGroup.style.display = 'block';
+    infoPersoGroup.style.display = 'block';
+    escortServicesGroup.style.display = 'block';
+    disponibilitesGroup.style.display = 'block';
+  } else if (category.includes('cherche')) {
+    // Rencontres classiques : seulement infos perso de base
+    infoPersoGroup.style.display = 'block';
+  } else if (category.includes('emploi')) {
+    // Emploi : tarifs + disponibilités
+    tarifsGroup.style.display = 'block';
+    disponibilitesGroup.style.display = 'block';
   }
 
-  // Afficher infos perso pour certaines catégories
-  if (
-    category.includes('escort') ||
-    category.includes('sugar') ||
-    category.includes('rencontre')
-  ) {
-    infoPersoGroup.style.display = 'block';
-  } else {
-    infoPersoGroup.style.display = 'none';
+  // Pour toutes les catégories payantes, afficher au minimum les tarifs
+  const categoriesPayantes = [
+    'escort',
+    'sugar',
+    'domination',
+    'massage',
+    'cam-sexting',
+    'emploi',
+  ];
+  const isPaid = categoriesPayantes.some(cat => category.includes(cat));
+
+  if (isPaid && tarifsGroup.style.display === 'none') {
+    tarifsGroup.style.display = 'block';
   }
 }
 
@@ -294,14 +331,38 @@ async function handleFormSubmit(e) {
       city: document.getElementById('ad-city').value,
       title: document.getElementById('ad-title').value,
       description: document.getElementById('ad-description').value,
-      date: document.getElementById('ad-date').value,
-      ageMin: document.getElementById('age-min').value,
-      ageMax: document.getElementById('age-max').value,
-      sexe: document.getElementById('ad-sexe').value,
       images: photoUrls, // URLs Cloudinary
       type:
         document.getElementById('ad-category').value.split('-')[0] ||
         'rencontre',
+
+      // Tarifs
+      tarifs: document.getElementById('ad-tarifs')?.value || '',
+
+      // Informations personnelles de base
+      age: document.getElementById('ad-age')?.value || '',
+      sexe: document.getElementById('ad-sexe')?.value || '',
+      taille: document.getElementById('ad-taille')?.value || '',
+      poids: document.getElementById('ad-poids')?.value || '',
+      cheveux: document.getElementById('ad-cheveux')?.value || '',
+      yeux: document.getElementById('ad-yeux')?.value || '',
+
+      // Détails escort
+      bonnet: document.getElementById('ad-bonnet')?.value || '',
+      origine: document.getElementById('ad-origine')?.value || '',
+      silhouette: document.getElementById('ad-silhouette')?.value || '',
+      depilation: document.getElementById('ad-depilation')?.value || '',
+
+      // Services (checkboxes)
+      services: Array.from(
+        document.querySelectorAll('input[name="services"]:checked')
+      ).map(cb => cb.value),
+
+      // Disponibilités
+      horaires: document.getElementById('ad-horaires')?.value || '',
+      deplacement: document.getElementById('ad-deplacement')?.value || '',
+      disponibilites_details:
+        document.getElementById('ad-disponibilites-details')?.value || '',
     };
 
     const token = localStorage.getItem('hotmeet_token');

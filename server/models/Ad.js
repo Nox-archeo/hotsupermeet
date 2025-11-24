@@ -7,9 +7,14 @@ const adSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    category: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     type: {
       type: String,
-      enum: ['fantasme', 'soiree', 'service', 'contenu'],
+      enum: ['rencontre', 'escort', 'sugar', 'service', 'emploi', 'vente'],
       required: true,
     },
     title: {
@@ -21,28 +26,88 @@ const adSchema = new mongoose.Schema(
     description: {
       type: String,
       required: true,
-      maxlength: 1000,
+      maxlength: 2000,
       trim: true,
     },
-    location: {
+    // Localisation
+    country: { type: String, required: true, trim: true },
+    region: { type: String, required: true, trim: true },
+    city: { type: String, required: true, trim: true },
+
+    // Tarifs
+    tarifs: { type: String, trim: true },
+
+    // Informations personnelles de base
+    age: { type: Number, min: 18, max: 99 },
+    sexe: { type: String, enum: ['homme', 'femme', 'couple', ''], default: '' },
+    taille: { type: String, trim: true },
+    poids: { type: String, trim: true },
+    cheveux: {
       type: String,
-      required: true,
-      trim: true,
+      enum: [
+        'blonds',
+        'bruns',
+        'chatains',
+        'roux',
+        'noirs',
+        'gris-blancs',
+        'colores',
+        '',
+      ],
+      default: '',
     },
-    date: {
-      type: Date,
-      required: true,
+    yeux: {
+      type: String,
+      enum: ['bleus', 'verts', 'marrons', 'noirs', 'noisette', 'gris', ''],
+      default: '',
     },
-    criteria: {
-      ageMin: { type: Number, min: 18, max: 100, default: 18 },
-      ageMax: { type: Number, min: 18, max: 100, default: 100 },
-      sexe: {
-        type: String,
-        enum: ['homme', 'femme', 'autre', 'tous'],
-        default: 'tous',
-      },
-      pratiques: [{ type: String, trim: true }],
+
+    // Détails escort
+    bonnet: {
+      type: String,
+      enum: ['A', 'B', 'C', 'D', 'E', 'F', 'G+', ''],
+      default: '',
     },
+    origine: {
+      type: String,
+      enum: [
+        'europeenne',
+        'maghrebine',
+        'africaine',
+        'asiatique',
+        'latine',
+        'mixte',
+        '',
+      ],
+      default: '',
+    },
+    silhouette: {
+      type: String,
+      enum: ['mince', 'normale', 'athletique', 'pulpeuse', 'ronde', ''],
+      default: '',
+    },
+    depilation: {
+      type: String,
+      enum: ['integrale', 'partielle', 'naturelle', ''],
+      default: '',
+    },
+
+    // Services proposés
+    services: [{ type: String, trim: true }],
+
+    // Disponibilités
+    horaires: {
+      type: String,
+      enum: ['24h', 'jour', 'soir', 'nuit', 'weekend', 'sur-rdv', ''],
+      default: '',
+    },
+    deplacement: {
+      type: String,
+      enum: ['domicile', 'hotel', 'salon', 'tous', ''],
+      default: '',
+    },
+    disponibilites_details: { type: String, trim: true, maxlength: 500 },
+
     premiumOnly: {
       type: Boolean,
       default: true,
@@ -58,6 +123,12 @@ const adSchema = new mongoose.Schema(
     },
     images: [{ type: String }],
     tags: [{ type: String, trim: true }],
+
+    // Dates
+    expiresAt: {
+      type: Date,
+      default: () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    }, // 30 jours
   },
   {
     timestamps: true,
@@ -66,7 +137,7 @@ const adSchema = new mongoose.Schema(
 
 // Méthode pour vérifier si l'annonce est expirée
 adSchema.methods.isExpired = function () {
-  return this.date < new Date();
+  return this.expiresAt < new Date();
 };
 
 // Méthode pour marquer comme expirée
