@@ -254,6 +254,7 @@ function handleCategoryChange() {
   const escortDetailsGroup = document.getElementById('escort-details-group');
   const escortServicesGroup = document.getElementById('escort-services-group');
   const disponibilitesGroup = document.getElementById('disponibilites-group');
+  const contactGroup = document.getElementById('contact-group');
 
   // Masquer tous les groupes par défaut
   tarifsGroup.style.display = 'none';
@@ -261,6 +262,7 @@ function handleCategoryChange() {
   escortDetailsGroup.style.display = 'none';
   escortServicesGroup.style.display = 'none';
   disponibilitesGroup.style.display = 'none';
+  contactGroup.style.display = 'none';
 
   // Logique d'affichage selon la catégorie
   if (category.includes('escort')) {
@@ -270,28 +272,33 @@ function handleCategoryChange() {
     escortDetailsGroup.style.display = 'block';
     escortServicesGroup.style.display = 'block';
     disponibilitesGroup.style.display = 'block';
+    contactGroup.style.display = 'block';
   } else if (category.includes('sugar')) {
-    // Sugar : infos perso + tarifs + disponibilités
+    // Sugar : infos perso + tarifs + disponibilités + contact
     tarifsGroup.style.display = 'block';
     infoPersoGroup.style.display = 'block';
     disponibilitesGroup.style.display = 'block';
+    contactGroup.style.display = 'block';
   } else if (
     category.includes('domination') ||
     category.includes('massage') ||
     category.includes('cam-sexting')
   ) {
-    // Services érotiques : tarifs + infos perso + services + disponibilités
+    // Services érotiques : tarifs + infos perso + services + disponibilités + contact
     tarifsGroup.style.display = 'block';
     infoPersoGroup.style.display = 'block';
     escortServicesGroup.style.display = 'block';
     disponibilitesGroup.style.display = 'block';
+    contactGroup.style.display = 'block';
   } else if (category.includes('cherche')) {
-    // Rencontres classiques : seulement infos perso de base
+    // Rencontres classiques : infos perso + contact
     infoPersoGroup.style.display = 'block';
+    contactGroup.style.display = 'block';
   } else if (category.includes('emploi')) {
-    // Emploi : tarifs + disponibilités
+    // Emploi : tarifs + disponibilités + contact
     tarifsGroup.style.display = 'block';
     disponibilitesGroup.style.display = 'block';
+    contactGroup.style.display = 'block';
   }
 
   // Pour toutes les catégories payantes, afficher au minimum les tarifs
@@ -308,6 +315,51 @@ function handleCategoryChange() {
   if (isPaid && tarifsGroup.style.display === 'none') {
     tarifsGroup.style.display = 'block';
   }
+
+  // Toujours afficher la section contact pour toutes les annonces
+  if (category && contactGroup.style.display === 'none') {
+    contactGroup.style.display = 'block';
+  }
+}
+
+// Gestion des méthodes de contact
+function handleContactMethodChange() {
+  const emailField = document.getElementById('ad-email');
+  const telephoneField = document.getElementById('ad-telephone');
+  const whatsappField = document.getElementById('ad-whatsapp');
+  const telegramField = document.getElementById('ad-telegram');
+  const snapField = document.getElementById('ad-snap');
+
+  // Masquer tous les champs par défaut
+  emailField.style.display = 'none';
+  telephoneField.style.display = 'none';
+  whatsappField.style.display = 'none';
+  telegramField.style.display = 'none';
+  snapField.style.display = 'none';
+
+  // Afficher les champs selon les checkboxes cochées
+  const checkedMethods = document.querySelectorAll(
+    'input[name="contact_methods"]:checked'
+  );
+  checkedMethods.forEach(method => {
+    switch (method.value) {
+      case 'email':
+        emailField.style.display = 'block';
+        break;
+      case 'telephone':
+        telephoneField.style.display = 'block';
+        break;
+      case 'whatsapp':
+        whatsappField.style.display = 'block';
+        break;
+      case 'telegram':
+        telegramField.style.display = 'block';
+        break;
+      case 'snap':
+        snapField.style.display = 'block';
+        break;
+    }
+  });
 }
 
 async function handleFormSubmit(e) {
@@ -363,6 +415,16 @@ async function handleFormSubmit(e) {
       deplacement: document.getElementById('ad-deplacement')?.value || '',
       disponibilites_details:
         document.getElementById('ad-disponibilites-details')?.value || '',
+
+      // Méthodes de contact
+      contact_methods: Array.from(
+        document.querySelectorAll('input[name="contact_methods"]:checked')
+      ).map(cb => cb.value),
+      contact_email: document.getElementById('ad-email')?.value || '',
+      contact_telephone: document.getElementById('ad-telephone')?.value || '',
+      contact_whatsapp: document.getElementById('ad-whatsapp')?.value || '',
+      contact_telegram: document.getElementById('ad-telegram')?.value || '',
+      contact_snap: document.getElementById('ad-snap')?.value || '',
     };
 
     const token = localStorage.getItem('hotmeet_token');
@@ -614,6 +676,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     fileInput.addEventListener('change', handleAdPhotoUpload);
   }
+
+  // Event listeners pour les méthodes de contact
+  const contactCheckboxes = document.querySelectorAll(
+    'input[name="contact_methods"]'
+  );
+  contactCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', handleContactMethodChange);
+  });
 
   // Event listeners pour les filtres
   const filterCategory = document.getElementById('filter-category');
