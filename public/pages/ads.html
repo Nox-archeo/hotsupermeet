@@ -1,149 +1,762 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Annonces Érotiques - HotMeet</title>
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/pages.css">
-    <link rel="stylesheet" href="/css/responsive.css">
-</head>
-<body>
+    <link rel="stylesheet" href="/css/style.css?v=6" />
+    <link rel="stylesheet" href="/css/pages.css?v=1" />
+    <link rel="stylesheet" href="/css/animations.css" />
+  </head>
+  <body>
     <!-- Header -->
     <header class="header">
-        <nav class="nav container">
-            <div class="nav-brand">
-                <a href="/" class="logo">
-                    <span class="logo-hot">Hot</span><span class="logo-meet">Meet</span>
-                </a>
-            </div>
-            <div class="nav-menu" id="navMenu">
-                <a href="/" class="nav-link">Accueil</a>
-                <a href="/directory" class="nav-link">Annuaire</a>
-                <a href="/ads" class="nav-link active">Annonces</a>
-                <a href="/tonight" class="nav-link">Ce Soir</a>
-                <a href="/cam" class="nav-link">Cam</a>
-                <a href="/messages" class="nav-link">Messages</a>
-                <a href="/profile" class="nav-link">Profil</a>
-                <a href="/auth" class="nav-link btn-primary">Connexion</a>
-            </div>
-        </nav>
+      <nav class="nav">
+        <a href="/" class="nav-brand">
+          <img
+            src="/images/logo-hotmeet.png"
+            alt="HotMeet - Rencontres Adultes Premium"
+            class="logo-img"
+          />
+          <span class="logo-text">HotMeet</span>
+        </a>
+
+        <div class="nav-menu" id="navMenu">
+          <a href="/" class="nav-link">Accueil</a>
+          <a href="/directory" class="nav-link">Annuaire</a>
+          <a href="/ads" class="nav-link active">Annonces</a>
+          <a href="/tonight" class="nav-link">Ce Soir</a>
+          <a href="/cam" class="nav-link">Cam-to-Cam</a>
+          <a href="/messages" class="nav-link"
+            >Messages
+            <span
+              class="notification-badge"
+              id="messageBadge"
+              style="display: none"
+            ></span
+          ></a>
+          <a href="/profile" class="nav-link"
+            >Profil
+            <span
+              class="notification-badge"
+              id="profileBadge"
+              style="display: none"
+            ></span
+          ></a>
+          <div class="auth-buttons" id="authButtons">
+            <a href="/auth" class="nav-link btn-primary">Connexion</a>
+            <a href="/auth" class="nav-link btn-secondary">Inscription</a>
+          </div>
+          <div class="user-menu" id="userMenu" style="display: none">
+            <span class="user-name" id="userName">Utilisateur</span>
+            <button class="btn-logout" id="logoutBtn">Déconnexion</button>
+          </div>
+        </div>
+
+        <div class="nav-toggle" id="navToggle">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </nav>
     </header>
 
     <!-- Main Content -->
     <main class="pages-container ads-container">
-        <div class="container">
-            <div class="page-header">
-                <h1>Annonces Érotiques</h1>
-                <p>Exprimez vos fantasmes et trouvez des partenaires pour des rencontres spéciales</p>
-            </div>
-
-            <!-- MENU PRINCIPAL DE CHOIX -->
-            <div class="card" id="mainMenu">
-                <h2>Que souhaitez-vous faire ?</h2>
-                <div class="choice-menu">
-                    <div class="choice-option" onclick="showCreateForm()">
-                        <div class="choice-icon">✍️</div>
-                        <h3>Créer une annonce</h3>
-                        <p>Publiez votre annonce pour rencontrer des personnes</p>
-                        <button class="btn-primary">Commencer</button>
-                    </div>
-                    <div class="choice-option" onclick="showAdsList()">
-                        <div class="choice-icon">🔍</div>
-                        <h3>Voir les annonces</h3>
-                        <p>Découvrez les annonces des autres membres</p>
-                        <button class="btn-secondary">Explorer</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECTION CRÉATION -->
-            <div class="card" id="createSection" style="display: none;">
-                <h2>Créer votre annonce</h2>
-                <button onclick="showMainMenu()" class="btn-back">← Retour</button>
-                <form class="ads-form">
-                    <div class="form-group">
-                        <label>Titre</label>
-                        <input type="text" class="form-input" placeholder="Titre de votre annonce" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Description</label>
-                        <textarea class="form-input" placeholder="Décrivez ce que vous recherchez" rows="4" required></textarea>
-                    </div>
-                    <button type="submit" class="btn-primary">Publier</button>
-                </form>
-            </div>
-
-            <!-- SECTION LISTE -->
-            <div class="card" id="listSection" style="display: none;">
-                <h2>Annonces disponibles</h2>
-                <button onclick="showMainMenu()" class="btn-back">← Retour</button>
-                <div id="adsContainer">
-                    <p>Chargement des annonces...</p>
-                </div>
-            </div>
-
+      <div class="container">
+        <div class="page-header">
+          <h1>Annonces Érotiques</h1>
+          <p>
+            Exprimez vos fantasmes et trouvez des partenaires pour des
+            rencontres spéciales
+          </p>
         </div>
+
+        <!-- MENU PRINCIPAL DE CHOIX -->
+        <div class="card" id="ads-menu">
+          <h2>Que souhaitez-vous faire ?</h2>
+          <div class="choice-menu">
+            <div class="choice-option" id="btn-create-ad">
+              <div class="choice-icon">✍️</div>
+              <h3>Créer une annonce</h3>
+              <p>Publiez votre annonce pour rencontrer des personnes</p>
+              <button class="btn-primary">Commencer</button>
+            </div>
+            <div class="choice-option" id="btn-view-ads">
+              <div class="choice-icon">🔍</div>
+              <h3>Voir les annonces</h3>
+              <p>Découvrez les annonces des autres membres</p>
+              <button class="btn-secondary">Explorer</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION CRÉATION D'ANNONCE -->
+        <div class="card" id="ads-create-section" style="display: none">
+          <h2>Créer votre annonce</h2>
+          <button class="btn-back" id="back-to-menu-create">
+            ← Retour au menu
+          </button>
+
+          <form class="ads-form" id="create-ad-form">
+            <!-- Catégorie -->
+            <div class="form-group">
+              <label for="ad-category">Catégorie</label>
+              <select id="ad-category" class="form-input" required>
+                <option value="">Choisir une catégorie</option>
+                <optgroup label="Rencontres">
+                  <option value="femme-cherche-homme">
+                    Femme cherche Homme
+                  </option>
+                  <option value="homme-cherche-femme">
+                    Homme cherche Femme
+                  </option>
+                  <option value="femme-cherche-femme">
+                    Femme cherche Femme
+                  </option>
+                  <option value="homme-cherche-homme">
+                    Homme cherche Homme
+                  </option>
+                  <option value="couple-cherche-homme">
+                    Couple cherche Homme
+                  </option>
+                  <option value="couple-cherche-femme">
+                    Couple cherche Femme
+                  </option>
+                  <option value="couple-cherche-couple">
+                    Couple cherche Couple
+                  </option>
+                </optgroup>
+                <optgroup label="Sugar">
+                  <option value="sugar-daddy">
+                    Sugar Daddy cherche Baby Girl
+                  </option>
+                  <option value="baby-girl">
+                    Sugar Baby Girl cherche Sugar Daddy
+                  </option>
+                  <option value="sugar-mommy">
+                    Sugar Mommy cherche Sugar Baby Boy
+                  </option>
+                  <option value="baby-boy">
+                    Sugar Baby Boy cherche Sugar Mommy
+                  </option>
+                </optgroup>
+                <optgroup label="Escort">
+                  <option value="escort-girl">Escort Girl</option>
+                  <option value="escort-boy">Escort Boy</option>
+                  <option value="masseuse">Masseuse érotique</option>
+                  <option value="masseur">Masseur érotique</option>
+                </optgroup>
+                <optgroup label="Services érotiques">
+                  <option value="domination">Domination</option>
+                  <option value="massage-tantrique">Massage tantrique</option>
+                  <option value="cam-sexting">Cam / sexting</option>
+                  <option value="fetichisme">Fétichisme</option>
+                  <option value="planning-soir">Planning "Ce soir"</option>
+                </optgroup>
+                <option value="objets-accessoires">
+                  Objets / accessoires érotiques
+                </option>
+                <option value="emploi">
+                  Emploi (hôtesse, masseuse, strip-tease, etc.)
+                </option>
+              </select>
+            </div>
+
+            <!-- Région -->
+            <div class="form-group">
+              <label for="ad-region">Région</label>
+              <select id="ad-region" class="form-input" required>
+                <option value="">Choisir une région</option>
+                <option value="ile-de-france">Île-de-France</option>
+                <option value="auvergne-rhone-alpes">
+                  Auvergne-Rhône-Alpes
+                </option>
+                <option value="nouvelle-aquitaine">Nouvelle-Aquitaine</option>
+                <option value="occitanie">Occitanie</option>
+                <option value="hauts-de-france">Hauts-de-France</option>
+                <option value="grand-est">Grand Est</option>
+                <option value="provence-alpes-cote-azur">
+                  Provence-Alpes-Côte d'Azur
+                </option>
+                <option value="pays-de-la-loire">Pays de la Loire</option>
+                <option value="bretagne">Bretagne</option>
+                <option value="normandie">Normandie</option>
+                <option value="bourgogne-franche-comte">
+                  Bourgogne-Franche-Comté
+                </option>
+                <option value="centre-val-de-loire">Centre-Val de Loire</option>
+                <option value="corse">Corse</option>
+              </select>
+            </div>
+
+            <!-- Ville -->
+            <div class="form-group">
+              <label for="ad-city">Ville</label>
+              <select id="ad-city" class="form-input" required>
+                <option value="">Choisir une ville</option>
+                <option value="paris">Paris</option>
+                <option value="lyon">Lyon</option>
+                <option value="marseille">Marseille</option>
+                <option value="toulouse">Toulouse</option>
+                <option value="nice">Nice</option>
+                <option value="nantes">Nantes</option>
+                <option value="montpellier">Montpellier</option>
+                <option value="strasbourg">Strasbourg</option>
+                <option value="bordeaux">Bordeaux</option>
+                <option value="lille">Lille</option>
+                <option value="rennes">Rennes</option>
+                <option value="reims">Reims</option>
+              </select>
+            </div>
+
+            <!-- Titre -->
+            <div class="form-group">
+              <label for="ad-title">Titre de l'annonce</label>
+              <input
+                type="text"
+                id="ad-title"
+                class="form-input"
+                placeholder="Titre accrocheur"
+                required
+              />
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+              <label for="ad-description">Description</label>
+              <textarea
+                id="ad-description"
+                class="form-input"
+                placeholder="Décrivez vos attentes et envies..."
+                rows="4"
+                required
+              ></textarea>
+            </div>
+
+            <!-- Tarifs (conditionnel) -->
+            <div class="form-group" id="tarifs-group" style="display: none">
+              <label for="ad-tarifs">Tarifs</label>
+              <input
+                type="text"
+                id="ad-tarifs"
+                class="form-input"
+                placeholder="Ex: 150€/h, 300€/2h"
+              />
+            </div>
+
+            <!-- Informations personnelles (conditionnel) -->
+            <div class="form-group" id="info-perso-group" style="display: none">
+              <label>Informations personnelles</label>
+              <div class="info-grid">
+                <input
+                  type="number"
+                  id="ad-age"
+                  class="form-input"
+                  placeholder="Âge"
+                  min="18"
+                  max="99"
+                />
+                <select id="ad-sexe" class="form-input">
+                  <option value="">Sexe</option>
+                  <option value="femme">Femme</option>
+                  <option value="homme">Homme</option>
+                  <option value="couple">Couple</option>
+                </select>
+                <input
+                  type="text"
+                  id="ad-taille"
+                  class="form-input"
+                  placeholder="Taille (ex: 165cm)"
+                />
+              </div>
+            </div>
+
+            <!-- Photos visibles -->
+            <div class="form-group">
+              <label>Photos visibles</label>
+              <p class="form-help">Photos accessibles à tous les membres</p>
+              <div class="upload-zone">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  id="visible-photos"
+                  class="file-input"
+                />
+                <p>Glissez vos photos ici ou cliquez pour sélectionner</p>
+                <div id="visible-photos-preview" class="photos-preview"></div>
+              </div>
+            </div>
+
+            <!-- Photos privées -->
+            <div class="form-group">
+              <label>Photos privées</label>
+              <p class="form-help">Photos sur demande uniquement</p>
+              <div class="upload-zone">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  id="private-photos"
+                  class="file-input"
+                />
+                <p>Photos privées accessibles après acceptation</p>
+                <div id="private-photos-preview" class="photos-preview"></div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary">
+              Publier mon annonce
+            </button>
+          </form>
+        </div>
+
+        <!-- SECTION CONSULTATION DES ANNONCES -->
+        <div class="card" id="ads-view-section" style="display: none">
+          <h2>Annonces disponibles</h2>
+          <button class="btn-back" id="back-to-menu-view">
+            ← Retour au menu
+          </button>
+
+          <!-- Filtres -->
+          <div class="ads-filters">
+            <select id="filter-category" class="form-input">
+              <option value="">Toutes les catégories</option>
+              <optgroup label="Rencontres">
+                <option value="femme-cherche-homme">Femme cherche Homme</option>
+                <option value="homme-cherche-femme">Homme cherche Femme</option>
+                <option value="femme-cherche-femme">Femme cherche Femme</option>
+                <option value="homme-cherche-homme">Homme cherche Homme</option>
+                <option value="couple-cherche-homme">
+                  Couple cherche Homme
+                </option>
+                <option value="couple-cherche-femme">
+                  Couple cherche Femme
+                </option>
+                <option value="couple-cherche-couple">
+                  Couple cherche Couple
+                </option>
+              </optgroup>
+              <optgroup label="Sugar">
+                <option value="sugar-daddy">Sugar Daddy</option>
+                <option value="baby-girl">Sugar Baby Girl</option>
+                <option value="sugar-mommy">Sugar Mommy</option>
+                <option value="baby-boy">Sugar Baby Boy</option>
+              </optgroup>
+              <optgroup label="Escort">
+                <option value="escort-girl">Escort Girl</option>
+                <option value="escort-boy">Escort Boy</option>
+                <option value="masseuse">Masseuse érotique</option>
+                <option value="masseur">Masseur érotique</option>
+              </optgroup>
+              <optgroup label="Services érotiques">
+                <option value="domination">Domination</option>
+                <option value="massage-tantrique">Massage tantrique</option>
+                <option value="cam-sexting">Cam / sexting</option>
+                <option value="fetichisme">Fétichisme</option>
+                <option value="planning-soir">Planning "Ce soir"</option>
+              </optgroup>
+              <option value="objets-accessoires">Objets / accessoires</option>
+              <option value="emploi">Emploi</option>
+            </select>
+
+            <select id="filter-region" class="form-input">
+              <option value="">Toutes les régions</option>
+              <option value="ile-de-france">Île-de-France</option>
+              <option value="auvergne-rhone-alpes">Auvergne-Rhône-Alpes</option>
+              <option value="nouvelle-aquitaine">Nouvelle-Aquitaine</option>
+              <option value="occitanie">Occitanie</option>
+              <option value="hauts-de-france">Hauts-de-France</option>
+              <option value="grand-est">Grand Est</option>
+              <option value="provence-alpes-cote-azur">
+                Provence-Alpes-Côte d'Azur
+              </option>
+              <option value="pays-de-la-loire">Pays de la Loire</option>
+              <option value="bretagne">Bretagne</option>
+              <option value="normandie">Normandie</option>
+              <option value="bourgogne-franche-comte">
+                Bourgogne-Franche-Comté
+              </option>
+              <option value="centre-val-de-loire">Centre-Val de Loire</option>
+              <option value="corse">Corse</option>
+            </select>
+
+            <select id="filter-city" class="form-input">
+              <option value="">Toutes les villes</option>
+              <option value="paris">Paris</option>
+              <option value="lyon">Lyon</option>
+              <option value="marseille">Marseille</option>
+              <option value="toulouse">Toulouse</option>
+              <option value="nice">Nice</option>
+              <option value="nantes">Nantes</option>
+              <option value="montpellier">Montpellier</option>
+              <option value="strasbourg">Strasbourg</option>
+              <option value="bordeaux">Bordeaux</option>
+              <option value="lille">Lille</option>
+              <option value="rennes">Rennes</option>
+              <option value="reims">Reims</option>
+            </select>
+          </div>
+
+          <div id="ads-container">
+            <p>Chargement des annonces...</p>
+          </div>
+        </div>
+      </div>
     </main>
 
+    <!-- Footer -->
     <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h4>HotMeet</h4>
-                    <p>Plateforme de rencontres adultes sécurisée</p>
-                </div>
-            </div>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h4>HotMeet</h4>
+            <p>
+              La plateforme premium de rencontres adultes pour des expériences
+              authentiques et sécurisées.
+            </p>
+          </div>
+          <div class="footer-section">
+            <h4>Navigation</h4>
+            <ul class="footer-links">
+              <li><a href="/">Accueil</a></li>
+              <li><a href="/directory">Annuaire</a></li>
+              <li><a href="/ads">Annonces</a></li>
+              <li><a href="/tonight">Ce Soir</a></li>
+              <li><a href="/cam">Cam</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Légal</h4>
+            <ul class="footer-links">
+              <li><a href="/legal">Mentions légales</a></li>
+              <li><a href="/legal#privacy">Politique de confidentialité</a></li>
+              <li><a href="/legal#terms">Conditions d'utilisation</a></li>
+              <li><a href="/legal#cookies">Cookies</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Contact</h4>
+            <ul class="footer-links">
+              <li><a href="mailto:support@hotmeet.ch">Support</a></li>
+              <li><a href="/help">Aide</a></li>
+              <li><a href="/about">À propos</a></li>
+            </ul>
+          </div>
         </div>
+        <div class="footer-bottom">
+          <p>
+            &copy; 2024 HotMeet. Tous droits réservés. Réservé aux adultes de 18
+            ans et plus.
+          </p>
+        </div>
+      </div>
     </footer>
 
+    <!-- Scripts -->
+    <script src="/js/app.js"></script>
+    <script src="/js/auth.js"></script>
+
     <script>
-        function showMainMenu() {
-            document.getElementById('mainMenu').style.display = 'block';
-            document.getElementById('createSection').style.display = 'none';
-            document.getElementById('listSection').style.display = 'none';
-        }
-        
-        function showCreateForm() {
-            document.getElementById('mainMenu').style.display = 'none';
-            document.getElementById('createSection').style.display = 'block';
-            document.getElementById('listSection').style.display = 'none';
-        }
-        
-        function showAdsList() {
-            document.getElementById('mainMenu').style.display = 'none';
-            document.getElementById('createSection').style.display = 'none';
-            document.getElementById('listSection').style.display = 'block';
-            loadAds();
+      // Variables globales
+      let visiblePhotoFiles = [];
+      let privatePhotoFiles = [];
+
+      // =================================
+      // NAVIGATION ENTRE LES SECTIONS
+      // =================================
+
+      function showAdsMenu() {
+        document.getElementById('ads-menu').style.display = 'block';
+        document.getElementById('ads-create-section').style.display = 'none';
+        document.getElementById('ads-view-section').style.display = 'none';
+      }
+
+      function showCreateSection() {
+        document.getElementById('ads-menu').style.display = 'none';
+        document.getElementById('ads-create-section').style.display = 'block';
+        document.getElementById('ads-view-section').style.display = 'none';
+      }
+
+      function showViewSection() {
+        document.getElementById('ads-menu').style.display = 'none';
+        document.getElementById('ads-create-section').style.display = 'none';
+        document.getElementById('ads-view-section').style.display = 'block';
+        loadAds();
+      }
+
+      // =================================
+      // GESTION DES FORMULAIRES
+      // =================================
+
+      function handleCategoryChange() {
+        const category = document.getElementById('ad-category').value;
+        const tarifsGroup = document.getElementById('tarifs-group');
+        const infoPersoGroup = document.getElementById('info-perso-group');
+
+        // Afficher tarifs pour escort et services
+        if (
+          category.includes('escort') ||
+          category.includes('domination') ||
+          category.includes('massage')
+        ) {
+          tarifsGroup.style.display = 'block';
+        } else {
+          tarifsGroup.style.display = 'none';
         }
 
-        async function loadAds() {
-            try {
-                const response = await fetch('/api/ads');
-                const result = await response.json();
-                
-                const container = document.getElementById('adsContainer');
-                if (result.success && result.ads && result.ads.length > 0) {
-                    container.innerHTML = '';
-                    result.ads.forEach(ad => {
-                        const div = document.createElement('div');
-                        div.className = 'ad-card';
-                        div.innerHTML = `
-                            <h3>${ad.title}</h3>
-                            <p>${ad.description}</p>
-                            <small>Publié le ${new Date(ad.createdAt).toLocaleDateString()}</small>
+        // Afficher infos perso pour certaines catégories
+        if (
+          category.includes('escort') ||
+          category.includes('sugar') ||
+          category.includes('rencontre')
+        ) {
+          infoPersoGroup.style.display = 'block';
+        } else {
+          infoPersoGroup.style.display = 'none';
+        }
+      }
+
+      function handlePhotoUpload(e, isPrivate = false) {
+        const files = e.target.files;
+        const previewId = isPrivate
+          ? 'private-photos-preview'
+          : 'visible-photos-preview';
+        const previewContainer = document.getElementById(previewId);
+
+        if (isPrivate) {
+          privatePhotoFiles = Array.from(files);
+        } else {
+          visiblePhotoFiles = Array.from(files);
+        }
+
+        previewContainer.innerHTML = '';
+
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.classList.add('preview-thumbnail');
+            previewContainer.appendChild(img);
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+
+      async function handleFormSubmit(e) {
+        e.preventDefault();
+
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+
+        try {
+          submitBtn.textContent = 'Publication...';
+          submitBtn.disabled = true;
+
+          // Récupérer les données du formulaire
+          const formData = new FormData();
+          formData.append(
+            'category',
+            document.getElementById('ad-category').value
+          );
+          formData.append('region', document.getElementById('ad-region').value);
+          formData.append('city', document.getElementById('ad-city').value);
+          formData.append('title', document.getElementById('ad-title').value);
+          formData.append(
+            'description',
+            document.getElementById('ad-description').value
+          );
+          formData.append('tarifs', document.getElementById('ad-tarifs').value);
+          formData.append('age', document.getElementById('ad-age').value);
+          formData.append('sexe', document.getElementById('ad-sexe').value);
+          formData.append('taille', document.getElementById('ad-taille').value);
+
+          // Ajouter les photos
+          visiblePhotoFiles.forEach(file => formData.append('photos', file));
+          privatePhotoFiles.forEach(file =>
+            formData.append('privatePhotos', file)
+          );
+
+          const response = await fetch('/api/ads', {
+            method: 'POST',
+            body: formData,
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            showNotification('✅ Annonce publiée avec succès !', 'success');
+            e.target.reset();
+            document.getElementById('visible-photos-preview').innerHTML = '';
+            document.getElementById('private-photos-preview').innerHTML = '';
+            visiblePhotoFiles = [];
+            privatePhotoFiles = [];
+            setTimeout(() => showAdsMenu(), 2000);
+          } else {
+            throw new Error(result.message || 'Erreur lors de la publication');
+          }
+        } catch (error) {
+          showNotification('❌ ' + error.message, 'error');
+        } finally {
+          submitBtn.textContent = originalText;
+          submitBtn.disabled = false;
+        }
+      }
+
+      // =================================
+      // CHARGEMENT ET AFFICHAGE DES ANNONCES
+      // =================================
+
+      async function loadAds() {
+        try {
+          const category = document.getElementById('filter-category').value;
+          const region = document.getElementById('filter-region').value;
+          const city = document.getElementById('filter-city').value;
+
+          let url = '/api/ads?limit=20';
+          if (category) url += `&category=${category}`;
+          if (region) url += `&region=${region}`;
+          if (city) url += `&city=${city}`;
+
+          const response = await fetch(url);
+          const result = await response.json();
+
+          const container = document.getElementById('ads-container');
+
+          if (result.success && result.ads && result.ads.length > 0) {
+            container.innerHTML = '';
+            result.ads.forEach(ad => {
+              const adElement = document.createElement('div');
+              adElement.className = 'ad-card';
+              adElement.innerHTML = `
+                            <div class="ad-header">
+                                <h3>${ad.title}</h3>
+                                <span class="ad-category">${formatCategory(ad.category)}</span>
+                            </div>
+                            <p class="ad-description">${ad.description}</p>
+                            <div class="ad-details">
+                                <span class="ad-location">📍 ${ad.city}, ${ad.region}</span>
+                                ${ad.tarifs ? `<span class="ad-price">💰 ${ad.tarifs}</span>` : ''}
+                            </div>
+                            <div class="ad-footer">
+                                <span class="ad-date">Publié le ${new Date(ad.createdAt).toLocaleDateString()}</span>
+                                <button class="btn-primary btn-sm" onclick="contactAdvertiser('${ad._id}')">Contacter</button>
+                            </div>
                         `;
-                        container.appendChild(div);
-                    });
-                } else {
-                    container.innerHTML = '<p>Aucune annonce disponible. Soyez le premier à en créer une !</p>';
-                }
-            } catch (error) {
-                document.getElementById('adsContainer').innerHTML = '<p>Erreur de chargement</p>';
-            }
+              container.appendChild(adElement);
+            });
+          } else {
+            container.innerHTML =
+              '<p class="no-ads">Aucune annonce trouvée. Ajustez vos filtres ou soyez le premier à publier !</p>';
+          }
+        } catch (error) {
+          document.getElementById('ads-container').innerHTML =
+            '<p class="error">Erreur de chargement des annonces</p>';
         }
+      }
 
-        showMainMenu();
+      function formatCategory(category) {
+        const categories = {
+          'femme-cherche-homme': 'Femme cherche Homme',
+          'homme-cherche-femme': 'Homme cherche Femme',
+          'femme-cherche-femme': 'Femme cherche Femme',
+          'homme-cherche-homme': 'Homme cherche Homme',
+          'couple-cherche-homme': 'Couple cherche Homme',
+          'couple-cherche-femme': 'Couple cherche Femme',
+          'couple-cherche-couple': 'Couple cherche Couple',
+          'sugar-daddy': 'Sugar Daddy',
+          'baby-girl': 'Sugar Baby Girl',
+          'sugar-mommy': 'Sugar Mommy',
+          'baby-boy': 'Sugar Baby Boy',
+          'escort-girl': 'Escort Girl',
+          'escort-boy': 'Escort Boy',
+          masseuse: 'Masseuse érotique',
+          masseur: 'Masseur érotique',
+          domination: 'Domination',
+          'massage-tantrique': 'Massage tantrique',
+          'cam-sexting': 'Cam / sexting',
+          fetichisme: 'Fétichisme',
+          'planning-soir': 'Planning "Ce soir"',
+          'objets-accessoires': 'Objets / accessoires',
+          emploi: 'Emploi',
+        };
+        return categories[category] || category;
+      }
+
+      function contactAdvertiser(adId) {
+        // Redirection vers messages avec l'ID de l'annonce
+        window.location.href = `/messages?ad=${adId}`;
+      }
+
+      function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        notification.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 10000;
+                background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
+                color: white; padding: 15px 20px; border-radius: 8px; font-weight: 500;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            `;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 5000);
+      }
+
+      // =================================
+      // INITIALISATION
+      // =================================
+
+      document.addEventListener('DOMContentLoaded', function () {
+        // Event listeners pour la navigation
+        document
+          .getElementById('btn-create-ad')
+          .addEventListener('click', showCreateSection);
+        document
+          .getElementById('btn-view-ads')
+          .addEventListener('click', showViewSection);
+        document
+          .getElementById('back-to-menu-create')
+          .addEventListener('click', showAdsMenu);
+        document
+          .getElementById('back-to-menu-view')
+          .addEventListener('click', showAdsMenu);
+
+        // Event listeners pour le formulaire
+        document
+          .getElementById('ad-category')
+          .addEventListener('change', handleCategoryChange);
+        document
+          .getElementById('create-ad-form')
+          .addEventListener('submit', handleFormSubmit);
+
+        // Event listeners pour les uploads
+        document
+          .getElementById('visible-photos')
+          .addEventListener('change', e => handlePhotoUpload(e, false));
+        document
+          .getElementById('private-photos')
+          .addEventListener('change', e => handlePhotoUpload(e, true));
+
+        // Event listeners pour les filtres
+        document
+          .getElementById('filter-category')
+          .addEventListener('change', loadAds);
+        document
+          .getElementById('filter-region')
+          .addEventListener('change', loadAds);
+        document
+          .getElementById('filter-city')
+          .addEventListener('change', loadAds);
+
+        // Afficher le menu principal par défaut
+        showAdsMenu();
+      });
     </script>
-</body>
+  </body>
 </html>

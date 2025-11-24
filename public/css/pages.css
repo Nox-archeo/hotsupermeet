@@ -1032,3 +1032,158 @@ textarea:focus {
     text-align: center;
   }
 }
+
+/* ===================================== */
+/*      FORMULAIRE COMPLET ANNONCES     */
+/* ===================================== */
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.ads-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+/* Cards d'annonces */
+.ad-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.ad-card:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.ad-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ad-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.25rem;
+  flex: 1;
+  min-width: 200px;
+}
+
+.ad-category {
+  background: #ff6b35;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.ad-description {
+  color: #6c757d;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.ad-details {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.ad-location,
+.ad-price {
+  font-size: 0.9rem;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ad-price {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.ad-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ad-date {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.no-ads {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  padding: 2rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.error {
+  text-align: center;
+  color: #dc3545;
+  background: #f8d7da;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #f5c6cb;
+}
+
+/* Responsive pour les annonces */
+@media (max-width: 768px) {
+  .ads-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .ad-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ad-details {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .ad-footer {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+}
