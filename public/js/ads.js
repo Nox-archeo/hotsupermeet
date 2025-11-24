@@ -3,7 +3,7 @@ let visiblePhotoFiles = [];
 let privatePhotoFiles = [];
 
 // =================================
-// NAVIGATION ENTRE LES SECTIONS
+// NAVIGATION ENTRE LES SECTIONS - GLOBALES !
 // =================================
 
 function showAdsMenu() {
@@ -50,7 +50,10 @@ function showViewSection() {
   console.log('✅ Section consultation affichée');
 }
 
-// =================================
+// Rendre les fonctions globales
+window.showAdsMenu = showAdsMenu;
+window.showCreateSection = showCreateSection;
+window.showViewSection = showViewSection; // =================================
 // GESTION DES FORMULAIRES
 // =================================
 
