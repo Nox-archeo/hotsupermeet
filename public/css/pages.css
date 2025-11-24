@@ -900,3 +900,135 @@ textarea:focus {
     height: 60px;
   }
 }
+
+/* ===================================== */
+/*            MENU DE CHOIX              */
+/* ===================================== */
+
+/* Menu de choix principal */
+.choice-menu {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.choice-option {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.choice-option::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 107, 53, 0.1),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.choice-option:hover::before {
+  left: 100%;
+}
+
+.choice-option:hover {
+  transform: translateY(-5px);
+  border-color: #ff6b35;
+  box-shadow: 0 8px 25px rgba(255, 107, 53, 0.2);
+}
+
+.choice-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 2;
+}
+
+.choice-option h3 {
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.choice-option p {
+  color: #6c757d;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  position: relative;
+  z-index: 2;
+}
+
+.choice-option button {
+  position: relative;
+  z-index: 2;
+}
+
+/* Bouton retour */
+.btn-back {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.btn-back:hover {
+  background: #5a6268;
+  transform: translateX(-2px);
+}
+
+/* Section header avec bouton retour */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.section-header h2 {
+  margin: 0;
+}
+
+/* Responsive pour le menu de choix */
+@media (max-width: 768px) {
+  .choice-menu {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .choice-option {
+    padding: 1.5rem;
+  }
+
+  .choice-icon {
+    font-size: 2.5rem;
+  }
+
+  .section-header {
+    flex-direction: column;
+    text-align: center;
+  }
+}
