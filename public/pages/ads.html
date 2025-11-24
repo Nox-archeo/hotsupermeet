@@ -432,6 +432,98 @@
               ></textarea>
             </div>
 
+            <!-- Informations de contact -->
+            <div class="form-group" id="contact-group" style="display: none">
+              <label>Comment souhaitez-vous être contacté(e) ?</label>
+              <div class="services-checkboxes">
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    name="contact_methods"
+                    value="site"
+                    checked
+                  />
+                  <span>📩 Messages sur le site (recommandé)</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="contact_methods" value="email" />
+                  <span>✉️ Email</span>
+                </label>
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    name="contact_methods"
+                    value="telephone"
+                  />
+                  <span>📞 Téléphone</span>
+                </label>
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    name="contact_methods"
+                    value="whatsapp"
+                  />
+                  <span>💬 WhatsApp</span>
+                </label>
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    name="contact_methods"
+                    value="telegram"
+                  />
+                  <span>📱 Telegram</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="contact_methods" value="snap" />
+                  <span>👻 Snapchat</span>
+                </label>
+              </div>
+
+              <!-- Champs de contact conditionnels -->
+              <div class="contact-details" style="margin-top: 1rem">
+                <input
+                  type="email"
+                  id="ad-email"
+                  class="form-input"
+                  placeholder="Votre email..."
+                  style="display: none; margin-bottom: 0.5rem"
+                />
+                <input
+                  type="tel"
+                  id="ad-telephone"
+                  class="form-input"
+                  placeholder="Votre numéro de téléphone..."
+                  style="display: none; margin-bottom: 0.5rem"
+                />
+                <input
+                  type="text"
+                  id="ad-whatsapp"
+                  class="form-input"
+                  placeholder="Votre WhatsApp..."
+                  style="display: none; margin-bottom: 0.5rem"
+                />
+                <input
+                  type="text"
+                  id="ad-telegram"
+                  class="form-input"
+                  placeholder="Votre Telegram..."
+                  style="display: none; margin-bottom: 0.5rem"
+                />
+                <input
+                  type="text"
+                  id="ad-snap"
+                  class="form-input"
+                  placeholder="Votre Snapchat..."
+                  style="display: none; margin-bottom: 0.5rem"
+                />
+              </div>
+
+              <p class="form-help">
+                <strong>Note :</strong> Les messages sur le site sont plus
+                sécurisés et permettent une meilleure vérification des contacts.
+              </p>
+            </div>
+
             <!-- Photos de l'annonce -->
             <div class="form-group">
               <label>Photos de l'annonce</label>

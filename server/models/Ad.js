@@ -108,6 +108,14 @@ const adSchema = new mongoose.Schema(
     },
     disponibilites_details: { type: String, trim: true, maxlength: 500 },
 
+    // Informations de contact
+    contact_methods: [{ type: String, trim: true }],
+    contact_email: { type: String, trim: true, lowercase: true },
+    contact_telephone: { type: String, trim: true },
+    contact_whatsapp: { type: String, trim: true },
+    contact_telegram: { type: String, trim: true },
+    contact_snap: { type: String, trim: true },
+
     premiumOnly: {
       type: Boolean,
       default: true,
