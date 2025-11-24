@@ -258,6 +258,62 @@
   border: 2px solid #e1e8ed;
 }
 
+/* Styles pour les photos d'annonces */
+.photo-preview-item {
+  position: relative;
+  display: inline-block;
+}
+
+.photo-preview-item img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #e1e8ed;
+  transition: transform 0.3s ease;
+}
+
+.photo-preview-item:hover img {
+  transform: scale(1.05);
+}
+
+.remove-photo-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s ease;
+}
+
+.remove-photo-btn:hover {
+  background: #c0392b;
+  transform: scale(1.1);
+}
+
+.btn-upload {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s ease;
+}
+
+.btn-upload:hover {
+  background: #2980b9;
+}
+
 /* États vides améliorés */
 .empty-state {
   text-align: center;

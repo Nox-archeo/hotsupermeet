@@ -891,10 +891,175 @@ const handleUnblurRequest = async (req, res) => {
   }
 };
 
+// Upload des photos d'annonces
+const uploadAdPhotos = async (req, res) => {
+  try {
+    ensureUploadDirs();
+
+    console.log('📥 Upload photos annonce reçu:', {
+      hasFiles: !!req.files,
+      hasPhotos: !!(req.files && req.files.photos),
+      userId: req.user?._id,
+    });
+
+    if (!req.files || !req.files.photos) {
+      console.log('❌ Aucune photo fournie');
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'NO_FILE',
+          message: 'Aucune photo fournie',
+        },
+      });
+    }
+
+    const photos = Array.isArray(req.files.photos)
+      ? req.files.photos
+      : [req.files.photos];
+    const userId = req.user._id;
+
+    // Limiter à 5 photos maximum
+    if (photos.length > 5) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'TOO_MANY_FILES',
+          message: 'Maximum 5 photos autorisées',
+        },
+      });
+    }
+
+    console.log(`📷 Upload de ${photos.length} photo(s)`);
+
+    const uploadedPhotos = [];
+    const errors = [];
+
+    for (let i = 0; i < photos.length; i++) {
+      const photo = photos[i];
+
+      // Vérifier le type de fichier
+      if (!photo.mimetype.startsWith('image/')) {
+        errors.push(`Photo ${i + 1}: Le fichier doit être une image`);
+        continue;
+      }
+
+      // Vérifier la taille (max 5MB)
+      if (photo.size > 5 * 1024 * 1024) {
+        errors.push(`Photo ${i + 1}: L'image ne doit pas dépasser 5MB`);
+        continue;
+      }
+
+      try {
+        const fileExtension = path.extname(photo.name);
+        const fileName = `ad-photo-${userId}-${Date.now()}-${i}${fileExtension}`;
+
+        // Upload vers Cloudinary si configuré
+        if (
+          process.env.CLOUDINARY_CLOUD_NAME &&
+          process.env.CLOUDINARY_API_KEY &&
+          process.env.CLOUDINARY_API_SECRET
+        ) {
+          console.log(`🚀 Upload photo ${i + 1} vers Cloudinary: ${fileName}`);
+
+          const uploadResult = await new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+              {
+                resource_type: 'image',
+                folder: 'hotsupermeet/ads-photos',
+                public_id: fileName.replace(/\.[^/.]+$/, ''),
+                transformation: [
+                  { width: 1200, height: 800, crop: 'limit' },
+                  { quality: 'auto' },
+                  { format: 'auto' },
+                ],
+                overwrite: true,
+                timeout: 60000,
+              },
+              (error, result) => {
+                if (error) {
+                  console.log(
+                    `❌ Erreur Cloudinary photo ${i + 1}:`,
+                    error.message
+                  );
+                  reject(error);
+                } else {
+                  console.log(`✅ Upload photo ${i + 1} réussi`);
+                  resolve(result);
+                }
+              }
+            );
+
+            if (photo.tempFilePath && fs.existsSync(photo.tempFilePath)) {
+              fs.createReadStream(photo.tempFilePath).pipe(uploadStream);
+            } else {
+              uploadStream.end(photo.data);
+            }
+          });
+
+          uploadedPhotos.push({
+            filename: fileName,
+            url: uploadResult.secure_url,
+            publicId: uploadResult.public_id,
+            cloudinaryData: {
+              width: uploadResult.width,
+              height: uploadResult.height,
+              format: uploadResult.format,
+              bytes: uploadResult.bytes,
+            },
+          });
+
+          console.log(`✅ Photo ${i + 1} uploadée: ${uploadResult.secure_url}`);
+        } else {
+          // Fallback base64
+          const base64Data = photo.data.toString('base64');
+          const dataURL = `data:${photo.mimetype};base64,${base64Data}`;
+
+          uploadedPhotos.push({
+            filename: fileName,
+            url: dataURL,
+          });
+        }
+      } catch (error) {
+        console.error(`❌ Erreur upload photo ${i + 1}:`, error.message);
+        errors.push(`Photo ${i + 1}: Erreur lors de l'upload`);
+      }
+    }
+
+    if (uploadedPhotos.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'UPLOAD_FAILED',
+          message: errors.join(', ') || "Aucune photo n'a pu être uploadée",
+        },
+      });
+    }
+
+    console.log(`✅ ${uploadedPhotos.length} photo(s) uploadée(s) avec succès`);
+
+    res.json({
+      success: true,
+      message: `${uploadedPhotos.length} photo(s) uploadée(s) avec succès`,
+      photos: uploadedPhotos,
+      errors: errors.length > 0 ? errors : undefined,
+    });
+  } catch (error) {
+    console.error('❌ Erreur upload photos annonce:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Erreur interne du serveur',
+      },
+    });
+  }
+};
+
 module.exports = {
   uploadProfilePhoto,
   uploadGalleryPhoto,
   uploadPrivatePhoto,
+  uploadAdPhotos,
   togglePhotoBlur,
   deletePhoto,
   setProfilePhoto,
