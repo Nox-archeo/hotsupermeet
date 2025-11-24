@@ -503,3 +503,4 @@ module.exports = app;
 // Force CSP update
 // Force deploy CSP fix - Sun Nov 23 23:07:28 CET 2025
 // CSP restaurée - Sun Nov 23 23:15:14 CET 2025
+// Force redeploy Mon Nov 24 13:03:44 CET 2025
