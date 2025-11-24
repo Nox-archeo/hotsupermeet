@@ -1423,9 +1423,29 @@ textarea:focus {
   text-align: center;
   color: #6c757d;
   font-style: italic;
-  padding: 2rem;
-  background: #f8f9fa;
-  border-radius: 8px;
+  padding: 3rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  border: 2px dashed #dee2e6;
+  margin: 2rem 0;
+}
+
+.no-ads::before {
+  content: '📝';
+  display: block;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.no-ads p {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.no-ads .help-text {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-top: 1rem;
 }
 
 .error {
