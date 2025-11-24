@@ -1,6 +1,158 @@
 // Variables globales
-let visiblePhotoFiles = [];
-let privatePhotoFiles = [];
+let adPhotoFiles = [];
+
+// =================================
+// GESTION DES PHOTOS D'ANNONCES
+// =================================
+
+function initPhotoUpload() {
+  const uploadBtn = document.getElementById('upload-ad-photos-btn');
+  const fileInput = document.getElementById('ad-photos');
+
+  if (uploadBtn && fileInput) {
+    uploadBtn.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', handleAdPhotoUpload);
+  }
+}
+
+async function handleAdPhotoUpload(event) {
+  const files = event.target.files;
+
+  if (!files.length) return;
+
+  // Validation
+  if (files.length > 5) {
+    showMessage('Maximum 5 photos autorisées', 'error');
+    event.target.value = '';
+    return;
+  }
+
+  for (let file of files) {
+    if (!file.type.startsWith('image/')) {
+      showMessage('Seules les images sont autorisées', 'error');
+      event.target.value = '';
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      showMessage('Fichier trop volumineux (max 5MB)', 'error');
+      event.target.value = '';
+      return;
+    }
+  }
+
+  try {
+    showMessage('Upload des photos en cours...', 'info');
+
+    const formData = new FormData();
+    for (let i = 0; i < files.length; i++) {
+      formData.append('photos', files[i]);
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      showMessage('Vous devez être connecté pour uploader des photos', 'error');
+      return;
+    }
+
+    const response = await fetch('/api/uploads/ad-photos', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      showMessage(result.message, 'success');
+
+      // Ajouter les photos uploadées à notre liste
+      adPhotoFiles = adPhotoFiles.concat(result.photos);
+
+      // Mettre à jour l'affichage
+      updatePhotoPreview();
+
+      // Reset l'input
+      event.target.value = '';
+    } else {
+      showMessage(result.error.message, 'error');
+    }
+  } catch (error) {
+    console.error('Erreur upload:', error);
+    showMessage("Erreur lors de l'upload des photos", 'error');
+  }
+}
+
+function updatePhotoPreview() {
+  const preview = document.getElementById('ad-photos-preview');
+  if (!preview) return;
+
+  preview.innerHTML = '';
+
+  adPhotoFiles.forEach((photo, index) => {
+    const photoDiv = document.createElement('div');
+    photoDiv.className = 'photo-preview-item';
+    photoDiv.innerHTML = `
+      <img src="${photo.url}" alt="Photo ${index + 1}" />
+      <button type="button" onclick="removeAdPhoto(${index})" class="remove-photo-btn">
+        ×
+      </button>
+    `;
+    preview.appendChild(photoDiv);
+  });
+}
+
+function removeAdPhoto(index) {
+  adPhotoFiles.splice(index, 1);
+  updatePhotoPreview();
+}
+
+// Rendre la fonction globale
+window.removeAdPhoto = removeAdPhoto;
+
+function showMessage(message, type) {
+  // Créer ou récupérer la zone de message
+  let messageDiv = document.getElementById('message-zone');
+  if (!messageDiv) {
+    messageDiv = document.createElement('div');
+    messageDiv.id = 'message-zone';
+    messageDiv.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      max-width: 300px;
+    `;
+    document.body.appendChild(messageDiv);
+  }
+
+  // Créer le message
+  const msgElement = document.createElement('div');
+  msgElement.style.cssText = `
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    background-color: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
+  `;
+  msgElement.textContent = message;
+
+  messageDiv.appendChild(msgElement);
+
+  // Supprimer après 5 secondes
+  setTimeout(() => {
+    if (msgElement.parentNode) {
+      msgElement.parentNode.removeChild(msgElement);
+    }
+  }, 5000);
+}
 
 // =================================
 // NAVIGATION ENTRE LES SECTIONS - GLOBALES !
@@ -121,34 +273,6 @@ function handleCategoryChange() {
   }
 }
 
-function handlePhotoUpload(e, isPrivate = false) {
-  const files = e.target.files;
-  const previewId = isPrivate
-    ? 'private-photos-preview'
-    : 'visible-photos-preview';
-  const previewContainer = document.getElementById(previewId);
-
-  if (isPrivate) {
-    privatePhotoFiles = Array.from(files);
-  } else {
-    visiblePhotoFiles = Array.from(files);
-  }
-
-  previewContainer.innerHTML = '';
-
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      const img = document.createElement('img');
-      img.src = e.target.result;
-      img.classList.add('preview-thumbnail');
-      previewContainer.appendChild(img);
-    };
-    reader.readAsDataURL(file);
-  }
-}
-
 async function handleFormSubmit(e) {
   e.preventDefault();
 
@@ -159,49 +283,55 @@ async function handleFormSubmit(e) {
     submitBtn.textContent = 'Publication...';
     submitBtn.disabled = true;
 
+    // Vérifier si des photos ont été uploadées
+    const photoUrls = adPhotoFiles.map(photo => photo.url);
+
     // Récupérer les données du formulaire
-    const formData = new FormData();
-    formData.append('category', document.getElementById('ad-category').value);
-    formData.append('country', document.getElementById('ad-country').value);
-    formData.append('region', document.getElementById('ad-region').value);
-    formData.append('city', document.getElementById('ad-city').value);
-    formData.append('title', document.getElementById('ad-title').value);
-    formData.append(
-      'description',
-      document.getElementById('ad-description').value
-    );
-    formData.append('tarifs', document.getElementById('ad-tarifs').value);
-    formData.append('age', document.getElementById('ad-age').value);
-    formData.append('sexe', document.getElementById('ad-sexe').value);
-    formData.append('taille', document.getElementById('ad-taille').value);
+    const adData = {
+      category: document.getElementById('ad-category').value,
+      country: document.getElementById('ad-country').value,
+      region: document.getElementById('ad-region').value,
+      city: document.getElementById('ad-city').value,
+      title: document.getElementById('ad-title').value,
+      description: document.getElementById('ad-description').value,
+      date: document.getElementById('ad-date').value,
+      ageMin: document.getElementById('age-min').value,
+      ageMax: document.getElementById('age-max').value,
+      sexe: document.getElementById('ad-sexe').value,
+      images: photoUrls, // URLs Cloudinary
+      type:
+        document.getElementById('ad-category').value.split('-')[0] ||
+        'rencontre',
+    };
 
-    // Ajouter les photos
-    visiblePhotoFiles.forEach(file => formData.append('photos', file));
-    privatePhotoFiles.forEach(file => formData.append('privatePhotos', file));
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('Vous devez être connecté');
+    }
 
+    // Envoyer les données de l'annonce avec les URLs des photos
     const response = await fetch('/api/ads', {
       method: 'POST',
-      body: formData,
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
       },
+      body: JSON.stringify(adData),
     });
 
     const result = await response.json();
 
     if (result.success) {
-      showNotification('✅ Annonce publiée avec succès !', 'success');
+      showMessage('✅ Annonce publiée avec succès !', 'success');
       e.target.reset();
-      document.getElementById('visible-photos-preview').innerHTML = '';
-      document.getElementById('private-photos-preview').innerHTML = '';
-      visiblePhotoFiles = [];
-      privatePhotoFiles = [];
+      document.getElementById('ad-photos-preview').innerHTML = '';
+      adPhotoFiles = [];
       setTimeout(() => showAdsMenu(), 2000);
     } else {
       throw new Error(result.message || 'Erreur lors de la publication');
     }
   } catch (error) {
-    showNotification('❌ ' + error.message, 'error');
+    showMessage('❌ ' + error.message, 'error');
   } finally {
     submitBtn.textContent = originalText;
     submitBtn.disabled = false;
@@ -412,15 +542,16 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Event listeners pour les uploads
-  const visiblePhotos = document.getElementById('visible-photos');
-  const privatePhotos = document.getElementById('private-photos');
+  // Event listeners pour l'upload des photos d'annonces
+  const uploadBtn = document.getElementById('upload-ad-photos-btn');
+  const fileInput = document.getElementById('ad-photos');
 
-  if (visiblePhotos) {
-    visiblePhotos.addEventListener('change', e => handlePhotoUpload(e, false));
-  }
-  if (privatePhotos) {
-    privatePhotos.addEventListener('change', e => handlePhotoUpload(e, true));
+  if (uploadBtn && fileInput) {
+    uploadBtn.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', handleAdPhotoUpload);
   }
 
   // Event listeners pour les filtres

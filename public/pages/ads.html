@@ -295,37 +295,28 @@
               </div>
             </div>
 
-            <!-- Photos visibles -->
+            <!-- Photos de l'annonce -->
             <div class="form-group">
-              <label>Photos visibles</label>
-              <p class="form-help">Photos accessibles à tous les membres</p>
-              <div class="upload-zone">
+              <label>Photos de l'annonce</label>
+              <p class="form-help">Maximum 5 photos (5MB par photo)</p>
+              <div class="upload-zone" id="ad-photos-upload-zone">
                 <input
                   type="file"
                   multiple
                   accept="image/*"
-                  id="visible-photos"
+                  id="ad-photos"
                   class="file-input"
+                  style="display: none"
                 />
-                <p>Glissez vos photos ici ou cliquez pour sélectionner</p>
-                <div id="visible-photos-preview" class="photos-preview"></div>
-              </div>
-            </div>
-
-            <!-- Photos privées -->
-            <div class="form-group">
-              <label>Photos privées</label>
-              <p class="form-help">Photos sur demande uniquement</p>
-              <div class="upload-zone">
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  id="private-photos"
-                  class="file-input"
-                />
-                <p>Photos privées accessibles après acceptation</p>
-                <div id="private-photos-preview" class="photos-preview"></div>
+                <button
+                  type="button"
+                  class="btn-upload"
+                  id="upload-ad-photos-btn"
+                >
+                  📸 Ajouter des photos
+                </button>
+                <p>Cliquez pour sélectionner vos photos</p>
+                <div id="ad-photos-preview" class="photos-preview"></div>
               </div>
             </div>
 
