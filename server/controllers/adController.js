@@ -91,38 +91,35 @@ const getAds = async (req, res) => {
     const {
       page = 1,
       limit = 20,
-      type,
-      location,
-      sexe,
-      ageMin,
-      ageMax,
-      premiumOnly,
+      category,
+      country,
+      region,
+      city,
       search,
     } = req.query;
 
     // Construire les filtres
     const filters = { status: 'active' };
 
-    if (type) filters.type = type;
-    if (location) filters.location = new RegExp(location, 'i');
-    if (sexe && sexe !== 'tous')
-      filters['criteria.sexe'] = { $in: [sexe, 'tous'] };
-    if (premiumOnly === 'true') filters.premiumOnly = true;
-
-    // Filtres d'âge
-    if (ageMin) filters['criteria.ageMin'] = { $lte: parseInt(ageMin) };
-    if (ageMax) filters['criteria.ageMax'] = { $gte: parseInt(ageMax) };
+    if (category) filters.category = category;
+    if (country) filters.country = country;
+    if (region) filters.region = new RegExp(region, 'i');
+    if (city) filters.city = new RegExp(city, 'i');
 
     // Recherche textuelle
     if (search) {
       filters.$or = [
         { title: new RegExp(search, 'i') },
         { description: new RegExp(search, 'i') },
-        { tags: new RegExp(search, 'i') },
       ];
     }
 
-    const ads = await Ad.getActiveAds(filters, parseInt(page), parseInt(limit));
+    const ads = await Ad.find(filters)
+      .populate('userId', 'profile.nom profile.age profile.sexe')
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit))
+      .skip((parseInt(page) - 1) * parseInt(limit));
+
     const total = await Ad.countDocuments(filters);
 
     res.json({
