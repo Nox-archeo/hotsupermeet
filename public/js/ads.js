@@ -671,8 +671,16 @@ async function loadMyAds() {
         container.appendChild(adElement);
       });
     } else {
-      container.innerHTML =
-        '<p class="no-ads">Vous n\'avez encore aucune annonce publiée.</p>';
+      container.innerHTML = `
+        <div class="no-ads">
+          <p><strong>Vous n'avez encore aucune annonce publiée.</strong></p>
+          <p>Créez votre première annonce pour commencer à rencontrer des personnes qui partagent vos envies !</p>
+          <p class="help-text">💡 Vos annonces seront automatiquement supprimées après 30 jours. Vous pouvez les renouveler à tout moment.</p>
+          <button class="btn-primary" onclick="showCreateSection()" style="margin-top: 1rem;">
+            ✍️ Créer ma première annonce
+          </button>
+        </div>
+      `;
       document.getElementById('stats-total').textContent = '0';
       document.getElementById('stats-views').textContent = '0';
       document.getElementById('stats-contacts').textContent = '0';
@@ -807,8 +815,10 @@ document.addEventListener('DOMContentLoaded', function () {
       console.log(`🎯 CLIC sur carte option ${index}`);
       if (index === 0) {
         showCreateSection();
-      } else {
+      } else if (index === 1) {
         showViewSection();
+      } else if (index === 2) {
+        showMyAdsSection();
       }
     });
   });
