@@ -26,6 +26,9 @@ router.get('/my-ads', adController.getUserAds);
 // Mettre à jour une annonce
 router.put('/ads/:id', adController.updateAd);
 
+// Renouveler une annonce pour 30 jours supplémentaires
+router.put('/ads/:id/renew', adController.renewAd);
+
 // Supprimer une annonce
 router.delete('/ads/:id', adController.deleteAd);
 
