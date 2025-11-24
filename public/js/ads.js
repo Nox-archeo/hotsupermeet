@@ -52,7 +52,7 @@ async function handleAdPhotoUpload(event) {
       formData.append('photos', files[i]);
     }
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('hotmeet_token');
     if (!token) {
       showMessage('Vous devez être connecté pour uploader des photos', 'error');
       return;
@@ -304,7 +304,7 @@ async function handleFormSubmit(e) {
         'rencontre',
     };
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('hotmeet_token');
     if (!token) {
       throw new Error('Vous devez être connecté');
     }
