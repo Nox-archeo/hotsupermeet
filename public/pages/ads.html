@@ -88,6 +88,12 @@
               <p>Découvrez les annonces des autres membres</p>
               <button class="btn-secondary" id="btn-view-ads">Explorer</button>
             </div>
+            <div class="choice-option">
+              <div class="choice-icon">📋</div>
+              <h3>Mes annonces</h3>
+              <p>Gérez, modifiez ou renouvelez vos annonces</p>
+              <button class="btn-tertiary" id="btn-my-ads">Gérer</button>
+            </div>
           </div>
         </div>
 
@@ -652,6 +658,33 @@
 
           <div id="ads-container">
             <p>Chargement des annonces...</p>
+          </div>
+        </div>
+
+        <!-- SECTION MES ANNONCES -->
+        <div class="card" id="my-ads-section" style="display: none">
+          <h2>Mes annonces</h2>
+          <button class="btn-back" id="back-to-menu-myads">
+            ← Retour au menu
+          </button>
+
+          <div class="my-ads-stats">
+            <div class="stat-card">
+              <h3 id="stats-total">0</h3>
+              <p>Annonces actives</p>
+            </div>
+            <div class="stat-card">
+              <h3 id="stats-views">0</h3>
+              <p>Vues totales</p>
+            </div>
+            <div class="stat-card">
+              <h3 id="stats-contacts">0</h3>
+              <p>Contacts reçus</p>
+            </div>
+          </div>
+
+          <div id="my-ads-container">
+            <p>Chargement de vos annonces...</p>
           </div>
         </div>
       </div>

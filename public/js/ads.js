@@ -189,8 +189,9 @@ function showViewSection() {
   const adsMenu = document.getElementById('ads-menu');
   const createSection = document.getElementById('ads-create-section');
   const viewSection = document.getElementById('ads-view-section');
+  const myAdsSection = document.getElementById('my-ads-section');
 
-  if (!adsMenu || !createSection || !viewSection) {
+  if (!adsMenu || !createSection || !viewSection || !myAdsSection) {
     console.error('❌ ERREUR: Éléments DOM manquants !');
     return;
   }
@@ -198,14 +199,37 @@ function showViewSection() {
   adsMenu.style.display = 'none';
   createSection.style.display = 'none';
   viewSection.style.display = 'block';
+  myAdsSection.style.display = 'none';
   loadAds();
   console.log('✅ Section consultation affichée');
+}
+
+function showMyAdsSection() {
+  console.log('🟢 Affichage section mes annonces');
+
+  const adsMenu = document.getElementById('ads-menu');
+  const createSection = document.getElementById('ads-create-section');
+  const viewSection = document.getElementById('ads-view-section');
+  const myAdsSection = document.getElementById('my-ads-section');
+
+  if (!adsMenu || !createSection || !viewSection || !myAdsSection) {
+    console.error('❌ ERREUR: Éléments DOM manquants !');
+    return;
+  }
+
+  adsMenu.style.display = 'none';
+  createSection.style.display = 'none';
+  viewSection.style.display = 'none';
+  myAdsSection.style.display = 'block';
+  loadMyAds();
+  console.log('✅ Section mes annonces affichée');
 }
 
 // Rendre les fonctions globales
 window.showAdsMenu = showAdsMenu;
 window.showCreateSection = showCreateSection;
 window.showViewSection = showViewSection;
+window.showMyAdsSection = showMyAdsSection;
 
 // =================================
 // GESTION PAYS/RÉGIONS
@@ -566,6 +590,162 @@ function contactAdvertiser(adId) {
   window.location.href = `/messages?ad=${adId}`;
 }
 
+// =================================
+// GESTION MES ANNONCES
+// =================================
+
+async function loadMyAds() {
+  try {
+    const response = await fetch('/api/my-ads', {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur lors du chargement des annonces');
+    }
+
+    const result = await response.json();
+    const container = document.getElementById('my-ads-container');
+
+    if (result.success && result.ads && result.ads.length > 0) {
+      // Mettre à jour les statistiques
+      document.getElementById('stats-total').textContent = result.ads.length;
+      document.getElementById('stats-views').textContent = result.ads.reduce(
+        (total, ad) => total + (ad.views || 0),
+        0
+      );
+      document.getElementById('stats-contacts').textContent = result.ads.reduce(
+        (total, ad) => total + (ad.contacts || 0),
+        0
+      );
+
+      // Afficher les annonces
+      container.innerHTML = '';
+      result.ads.forEach(ad => {
+        const daysSinceCreation = Math.floor(
+          (Date.now() - new Date(ad.createdAt).getTime()) /
+            (1000 * 60 * 60 * 24)
+        );
+        const daysRemaining = Math.max(0, 30 - daysSinceCreation);
+
+        let statusClass = 'status-active';
+        let statusText = 'Active';
+
+        if (daysRemaining <= 0) {
+          statusClass = 'status-expired';
+          statusText = 'Expirée';
+        } else if (daysRemaining <= 5) {
+          statusClass = 'status-pending';
+          statusText = 'Expire bientôt';
+        }
+
+        const adElement = document.createElement('div');
+        adElement.className = 'my-ad-card';
+        adElement.innerHTML = `
+          <div class="my-ad-header">
+            <h3 class="my-ad-title">${ad.title}</h3>
+            <span class="my-ad-status ${statusClass}">${statusText}</span>
+          </div>
+          <p class="my-ad-description">${ad.description}</p>
+          <div class="my-ad-meta">
+            <span>📍 ${ad.city}, ${ad.region}</span>
+            <span>📅 Publié le ${new Date(ad.createdAt).toLocaleDateString()}</span>
+            <span>⏰ Expire dans ${daysRemaining} jours</span>
+            <span>👁️ ${ad.views || 0} vues</span>
+            <span>💬 ${ad.contacts || 0} contacts</span>
+          </div>
+          <div class="my-ad-actions">
+            <button class="btn-action btn-edit" onclick="editAd('${ad._id}')">
+              ✏️ Modifier
+            </button>
+            <button class="btn-action btn-renew" onclick="renewAd('${ad._id}')">
+              🔄 Renouveler
+            </button>
+            <button class="btn-action btn-delete" onclick="deleteAd('${ad._id}')">
+              🗑️ Supprimer
+            </button>
+          </div>
+        `;
+        container.appendChild(adElement);
+      });
+    } else {
+      container.innerHTML =
+        '<p class="no-ads">Vous n\'avez encore aucune annonce publiée.</p>';
+      document.getElementById('stats-total').textContent = '0';
+      document.getElementById('stats-views').textContent = '0';
+      document.getElementById('stats-contacts').textContent = '0';
+    }
+  } catch (error) {
+    document.getElementById('my-ads-container').innerHTML =
+      '<p class="error">Erreur de chargement de vos annonces</p>';
+  }
+}
+
+async function deleteAd(adId) {
+  if (!confirm('Êtes-vous sûr de vouloir supprimer cette annonce ?')) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/ads/${adId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+
+    if (response.ok) {
+      loadMyAds(); // Recharger la liste
+      showNotification('Annonce supprimée avec succès', 'success');
+    } else {
+      throw new Error('Erreur lors de la suppression');
+    }
+  } catch (error) {
+    showNotification('Erreur lors de la suppression', 'error');
+  }
+}
+
+async function renewAd(adId) {
+  if (
+    !confirm(
+      'Voulez-vous renouveler cette annonce pour 30 jours supplémentaires ?'
+    )
+  ) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/ads/${adId}/renew`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+
+    if (response.ok) {
+      loadMyAds(); // Recharger la liste
+      showNotification('Annonce renouvelée avec succès', 'success');
+    } else {
+      throw new Error('Erreur lors du renouvellement');
+    }
+  } catch (error) {
+    showNotification('Erreur lors du renouvellement', 'error');
+  }
+}
+
+function editAd(adId) {
+  // Redirection vers le formulaire d'édition
+  window.location.href = `/ads/edit/${adId}`;
+}
+
+// Rendre les fonctions globales pour les boutons
+window.loadMyAds = loadMyAds;
+window.deleteAd = deleteAd;
+window.renewAd = renewAd;
+window.editAd = editAd;
+
 // Rendre la fonction globale pour l'utiliser dans onclick
 window.contactAdvertiser = contactAdvertiser;
 
@@ -593,10 +773,12 @@ document.addEventListener('DOMContentLoaded', function () {
   // Vérifier que les boutons existent
   const btnCreate = document.getElementById('btn-create-ad');
   const btnView = document.getElementById('btn-view-ads');
+  const btnMyAds = document.getElementById('btn-my-ads');
   console.log('🔍 Bouton Créer:', btnCreate);
   console.log('🔍 Bouton Voir:', btnView);
+  console.log('🔍 Bouton Mes Annonces:', btnMyAds);
 
-  if (!btnCreate || !btnView) {
+  if (!btnCreate || !btnView || !btnMyAds) {
     console.error('❌ ERREUR: Boutons introuvables !');
     return;
   }
@@ -610,6 +792,11 @@ document.addEventListener('DOMContentLoaded', function () {
   btnView.addEventListener('click', function () {
     console.log('🚀 CLIC sur Voir les annonces');
     showViewSection();
+  });
+
+  btnMyAds.addEventListener('click', function () {
+    console.log('🚀 CLIC sur Mes annonces');
+    showMyAdsSection();
   });
 
   console.log('✅ Event listeners pour les boutons ajoutés');
@@ -629,12 +816,16 @@ document.addEventListener('DOMContentLoaded', function () {
   // Boutons retour
   const backCreate = document.getElementById('back-to-menu-create');
   const backView = document.getElementById('back-to-menu-view');
+  const backMyAds = document.getElementById('back-to-menu-myads');
 
   if (backCreate) {
     backCreate.addEventListener('click', showAdsMenu);
   }
   if (backView) {
     backView.addEventListener('click', showAdsMenu);
+  }
+  if (backMyAds) {
+    backMyAds.addEventListener('click', showAdsMenu);
   }
 
   // Event listeners pour le formulaire
