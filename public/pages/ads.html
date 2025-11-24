@@ -175,51 +175,44 @@
               </select>
             </div>
 
+            <!-- Pays -->
+            <div class="form-group">
+              <label for="ad-country">Pays</label>
+              <select id="ad-country" class="form-input" required>
+                <option value="">Choisir un pays</option>
+                <option value="france">France</option>
+                <option value="suisse">Suisse</option>
+                <option value="belgique">Belgique</option>
+                <option value="canada">Canada</option>
+                <option value="allemagne">Allemagne</option>
+                <option value="italie">Italie</option>
+                <option value="espagne">Espagne</option>
+                <option value="portugal">Portugal</option>
+                <option value="royaume-uni">Royaume-Uni</option>
+                <option value="pays-bas">Pays-Bas</option>
+                <option value="autriche">Autriche</option>
+                <option value="luxembourg">Luxembourg</option>
+              </select>
+            </div>
+
             <!-- Région -->
             <div class="form-group">
-              <label for="ad-region">Région</label>
+              <label for="ad-region">Région/Province/État</label>
               <select id="ad-region" class="form-input" required>
-                <option value="">Choisir une région</option>
-                <option value="ile-de-france">Île-de-France</option>
-                <option value="auvergne-rhone-alpes">
-                  Auvergne-Rhône-Alpes
-                </option>
-                <option value="nouvelle-aquitaine">Nouvelle-Aquitaine</option>
-                <option value="occitanie">Occitanie</option>
-                <option value="hauts-de-france">Hauts-de-France</option>
-                <option value="grand-est">Grand Est</option>
-                <option value="provence-alpes-cote-azur">
-                  Provence-Alpes-Côte d'Azur
-                </option>
-                <option value="pays-de-la-loire">Pays de la Loire</option>
-                <option value="bretagne">Bretagne</option>
-                <option value="normandie">Normandie</option>
-                <option value="bourgogne-franche-comte">
-                  Bourgogne-Franche-Comté
-                </option>
-                <option value="centre-val-de-loire">Centre-Val de Loire</option>
-                <option value="corse">Corse</option>
+                <option value="">Choisir d'abord un pays</option>
               </select>
             </div>
 
             <!-- Ville -->
             <div class="form-group">
               <label for="ad-city">Ville</label>
-              <select id="ad-city" class="form-input" required>
-                <option value="">Choisir une ville</option>
-                <option value="paris">Paris</option>
-                <option value="lyon">Lyon</option>
-                <option value="marseille">Marseille</option>
-                <option value="toulouse">Toulouse</option>
-                <option value="nice">Nice</option>
-                <option value="nantes">Nantes</option>
-                <option value="montpellier">Montpellier</option>
-                <option value="strasbourg">Strasbourg</option>
-                <option value="bordeaux">Bordeaux</option>
-                <option value="lille">Lille</option>
-                <option value="rennes">Rennes</option>
-                <option value="reims">Reims</option>
-              </select>
+              <input
+                type="text"
+                id="ad-city"
+                class="form-input"
+                placeholder="Tapez votre ville..."
+                required
+              />
             </div>
 
             <!-- Titre -->
@@ -373,42 +366,32 @@
               <option value="emploi">Emploi</option>
             </select>
 
-            <select id="filter-region" class="form-input">
-              <option value="">Toutes les régions</option>
-              <option value="ile-de-france">Île-de-France</option>
-              <option value="auvergne-rhone-alpes">Auvergne-Rhône-Alpes</option>
-              <option value="nouvelle-aquitaine">Nouvelle-Aquitaine</option>
-              <option value="occitanie">Occitanie</option>
-              <option value="hauts-de-france">Hauts-de-France</option>
-              <option value="grand-est">Grand Est</option>
-              <option value="provence-alpes-cote-azur">
-                Provence-Alpes-Côte d'Azur
-              </option>
-              <option value="pays-de-la-loire">Pays de la Loire</option>
-              <option value="bretagne">Bretagne</option>
-              <option value="normandie">Normandie</option>
-              <option value="bourgogne-franche-comte">
-                Bourgogne-Franche-Comté
-              </option>
-              <option value="centre-val-de-loire">Centre-Val de Loire</option>
-              <option value="corse">Corse</option>
+            <select id="filter-country" class="form-input">
+              <option value="">Tous les pays</option>
+              <option value="france">France</option>
+              <option value="suisse">Suisse</option>
+              <option value="belgique">Belgique</option>
+              <option value="canada">Canada</option>
+              <option value="allemagne">Allemagne</option>
+              <option value="italie">Italie</option>
+              <option value="espagne">Espagne</option>
+              <option value="portugal">Portugal</option>
+              <option value="royaume-uni">Royaume-Uni</option>
+              <option value="pays-bas">Pays-Bas</option>
+              <option value="autriche">Autriche</option>
+              <option value="luxembourg">Luxembourg</option>
             </select>
 
-            <select id="filter-city" class="form-input">
-              <option value="">Toutes les villes</option>
-              <option value="paris">Paris</option>
-              <option value="lyon">Lyon</option>
-              <option value="marseille">Marseille</option>
-              <option value="toulouse">Toulouse</option>
-              <option value="nice">Nice</option>
-              <option value="nantes">Nantes</option>
-              <option value="montpellier">Montpellier</option>
-              <option value="strasbourg">Strasbourg</option>
-              <option value="bordeaux">Bordeaux</option>
-              <option value="lille">Lille</option>
-              <option value="rennes">Rennes</option>
-              <option value="reims">Reims</option>
+            <select id="filter-region" class="form-input">
+              <option value="">Toutes les régions</option>
             </select>
+
+            <input
+              type="text"
+              id="filter-city"
+              class="form-input"
+              placeholder="Ville..."
+            />
           </div>
 
           <div id="ads-container">
@@ -469,6 +452,7 @@
     <!-- Scripts -->
     <script src="/js/app.js"></script>
     <script src="/js/auth.js"></script>
+    <script src="/js/regions-europe.js"></script>
     <script src="/js/ads.js"></script>
   </body>
 </html>

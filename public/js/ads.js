@@ -53,7 +53,43 @@ function showViewSection() {
 // Rendre les fonctions globales
 window.showAdsMenu = showAdsMenu;
 window.showCreateSection = showCreateSection;
-window.showViewSection = showViewSection; // =================================
+window.showViewSection = showViewSection;
+
+// =================================
+// GESTION PAYS/RÉGIONS
+// =================================
+
+function updateRegionOptions(countrySelectId, regionSelectId) {
+  const countrySelect = document.getElementById(countrySelectId);
+  const regionSelect = document.getElementById(regionSelectId);
+
+  if (!countrySelect || !regionSelect) return;
+
+  const selectedCountry = countrySelect.value;
+
+  // Vider les options actuelles
+  regionSelect.innerHTML = '<option value="">Choisir une région</option>';
+
+  if (
+    selectedCountry &&
+    window.europeanRegions &&
+    window.europeanRegions[selectedCountry]
+  ) {
+    const regions = window.europeanRegions[selectedCountry];
+    regions.forEach(region => {
+      const option = document.createElement('option');
+      option.value = region.value;
+      option.textContent = region.name;
+      regionSelect.appendChild(option);
+    });
+  }
+}
+
+function handleCountryChange(e, regionSelectId) {
+  updateRegionOptions(e.target.id, regionSelectId);
+}
+
+// =================================
 // GESTION DES FORMULAIRES
 // =================================
 
@@ -126,6 +162,7 @@ async function handleFormSubmit(e) {
     // Récupérer les données du formulaire
     const formData = new FormData();
     formData.append('category', document.getElementById('ad-category').value);
+    formData.append('country', document.getElementById('ad-country').value);
     formData.append('region', document.getElementById('ad-region').value);
     formData.append('city', document.getElementById('ad-city').value);
     formData.append('title', document.getElementById('ad-title').value);
@@ -178,11 +215,13 @@ async function handleFormSubmit(e) {
 async function loadAds() {
   try {
     const category = document.getElementById('filter-category').value;
+    const country = document.getElementById('filter-country').value;
     const region = document.getElementById('filter-region').value;
     const city = document.getElementById('filter-city').value;
 
     let url = '/api/ads?limit=20';
     if (category) url += `&category=${category}`;
+    if (country) url += `&country=${country}`;
     if (region) url += `&region=${region}`;
     if (city) url += `&city=${city}`;
 
@@ -203,7 +242,7 @@ async function loadAds() {
                       </div>
                       <p class="ad-description">${ad.description}</p>
                       <div class="ad-details">
-                          <span class="ad-location">📍 ${ad.city}, ${ad.region}</span>
+                          <span class="ad-location">📍 ${ad.city}, ${ad.region}${ad.country ? `, ${formatCountryName(ad.country)}` : ''}</span>
                           ${ad.tarifs ? `<span class="ad-price">💰 ${ad.tarifs}</span>` : ''}
                       </div>
                       <div class="ad-footer">
@@ -249,6 +288,24 @@ function formatCategory(category) {
     emploi: 'Emploi',
   };
   return categories[category] || category;
+}
+
+function formatCountryName(countryKey) {
+  const countries = {
+    france: 'France',
+    suisse: 'Suisse',
+    belgique: 'Belgique',
+    canada: 'Canada',
+    allemagne: 'Allemagne',
+    italie: 'Italie',
+    espagne: 'Espagne',
+    portugal: 'Portugal',
+    'royaume-uni': 'Royaume-Uni',
+    'pays-bas': 'Pays-Bas',
+    autriche: 'Autriche',
+    luxembourg: 'Luxembourg',
+  };
+  return countries[countryKey] || countryKey;
 }
 
 function contactAdvertiser(adId) {
@@ -338,6 +395,23 @@ document.addEventListener('DOMContentLoaded', function () {
     createForm.addEventListener('submit', handleFormSubmit);
   }
 
+  // Event listeners pour pays/régions
+  const countrySelect = document.getElementById('ad-country');
+  const filterCountrySelect = document.getElementById('filter-country');
+
+  if (countrySelect) {
+    countrySelect.addEventListener('change', e => {
+      updateRegionOptions('ad-country', 'ad-region');
+    });
+  }
+
+  if (filterCountrySelect) {
+    filterCountrySelect.addEventListener('change', e => {
+      updateRegionOptions('filter-country', 'filter-region');
+      loadAds(); // Recharger les annonces quand le filtre pays change
+    });
+  }
+
   // Event listeners pour les uploads
   const visiblePhotos = document.getElementById('visible-photos');
   const privatePhotos = document.getElementById('private-photos');
@@ -361,6 +435,7 @@ document.addEventListener('DOMContentLoaded', function () {
     filterRegion.addEventListener('change', loadAds);
   }
   if (filterCity) {
+    filterCity.addEventListener('keyup', loadAds); // Recherche en temps réel pour la ville
     filterCity.addEventListener('change', loadAds);
   }
 
