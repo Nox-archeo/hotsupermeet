@@ -1,465 +1,149 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Annonces Érotiques - HotMeet</title>
-    <link rel="stylesheet" href="/css/style.css?v=6" />
-    <link rel="stylesheet" href="/css/pages.css?v=1" />
-    <link rel="stylesheet" href="/css/animations.css" />
-  </head>
-  <body>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/pages.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
     <!-- Header -->
     <header class="header">
-      <nav class="nav">
-        <a href="/" class="nav-brand">
-          <img
-            src="/images/logo-hotmeet.png"
-            alt="HotMeet - Rencontres Adultes Premium"
-            class="logo-img"
-          />
-          <span class="logo-text">HotMeet</span>
-        </a>
-
-        <div class="nav-menu" id="navMenu">
-          <a href="/" class="nav-link">Accueil</a>
-          <a href="/directory" class="nav-link">Annuaire</a>
-          <a href="/ads" class="nav-link active">Annonces</a>
-          <a href="/tonight" class="nav-link">Ce Soir</a>
-          <a href="/cam" class="nav-link">Cam-to-Cam</a>
-          <a href="/messages" class="nav-link"
-            >Messages
-            <span
-              class="notification-badge"
-              id="messageBadge"
-              style="display: none"
-              >0</span
-            ></a
-          >
-          <a href="/profile" class="nav-link">Mon Profil</a>
-        </div>
-
-        <div class="nav-actions">
-          <button class="btn-secondary" id="loginBtn">Connexion</button>
-          <button class="btn-primary" id="registerBtn">Inscription</button>
-          <div class="mobile-menu-toggle" id="mobileMenuToggle">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-        </div>
-      </nav>
+        <nav class="nav container">
+            <div class="nav-brand">
+                <a href="/" class="logo">
+                    <span class="logo-hot">Hot</span><span class="logo-meet">Meet</span>
+                </a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="/" class="nav-link">Accueil</a>
+                <a href="/directory" class="nav-link">Annuaire</a>
+                <a href="/ads" class="nav-link active">Annonces</a>
+                <a href="/tonight" class="nav-link">Ce Soir</a>
+                <a href="/cam" class="nav-link">Cam</a>
+                <a href="/messages" class="nav-link">Messages</a>
+                <a href="/profile" class="nav-link">Profil</a>
+                <a href="/auth" class="nav-link btn-primary">Connexion</a>
+            </div>
+        </nav>
     </header>
 
     <!-- Main Content -->
     <main class="pages-container ads-container">
-      <div class="container">
-        <div class="page-header">
-          <h1>Annonces Érotiques</h1>
-          <p>
-            Exprimez vos fantasmes et trouvez des partenaires pour des plans
-            spécifiques - Publication et réponse réservées aux membres premium
-          </p>
+        <div class="container">
+            <div class="page-header">
+                <h1>Annonces Érotiques</h1>
+                <p>Exprimez vos fantasmes et trouvez des partenaires pour des rencontres spéciales</p>
+            </div>
+
+            <!-- MENU PRINCIPAL DE CHOIX -->
+            <div class="card" id="mainMenu">
+                <h2>Que souhaitez-vous faire ?</h2>
+                <div class="choice-menu">
+                    <div class="choice-option" onclick="showCreateForm()">
+                        <div class="choice-icon">✍️</div>
+                        <h3>Créer une annonce</h3>
+                        <p>Publiez votre annonce pour rencontrer des personnes</p>
+                        <button class="btn-primary">Commencer</button>
+                    </div>
+                    <div class="choice-option" onclick="showAdsList()">
+                        <div class="choice-icon">🔍</div>
+                        <h3>Voir les annonces</h3>
+                        <p>Découvrez les annonces des autres membres</p>
+                        <button class="btn-secondary">Explorer</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION CRÉATION -->
+            <div class="card" id="createSection" style="display: none;">
+                <h2>Créer votre annonce</h2>
+                <button onclick="showMainMenu()" class="btn-back">← Retour</button>
+                <form class="ads-form">
+                    <div class="form-group">
+                        <label>Titre</label>
+                        <input type="text" class="form-input" placeholder="Titre de votre annonce" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea class="form-input" placeholder="Décrivez ce que vous recherchez" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">Publier</button>
+                </form>
+            </div>
+
+            <!-- SECTION LISTE -->
+            <div class="card" id="listSection" style="display: none;">
+                <h2>Annonces disponibles</h2>
+                <button onclick="showMainMenu()" class="btn-back">← Retour</button>
+                <div id="adsContainer">
+                    <p>Chargement des annonces...</p>
+                </div>
+            </div>
+
         </div>
-
-        <!-- Section d'explication de la fonctionnalité -->
-        <div class="card">
-          <h2>Fonctionnalité Premium</h2>
-          <div class="grid grid-3">
-            <div class="feature-item">
-              <div class="feature-icon">💬</div>
-              <h3>Expression Libre</h3>
-              <p>Décrivez vos envies et fantasmes en toute discrétion</p>
-            </div>
-            <div class="feature-item">
-              <div class="feature-icon">🔍</div>
-              <h3>Recherche Ciblée</h3>
-              <p>Trouvez des personnes partageant vos intérêts spécifiques</p>
-            </div>
-            <div class="feature-item">
-              <div class="feature-icon">🔒</div>
-              <h3>Sécurité</h3>
-              <p>Annonces vérifiées et modérées pour votre sécurité</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2>Créer une annonce</h2>
-          <form class="ads-form">
-            <div class="form-group">
-              <label for="adTitle">Titre de l'annonce</label>
-              <input
-                type="text"
-                id="adTitle"
-                class="form-input"
-                placeholder="Titre accrocheur pour votre annonce"
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="adDescription">Description</label>
-              <textarea
-                id="adDescription"
-                class="form-input"
-                placeholder="Décrivez vos envies et attentes..."
-                rows="4"
-              ></textarea>
-            </div>
-
-            <div class="form-group">
-              <label for="adInterests">Pratiques recherchées</label>
-              <input
-                type="text"
-                id="adInterests"
-                class="form-input"
-                placeholder="Séparées par des virgules"
-              />
-            </div>
-
-            <!-- Section Photos Visibles -->
-            <div class="form-group">
-              <label>Photos Visibles</label>
-              <p class="form-help">Photos accessibles à tous les membres</p>
-              <div class="upload-zone">
-                <p>
-                  Glissez-déposez vos photos ici ou cliquez pour sélectionner
-                </p>
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  id="visiblePhotos"
-                  class="file-input"
-                />
-                <button type="button" class="btn-secondary upload-btn">
-                  Sélectionner des photos
-                </button>
-                <div id="visiblePhotosPreview" class="photos-preview"></div>
-              </div>
-            </div>
-
-            <!-- Section Photos sur Demande -->
-            <div class="form-group">
-              <label>Photos sur Demande</label>
-              <p class="form-help">
-                Photos uniquement visibles après acceptation de votre part
-              </p>
-              <div class="upload-zone">
-                <p>Glissez-déposez vos photos privées ici</p>
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  id="privatePhotos"
-                  class="file-input"
-                />
-                <button type="button" class="btn-secondary upload-btn">
-                  Sélectionner des photos privées
-                </button>
-                <div id="privatePhotosPreview" class="photos-preview"></div>
-              </div>
-            </div>
-
-            <button type="submit" class="btn-primary">Publier l'annonce</button>
-          </form>
-        </div>
-
-        <div class="card">
-          <h2>Annonces récentes</h2>
-          <div class="empty-state">
-            <p>Fonctionnalité en cours de développement</p>
-            <p>Les annonces érotiques seront bientôt disponibles</p>
-          </div>
-        </div>
-      </div>
     </main>
 
-    <!-- Footer -->
     <footer class="footer">
-      <div class="container">
-        <div class="footer-content">
-          <div class="footer-section">
-            <h4>HotMeet</h4>
-            <p>
-              La plateforme premium de rencontres adultes pour des expériences
-              authentiques et sécurisées.
-            </p>
-          </div>
-          <div class="footer-section">
-            <h4>Navigation</h4>
-            <ul class="footer-links">
-              <li><a href="/">Accueil</a></li>
-              <li><a href="/directory">Annuaire</a></li>
-              <li><a href="/ads">Annonces</a></li>
-              <li><a href="/tonight">Ce Soir</a></li>
-            </ul>
-          </div>
-          <div class="footer-section">
-            <h4>Légal</h4>
-            <ul class="footer-links">
-              <li><a href="/legal">Mentions légales</a></li>
-              <li><a href="/legal#privacy">Politique de confidentialité</a></li>
-              <li><a href="/legal#terms">Conditions d'utilisation</a></li>
-              <li><a href="/legal#cookies">Cookies</a></li>
-            </ul>
-          </div>
-          <div class="footer-section">
-            <h4>Contact</h4>
-            <ul class="footer-links">
-              <li><a href="mailto:support@hotmeet.ch">Support</a></li>
-              <li><a href="/help">Aide</a></li>
-              <li><a href="/about">À propos</a></li>
-            </ul>
-          </div>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>HotMeet</h4>
+                    <p>Plateforme de rencontres adultes sécurisée</p>
+                </div>
+            </div>
         </div>
-        <div class="footer-bottom">
-          <p>
-            &copy; 2024 HotMeet. Tous droits réservés. Réservé aux adultes de 18
-            ans et plus.
-          </p>
-        </div>
-      </div>
     </footer>
 
     <script>
-      // Gestion de l'upload de photos
-      document.querySelectorAll('.upload-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-          const inputId = this.previousElementSibling.id;
-          document.getElementById(inputId).click();
-        });
-      });
-
-      // Gestion de l'affichage des photos
-      document
-        .getElementById('visiblePhotos')
-        .addEventListener('change', handlePhotoUpload);
-      document
-        .getElementById('privatePhotos')
-        .addEventListener('change', handlePhotoUpload);
-
-      let visiblePhotoFiles = [];
-      let privatePhotoFiles = [];
-
-      function handlePhotoUpload(e) {
-        const files = e.target.files;
-        const previewId = e.target.id + 'Preview';
-        const previewContainer = document.getElementById(previewId);
-
-        previewContainer.innerHTML = '';
-
-        // Stocker les fichiers selon le type
-        if (e.target.id === 'visiblePhotos') {
-          visiblePhotoFiles = Array.from(files);
-        } else if (e.target.id === 'privatePhotos') {
-          privatePhotoFiles = Array.from(files);
+        function showMainMenu() {
+            document.getElementById('mainMenu').style.display = 'block';
+            document.getElementById('createSection').style.display = 'none';
+            document.getElementById('listSection').style.display = 'none';
+        }
+        
+        function showCreateForm() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('createSection').style.display = 'block';
+            document.getElementById('listSection').style.display = 'none';
+        }
+        
+        function showAdsList() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('createSection').style.display = 'none';
+            document.getElementById('listSection').style.display = 'block';
+            loadAds();
         }
 
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          const reader = new FileReader();
-
-          reader.onload = function (e) {
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.classList.add('preview-thumbnail');
-            previewContainer.appendChild(img);
-          };
-
-          reader.readAsDataURL(file);
+        async function loadAds() {
+            try {
+                const response = await fetch('/api/ads');
+                const result = await response.json();
+                
+                const container = document.getElementById('adsContainer');
+                if (result.success && result.ads && result.ads.length > 0) {
+                    container.innerHTML = '';
+                    result.ads.forEach(ad => {
+                        const div = document.createElement('div');
+                        div.className = 'ad-card';
+                        div.innerHTML = `
+                            <h3>${ad.title}</h3>
+                            <p>${ad.description}</p>
+                            <small>Publié le ${new Date(ad.createdAt).toLocaleDateString()}</small>
+                        `;
+                        container.appendChild(div);
+                    });
+                } else {
+                    container.innerHTML = '<p>Aucune annonce disponible. Soyez le premier à en créer une !</p>';
+                }
+            } catch (error) {
+                document.getElementById('adsContainer').innerHTML = '<p>Erreur de chargement</p>';
+            }
         }
-      }
 
-      // Gestion du formulaire
-      document
-        .querySelector('.ads-form')
-        .addEventListener('submit', async function (e) {
-          e.preventDefault();
-
-          const submitBtn = e.target.querySelector('button[type="submit"]');
-          const originalText = submitBtn.textContent;
-
-          try {
-            // Afficher état de chargement
-            submitBtn.textContent = 'Publication...';
-            submitBtn.disabled = true;
-
-            // Récupérer les données du formulaire
-            const title = document.getElementById('adTitle').value.trim();
-            const description = document
-              .getElementById('adDescription')
-              .value.trim();
-            const interests = document
-              .getElementById('adInterests')
-              .value.trim();
-
-            // Validation
-            if (!title || !description) {
-              throw new Error('Le titre et la description sont obligatoires');
-            }
-
-            // Créer FormData pour l'envoi
-            const formData = new FormData();
-            formData.append('type', 'fantasme'); // Type par défaut
-            formData.append('title', title);
-            formData.append('description', description);
-            formData.append('location', 'France'); // Valeur par défaut
-            formData.append(
-              'date',
-              new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-            ); // Demain par défaut
-
-            // Ajouter les pratiques
-            if (interests) {
-              const practicesArray = interests
-                .split(',')
-                .map(p => p.trim())
-                .filter(p => p);
-              formData.append('pratiques', JSON.stringify(practicesArray));
-            }
-
-            // Ajouter les photos visibles
-            visiblePhotoFiles.forEach(file => {
-              formData.append('photos', file);
-            });
-
-            // Ajouter les photos privées (à implémenter plus tard)
-            privatePhotoFiles.forEach(file => {
-              formData.append('privatePhotos', file);
-            });
-
-            // Envoyer la requête
-            const response = await fetch('/api/ads', {
-              method: 'POST',
-              body: formData,
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-              },
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-              // Succès
-              showNotification('Annonce publiée avec succès !', 'success');
-
-              // Réinitialiser le formulaire
-              e.target.reset();
-              document.getElementById('visiblePhotosPreview').innerHTML = '';
-              document.getElementById('privatePhotosPreview').innerHTML = '';
-              visiblePhotoFiles = [];
-              privatePhotoFiles = [];
-
-              // Recharger les annonces
-              loadAds();
-            } else {
-              throw new Error(
-                result.message || 'Erreur lors de la publication'
-              );
-            }
-          } catch (error) {
-            console.error('Erreur publication annonce:', error);
-            showNotification(error.message, 'error');
-          } finally {
-            // Restaurer le bouton
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
-          }
-        });
-
-      // Fonction pour afficher les notifications
-      function showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.textContent = message;
-        notification.style.cssText = `
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
-          color: white;
-          padding: 15px 20px;
-          border-radius: 8px;
-          z-index: 10000;
-          font-weight: 500;
-        `;
-
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-          notification.remove();
-        }, 5000);
-      }
-
-      // Charger les annonces existantes
-      async function loadAds() {
-        try {
-          const response = await fetch('/api/ads?limit=10');
-          const result = await response.json();
-
-          if (result.success && result.ads.length > 0) {
-            displayAds(result.ads);
-          }
-        } catch (error) {
-          console.error('Erreur chargement annonces:', error);
-        }
-      }
-
-      // Afficher les annonces
-      function displayAds(ads) {
-        const adsContainer = document.querySelector('.empty-state');
-        adsContainer.innerHTML = '';
-
-        ads.forEach(ad => {
-          const adElement = document.createElement('div');
-          adElement.className = 'ad-card';
-          adElement.innerHTML = `
-            <div class="ad-header">
-              <h3>${ad.title}</h3>
-              <span class="ad-date">${new Date(ad.createdAt).toLocaleDateString('fr-FR')}</span>
-            </div>
-            <p class="ad-description">${ad.description}</p>
-            ${
-              ad.criteria.pratiques.length > 0
-                ? `
-              <div class="ad-tags">
-                ${ad.criteria.pratiques.map(p => `<span class="tag">${p}</span>`).join('')}
-              </div>
-            `
-                : ''
-            }
-            <div class="ad-footer">
-              <span class="ad-location">📍 ${ad.location}</span>
-              <button class="btn-primary btn-sm" onclick="viewAd('${ad._id}')">Voir</button>
-            </div>
-          `;
-          adsContainer.appendChild(adElement);
-        });
-      }
-
-      // Fonction pour voir une annonce
-      function viewAd(adId) {
-        // Rediriger vers la page de détail (à créer plus tard)
-        window.location.href = `/ads/${adId}`;
-      }
-
-      // Charger les annonces au chargement de la page
-      document.addEventListener('DOMContentLoaded', function () {
-        loadAds();
-      });
-
-      // Menu mobile
-      document
-        .getElementById('mobileMenuToggle')
-        .addEventListener('click', function () {
-          const navMenu = document.getElementById('navMenu');
-          navMenu.classList.toggle('active');
-          this.classList.toggle('active');
-        });
+        showMainMenu();
     </script>
-
-    <!-- Script de notifications globales -->
-    <script src="/js/global-notifications.js"></script>
-  </body>
+</body>
 </html>
