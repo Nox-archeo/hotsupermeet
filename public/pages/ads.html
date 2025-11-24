@@ -76,17 +76,17 @@
         <div class="card" id="ads-menu">
           <h2>Que souhaitez-vous faire ?</h2>
           <div class="choice-menu">
-            <div class="choice-option" id="btn-create-ad">
+            <div class="choice-option">
               <div class="choice-icon">✍️</div>
               <h3>Créer une annonce</h3>
               <p>Publiez votre annonce pour rencontrer des personnes</p>
-              <button class="btn-primary">Commencer</button>
+              <button class="btn-primary" id="btn-create-ad">Commencer</button>
             </div>
-            <div class="choice-option" id="btn-view-ads">
+            <div class="choice-option">
               <div class="choice-icon">🔍</div>
               <h3>Voir les annonces</h3>
               <p>Découvrez les annonces des autres membres</p>
-              <button class="btn-secondary">Explorer</button>
+              <button class="btn-secondary" id="btn-view-ads">Explorer</button>
             </div>
           </div>
         </div>
@@ -713,13 +713,25 @@
       // =================================
 
       document.addEventListener('DOMContentLoaded', function () {
-        // Event listeners pour la navigation
+        // Event listeners pour la navigation - BOUTONS
         document
           .getElementById('btn-create-ad')
           .addEventListener('click', showCreateSection);
         document
           .getElementById('btn-view-ads')
           .addEventListener('click', showViewSection);
+
+        // Event listeners pour la navigation - CARTES ENTIÈRES aussi
+        document.querySelectorAll('.choice-option').forEach((option, index) => {
+          option.addEventListener('click', function () {
+            if (index === 0) {
+              showCreateSection();
+            } else {
+              showViewSection();
+            }
+          });
+        });
+
         document
           .getElementById('back-to-menu-create')
           .addEventListener('click', showAdsMenu);
