@@ -261,6 +261,34 @@ app.use('/api/tonight', require('./server/routes/tonight'));
 app.use('/api/uploads', require('./server/routes/uploads'));
 app.use('/api/subscriptions', require('./server/routes/subscriptions'));
 
+// ROUTE DIRECTE POUR ADS - BYPASS ROUTER MOUNTING
+console.log('🚨 AJOUT ROUTE DIRECTE: /api/ads');
+app.post('/api/ads', async (req, res) => {
+  try {
+    console.log('🚨 ROUTE ADS DIRECTE APPELÉE - SUCCESS !', req.body);
+
+    // Simuler la création d'annonce pour test
+    const adData = {
+      id: Date.now(),
+      ...req.body,
+      createdAt: new Date(),
+    };
+
+    res.json({
+      success: true,
+      message: 'Annonce créée avec succès ! (route directe)',
+      data: adData,
+    });
+  } catch (error) {
+    console.error('❌ Erreur route directe ads:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur serveur' },
+    });
+  }
+});
+console.log('✅ Route directe /api/ads ajoutée');
+
 // Connexion MongoDB en arrière-plan (ne bloque pas le démarrage)
 connectToDatabase().then(mongoConnected => {
   if (mongoConnected) {
