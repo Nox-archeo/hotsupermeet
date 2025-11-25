@@ -5,17 +5,17 @@ const upload = require('../middleware/upload');
 const adController = require('../controllers/adController');
 
 // Route publique - Récupérer toutes les annonces avec filtres
-router.get('/ads', adController.getAds);
+router.get('/', adController.getAds);
 
 // Route publique - Récupérer une annonce par ID
-router.get('/ads/:id', adController.getAdById);
+router.get('/:id', adController.getAdById);
 
 // Routes protégées (nécessitent authentification)
 router.use(authMiddleware);
 
 // Créer une nouvelle annonce avec upload d'images
 router.post(
-  '/ads',
+  '/',
   upload.array('photos', 5), // Jusqu'à 5 photos
   adController.createAd
 );
@@ -24,15 +24,15 @@ router.post(
 router.get('/my-ads', adController.getUserAds);
 
 // Mettre à jour une annonce
-router.put('/ads/:id', adController.updateAd);
+router.put('/:id', adController.updateAd);
 
 // Renouveler une annonce pour 30 jours supplémentaires
-router.put('/ads/:id/renew', adController.renewAd);
+router.put('/:id/renew', adController.renewAd);
 
 // Supprimer une annonce
-router.delete('/ads/:id', adController.deleteAd);
+router.delete('/:id', adController.deleteAd);
 
 // Répondre à une annonce (envoyer un message)
-router.post('/ads/:id/respond', adController.respondToAd);
+router.post('/:id/respond', adController.respondToAd);
 
 module.exports = router;
