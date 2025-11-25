@@ -261,27 +261,91 @@ app.use('/api/tonight', require('./server/routes/tonight'));
 app.use('/api/uploads', require('./server/routes/uploads'));
 app.use('/api/subscriptions', require('./server/routes/subscriptions'));
 
-// Routes pour les annonces - VRAIE ROUTE
-console.log('🔍 Chargement des routes ads...');
-try {
-  const adsRoutes = require('./server/routes/ads');
-  console.log('✅ Fichier ads.js chargé avec succès');
-  app.use('/api', adsRoutes);
-  console.log('✅ Routes ads montées sur /api');
-} catch (error) {
-  console.error('❌ ERREUR chargement ads routes:', error);
+// ROUTE DIRECTE ANNONCES QUI SAUVEGARDE EN BASE
+console.log('🚨 CRÉATION ROUTE ADS DIRECTE QUI SAUVEGARDE');
+app.post('/api/ads', async (req, res) => {
+  try {
+    console.log('� CRÉATION ANNONCE - DÉBUT');
 
-  // Route de fallback en cas d'erreur
-  console.log('🚨 CRÉATION ROUTE FALLBACK /api/ads');
-  app.post('/api/ads', async (req, res) => {
-    console.log('🚨 ROUTE FALLBACK APPELÉE');
+    // Récupération du token
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) {
+      return res
+        .status(401)
+        .json({ success: false, error: { message: 'Token requis' } });
+    }
+
+    // Import direct du modèle Ad
+    const Ad = require('./server/models/Ad');
+    const jwt = require('jsonwebtoken');
+
+    // Décodage du token pour récupérer l'userId
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    console.log('✅ User ID:', userId);
+
+    // Création de l'annonce
+    const newAd = new Ad({
+      userId: userId,
+      category: req.body.category,
+      type: req.body.type || 'rencontre',
+      title: req.body.title,
+      description: req.body.description,
+      country: req.body.country,
+      region: req.body.region,
+      city: req.body.city,
+      images: req.body.images || [],
+      age: req.body.age,
+      sexe: req.body.sexe,
+      contact_methods: req.body.contact_methods || ['site'],
+      isActive: true,
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    });
+
+    console.log('✅ Annonce créée, sauvegarde...');
+    await newAd.save();
+    console.log('✅ ANNONCE SAUVEGARDÉE EN BASE !');
+
     res.json({
       success: true,
-      message: 'Route fallback - chargement ads.js échoué',
-      error: error.message,
+      message: 'Annonce publiée avec succès !',
+      data: newAd,
     });
-  });
-}
+  } catch (error) {
+    console.error('❌ ERREUR création annonce:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur: ' + error.message },
+    });
+  }
+});
+console.log('✅ Route directe ads ACTIVE');
+
+// ROUTE GET POUR VOIR LES ANNONCES
+app.get('/api/ads', async (req, res) => {
+  try {
+    const Ad = require('./server/models/Ad');
+    const ads = await Ad.find({ isActive: true })
+      .populate('userId', 'pseudo')
+      .sort({ createdAt: -1 })
+      .limit(50);
+
+    console.log('✅ RÉCUPÉRATION ANNONCES:', ads.length);
+
+    res.json({
+      success: true,
+      data: ads,
+    });
+  } catch (error) {
+    console.error('❌ ERREUR récupération annonces:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur: ' + error.message },
+    });
+  }
+});
+console.log('✅ Route GET ads ACTIVE');
 
 // ROUTE DIRECTE POUR ADS - BYPASS ROUTER MOUNTING (POUR TEST)
 console.log('🚨 AJOUT ROUTE DIRECTE: /api/ads');
