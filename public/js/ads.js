@@ -1,3 +1,5 @@
+console.log('🚨 ADS SCRIPT LOADED - DEBUG ACTIVÉ');
+
 // Variables globales
 let adPhotoFiles = [];
 
@@ -387,7 +389,17 @@ function handleContactMethodChange() {
 }
 
 async function handleFormSubmit(e) {
+  console.log('🚨 DÉBUT handleFormSubmit - e.preventDefault() appelé');
   e.preventDefault();
+
+  console.log('🚨 Token check...');
+  const token = localStorage.getItem('hotmeet_token');
+  if (!token) {
+    console.log('❌ Pas de token - abandon');
+    showMessage('Vous devez être connecté', 'error');
+    return;
+  }
+  console.log('✅ Token trouvé');
 
   const submitBtn = e.target.querySelector('button[type="submit"]');
   const originalText = submitBtn.textContent;
@@ -398,6 +410,7 @@ async function handleFormSubmit(e) {
 
     // Vérifier si des photos ont été uploadées
     const photoUrls = adPhotoFiles.map(photo => photo.url);
+    console.log('📸 Photos uploadées:', photoUrls.length);
 
     // Récupérer les données du formulaire
     const adData = {
@@ -456,6 +469,11 @@ async function handleFormSubmit(e) {
       throw new Error('Vous devez être connecté');
     }
 
+    console.log('🌐 DÉBUT REQUÊTE - URL:', '/api/ads');
+    console.log('🌐 DÉBUT REQUÊTE - METHOD:', 'POST');
+    console.log('🌐 DÉBUT REQUÊTE - TOKEN:', token ? 'présent' : 'absent');
+    console.log('🌐 DÉBUT REQUÊTE - DATA:', JSON.stringify(adData, null, 2));
+
     // Envoyer les données de l'annonce avec les URLs des photos
     const response = await fetch('/api/ads', {
       method: 'POST',
@@ -466,7 +484,11 @@ async function handleFormSubmit(e) {
       body: JSON.stringify(adData),
     });
 
+    console.log('🌐 RÉPONSE REÇUE - STATUS:', response.status);
+    console.log('🌐 RÉPONSE REÇUE - OK:', response.ok);
+
     const result = await response.json();
+    console.log('🌐 RÉPONSE PARSED:', result);
 
     if (result.success) {
       showMessage('✅ Annonce publiée avec succès !', 'success');
