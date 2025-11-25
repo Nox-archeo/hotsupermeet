@@ -748,18 +748,27 @@ async function loadMyAds() {
             <span>💬 ${ad.contacts || 0} contacts</span>
           </div>
           <div class="my-ad-actions">
-            <button class="btn-action btn-edit" onclick="editAd('${ad._id}')">
+            <button class="btn-action btn-edit" data-ad-id="${ad._id}">
               ✏️ Modifier
             </button>
-            <button class="btn-action btn-renew" onclick="renewAd('${ad._id}')">
+            <button class="btn-action btn-renew" data-ad-id="${ad._id}">
               🔄 Renouveler
             </button>
-            <button class="btn-action btn-delete" onclick="deleteAd('${ad._id}')">
+            <button class="btn-action btn-delete" data-ad-id="${ad._id}">
               🗑️ Supprimer
             </button>
           </div>
         `;
         container.appendChild(adElement);
+
+        // Ajouter les event listeners
+        const editBtn = adElement.querySelector('.btn-edit');
+        const renewBtn = adElement.querySelector('.btn-renew');
+        const deleteBtn = adElement.querySelector('.btn-delete');
+
+        editBtn.addEventListener('click', () => editAd(ad._id));
+        renewBtn.addEventListener('click', () => renewAd(ad._id));
+        deleteBtn.addEventListener('click', () => deleteAd(ad._id));
       });
     } else {
       container.innerHTML = `
