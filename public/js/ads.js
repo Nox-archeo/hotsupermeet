@@ -532,14 +532,21 @@ async function handleFormSubmit(e) {
       throw new Error('Vous devez être connecté');
     }
 
-    console.log('🌐 DÉBUT REQUÊTE - URL:', '/api/ads');
-    console.log('🌐 DÉBUT REQUÊTE - METHOD:', 'POST');
+    // Vérifier si on est en mode édition
+    const isEditMode = e.target.dataset.editMode === 'true';
+    const editId = e.target.dataset.editId;
+
+    const method = isEditMode ? 'PUT' : 'POST';
+    const url = isEditMode ? `/api/ads/${editId}` : '/api/ads';
+
+    console.log('🌐 DÉBUT REQUÊTE - URL:', url);
+    console.log('🌐 DÉBUT REQUÊTE - METHOD:', method);
     console.log('🌐 DÉBUT REQUÊTE - TOKEN:', token ? 'présent' : 'absent');
     console.log('🌐 DÉBUT REQUÊTE - DATA:', JSON.stringify(adData, null, 2));
 
     // Envoyer les données de l'annonce avec les URLs des photos
-    const response = await fetch('/api/ads', {
-      method: 'POST',
+    const response = await fetch(url, {
+      method: method,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
@@ -554,10 +561,27 @@ async function handleFormSubmit(e) {
     console.log('🌐 RÉPONSE PARSED:', result);
 
     if (result.success) {
-      showMessage('✅ Annonce publiée avec succès !', 'success');
-      e.target.reset();
-      document.getElementById('ad-photos-preview').innerHTML = '';
-      adPhotoFiles = [];
+      const message = isEditMode
+        ? '✅ Annonce modifiée avec succès !'
+        : '✅ Annonce publiée avec succès !';
+      showMessage(message, 'success');
+
+      if (!isEditMode) {
+        e.target.reset();
+        document.getElementById('ad-photos-preview').innerHTML = '';
+        adPhotoFiles = [];
+      } else {
+        // Réinitialiser le mode édition
+        delete e.target.dataset.editMode;
+        delete e.target.dataset.editId;
+
+        const title = document.querySelector('#ads-create-section h2');
+        if (title) title.textContent = 'Créer une annonce';
+
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.textContent = "Publier l'annonce";
+      }
+
       setTimeout(() => showAdsMenu(), 2000);
     } else {
       throw new Error(result.message || 'Erreur lors de la publication');
@@ -843,9 +867,67 @@ async function renewAd(adId) {
   }
 }
 
-function editAd(adId) {
-  // Redirection vers le formulaire d'édition
-  window.location.href = `/ads/edit/${adId}`;
+async function editAd(adId) {
+  try {
+    // Récupérer les données de l'annonce
+    const response = await fetch(`/api/ads/${adId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('hotmeet_token')}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Erreur lors du chargement de l'annonce");
+    }
+
+    const result = await response.json();
+    if (!result.success) {
+      throw new Error(result.error?.message || 'Erreur inconnue');
+    }
+
+    const ad = result.data;
+
+    // Afficher la section création
+    showCreateSection();
+
+    // Pré-remplir le formulaire
+    fillEditForm(ad, adId);
+
+    showNotification('Formulaire pré-rempli pour modification', 'info');
+  } catch (error) {
+    showNotification('Erreur lors du chargement pour modification', 'error');
+  }
+}
+
+function fillEditForm(ad, adId) {
+  // Marquer comme mode édition
+  document.getElementById('create-ad-form').dataset.editMode = 'true';
+  document.getElementById('create-ad-form').dataset.editId = adId;
+
+  // Changer le titre et bouton
+  const title = document.querySelector('#ads-create-section h2');
+  if (title) title.textContent = 'Modifier mon annonce';
+
+  const submitBtn = document.querySelector(
+    '#create-ad-form button[type="submit"]'
+  );
+  if (submitBtn) submitBtn.textContent = "Modifier l'annonce";
+
+  // Pré-remplir les champs
+  if (ad.category) document.getElementById('ad-category').value = ad.category;
+  if (ad.country) document.getElementById('ad-country').value = ad.country;
+  if (ad.region) document.getElementById('ad-region').value = ad.region;
+  if (ad.city) document.getElementById('ad-city').value = ad.city;
+  if (ad.title) document.getElementById('ad-title').value = ad.title;
+  if (ad.description)
+    document.getElementById('ad-description').value = ad.description;
+  if (ad.tarifs) document.getElementById('ad-tarifs').value = ad.tarifs;
+  if (ad.age) document.getElementById('ad-age').value = ad.age;
+  if (ad.sexe) document.getElementById('ad-sexe').value = ad.sexe;
+  if (ad.taille) document.getElementById('ad-taille').value = ad.taille;
+  if (ad.poids) document.getElementById('ad-poids').value = ad.poids;
+  if (ad.cheveux) document.getElementById('ad-cheveux').value = ad.cheveux;
+  if (ad.yeux) document.getElementById('ad-yeux').value = ad.yeux;
 }
 
 // Rendre les fonctions globales pour les boutons
