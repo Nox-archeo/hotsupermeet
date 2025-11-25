@@ -413,24 +413,37 @@ async function handleFormSubmit(e) {
     console.log('📸 Photos uploadées:', photoUrls.length);
 
     // Récupérer les données du formulaire
+    const categoryValue = document.getElementById('ad-category').value;
+    const sexeFromForm = document.getElementById('ad-sexe')?.value || '';
+
+    // Déterminer automatiquement le sexe basé sur la catégorie si pas spécifié
+    let finalSexe = sexeFromForm;
+    if (!finalSexe && categoryValue) {
+      if (categoryValue.startsWith('femme-')) {
+        finalSexe = 'femme';
+      } else if (categoryValue.startsWith('homme-')) {
+        finalSexe = 'homme';
+      } else if (categoryValue.startsWith('couple-')) {
+        finalSexe = 'couple';
+      }
+    }
+
     const adData = {
-      category: document.getElementById('ad-category').value,
+      category: categoryValue,
       country: document.getElementById('ad-country').value,
       region: document.getElementById('ad-region').value,
       city: document.getElementById('ad-city').value,
       title: document.getElementById('ad-title').value,
       description: document.getElementById('ad-description').value,
       images: photoUrls, // URLs Cloudinary
-      type:
-        document.getElementById('ad-category').value.split('-')[0] ||
-        'rencontre',
+      type: 'rencontre', // Toujours 'rencontre' pour les annonces de rencontres
 
       // Tarifs
       tarifs: document.getElementById('ad-tarifs')?.value || '',
 
       // Informations personnelles de base
       age: document.getElementById('ad-age')?.value || '',
-      sexe: document.getElementById('ad-sexe')?.value || '',
+      sexe: finalSexe,
       taille: document.getElementById('ad-taille')?.value || '',
       poids: document.getElementById('ad-poids')?.value || '',
       cheveux: document.getElementById('ad-cheveux')?.value || '',
