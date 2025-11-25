@@ -25,11 +25,17 @@ class MessagesManager {
   checkUrlParams() {
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get('user');
+    const adId = urlParams.get('ad');
 
     if (userId) {
       // Simuler l'ouverture d'une conversation avec l'utilisateur spécifié
       setTimeout(() => {
         this.openConversationWithUser(userId);
+      }, 1000);
+    } else if (adId) {
+      // Ouvrir une conversation pour répondre à une annonce
+      setTimeout(() => {
+        this.openConversationFromAd(adId);
       }, 1000);
     }
   }
@@ -69,6 +75,107 @@ class MessagesManager {
 
     // Basculer vers l'onglet des conversations
     this.switchTab('conversations');
+  }
+
+  // Ouvrir une conversation pour répondre à une annonce
+  async openConversationFromAd(adId) {
+    try {
+      // Récupérer les détails de l'annonce pour connaître l'annonceur
+      const response = await fetch(`/api/ads/${adId}`);
+      const result = await response.json();
+
+      if (result.success && result.ad) {
+        const ad = result.ad;
+        const advertiser = ad.userId;
+
+        // Vérifier qu'on ne répond pas à sa propre annonce
+        const currentUser = JSON.parse(
+          localStorage.getItem('hotmeet_user') || '{}'
+        );
+        if (advertiser._id === currentUser._id) {
+          this.showNotification(
+            'Vous ne pouvez pas répondre à votre propre annonce',
+            'error'
+          );
+          return;
+        }
+
+        // Rechercher si une conversation existe déjà avec cet utilisateur
+        const existingConversation = this.conversations.find(
+          conv => conv.withUser.id === advertiser._id
+        );
+
+        if (existingConversation) {
+          this.showChatWindow(existingConversation);
+        } else {
+          // Créer une nouvelle conversation avec l'annonceur
+          const newConversation = {
+            id: Date.now(),
+            withUser: {
+              id: advertiser._id,
+              name: advertiser.profile?.nom || 'Annonceur',
+              age: advertiser.profile?.age || 'N/A',
+              gender: advertiser.profile?.sexe || 'autre',
+              location:
+                advertiser.profile?.localisation || 'Localisation inconnue',
+              photo:
+                advertiser.profile?.photos?.[0] || '/images/default-avatar.jpg',
+              isOnline: true,
+            },
+            lastMessage: `Conversation au sujet de: ${ad.title}`,
+            timestamp: new Date(),
+            unread: 0,
+            messages: [],
+            adContext: {
+              id: ad._id,
+              title: ad.title,
+              description: ad.description.substring(0, 100) + '...',
+            },
+          };
+
+          this.conversations.unshift(newConversation);
+          this.renderConversations();
+          this.showChatWindow(newConversation);
+
+          // Afficher un message d'information sur l'annonce
+          this.showAdContextInChat(newConversation);
+        }
+
+        // Basculer vers l'onglet des conversations
+        this.switchTab('conversations');
+      } else {
+        this.showNotification('Annonce non trouvée', 'error');
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'ouverture de la conversation:", error);
+      this.showNotification(
+        "Erreur lors de l'ouverture de la conversation",
+        'error'
+      );
+    }
+  }
+
+  // Afficher le contexte de l'annonce dans le chat
+  showAdContextInChat(conversation) {
+    if (!conversation.adContext) {
+      return;
+    }
+
+    // Créer un message système pour le contexte de l'annonce
+    const contextMessage = {
+      id: Date.now(),
+      sender: 'system',
+      content: `💼 Conversation au sujet de l'annonce: "${conversation.adContext.title}"
+
+📝 ${conversation.adContext.description}
+
+💡 Vous pouvez maintenant discuter avec l'annonceur !`,
+      timestamp: new Date(),
+      type: 'system',
+    };
+
+    // Ajouter le message de contexte à la conversation
+    conversation.messages.push(contextMessage);
   }
 
   // Configuration des écouteurs d'événements

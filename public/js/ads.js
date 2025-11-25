@@ -524,7 +524,10 @@ async function loadAds() {
                       </div>
                       <div class="ad-footer">
                           <span class="ad-date">Publié le ${new Date(ad.createdAt).toLocaleDateString()}</span>
-                          <button class="btn-primary btn-sm" onclick="contactAdvertiser('${ad._id}')">Contacter</button>
+                          <div class="ad-actions">
+                              <button class="btn-secondary btn-sm" onclick="viewProfile('${ad.userId._id}')">👤 Voir profil</button>
+                              <button class="btn-primary btn-sm" onclick="contactAdvertiser('${ad._id}')">💬 Contacter</button>
+                          </div>
                       </div>
                   `;
         container.appendChild(adElement);
@@ -588,6 +591,11 @@ function formatCountryName(countryKey) {
 function contactAdvertiser(adId) {
   // Redirection vers messages avec l'ID de l'annonce
   window.location.href = `/messages?ad=${adId}`;
+}
+
+function viewProfile(userId) {
+  // Redirection vers le profil de l'utilisateur
+  window.location.href = `/profile?user=${userId}`;
 }
 
 // =================================
@@ -756,6 +764,7 @@ window.editAd = editAd;
 
 // Rendre la fonction globale pour l'utiliser dans onclick
 window.contactAdvertiser = contactAdvertiser;
+window.viewProfile = viewProfile;
 
 function showNotification(message, type = 'info') {
   const notification = document.createElement('div');
