@@ -264,10 +264,23 @@ app.use('/api/subscriptions', require('./server/routes/subscriptions'));
 // Routes pour les annonces - VRAIE ROUTE
 console.log('🔍 Chargement des routes ads...');
 try {
-  app.use('/api', require('./server/routes/ads'));
+  const adsRoutes = require('./server/routes/ads');
+  console.log('✅ Fichier ads.js chargé avec succès');
+  app.use('/api', adsRoutes);
   console.log('✅ Routes ads montées sur /api');
 } catch (error) {
   console.error('❌ ERREUR chargement ads routes:', error);
+
+  // Route de fallback en cas d'erreur
+  console.log('🚨 CRÉATION ROUTE FALLBACK /api/ads');
+  app.post('/api/ads', async (req, res) => {
+    console.log('🚨 ROUTE FALLBACK APPELÉE');
+    res.json({
+      success: true,
+      message: 'Route fallback - chargement ads.js échoué',
+      error: error.message,
+    });
+  });
 }
 
 // ROUTE DIRECTE POUR ADS - BYPASS ROUTER MOUNTING (POUR TEST)
