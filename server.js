@@ -299,7 +299,7 @@ app.post('/api/ads', async (req, res) => {
       age: req.body.age,
       sexe: req.body.sexe,
       contact_methods: req.body.contact_methods || ['site'],
-      isActive: true,
+      status: 'active',
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     });
 
@@ -326,7 +326,7 @@ console.log('✅ Route directe ads ACTIVE');
 app.get('/api/ads', async (req, res) => {
   try {
     const Ad = require('./server/models/Ad');
-    const ads = await Ad.find({ isActive: true })
+    const ads = await Ad.find({ status: 'active' })
       .populate('userId', 'pseudo')
       .sort({ createdAt: -1 })
       .limit(50);
