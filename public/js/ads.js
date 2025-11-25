@@ -873,11 +873,17 @@ document.addEventListener('DOMContentLoaded', function () {
   const categorySelect = document.getElementById('ad-category');
   const createForm = document.getElementById('create-ad-form');
 
+  console.log('🔍 FORM ELEMENT:', createForm);
+  console.log('🔍 CATEGORY SELECT:', categorySelect);
+
   if (categorySelect) {
     categorySelect.addEventListener('change', handleCategoryChange);
   }
   if (createForm) {
+    console.log('✅ FORM TROUVÉ - AJOUT EVENT LISTENER SUBMIT');
     createForm.addEventListener('submit', handleFormSubmit);
+  } else {
+    console.log('❌ FORM create-ad-form INTROUVABLE !');
   }
 
   // Event listeners pour pays/régions
