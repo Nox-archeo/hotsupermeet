@@ -9,8 +9,6 @@ const {
   checkAgeVerified,
   confirmAge,
   logout,
-  forgotPassword,
-  resetPassword,
 } = require('../controllers/authController');
 const { auth, updateLastActivity } = require('../middleware/auth');
 
@@ -54,8 +52,6 @@ router.post('/login', loginValidation, login);
 router.post('/verify-age', ageValidation, verifyAge);
 router.get('/age-verified', checkAgeVerified);
 router.post('/confirm-age', confirmAge);
-router.post('/forgot-password', forgotPassword);
-router.post('/reset-password', resetPassword);
 
 // Routes protégées
 router.get('/me', auth, updateLastActivity, getMe);
