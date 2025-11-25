@@ -416,15 +416,67 @@ async function handleFormSubmit(e) {
     const categoryValue = document.getElementById('ad-category').value;
     const sexeFromForm = document.getElementById('ad-sexe')?.value || '';
 
+    // Déterminer automatiquement le type basé sur la catégorie
+    let finalType = 'rencontre'; // par défaut
+    if (categoryValue) {
+      if (
+        categoryValue.includes('sugar') ||
+        categoryValue.includes('daddy') ||
+        categoryValue.includes('baby')
+      ) {
+        finalType = 'sugar';
+      } else if (
+        categoryValue.includes('escort') ||
+        categoryValue.includes('masseuse') ||
+        categoryValue.includes('masseur')
+      ) {
+        finalType = 'escort';
+      } else if (
+        [
+          'domination',
+          'massage-tantrique',
+          'cam-sexting',
+          'fetichisme',
+          'planning-soir',
+        ].includes(categoryValue)
+      ) {
+        finalType = 'service';
+      } else if (categoryValue === 'objets-accessoires') {
+        finalType = 'vente';
+      } else if (categoryValue === 'emploi') {
+        finalType = 'emploi';
+      } else {
+        finalType = 'rencontre'; // toutes les rencontres (femme-cherche-homme, etc.)
+      }
+    }
+
     // Déterminer automatiquement le sexe basé sur la catégorie si pas spécifié
     let finalSexe = sexeFromForm;
     if (!finalSexe && categoryValue) {
-      if (categoryValue.startsWith('femme-')) {
+      if (
+        categoryValue.startsWith('femme-') ||
+        categoryValue === 'escort-girl' ||
+        categoryValue === 'baby-girl'
+      ) {
         finalSexe = 'femme';
-      } else if (categoryValue.startsWith('homme-')) {
+      } else if (
+        categoryValue.startsWith('homme-') ||
+        categoryValue === 'escort-boy' ||
+        categoryValue === 'baby-boy'
+      ) {
         finalSexe = 'homme';
       } else if (categoryValue.startsWith('couple-')) {
         finalSexe = 'couple';
+      } else if (
+        categoryValue === 'sugar-daddy' ||
+        categoryValue === 'masseur'
+      ) {
+        finalSexe = 'homme';
+      } else if (
+        categoryValue === 'sugar-mommy' ||
+        categoryValue === 'masseuse'
+      ) {
+        finalSexe = 'femme';
       }
     }
 
@@ -436,9 +488,7 @@ async function handleFormSubmit(e) {
       title: document.getElementById('ad-title').value,
       description: document.getElementById('ad-description').value,
       images: photoUrls, // URLs Cloudinary
-      type: 'rencontre', // Toujours 'rencontre' pour les annonces de rencontres
-
-      // Tarifs
+      type: finalType, // Type déterminé automatiquement selon la catégorie      // Tarifs
       tarifs: document.getElementById('ad-tarifs')?.value || '',
 
       // Informations personnelles de base
