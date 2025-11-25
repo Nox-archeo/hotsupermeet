@@ -384,6 +384,89 @@ app.get('/api/my-ads', async (req, res) => {
 });
 console.log('✅ Route GET my-ads ACTIVE');
 
+// ROUTE DELETE POUR SUPPRIMER UNE ANNONCE
+app.delete('/api/ads/:adId', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res
+        .status(401)
+        .json({ success: false, error: { message: 'Token manquant' } });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const jwt = require('jsonwebtoken');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    const Ad = require('./server/models/Ad');
+    const ad = await Ad.findOne({ _id: req.params.adId, userId: userId });
+
+    if (!ad) {
+      return res
+        .status(404)
+        .json({ success: false, error: { message: 'Annonce non trouvée' } });
+    }
+
+    ad.status = 'deleted';
+    await ad.save();
+
+    console.log('✅ ANNONCE SUPPRIMÉE:', req.params.adId);
+    res.json({ success: true, message: 'Annonce supprimée avec succès' });
+  } catch (error) {
+    console.error('❌ ERREUR suppression annonce:', error);
+    res
+      .status(500)
+      .json({ success: false, error: { message: 'Erreur: ' + error.message } });
+  }
+});
+
+// ROUTE PUT POUR RENOUVELER UNE ANNONCE
+app.put('/api/ads/:adId/renew', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res
+        .status(401)
+        .json({ success: false, error: { message: 'Token manquant' } });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const jwt = require('jsonwebtoken');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    const Ad = require('./server/models/Ad');
+    const ad = await Ad.findOne({ _id: req.params.adId, userId: userId });
+
+    if (!ad) {
+      return res
+        .status(404)
+        .json({ success: false, error: { message: 'Annonce non trouvée' } });
+    }
+
+    // Renouveler pour 30 jours supplémentaires
+    ad.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    ad.status = 'active';
+    await ad.save();
+
+    console.log('✅ ANNONCE RENOUVELÉE:', req.params.adId);
+    res.json({ success: true, message: 'Annonce renouvelée avec succès' });
+  } catch (error) {
+    console.error('❌ ERREUR renouvellement annonce:', error);
+    res
+      .status(500)
+      .json({ success: false, error: { message: 'Erreur: ' + error.message } });
+  }
+});
+
+console.log('✅ Routes DELETE et PUT ads ACTIVE');
+
+// ROUTE GET POUR ÉDITION D'ANNONCE (redirection vers page ads avec ID)
+app.get('/ads/edit/:adId', (req, res) => {
+  res.redirect(`/ads?edit=${req.params.adId}`);
+});
+
 // ROUTE DIRECTE POUR ADS - BYPASS ROUTER MOUNTING (POUR TEST)
 console.log('🚨 AJOUT ROUTE DIRECTE: /api/ads');
 app.post('/api/ads-test', async (req, res) => {
