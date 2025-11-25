@@ -9,11 +9,11 @@ router.get('/ads', adController.getAds);
 // Route publique - Récupérer une annonce par ID
 router.get('/ads/:id', adController.getAdById);
 
+// Créer une nouvelle annonce - ROUTE PROTÉGÉE SPÉCIFIQUE
+router.post('/ads', authMiddleware, adController.createAd);
+
 // Routes protégées (nécessitent authentification)
 router.use(authMiddleware);
-
-// Créer une nouvelle annonce - accepte JSON (pas multipart)
-router.post('/ads', adController.createAd);
 
 // Récupérer les annonces de l'utilisateur connecté
 router.get('/my-ads', adController.getUserAds);
