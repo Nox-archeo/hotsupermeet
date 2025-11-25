@@ -349,6 +349,7 @@ console.log('✅ Route GET ads ACTIVE');
 
 // ROUTE POUR MES ANNONCES - avec authentification
 app.get('/api/my-ads', async (req, res) => {
+  console.log('📞 APPEL /api/my-ads - headers:', req.headers.authorization);
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
