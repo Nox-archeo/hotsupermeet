@@ -261,9 +261,18 @@ app.use('/api/tonight', require('./server/routes/tonight'));
 app.use('/api/uploads', require('./server/routes/uploads'));
 app.use('/api/subscriptions', require('./server/routes/subscriptions'));
 
-// ROUTE DIRECTE POUR ADS - BYPASS ROUTER MOUNTING
+// Routes pour les annonces - VRAIE ROUTE
+console.log('🔍 Chargement des routes ads...');
+try {
+  app.use('/api', require('./server/routes/ads'));
+  console.log('✅ Routes ads montées sur /api');
+} catch (error) {
+  console.error('❌ ERREUR chargement ads routes:', error);
+}
+
+// ROUTE DIRECTE POUR ADS - BYPASS ROUTER MOUNTING (POUR TEST)
 console.log('🚨 AJOUT ROUTE DIRECTE: /api/ads');
-app.post('/api/ads', async (req, res) => {
+app.post('/api/ads-test', async (req, res) => {
   try {
     console.log('🚨 ROUTE ADS DIRECTE APPELÉE - SUCCESS !', req.body);
 
