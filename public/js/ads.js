@@ -592,9 +592,9 @@ async function loadAds() {
 
     const container = document.getElementById('ads-container');
 
-    if (result.success && result.ads && result.ads.length > 0) {
+    if (result.success && result.data && result.data.length > 0) {
       container.innerHTML = '';
-      result.ads.forEach(ad => {
+      result.data.forEach(ad => {
         const adElement = document.createElement('div');
         adElement.className = 'ad-card';
         adElement.innerHTML = `
@@ -702,21 +702,19 @@ async function loadMyAds() {
     const result = await response.json();
     const container = document.getElementById('my-ads-container');
 
-    if (result.success && result.ads && result.ads.length > 0) {
+    if (result.success && result.data && result.data.length > 0) {
       // Mettre à jour les statistiques
-      document.getElementById('stats-total').textContent = result.ads.length;
-      document.getElementById('stats-views').textContent = result.ads.reduce(
+      document.getElementById('stats-total').textContent = result.data.length;
+      document.getElementById('stats-views').textContent = result.data.reduce(
         (total, ad) => total + (ad.views || 0),
         0
       );
-      document.getElementById('stats-contacts').textContent = result.ads.reduce(
-        (total, ad) => total + (ad.contacts || 0),
-        0
-      );
+      document.getElementById('stats-contacts').textContent =
+        result.data.reduce((total, ad) => total + (ad.contacts || 0), 0);
 
       // Afficher les annonces
       container.innerHTML = '';
-      result.ads.forEach(ad => {
+      result.data.forEach(ad => {
         const daysSinceCreation = Math.floor(
           (Date.now() - new Date(ad.createdAt).getTime()) /
             (1000 * 60 * 60 * 24)
