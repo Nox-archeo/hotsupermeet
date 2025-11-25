@@ -691,7 +691,7 @@ async function loadMyAds() {
   try {
     const response = await fetch('/api/my-ads', {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        Authorization: `Bearer ${localStorage.getItem('hotmeet_token')}`,
       },
     });
 
@@ -791,7 +791,7 @@ async function deleteAd(adId) {
     const response = await fetch(`/api/ads/${adId}`, {
       method: 'DELETE',
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        Authorization: `Bearer ${localStorage.getItem('hotmeet_token')}`,
       },
     });
 
@@ -819,7 +819,7 @@ async function renewAd(adId) {
     const response = await fetch(`/api/ads/${adId}/renew`, {
       method: 'PUT',
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        Authorization: `Bearer ${localStorage.getItem('hotmeet_token')}`,
       },
     });
 

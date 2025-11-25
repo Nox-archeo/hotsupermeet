@@ -347,6 +347,43 @@ app.get('/api/ads', async (req, res) => {
 });
 console.log('✅ Route GET ads ACTIVE');
 
+// ROUTE POUR MES ANNONCES - avec authentification
+app.get('/api/my-ads', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({
+        success: false,
+        error: { message: 'Token manquant' },
+      });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const jwt = require('jsonwebtoken');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    const Ad = require('./server/models/Ad');
+    const ads = await Ad.find({ userId: userId, status: 'active' })
+      .sort({ createdAt: -1 })
+      .limit(50);
+
+    console.log('✅ MES ANNONCES - UserId:', userId, 'Trouvées:', ads.length);
+
+    res.json({
+      success: true,
+      data: ads,
+    });
+  } catch (error) {
+    console.error('❌ ERREUR mes annonces:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur: ' + error.message },
+    });
+  }
+});
+console.log('✅ Route GET my-ads ACTIVE');
+
 // ROUTE DIRECTE POUR ADS - BYPASS ROUTER MOUNTING (POUR TEST)
 console.log('🚨 AJOUT ROUTE DIRECTE: /api/ads');
 app.post('/api/ads-test', async (req, res) => {
