@@ -621,24 +621,61 @@ async function loadAds() {
       result.data.forEach(ad => {
         const adElement = document.createElement('div');
         adElement.className = 'ad-card';
+        adElement.style.cursor = 'pointer';
+
+        const imageHtml =
+          ad.images && ad.images.length > 0
+            ? `<div class="ad-image">
+               <img src="${ad.images[0]}" alt="Photo annonce" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">
+             </div>`
+            : '<div class="ad-image"><div class="no-image">📷</div></div>';
+
         adElement.innerHTML = `
-                      <div class="ad-header">
-                          <h3>${ad.title}</h3>
-                          <span class="ad-category">${formatCategory(ad.category)}</span>
-                      </div>
-                      <p class="ad-description">${ad.description}</p>
-                      <div class="ad-details">
-                          <span class="ad-location">📍 ${ad.city}, ${ad.region}${ad.country ? `, ${formatCountryName(ad.country)}` : ''}</span>
-                          ${ad.tarifs ? `<span class="ad-price">💰 ${ad.tarifs}</span>` : ''}
-                      </div>
-                      <div class="ad-footer">
-                          <span class="ad-date">Publié le ${new Date(ad.createdAt).toLocaleDateString()}</span>
-                          <div class="ad-actions">
-                              <button class="btn-secondary btn-sm" onclick="viewProfile('${ad.userId._id}')">👤 Voir profil</button>
-                              <button class="btn-primary btn-sm" onclick="contactAdvertiser('${ad._id}')">💬 Contacter</button>
-                          </div>
-                      </div>
-                  `;
+          ${imageHtml}
+          <div class="ad-content">
+            <div class="ad-header">
+                <h3>${ad.title}</h3>
+                <span class="ad-category">${formatCategory(ad.category)}</span>
+            </div>
+            <p class="ad-description">${ad.description}</p>
+            <div class="ad-details">
+                <span class="ad-location">📍 ${ad.city}, ${ad.region}${ad.country ? `, ${formatCountryName(ad.country)}` : ''}</span>
+                ${ad.tarifs ? `<span class="ad-price">💰 ${ad.tarifs}</span>` : ''}
+            </div>
+            <div class="ad-footer">
+                <span class="ad-date">Publié le ${new Date(ad.createdAt).toLocaleDateString()}</span>
+                <div class="ad-actions">
+                    <button class="btn-secondary btn-sm view-profile-btn" data-user-id="${ad.userId._id}">👤 Voir profil</button>
+                    <button class="btn-primary btn-sm contact-btn" data-ad-id="${ad._id}">💬 Contacter</button>
+                </div>
+            </div>
+          </div>
+        `;
+
+        // Event listener pour cliquer sur l'annonce
+        adElement.addEventListener('click', e => {
+          if (
+            !e.target.classList.contains('btn-secondary') &&
+            !e.target.classList.contains('btn-primary')
+          ) {
+            showAdDetails(ad);
+          }
+        });
+
+        // Event listeners pour les boutons
+        const viewProfileBtn = adElement.querySelector('.view-profile-btn');
+        const contactBtn = adElement.querySelector('.contact-btn');
+
+        viewProfileBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          viewProfile(ad.userId._id);
+        });
+
+        contactBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          contactAdvertiser(ad._id);
+        });
+
         container.appendChild(adElement);
       });
     } else {
@@ -695,6 +732,49 @@ function formatCountryName(countryKey) {
     luxembourg: 'Luxembourg',
   };
   return countries[countryKey] || countryKey;
+}
+
+// Fonction pour afficher les détails d'une annonce
+function showAdDetails(ad) {
+  const modal = document.createElement('div');
+  modal.className = 'ad-modal';
+  modal.style.cssText = `
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+    background: rgba(0,0,0,0.8); z-index: 1000; 
+    display: flex; align-items: center; justify-content: center;
+  `;
+
+  const imageHtml =
+    ad.images && ad.images.length > 0
+      ? `<img src="${ad.images[0]}" alt="Photo annonce" style="width: 200px; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;">`
+      : '<div style="width: 200px; height: 200px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">📷 Pas de photo</div>';
+
+  modal.innerHTML = `
+    <div style="background: white; padding: 30px; border-radius: 12px; max-width: 500px; max-height: 80vh; overflow-y: auto;">
+      <h2>${ad.title}</h2>
+      ${imageHtml}
+      <p><strong>Catégorie:</strong> ${formatCategory(ad.category)}</p>
+      <p><strong>Description:</strong> ${ad.description}</p>
+      <p><strong>Lieu:</strong> ${ad.city}, ${ad.region}, ${formatCountryName(ad.country)}</p>
+      ${ad.tarifs ? `<p><strong>Tarifs:</strong> ${ad.tarifs}</p>` : ''}
+      ${ad.age ? `<p><strong>Âge:</strong> ${ad.age} ans</p>` : ''}
+      ${ad.sexe ? `<p><strong>Sexe:</strong> ${ad.sexe}</p>` : ''}
+      <p><strong>Publié le:</strong> ${new Date(ad.createdAt).toLocaleDateString()}</p>
+      <div style="margin-top: 20px; display: flex; gap: 10px;">
+        <button class="btn-secondary" onclick="viewProfile('${ad.userId._id}')">👤 Voir profil</button>
+        <button class="btn-primary" onclick="contactAdvertiser('${ad._id}')">💬 Contacter</button>
+        <button class="btn-secondary" onclick="this.closest('.ad-modal').remove()">Fermer</button>
+      </div>
+    </div>
+  `;
+
+  modal.addEventListener('click', e => {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  });
+
+  document.body.appendChild(modal);
 }
 
 function contactAdvertiser(adId) {
@@ -991,6 +1071,15 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   console.log('✅ Event listeners pour les boutons ajoutés');
+
+  // Event listener pour le bouton de recherche
+  const searchBtn = document.getElementById('btn-search-ads');
+  if (searchBtn) {
+    searchBtn.addEventListener('click', function () {
+      console.log('🔍 CLIC bouton rechercher');
+      loadAds();
+    });
+  }
 
   // Event listeners pour la navigation - CARTES ENTIÈRES aussi
   document.querySelectorAll('.choice-option').forEach((option, index) => {
