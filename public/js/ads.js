@@ -785,6 +785,10 @@ async function contactAdvertiser(adId) {
     const response = await fetch(`/api/ads/public/${adId}`);
     const data = await response.json();
 
+    console.log('🔍 Données API reçues:', data);
+    console.log('🔍 Ad data:', data.ad);
+    console.log('🔍 Author data:', data.ad?.author);
+
     if (data.success && data.ad && data.ad.author) {
       const advertiserInfo = {
         id: data.ad.author._id,
