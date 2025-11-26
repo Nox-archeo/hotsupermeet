@@ -782,11 +782,9 @@ class MessagesManager {
       return;
     }
 
-    // Récupérer l'ID de l'autre utilisateur depuis la conversation active
-    const currentConversation = this.getCurrentConversationUser();
-
-    if (!currentConversation) {
-      alert('Erreur: conversation non identifiée');
+    // Utiliser directement this.currentChatUser qui est défini quand on ouvre une conversation
+    if (!this.currentChatUser || !this.currentChatUser.otherUserId) {
+      alert('Erreur: aucune conversation active');
       return;
     }
 
@@ -799,7 +797,7 @@ class MessagesManager {
       }
 
       const requestData = {
-        toUserId: currentConversation.otherUserId,
+        toUserId: this.currentChatUser.otherUserId,
         content: messageContent,
         provenance: 'conversation',
       };
