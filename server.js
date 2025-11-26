@@ -712,14 +712,20 @@ app.get('/api/ads/responses', async (req, res) => {
           id: conversationKey,
           adId: message.adId._id,
           adTitle: message.adId.title,
-          senderId: message.senderId._id,
-          senderName: message.senderId.nom,
-          senderPhoto:
-            message.senderId.profile?.photos?.find(p => p.isProfile)?.url ||
-            message.senderId.profile?.photos?.[0]?.url ||
-            null,
-          lastMessage: message.message,
+          message: message.message,
           timestamp: message.timestamp,
+          status: 'unread',
+          responder: {
+            id: message.senderId._id,
+            name: message.senderId.nom || 'Utilisateur',
+            photo:
+              message.senderId.profile?.photos?.find(p => p.isProfile)?.url ||
+              message.senderId.profile?.photos?.[0]?.url ||
+              '/images/avatar-placeholder.png',
+            age: message.senderId.profile?.age || '??',
+            gender: message.senderId.profile?.sexe || 'non spécifié',
+            location: message.senderId.profile?.ville || 'Non spécifié',
+          },
           unreadCount: 0,
         };
       }
