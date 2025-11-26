@@ -746,6 +746,14 @@ const getConversationMessages = async (req, res) => {
       },
     }));
 
+    // FORCER ANTI-CACHE pour les messages en temps réel
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      Pragma: 'no-cache',
+      Expires: '0',
+      ETag: false,
+    });
+
     res.json({
       success: true,
       messages: formattedMessages,
