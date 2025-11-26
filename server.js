@@ -673,11 +673,71 @@ app.get('/api/ads/responses', async (req, res) => {
       });
     }
 
-    // Pour l'instant, on retourne un tableau vide
-    // TODO: Implémenter la logique pour récupérer les vraies réponses d'annonces
+    const token = authHeader.split(' ')[1];
+    const jwt = require('jsonwebtoken');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    const AdMessage = require('./server/models/AdMessage');
+    const Ad = require('./server/models/Ad');
+
+    // Récupérer toutes les annonces de l'utilisateur
+    const userAds = await Ad.find({ userId: userId, status: 'active' });
+    const adIds = userAds.map(ad => ad._id);
+
+    if (adIds.length === 0) {
+      return res.json({
+        success: true,
+        responses: [],
+      });
+    }
+
+    // Récupérer les messages pour ces annonces où l'utilisateur est le receveur
+    const adMessages = await AdMessage.find({
+      adId: { $in: adIds },
+      receiverId: userId,
+    })
+      .populate('senderId', 'nom profile')
+      .populate('adId', 'title')
+      .sort({ timestamp: -1 })
+      .limit(100);
+
+    // Grouper les messages par conversation
+    const conversations = {};
+    for (const message of adMessages) {
+      const conversationKey = `${message.adId._id}-${message.senderId._id}`;
+
+      if (!conversations[conversationKey]) {
+        conversations[conversationKey] = {
+          id: conversationKey,
+          adId: message.adId._id,
+          adTitle: message.adId.title,
+          senderId: message.senderId._id,
+          senderName: message.senderId.nom,
+          senderPhoto:
+            message.senderId.profile?.photos?.find(p => p.isProfile)?.url ||
+            message.senderId.profile?.photos?.[0]?.url ||
+            null,
+          lastMessage: message.message,
+          timestamp: message.timestamp,
+          unreadCount: 0,
+        };
+      }
+
+      // Compter les messages non lus
+      if (!message.isRead) {
+        conversations[conversationKey].unreadCount++;
+      }
+    }
+
+    // Convertir en array et trier par timestamp
+    const responses = Object.values(conversations).sort(
+      (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+    );
+
     res.json({
       success: true,
-      responses: [],
+      responses: responses,
     });
   } catch (error) {
     console.error('Erreur récupération réponses aux annonces:', error);

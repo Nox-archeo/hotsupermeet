@@ -82,6 +82,10 @@ class AdChatManager {
       advertiser: advertiserInfo,
     };
 
+    // Sauvegarder dans localStorage pour persistance
+    localStorage.setItem('currentAdChat', JSON.stringify(this.currentAdChat));
+    console.log('💾 currentAdChat sauvegardé:', this.currentAdChat);
+
     // Mettre à jour l'en-tête
     const header = this.adChatWindow.querySelector('.ad-chat-partner-info');
     header.innerHTML = `
@@ -170,11 +174,27 @@ class AdChatManager {
     const textarea = this.adChatWindow.querySelector('.ad-chat-input textarea');
     const content = textarea.value.trim();
 
+    console.log('🔍 Debug sendAdMessage:');
+    console.log('- content:', content);
+    console.log('- currentAdChat:', this.currentAdChat);
+    console.log('- adChatWindow:', this.adChatWindow);
+
     if (!content) return;
 
     if (!this.currentAdChat) {
-      alert('Erreur: aucune annonce sélectionnée');
-      return;
+      // Essayer de récupérer depuis localStorage
+      const saved = localStorage.getItem('currentAdChat');
+      if (saved) {
+        this.currentAdChat = JSON.parse(saved);
+        console.log(
+          '🔄 currentAdChat récupéré depuis localStorage:',
+          this.currentAdChat
+        );
+      } else {
+        console.error('❌ currentAdChat est null et aucune sauvegarde!');
+        alert('Erreur: aucune annonce sélectionnée');
+        return;
+      }
     }
 
     try {
