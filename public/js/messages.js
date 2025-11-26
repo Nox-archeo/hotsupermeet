@@ -688,54 +688,24 @@ class MessagesManager {
   }
 
   // Charger les messages d'une conversation
-  async loadConversationMessages(
-    otherUserId,
-    chatMessagesContainer,
-    forceNoCache = false
-  ) {
+  async loadConversationMessages(otherUserId, chatMessagesContainer) {
     try {
-      console.log(
-        '🔄 Chargement des messages pour:',
-        otherUserId,
-        forceNoCache ? '(SANS CACHE)' : '(avec cache)'
-      );
-
       const token = localStorage.getItem('hotmeet_token');
-      console.log('🔑 Token trouvé:', token ? 'OUI' : 'NON');
-      console.log(
-        '🔑 Token preview:',
-        token ? token.substring(0, 20) + '...' : 'AUCUN'
-      );
 
       if (!token) {
-        console.error('❌ Token manquant !');
         chatMessagesContainer.innerHTML =
           '<div class="error-message">Erreur d\'authentification. Veuillez vous reconnecter.</div>';
         return;
       }
 
-      console.log(
-        '📡 URL requête:',
-        `/api/messages/conversations/${otherUserId}`
-      );
-
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      };
-
-      // Si on veut forcer sans cache, ajouter les headers anti-cache
-      if (forceNoCache) {
-        headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
-        headers['Pragma'] = 'no-cache';
-        headers['Expires'] = '0';
-      }
-
       const response = await fetch(
-        `/api/messages/conversations/${otherUserId}${forceNoCache ? '?_t=' + Date.now() : ''}`,
+        `/api/messages/conversations/${otherUserId}`,
         {
           method: 'GET',
-          headers,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
           credentials: 'include',
         }
       );
@@ -745,7 +715,6 @@ class MessagesManager {
       }
 
       const data = await response.json();
-      console.log('📬 Messages reçus:', data);
 
       if (data.success && data.messages) {
         // Vider le container
@@ -764,7 +733,6 @@ class MessagesManager {
           '<div class="no-messages">Aucun message dans cette conversation.</div>';
       }
     } catch (error) {
-      console.error('❌ Erreur lors du chargement des messages:', error);
       chatMessagesContainer.innerHTML =
         '<div class="error-message">Erreur lors du chargement des messages.</div>';
     }
@@ -806,26 +774,18 @@ class MessagesManager {
   }
 
   // Envoyer un message dans le chat
-  // Envoyer un message dans le chat - VRAIE COMMUNICATION UTILISATEURS
   async sendChatMessage() {
-    console.log('🚀 DEBUT sendChatMessage');
-
     const chatInput = document.querySelector('.chat-input textarea');
     const messageContent = chatInput.value.trim();
 
-    console.log('📝 Contenu message:', messageContent);
-
     if (!messageContent) {
-      console.log('❌ Message vide, arrêt');
       return;
     }
 
     // Récupérer l'ID de l'autre utilisateur depuis la conversation active
     const currentConversation = this.getCurrentConversationUser();
-    console.log('👥 Conversation actuelle:', currentConversation);
 
     if (!currentConversation) {
-      console.error('❌ Conversation non identifiée');
       alert('Erreur: conversation non identifiée');
       return;
     }
@@ -834,7 +794,6 @@ class MessagesManager {
       const token = localStorage.getItem('hotmeet_token');
 
       if (!token) {
-        console.error('❌ Token manquant');
         alert("Erreur d'authentification");
         return;
       }
@@ -844,7 +803,6 @@ class MessagesManager {
         content: messageContent,
         provenance: 'conversation',
       };
-      console.log('📤 Données à envoyer:', requestData);
 
       // Envoyer le message via l'API
       const response = await fetch('/api/messages', {
@@ -856,43 +814,21 @@ class MessagesManager {
         body: JSON.stringify(requestData),
       });
 
-      console.log('📡 Réponse HTTP status:', response.status);
-
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('❌ Erreur API détaillée:', errorData);
-        console.error(
-          '📝 FULL ERROR OBJECT:',
-          JSON.stringify(errorData, null, 2)
-        );
-
-        let errorMessage = "Erreur lors de l'envoi du message";
-        if (errorData.error && errorData.error.details) {
-          errorMessage +=
-            ': ' + errorData.error.details.map(d => d.msg).join(', ');
-        } else if (errorData.error && errorData.error.message) {
-          errorMessage += ': ' + errorData.error.message;
-        }
-
-        throw new Error(errorMessage);
+        throw new Error("Erreur lors de l'envoi du message");
       }
 
       const data = await response.json();
-      console.log('✅ Réponse API:', data);
 
       if (data.success) {
-        console.log('✅ Message envoyé avec succès');
-
         // Vider le champ immédiatement
         chatInput.value = '';
 
         // Recharger les messages pour afficher le nouveau message depuis l'API
         if (this.currentChatUser && this.currentChatUser.otherUserId) {
-          // Forcer le rechargement sans cache pour voir le nouveau message
           await this.loadConversationMessages(
             this.currentChatUser.otherUserId,
-            document.querySelector('.chat-messages'),
-            true // forcer sans cache
+            document.querySelector('.chat-messages')
           );
         }
       } else {
