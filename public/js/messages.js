@@ -822,29 +822,41 @@ class MessagesManager {
         // Vider le champ immédiatement
         chatInput.value = '';
 
-        // Recharger immédiatement les messages pour afficher le nouveau message
+        // Afficher le message instantanément côté client
         const chatMessagesContainer = document.querySelector('.chat-messages');
+
+        // Créer le message immédiatement pour feedback instantané
+        const newMessage = {
+          content: messageContent,
+          isOwn: true,
+          createdAt: new Date().toISOString(),
+        };
+        const messageElement = this.createChatMessageElement(newMessage);
+        chatMessagesContainer.appendChild(messageElement);
+        chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+
+        // Puis recharger depuis l'API pour la synchronisation complète
         if (this.currentChatUser && this.currentChatUser.otherUserId) {
-          // Forcer le rechargement avec un timestamp pour éviter le cache
-          const response = await fetch(
-            `/api/messages/conversations/${this.currentChatUser.otherUserId}?t=${Date.now()}`,
+          const reloadResponse = await fetch(
+            `/api/messages/conversations/${this.currentChatUser.otherUserId}?_=${Date.now()}`,
             {
               method: 'GET',
               headers: {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache',
               },
               credentials: 'include',
             }
           );
 
-          if (response.ok) {
-            const messagesData = await response.json();
+          if (reloadResponse.ok) {
+            const messagesData = await reloadResponse.json();
             if (messagesData.success && messagesData.messages) {
               chatMessagesContainer.innerHTML = '';
-              messagesData.messages.forEach(message => {
-                const messageElement = this.createChatMessageElement(message);
-                chatMessagesContainer.appendChild(messageElement);
+              messagesData.messages.forEach(msg => {
+                const msgElement = this.createChatMessageElement(msg);
+                chatMessagesContainer.appendChild(msgElement);
               });
               chatMessagesContainer.scrollTop =
                 chatMessagesContainer.scrollHeight;
