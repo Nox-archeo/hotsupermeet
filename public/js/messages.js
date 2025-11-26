@@ -688,9 +688,17 @@ class MessagesManager {
   }
 
   // Charger les messages d'une conversation
-  async loadConversationMessages(otherUserId, chatMessagesContainer) {
+  async loadConversationMessages(
+    otherUserId,
+    chatMessagesContainer,
+    forceNoCache = false
+  ) {
     try {
-      console.log('🔄 Chargement des messages pour:', otherUserId);
+      console.log(
+        '🔄 Chargement des messages pour:',
+        otherUserId,
+        forceNoCache ? '(SANS CACHE)' : '(avec cache)'
+      );
 
       const token = localStorage.getItem('hotmeet_token');
       console.log('🔑 Token trouvé:', token ? 'OUI' : 'NON');
@@ -711,14 +719,23 @@ class MessagesManager {
         `/api/messages/conversations/${otherUserId}`
       );
 
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      };
+
+      // Si on veut forcer sans cache, ajouter les headers anti-cache
+      if (forceNoCache) {
+        headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+        headers['Pragma'] = 'no-cache';
+        headers['Expires'] = '0';
+      }
+
       const response = await fetch(
-        `/api/messages/conversations/${otherUserId}`,
+        `/api/messages/conversations/${otherUserId}${forceNoCache ? '?_t=' + Date.now() : ''}`,
         {
           method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+          headers,
           credentials: 'include',
         }
       );
@@ -871,9 +888,11 @@ class MessagesManager {
 
         // Recharger les messages pour afficher le nouveau message depuis l'API
         if (this.currentChatUser && this.currentChatUser.otherUserId) {
+          // Forcer le rechargement sans cache pour voir le nouveau message
           await this.loadConversationMessages(
             this.currentChatUser.otherUserId,
-            document.querySelector('.chat-messages')
+            document.querySelector('.chat-messages'),
+            true // forcer sans cache
           );
         }
       } else {
