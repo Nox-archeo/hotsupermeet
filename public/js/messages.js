@@ -20,7 +20,7 @@ class MessagesManager {
     this.loadRealData();
     this.updateNotificationBadges();
     this.checkUrlParams();
-    this.startMessagePolling(); // Démarrer la vérification automatique
+    // DÉSACTIVÉ: this.startMessagePolling(); // On utilise maintenant Socket.io exclusivement
   }
 
   // Configuration Socket.io pour le temps réel
