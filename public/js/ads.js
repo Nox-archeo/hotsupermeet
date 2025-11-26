@@ -792,8 +792,8 @@ async function contactAdvertiser(adId) {
     if (data.success && data.ad && data.ad.author) {
       const advertiserInfo = {
         id: data.ad.author._id,
-        nom: data.ad.author.nom,
-        photo: data.ad.author.photo,
+        nom: data.ad.author.nom || 'Utilisateur',
+        photo: data.ad.author.photo || '/images/default-avatar.jpg',
         adTitle: data.ad.title,
       };
 
