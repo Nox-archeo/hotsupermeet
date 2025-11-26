@@ -708,6 +708,17 @@ class MessagesManager {
       const currentUser = JSON.parse(
         localStorage.getItem('hotmeet_user') || '{}'
       );
+
+      // Vérifier que l'utilisateur est bien défini
+      if (!currentUser._id) {
+        console.error('❌ Utilisateur non défini dans localStorage!');
+        console.log(
+          '🔍 localStorage hotmeet_user:',
+          localStorage.getItem('hotmeet_user')
+        );
+        return;
+      }
+
       console.log('🔍 CLIENT - Rejoindre conversation:', {
         userId: currentUser._id,
         otherUserId: conversation.otherUser.id,
@@ -1828,7 +1839,7 @@ class MessagesManager {
           <div class="user-info">
             <h4>${request.target.profile.nom}</h4>
             <p class="request-message">"${request.message || 'Aimerais voir vos photos privées'}"</p>
-            <span class="request-time">${this.formatDate(request.createdAt)}</span>
+            <span class="request-time">${this.formatTimeAgo(request.createdAt)}</span>
           </div>
         </div>
         <div class="request-actions">
