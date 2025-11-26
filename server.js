@@ -261,6 +261,10 @@ app.use('/api/tonight', require('./server/routes/tonight'));
 app.use('/api/uploads', require('./server/routes/uploads'));
 app.use('/api/subscriptions', require('./server/routes/subscriptions'));
 
+// Initialiser Socket.io dans les contrôleurs
+const messageController = require('./server/controllers/messageController');
+messageController.setSocketIO(io);
+
 // ROUTE DIRECTE ANNONCES QUI SAUVEGARDE EN BASE
 console.log('🚨 CRÉATION ROUTE ADS DIRECTE QUI SAUVEGARDE');
 app.post('/api/ads', async (req, res) => {
@@ -1072,6 +1076,68 @@ io.on('connection', socket => {
     });
 
     console.log('✅ Signal WebRTC transmis avec succès');
+  });
+
+  // === CHAT TEMPS RÉEL ===
+  // Rejoindre une conversation
+  socket.on('join-conversation', data => {
+    const { userId, otherUserId } = data;
+    const conversationId = [userId, otherUserId].sort().join('_');
+    socket.join(`conversation_${conversationId}`);
+    console.log(`✅ User ${userId} rejoint conversation ${conversationId}`);
+  });
+
+  // Quitter une conversation
+  socket.on('leave-conversation', data => {
+    const { userId, otherUserId } = data;
+    const conversationId = [userId, otherUserId].sort().join('_');
+    socket.leave(`conversation_${conversationId}`);
+    console.log(`⬅️ User ${userId} quitte conversation ${conversationId}`);
+  });
+
+  // Nouveau message envoyé
+  socket.on('new-message', data => {
+    const { fromUserId, toUserId, message } = data;
+    const conversationId = [fromUserId, toUserId].sort().join('_');
+
+    // Diffuser le message à tous les participants de la conversation
+    socket.to(`conversation_${conversationId}`).emit('message-received', {
+      fromUserId,
+      toUserId,
+      message,
+      timestamp: new Date(),
+    });
+
+    console.log(`💬 Message diffusé dans conversation ${conversationId}`);
+  });
+
+  // Notification de nouvelle demande de chat
+  socket.on('new-chat-request', data => {
+    const { toUserId, requestData } = data;
+    // Notifier l'utilisateur ciblé
+    io.emit('chat-request-received', {
+      toUserId,
+      requestData,
+    });
+    console.log(`📨 Nouvelle demande de chat pour user ${toUserId}`);
+  });
+
+  // Utilisateur en train d'écrire
+  socket.on('typing', data => {
+    const { userId, otherUserId } = data;
+    const conversationId = [userId, otherUserId].sort().join('_');
+    socket.to(`conversation_${conversationId}`).emit('user-typing', {
+      userId,
+    });
+  });
+
+  // Arrêt d'écriture
+  socket.on('stop-typing', data => {
+    const { userId, otherUserId } = data;
+    const conversationId = [userId, otherUserId].sort().join('_');
+    socket.to(`conversation_${conversationId}`).emit('user-stopped-typing', {
+      userId,
+    });
   });
 
   // Déconnexion
