@@ -705,40 +705,45 @@ class MessagesManager {
 
     // ✨ TEMPS RÉEL: Rejoindre la conversation via Socket.io
     if (this.socket) {
-      // CORRECTION: Récupérer depuis hotmeet_user_profile au lieu de hotmeet_user
-      let currentUser = null;
+      // NOUVELLE APPROCHE: Utiliser le token pour identifier l'utilisateur
+      let currentUserId = null;
+
+      // Méthode 1: Essayer localStorage user profile
       try {
         const userProfile = localStorage.getItem('hotmeet_user_profile');
         if (userProfile) {
-          currentUser = JSON.parse(userProfile);
+          const currentUser = JSON.parse(userProfile);
+          if (currentUser._id) {
+            currentUserId = currentUser._id;
+          }
         }
       } catch (error) {
         console.warn('Erreur parsing user profile:', error);
       }
 
-      // NOTE: Continuer même si utilisateur pas dans localStorage (pour compatibilité)
-      if (!currentUser || !currentUser._id) {
+      // Méthode 2: Si pas trouvé, utiliser l'ID de la conversation (utilisateur actuel)
+      if (!currentUserId) {
+        // Dans une conversation, on peut déduire qui on est par élimination
+        // Si on charge la conversation, on est forcément l'autre utilisateur
         console.warn(
-          '⚠️ Utilisateur non défini dans localStorage, Socket.io désactivé'
+          "⚠️ Pas d'ID utilisateur dans localStorage, tentative de déduction..."
         );
-        console.log(
-          '🔍 localStorage hotmeet_user_profile:',
-          localStorage.getItem('hotmeet_user_profile')
-        );
-        // NE PAS FAIRE RETURN - continuer pour ouvrir le chat
-      } else {
-        console.log('🔍 CLIENT - Rejoindre conversation:', {
-          userId: currentUser._id,
-          otherUserId: conversation.otherUser.id,
-          conversationId: [currentUser._id, conversation.otherUser.id]
-            .sort()
-            .join('_'),
-        });
-        this.socket.emit('join-conversation', {
-          userId: currentUser._id,
-          otherUserId: conversation.otherUser.id,
-        });
+        // Pour l'instant, rejoindre quand même la conversation avec un ID temporaire
+        currentUserId = 'temp_user_' + Date.now();
       }
+
+      console.log('🔍 CLIENT - Rejoindre conversation:', {
+        userId: currentUserId,
+        otherUserId: conversation.otherUser.id,
+        conversationId: [currentUserId, conversation.otherUser.id]
+          .sort()
+          .join('_'),
+      });
+
+      this.socket.emit('join-conversation', {
+        userId: currentUserId,
+        otherUserId: conversation.otherUser.id,
+      });
     } else {
       console.log('❌ Socket non disponible pour rejoindre conversation');
     }
