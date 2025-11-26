@@ -708,10 +708,19 @@ class MessagesManager {
       const currentUser = JSON.parse(
         localStorage.getItem('hotmeet_user') || '{}'
       );
+      console.log('🔍 CLIENT - Rejoindre conversation:', {
+        userId: currentUser._id,
+        otherUserId: conversation.otherUser.id,
+        conversationId: [currentUser._id, conversation.otherUser.id]
+          .sort()
+          .join('_'),
+      });
       this.socket.emit('join-conversation', {
         userId: currentUser._id,
         otherUserId: conversation.otherUser.id,
       });
+    } else {
+      console.log('❌ Socket non disponible pour rejoindre conversation');
     }
 
     // Mettre à jour l'en-tête du chat - CORRIGÉ: otherUser au lieu de withUser + statut en ligne
@@ -1343,14 +1352,23 @@ class MessagesManager {
       localStorage.getItem('hotmeet_user') || '{}'
     );
 
+    console.log('🔍 DIAGNOSTIC handleNewMessage - Data reçue:', data);
+    console.log('🔍 Current user:', currentUser._id);
+    console.log('🔍 Message pour:', toUserId);
+    console.log('🔍 Chat ouvert avec:', this.currentChatUser?.otherUserId);
+
     // Vérifier si c'est pour nous
-    if (toUserId !== currentUser._id) return;
+    if (toUserId !== currentUser._id) {
+      console.log('❌ Message pas pour nous, ignoré');
+      return;
+    }
 
     // Si le chat est ouvert avec cet utilisateur, afficher le message immédiatement
     if (
       this.currentChatUser &&
       this.currentChatUser.otherUserId === fromUserId
     ) {
+      console.log('✅ Chat ouvert avec expéditeur, ajout du message');
       const chatMessagesContainer = document.querySelector('.chat-messages');
       if (chatMessagesContainer) {
         const messageElement = this.createChatMessageElement({
@@ -1361,7 +1379,12 @@ class MessagesManager {
         });
         chatMessagesContainer.appendChild(messageElement);
         chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+        console.log('✅ Message ajouté au chat ouvert');
+      } else {
+        console.log('❌ Container chat non trouvé');
       }
+    } else {
+      console.log('❌ Chat pas ouvert avec expéditeur');
     }
 
     // Mettre à jour les badges de notifications
@@ -1369,7 +1392,7 @@ class MessagesManager {
 
     // Afficher une notification toast
     this.showNotification(
-      `Nouveau message de ${data.fromUser?.profile?.nom || 'Un utilisateur'}`,
+      `Nouveau message de ${message.fromUser?.profile?.nom || 'Un utilisateur'}`,
       'info'
     );
   }
