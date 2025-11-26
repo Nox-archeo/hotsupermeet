@@ -1085,6 +1085,20 @@ io.on('connection', socket => {
     const conversationId = [userId, otherUserId].sort().join('_');
     socket.join(`conversation_${conversationId}`);
     console.log(`✅ User ${userId} rejoint conversation ${conversationId}`);
+
+    // 🔍 DIAGNOSTIC spécial pour Gog et Camille
+    if (
+      (userId.includes('68fa5bfc53aebaf1f87b7860') &&
+        otherUserId.includes('690a028ad47c3ebe2c370057')) ||
+      (userId.includes('690a028ad47c3ebe2c370057') &&
+        otherUserId.includes('68fa5bfc53aebaf1f87b7860'))
+    ) {
+      console.log('🚨 DIAGNOSTIC GOG↔CAMILLE - Rejoindre conversation');
+      console.log('🚨 UserId:', userId);
+      console.log('🚨 OtherUserId:', otherUserId);
+      console.log('🚨 ConversationId:', conversationId);
+      console.log('🚨 Room Socket.io:', `conversation_${conversationId}`);
+    }
   });
 
   // Quitter une conversation
