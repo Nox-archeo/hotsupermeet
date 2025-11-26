@@ -1374,7 +1374,7 @@ class MessagesManager {
   handleNewMessage(data) {
     const { fromUserId, toUserId, message, messageId } = data;
 
-    // CORRECTION: Utiliser hotmeet_user_profile
+    // CORRECTION: Utiliser hotmeet_user_profile comme dans showChatWindow
     let currentUser = null;
     try {
       const userProfile = localStorage.getItem('hotmeet_user_profile');
@@ -1383,7 +1383,14 @@ class MessagesManager {
       }
     } catch (error) {
       console.warn('Erreur parsing user profile dans handleNewMessage:', error);
-      return;
+    }
+
+    // Si pas trouvé, essayer avec le token (alternative)
+    if (!currentUser || !currentUser._id) {
+      console.warn(
+        "⚠️ Pas d'utilisateur dans localStorage, tentative alternative..."
+      );
+      // Pour l'instant, continuer quand même pour voir le message dans les logs
     }
 
     console.log('🔍 DIAGNOSTIC handleNewMessage - Data reçue:', data);
@@ -1391,13 +1398,12 @@ class MessagesManager {
     console.log('🔍 Message pour:', toUserId);
     console.log('🔍 Chat ouvert avec:', this.currentChatUser?.otherUserId);
 
-    // Vérifier si l'utilisateur est défini et si c'est pour nous
-    if (!currentUser || !currentUser._id || toUserId !== currentUser._id) {
+    // MODIFICATION: Si pas d'utilisateur défini, essayer quand même d'afficher le message
+    // dans la fenêtre ouverte (pour debug)
+    if (currentUser && currentUser._id && toUserId !== currentUser._id) {
       console.log('❌ Message pas pour nous, ignoré');
       return;
-    }
-
-    // Si le chat est ouvert avec cet utilisateur, afficher le message immédiatement
+    } // Si le chat est ouvert avec cet utilisateur, afficher le message immédiatement
     if (
       this.currentChatUser &&
       this.currentChatUser.otherUserId === fromUserId
