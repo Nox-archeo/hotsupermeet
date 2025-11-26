@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/css/style.css?v=6" />
     <link rel="stylesheet" href="/css/pages.css?v=1" />
     <link rel="stylesheet" href="/css/animations.css" />
+    <link rel="stylesheet" href="/css/ad-chat.css" />
   </head>
   <body>
     <!-- Header -->
@@ -746,5 +747,16 @@
     <script src="/js/auth.js"></script>
     <script src="/js/regions-europe.js"></script>
     <script src="/js/ads.js"></script>
+    <script src="/js/ad-chat.js"></script>
+
+    <!-- Initialisation du système de chat d'annonces -->
+    <script>
+      // Initialiser le gestionnaire de chat d'annonces
+      document.addEventListener('DOMContentLoaded', function () {
+        console.log('🚀 Initialisation AdChatManager...');
+        window.adChatManager = new AdChatManager();
+        console.log('✅ AdChatManager initialisé');
+      });
+    </script>
   </body>
 </html>

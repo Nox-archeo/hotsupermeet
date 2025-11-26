@@ -777,9 +777,38 @@ function showAdDetails(ad) {
   document.body.appendChild(modal);
 }
 
-function contactAdvertiser(adId) {
-  // Redirection vers messages avec l'ID de l'annonce pour ouvrir une conversation spécifique
-  window.location.href = `/messages?ad=${adId}`;
+async function contactAdvertiser(adId) {
+  console.log('📨 Contacter annonce:', adId);
+
+  try {
+    // Récupérer les détails de l'annonce et de l'annonceur
+    const response = await fetch(`/api/ads/public/${adId}`);
+    const data = await response.json();
+
+    if (data.success && data.ad) {
+      const advertiserInfo = {
+        id: data.ad.author._id,
+        nom: data.ad.author.nom,
+        photo: data.ad.author.photo,
+        adTitle: data.ad.title,
+      };
+
+      // Ouvrir le chat d'annonce avec le gestionnaire dédié
+      if (window.adChatManager) {
+        window.adChatManager.openAdChat(adId, advertiserInfo);
+      } else {
+        // Fallback si le gestionnaire n'est pas encore chargé
+        setTimeout(() => {
+          window.adChatManager.openAdChat(adId, advertiserInfo);
+        }, 100);
+      }
+    } else {
+      alert("Impossible de contacter l'annonceur");
+    }
+  } catch (error) {
+    console.error('Erreur contact annonceur:', error);
+    alert('Erreur technique lors du contact');
+  }
 }
 
 function viewProfile(userId) {
