@@ -111,9 +111,12 @@ class AdChatManager {
   async loadAdMessages(adId) {
     try {
       const token = localStorage.getItem('hotmeet_token');
-      const response = await fetch(`/api/ads/messages/${adId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch(
+        `/api/ads/${adId}/messages?otherUserId=${this.currentAdChat.advertiser.id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -177,18 +180,20 @@ class AdChatManager {
     try {
       const token = localStorage.getItem('hotmeet_token');
 
-      const response = await fetch('/api/ads/message', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          adId: this.currentAdChat.adId,
-          content: content,
-          toUserId: this.currentAdChat.advertiser.id,
-        }),
-      });
+      const response = await fetch(
+        `/api/ads/${this.currentAdChat.adId}/messages`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            message: content,
+            receiverId: this.currentAdChat.advertiser.id,
+          }),
+        }
+      );
 
       if (response.ok) {
         // Vider le champ
