@@ -705,18 +705,25 @@ class MessagesManager {
 
     // ✨ TEMPS RÉEL: Rejoindre la conversation via Socket.io
     if (this.socket) {
-      const currentUser = JSON.parse(
-        localStorage.getItem('hotmeet_user') || '{}'
-      );
+      // CORRECTION: Récupérer depuis hotmeet_user_profile au lieu de hotmeet_user
+      let currentUser = null;
+      try {
+        const userProfile = localStorage.getItem('hotmeet_user_profile');
+        if (userProfile) {
+          currentUser = JSON.parse(userProfile);
+        }
+      } catch (error) {
+        console.warn('Erreur parsing user profile:', error);
+      }
 
       // NOTE: Continuer même si utilisateur pas dans localStorage (pour compatibilité)
-      if (!currentUser._id) {
+      if (!currentUser || !currentUser._id) {
         console.warn(
           '⚠️ Utilisateur non défini dans localStorage, Socket.io désactivé'
         );
         console.log(
-          '🔍 localStorage hotmeet_user:',
-          localStorage.getItem('hotmeet_user')
+          '🔍 localStorage hotmeet_user_profile:',
+          localStorage.getItem('hotmeet_user_profile')
         );
         // NE PAS FAIRE RETURN - continuer pour ouvrir le chat
       } else {
