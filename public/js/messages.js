@@ -864,27 +864,18 @@ class MessagesManager {
       console.log('✅ Réponse API:', data);
 
       if (data.success) {
-        // Ajouter le message à l'interface immédiatement
-        const newMessage = {
-          id: data.message.id,
-          content: messageContent,
-          createdAt: new Date(),
-          isOwn: true,
-          sender: { nom: 'Vous' },
-        };
-
-        const messageElement = this.createChatMessageElement(newMessage);
-        document.querySelector('.chat-messages').appendChild(messageElement);
-
-        // Vider le champ et scroller
-        chatInput.value = '';
-        document.querySelector('.chat-messages').scrollTop =
-          document.querySelector('.chat-messages').scrollHeight;
-
         console.log('✅ Message envoyé avec succès');
 
-        // Le message est déjà affiché, pas besoin de recharger immédiatement
-        // Le refresh automatique toutes les 5 secondes s'occupera des nouveaux messages
+        // Vider le champ immédiatement
+        chatInput.value = '';
+
+        // Recharger les messages pour afficher le nouveau message depuis l'API
+        if (this.currentChatUser && this.currentChatUser.otherUserId) {
+          await this.loadConversationMessages(
+            this.currentChatUser.otherUserId,
+            document.querySelector('.chat-messages')
+          );
+        }
       } else {
         alert("Erreur lors de l'envoi du message");
       }
