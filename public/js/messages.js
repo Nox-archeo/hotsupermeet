@@ -721,15 +721,26 @@ class MessagesManager {
         console.warn('Erreur parsing user profile:', error);
       }
 
-      // Méthode 2: Si pas trouvé, utiliser l'ID de la conversation (utilisateur actuel)
+      // Méthode 2: Si pas trouvé, utiliser le token JWT
       if (!currentUserId) {
-        // Dans une conversation, on peut déduire qui on est par élimination
-        // Si on charge la conversation, on est forcément l'autre utilisateur
-        console.warn(
-          "⚠️ Pas d'ID utilisateur dans localStorage, tentative de déduction..."
-        );
-        // Pour l'instant, rejoindre quand même la conversation avec un ID temporaire
-        currentUserId = 'temp_user_' + Date.now();
+        try {
+          const token = localStorage.getItem('hotmeet_token');
+          if (token) {
+            // Décoder le token JWT pour récupérer l'userId
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            currentUserId = payload.userId;
+            console.log('🔍 UserId récupéré depuis token JWT:', currentUserId);
+          }
+        } catch (error) {
+          console.warn('Erreur décodage token JWT:', error);
+        }
+      }
+
+      // Méthode 3: Dernière tentative
+      if (!currentUserId) {
+        console.warn('⚠️ Impossible de récupérer userId, skip Socket.io');
+        // Ne pas rejoindre si on n'a pas d'ID valide
+        return;
       }
 
       console.log('🔍 CLIENT - Rejoindre conversation:', {
