@@ -100,29 +100,49 @@ class MessagesManager {
           return;
         }
 
-        // Rechercher si une conversation existe déjà avec cet utilisateur
-        const existingConversation = this.conversations.find(
-          conv => conv.withUser.id === advertiser._id
+        // Rechercher si une réponse d'annonce existe déjà avec cet utilisateur pour cette annonce
+        const existingResponse = this.adResponses.find(
+          resp => resp.adId === adId && resp.withUser.id === advertiser._id
         );
 
-        if (existingConversation) {
-          this.showChatWindow(existingConversation);
+        if (existingResponse) {
+          // Basculer sur l'onglet "Réponses aux annonces" et ouvrir le chat
+          this.showTab('ad-responses');
+          this.showChatWindow(existingResponse);
         } else {
-          // Créer une nouvelle conversation avec l'annonceur
-          const newConversation = {
+          // Créer une nouvelle réponse d'annonce
+          const newAdResponse = {
             id: Date.now(),
+            adId: ad._id,
+            adTitle: ad.title,
             withUser: {
               id: advertiser._id,
               name: advertiser.profile?.nom || 'Annonceur',
               age: advertiser.profile?.age || 'N/A',
               gender: advertiser.profile?.sexe || 'autre',
               location:
-                advertiser.profile?.localisation || 'Localisation inconnue',
+                advertiser.profile?.localisation?.ville ||
+                'Localisation inconnue',
               photo:
-                advertiser.profile?.photos?.[0] || '/images/default-avatar.jpg',
+                advertiser.profile?.photos?.find(p => p.isProfile)?.url ||
+                '/images/default-avatar.jpg',
               isOnline: true,
             },
-            lastMessage: `Conversation au sujet de: ${ad.title}`,
+            // Pour compatibilité avec showChatWindow
+            otherUser: {
+              id: advertiser._id,
+              nom: advertiser.profile?.nom || 'Annonceur',
+              age: advertiser.profile?.age || 'N/A',
+              gender: advertiser.profile?.sexe || 'autre',
+              location:
+                advertiser.profile?.localisation?.ville ||
+                'Localisation inconnue',
+              photo:
+                advertiser.profile?.photos?.find(p => p.isProfile)?.url ||
+                '/images/default-avatar.jpg',
+              isOnline: true,
+            },
+            lastMessage: `Nouveau contact pour: ${ad.title}`,
             timestamp: new Date(),
             unread: 0,
             messages: [],
@@ -130,19 +150,20 @@ class MessagesManager {
               id: ad._id,
               title: ad.title,
               description: ad.description.substring(0, 100) + '...',
+              category: ad.category,
             },
           };
 
-          this.conversations.unshift(newConversation);
-          this.renderConversations();
-          this.showChatWindow(newConversation);
+          // Ajouter la réponse au début de la liste
+          this.adResponses.unshift(newAdResponse);
 
-          // Afficher un message d'information sur l'annonce
-          this.showAdContextInChat(newConversation);
+          // Basculer sur l'onglet "Réponses aux annonces"
+          this.showTab('ad-responses');
+
+          // Rendre la liste des réponses et ouvrir le chat
+          this.renderAdResponses();
+          this.showChatWindow(newAdResponse);
         }
-
-        // Basculer vers l'onglet des conversations
-        this.switchTab('conversations');
       } else {
         this.showNotification('Annonce non trouvée', 'error');
       }

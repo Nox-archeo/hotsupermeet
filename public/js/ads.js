@@ -779,12 +779,12 @@ function showAdDetails(ad) {
 
 function contactAdvertiser(adId) {
   // Redirection vers messages avec l'ID de l'annonce pour ouvrir une conversation spécifique
-  window.location.href = `/messages.html?ad=${adId}`;
+  window.location.href = `/messages?ad=${adId}`;
 }
 
 function viewProfile(userId) {
   // Redirection vers le profil de l'utilisateur
-  window.location.href = `/profile-view.html?id=${userId}`;
+  window.location.href = `/profile-view?id=${userId}`;
 }
 
 // =================================
