@@ -490,10 +490,34 @@ app.get('/api/ads/:adId/messages', async (req, res) => {
 
     // Récupérer les messages
     const messages = await AdMessage.find({ conversationId })
-      .populate('senderId', 'nom photo')
-      .populate('receiverId', 'nom photo')
+      .populate('senderId', 'nom profile')
+      .populate('receiverId', 'nom profile')
       .sort({ timestamp: 1 })
       .limit(50);
+
+    // Transformer les messages avec isOwn et photo correcte
+    const transformedMessages = messages.map(msg => ({
+      _id: msg._id,
+      content: msg.message,
+      createdAt: msg.timestamp,
+      isOwn: msg.senderId._id.toString() === userId,
+      senderId: {
+        _id: msg.senderId._id,
+        nom: msg.senderId.nom,
+        photo:
+          msg.senderId.profile?.photos?.find(p => p.isProfile)?.url ||
+          msg.senderId.profile?.photos?.[0]?.url ||
+          null,
+      },
+      receiverId: {
+        _id: msg.receiverId._id,
+        nom: msg.receiverId.nom,
+        photo:
+          msg.receiverId.profile?.photos?.find(p => p.isProfile)?.url ||
+          msg.receiverId.profile?.photos?.[0]?.url ||
+          null,
+      },
+    }));
 
     // Marquer les messages comme lus
     await AdMessage.updateMany(
@@ -505,7 +529,7 @@ app.get('/api/ads/:adId/messages', async (req, res) => {
 
     res.json({
       success: true,
-      messages,
+      messages: transformedMessages,
     });
   } catch (error) {
     console.error('❌ Erreur récupération messages annonce:', error);
@@ -615,7 +639,16 @@ app.get('/api/ads/public/:adId', async (req, res) => {
     // Restructurer la réponse pour plus de clarté
     const adWithAuthor = {
       ...ad.toObject(),
-      author: ad.userId, // Renommer userId en author pour le frontend
+      author: {
+        _id: ad.userId._id,
+        nom: ad.userId.nom,
+        // Récupérer la photo de profil depuis l'array photos
+        photo:
+          ad.userId.profile?.photos?.find(p => p.isProfile)?.url ||
+          ad.userId.profile?.photos?.[0]?.url ||
+          null,
+        profile: ad.userId.profile,
+      },
     };
     delete adWithAuthor.userId; // Supprimer l'ancien champ
 
