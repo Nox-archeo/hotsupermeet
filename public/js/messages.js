@@ -775,11 +775,8 @@ class MessagesManager {
 
   // Envoyer un message dans le chat
   async sendChatMessage() {
-    alert('sendChatMessage appelée !'); // TEST
-
     const chatInput = document.querySelector('.chat-input textarea');
     const messageContent = chatInput.value.trim();
-
     if (!messageContent) {
       return;
     }
