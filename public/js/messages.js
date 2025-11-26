@@ -329,9 +329,16 @@ class MessagesManager {
       }
 
       // Récupérer les conversations approuvées
-      const conversationsResponse = await fetch('/api/messages/conversations', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const conversationsResponse = await fetch(
+        `/api/messages/conversations?_=${Date.now()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            Pragma: 'no-cache',
+          },
+        }
+      );
 
       if (conversationsResponse.ok) {
         const conversationsData = await conversationsResponse.json();
@@ -699,12 +706,14 @@ class MessagesManager {
       }
 
       const response = await fetch(
-        `/api/messages/conversations/${otherUserId}`,
+        `/api/messages/conversations/${otherUserId}?_=${Date.now()}`,
         {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            Pragma: 'no-cache',
           },
           credentials: 'include',
         }
@@ -1141,8 +1150,12 @@ class MessagesManager {
   async checkNewChatRequests() {
     try {
       const token = localStorage.getItem('hotmeet_token');
-      const response = await fetch('/api/messages/requests', {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await fetch(`/api/messages/requests?_=${Date.now()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          Pragma: 'no-cache',
+        },
       });
 
       if (response.ok) {
@@ -1188,9 +1201,13 @@ class MessagesManager {
     try {
       const token = localStorage.getItem('hotmeet_token');
       const response = await fetch(
-        `/api/messages/conversations/${this.currentChatUser.otherUserId}`,
+        `/api/messages/conversations/${this.currentChatUser.otherUserId}?_=${Date.now()}`,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            Pragma: 'no-cache',
+          },
         }
       );
 
