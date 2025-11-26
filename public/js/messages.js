@@ -883,15 +883,8 @@ class MessagesManager {
 
         console.log('✅ Message envoyé avec succès');
 
-        // Recharger les messages après 1 seconde pour voir la réponse
-        setTimeout(() => {
-          if (this.currentChatUser && this.currentChatUser.otherUserId) {
-            this.loadConversationMessages(
-              this.currentChatUser.otherUserId,
-              document.querySelector('.chat-messages')
-            );
-          }
-        }, 1000);
+        // Le message est déjà affiché, pas besoin de recharger immédiatement
+        // Le refresh automatique toutes les 5 secondes s'occupera des nouveaux messages
       } else {
         alert("Erreur lors de l'envoi du message");
       }
