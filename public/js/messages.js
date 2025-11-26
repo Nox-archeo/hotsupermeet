@@ -709,27 +709,29 @@ class MessagesManager {
         localStorage.getItem('hotmeet_user') || '{}'
       );
 
-      // Vérifier que l'utilisateur est bien défini
+      // NOTE: Continuer même si utilisateur pas dans localStorage (pour compatibilité)
       if (!currentUser._id) {
-        console.error('❌ Utilisateur non défini dans localStorage!');
+        console.warn(
+          '⚠️ Utilisateur non défini dans localStorage, Socket.io désactivé'
+        );
         console.log(
           '🔍 localStorage hotmeet_user:',
           localStorage.getItem('hotmeet_user')
         );
-        return;
+        // NE PAS FAIRE RETURN - continuer pour ouvrir le chat
+      } else {
+        console.log('🔍 CLIENT - Rejoindre conversation:', {
+          userId: currentUser._id,
+          otherUserId: conversation.otherUser.id,
+          conversationId: [currentUser._id, conversation.otherUser.id]
+            .sort()
+            .join('_'),
+        });
+        this.socket.emit('join-conversation', {
+          userId: currentUser._id,
+          otherUserId: conversation.otherUser.id,
+        });
       }
-
-      console.log('🔍 CLIENT - Rejoindre conversation:', {
-        userId: currentUser._id,
-        otherUserId: conversation.otherUser.id,
-        conversationId: [currentUser._id, conversation.otherUser.id]
-          .sort()
-          .join('_'),
-      });
-      this.socket.emit('join-conversation', {
-        userId: currentUser._id,
-        otherUserId: conversation.otherUser.id,
-      });
     } else {
       console.log('❌ Socket non disponible pour rejoindre conversation');
     }
