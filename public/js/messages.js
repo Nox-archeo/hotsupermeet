@@ -822,12 +822,34 @@ class MessagesManager {
         // Vider le champ immédiatement
         chatInput.value = '';
 
-        // Recharger les messages pour afficher le nouveau message depuis l'API
+        // Recharger immédiatement les messages pour afficher le nouveau message
+        const chatMessagesContainer = document.querySelector('.chat-messages');
         if (this.currentChatUser && this.currentChatUser.otherUserId) {
-          await this.loadConversationMessages(
-            this.currentChatUser.otherUserId,
-            document.querySelector('.chat-messages')
+          // Forcer le rechargement avec un timestamp pour éviter le cache
+          const response = await fetch(
+            `/api/messages/conversations/${this.currentChatUser.otherUserId}?t=${Date.now()}`,
+            {
+              method: 'GET',
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+              credentials: 'include',
+            }
           );
+
+          if (response.ok) {
+            const messagesData = await response.json();
+            if (messagesData.success && messagesData.messages) {
+              chatMessagesContainer.innerHTML = '';
+              messagesData.messages.forEach(message => {
+                const messageElement = this.createChatMessageElement(message);
+                chatMessagesContainer.appendChild(messageElement);
+              });
+              chatMessagesContainer.scrollTop =
+                chatMessagesContainer.scrollHeight;
+            }
+          }
         }
       } else {
         alert("Erreur lors de l'envoi du message");
