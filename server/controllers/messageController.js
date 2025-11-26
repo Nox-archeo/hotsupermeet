@@ -194,20 +194,37 @@ const sendMessage = async (req, res) => {
 
     // ✨ TEMPS RÉEL: Émettre le nouveau message via Socket.io
     if (io) {
-      const conversationId = [fromUserId.toString(), toUserId.toString()]
-        .sort()
-        .join('_');
+      // FIX: S'assurer que les IDs sont des strings
+      const fromUserIdStr =
+        typeof fromUserId === 'object'
+          ? fromUserId.toString()
+          : fromUserId.toString();
+      const toUserIdStr =
+        typeof toUserId === 'object'
+          ? toUserId.toString()
+          : toUserId.toString();
+
+      const conversationId = [fromUserIdStr, toUserIdStr].sort().join('_');
+
+      console.log(`💬 Message diffusé dans conversation ${conversationId}`);
 
       // 🔍 DIAGNOSTIC spécial pour Gog et Camille
       if (
-        (fromUserId.toString().includes('68fa5bfc53aebaf1f87b7860') &&
-          toUserId.toString().includes('690a028ad47c3ebe2c370057')) ||
-        (fromUserId.toString().includes('690a028ad47c3ebe2c370057') &&
-          toUserId.toString().includes('68fa5bfc53aebaf1f87b7860'))
+        (fromUserIdStr.includes('68fa5bfc53aebaf1f87b7860') &&
+          toUserIdStr.includes('690a028ad47c3ebe2c370057')) ||
+        (fromUserIdStr.includes('690a028ad47c3ebe2c370057') &&
+          toUserIdStr.includes('68fa5bfc53aebaf1f87b7860'))
       ) {
         console.log('🚨 DIAGNOSTIC GOG↔CAMILLE - Émission message');
-        console.log('🚨 FromUserId:', fromUserId.toString());
-        console.log('🚨 ToUserId:', toUserId.toString());
+        console.log(
+          '🚨 FromUserId (brut):',
+          fromUserId,
+          'Type:',
+          typeof fromUserId
+        );
+        console.log('🚨 ToUserId (brut):', toUserId, 'Type:', typeof toUserId);
+        console.log('🚨 FromUserIdStr:', fromUserIdStr);
+        console.log('🚨 ToUserIdStr:', toUserIdStr);
         console.log('🚨 ConversationId:', conversationId);
         console.log('🚨 MessageStatus:', messageStatus);
         console.log('🚨 Room Socket.io:', `conversation_${conversationId}`);
@@ -218,8 +235,8 @@ const sendMessage = async (req, res) => {
         // Message approuvé - diffuser immédiatement
         io.to(`conversation_${conversationId}`).emit('message-received', {
           messageId: message._id,
-          fromUserId: fromUserId.toString(),
-          toUserId: toUserId.toString(),
+          fromUserId: fromUserIdStr,
+          toUserId: toUserIdStr,
           message: {
             content: message.content,
             createdAt: message.createdAt,
