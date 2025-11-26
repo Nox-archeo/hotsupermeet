@@ -1839,7 +1839,7 @@ class MessagesManager {
           <div class="user-info">
             <h4>${request.target.profile.nom}</h4>
             <p class="request-message">"${request.message || 'Aimerais voir vos photos privées'}"</p>
-            <span class="request-time">${this.formatTimeAgo(request.createdAt)}</span>
+            <span class="request-time">${this.formatTimeAgo(new Date(request.createdAt))}</span>
           </div>
         </div>
         <div class="request-actions">
