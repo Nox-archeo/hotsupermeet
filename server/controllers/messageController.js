@@ -198,6 +198,22 @@ const sendMessage = async (req, res) => {
         .sort()
         .join('_');
 
+      // 🔍 DIAGNOSTIC spécial pour Gog et Camille
+      if (
+        (fromUserId.toString().includes('68fa5bfc53aebaf1f87b7860') &&
+          toUserId.toString().includes('690a028ad47c3ebe2c370057')) ||
+        (fromUserId.toString().includes('690a028ad47c3ebe2c370057') &&
+          toUserId.toString().includes('68fa5bfc53aebaf1f87b7860'))
+      ) {
+        console.log('🚨 DIAGNOSTIC GOG↔CAMILLE - Émission message');
+        console.log('🚨 FromUserId:', fromUserId.toString());
+        console.log('🚨 ToUserId:', toUserId.toString());
+        console.log('🚨 ConversationId:', conversationId);
+        console.log('🚨 MessageStatus:', messageStatus);
+        console.log('🚨 Room Socket.io:', `conversation_${conversationId}`);
+        console.log('🚨 Message content:', message.content);
+      }
+
       if (messageStatus === 'approved') {
         // Message approuvé - diffuser immédiatement
         io.to(`conversation_${conversationId}`).emit('message-received', {
