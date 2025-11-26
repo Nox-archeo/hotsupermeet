@@ -741,7 +741,7 @@ class MessagesManager {
   // Créer un élément message pour le chat
   createChatMessageElement(message) {
     const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${message.isOwn ? 'sent' : 'received'}`;
+    messageDiv.className = `chat-message ${message.isOwn ? 'sent' : 'received'}`;
 
     const messageTime = new Date(message.createdAt).toLocaleTimeString(
       'fr-FR',
@@ -752,7 +752,7 @@ class MessagesManager {
     );
 
     messageDiv.innerHTML = `
-      <div class="message-content">
+      <div class="chat-message-content">
         <p>${message.content}</p>
         <span class="message-time">${messageTime}</span>
       </div>
