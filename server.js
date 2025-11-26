@@ -603,7 +603,7 @@ app.get('/api/ads/public/:adId', async (req, res) => {
     const ad = await Ad.findOne({
       _id: req.params.adId,
       status: 'active',
-    }).populate('userId', 'profile'); // On récupère le profil de l'utilisateur
+    }).populate('userId', 'nom photo profile'); // Récupérer nom, photo et profil
 
     if (!ad) {
       return res.status(404).json({
@@ -612,7 +612,14 @@ app.get('/api/ads/public/:adId', async (req, res) => {
       });
     }
 
-    res.json({ success: true, ad: ad });
+    // Restructurer la réponse pour plus de clarté
+    const adWithAuthor = {
+      ...ad.toObject(),
+      author: ad.userId, // Renommer userId en author pour le frontend
+    };
+    delete adWithAuthor.userId; // Supprimer l'ancien champ
+
+    res.json({ success: true, ad: adWithAuthor });
   } catch (error) {
     console.error('Erreur récupération annonce publique:', error);
     res.status(500).json({
