@@ -1403,7 +1403,7 @@ class MessagesManager {
     adResponsesList.innerHTML = unreadResponses
       .map(
         response => `
-            <div class="ad-response-item" data-response-id="${response.id}">
+            <div class="ad-response-item" data-response-id="${response.id}" data-ad-id="${response.adId}" data-responder-id="${response.responder.id}" style="cursor: pointer;">
                 <div class="ad-response-header">
                     <h3>Réponse à votre annonce: "${response.adTitle}"</h3>
                     <span class="response-time">${this.formatTimeAgo(response.timestamp)}</span>
@@ -1417,6 +1417,10 @@ class MessagesManager {
                         </div>
                     </div>
                     <p class="response-message">"${response.message}"</p>
+                </div>
+                <div class="ad-response-actions">
+                    <button class="btn-primary" onclick="messagesManager.openAdResponseChat('${response.id}', '${response.adId}', '${response.responder.id}', '${response.responder.name}', '${response.responder.photo}', '${response.adTitle}')">Répondre</button>
+                    <button class="btn-secondary">Voir le profil</button>
                 </div>
                 <div class="ad-response-actions">
                     <button class="btn-primary">Répondre</button>
@@ -1793,6 +1797,54 @@ class MessagesManager {
       notification.style.animation = 'slideOutRight 0.3s ease';
       setTimeout(() => notification.remove(), 300);
     }, 8000);
+  }
+
+  // Ouvrir le chat pour une réponse d'annonce
+  openAdResponseChat(
+    responseId,
+    adId,
+    responderId,
+    responderName,
+    responderPhoto,
+    adTitle
+  ) {
+    console.log('🔄 Ouverture chat réponse annonce:', {
+      adId,
+      responderId,
+      responderName,
+    });
+
+    // Vérifier que AdChatManager est disponible
+    if (!window.adChatManager) {
+      console.error('❌ AdChatManager non disponible');
+      alert("Erreur: système de chat d'annonces non disponible");
+      return;
+    }
+
+    // Préparer les infos de l'utilisateur qui a répondu
+    const advertiserInfo = {
+      id: responderId,
+      nom: responderName,
+      photo: responderPhoto || '/images/avatar-placeholder.png',
+      adTitle: adTitle,
+    };
+
+    // Ouvrir le chat d'annonce
+    window.adChatManager.openAdChat(adId, advertiserInfo);
+
+    // Marquer la réponse comme lue
+    this.markAdResponseAsRead(responseId);
+  }
+
+  // Marquer une réponse d'annonce comme lue
+  markAdResponseAsRead(responseId) {
+    // Trouver et mettre à jour la réponse
+    const response = this.adResponses.find(r => r.id === responseId);
+    if (response) {
+      response.status = 'read';
+      this.renderAdResponses();
+      this.updateNotificationCounts();
+    }
   }
 }
 
@@ -2328,6 +2380,7 @@ const messagesStyles = `
 `;
 
 // Initialisation de la page messages
+
 document.addEventListener('DOMContentLoaded', () => {
   // Ajouter les styles
   document.head.insertAdjacentHTML('beforeend', messagesStyles);
