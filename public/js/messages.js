@@ -882,6 +882,16 @@ class MessagesManager {
           document.querySelector('.chat-messages').scrollHeight;
 
         console.log('✅ Message envoyé avec succès');
+
+        // Recharger les messages après 1 seconde pour voir la réponse
+        setTimeout(() => {
+          if (this.currentChatUser && this.currentChatUser.otherUserId) {
+            this.loadConversationMessages(
+              this.currentChatUser.otherUserId,
+              document.querySelector('.chat-messages')
+            );
+          }
+        }, 1000);
       } else {
         alert("Erreur lors de l'envoi du message");
       }
@@ -1126,7 +1136,7 @@ class MessagesManager {
     this.isPolling = true;
     this.pollInterval = setInterval(() => {
       this.checkForNewMessages();
-    }, 30000); // Vérifier toutes les 30 secondes pour éviter le spam
+    }, 5000); // Vérifier toutes les 5 secondes pour voir les nouveaux messages rapidement
   }
 
   // Arrêter le polling
