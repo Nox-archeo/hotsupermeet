@@ -650,11 +650,19 @@ class MessagesManager {
     }
 
     // Sauvegarder l'utilisateur actuel du chat pour le polling
+    console.log('🔍 DEBUG conversation.otherUser:', conversation.otherUser);
+    console.log(
+      '🔍 DEBUG conversation.otherUser.id:',
+      conversation.otherUser.id
+    );
+
     this.currentChatUser = {
       otherUserId: conversation.otherUser.id,
       nom: conversation.otherUser.nom,
       photo: conversation.otherUser.photo,
     };
+
+    console.log('✅ currentChatUser défini:', this.currentChatUser);
 
     // Mettre à jour l'en-tête du chat - CORRIGÉ: otherUser au lieu de withUser + statut en ligne
     chatHeader.innerHTML = `
@@ -783,10 +791,21 @@ class MessagesManager {
     }
 
     // Utiliser directement this.currentChatUser qui est défini quand on ouvre une conversation
+    console.log('🔍 DEBUG currentChatUser:', this.currentChatUser);
+
     if (!this.currentChatUser || !this.currentChatUser.otherUserId) {
+      console.error(
+        '❌ Pas de conversation active ou otherUserId manquant:',
+        this.currentChatUser
+      );
       alert('Erreur: aucune conversation active');
       return;
     }
+
+    console.log(
+      '✅ Envoi vers utilisateur ID:',
+      this.currentChatUser.otherUserId
+    );
 
     try {
       const token = localStorage.getItem('hotmeet_token');
