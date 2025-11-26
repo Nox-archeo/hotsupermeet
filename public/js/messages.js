@@ -1368,17 +1368,26 @@ class MessagesManager {
   // Gérer un nouveau message reçu en temps réel
   handleNewMessage(data) {
     const { fromUserId, toUserId, message, messageId } = data;
-    const currentUser = JSON.parse(
-      localStorage.getItem('hotmeet_user') || '{}'
-    );
+
+    // CORRECTION: Utiliser hotmeet_user_profile
+    let currentUser = null;
+    try {
+      const userProfile = localStorage.getItem('hotmeet_user_profile');
+      if (userProfile) {
+        currentUser = JSON.parse(userProfile);
+      }
+    } catch (error) {
+      console.warn('Erreur parsing user profile dans handleNewMessage:', error);
+      return;
+    }
 
     console.log('🔍 DIAGNOSTIC handleNewMessage - Data reçue:', data);
-    console.log('🔍 Current user:', currentUser._id);
+    console.log('🔍 Current user:', currentUser?._id);
     console.log('🔍 Message pour:', toUserId);
     console.log('🔍 Chat ouvert avec:', this.currentChatUser?.otherUserId);
 
-    // Vérifier si c'est pour nous
-    if (toUserId !== currentUser._id) {
+    // Vérifier si l'utilisateur est défini et si c'est pour nous
+    if (!currentUser || !currentUser._id || toUserId !== currentUser._id) {
       console.log('❌ Message pas pour nous, ignoré');
       return;
     }
