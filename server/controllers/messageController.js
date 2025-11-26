@@ -672,7 +672,7 @@ const getApprovedConversations = async (req, res) => {
       return {
         id: conv._id.otherUser,
         otherUser: {
-          id: conv.otherUserData._id,
+          id: conv.otherUserData._id.toString(), // Convertir ObjectId en string
           nom: conv.otherUserData.profile.nom,
           age: conv.otherUserData.profile.age,
           sexe: conv.otherUserData.profile.sexe,
@@ -717,7 +717,13 @@ const getConversationMessages = async (req, res) => {
             { fromUserId: otherUserId, toUserId: userId },
           ],
         },
-        { status: 'approved' },
+        {
+          $or: [
+            { status: 'approved' },
+            // Inclure aussi les messages pending de l'utilisateur connecté pour affichage immédiat
+            { fromUserId: userId, status: 'pending' },
+          ],
+        },
       ],
     })
       .populate('fromUserId', 'profile.nom profile.photos')
