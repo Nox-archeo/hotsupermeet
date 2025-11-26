@@ -489,6 +489,32 @@ app.get('/api/ads/public/:adId', async (req, res) => {
   }
 });
 
+// ROUTE GET POUR RÉCUPÉRER LES RÉPONSES AUX ANNONCES (pour messagerie)
+app.get('/api/ads/responses', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({
+        success: false,
+        error: { message: 'Token manquant' },
+      });
+    }
+
+    // Pour l'instant, on retourne un tableau vide
+    // TODO: Implémenter la logique pour récupérer les vraies réponses d'annonces
+    res.json({
+      success: true,
+      responses: [],
+    });
+  } catch (error) {
+    console.error('Erreur récupération réponses aux annonces:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur serveur' },
+    });
+  }
+});
+
 // ROUTE GET POUR RÉCUPÉRER UNE ANNONCE SPÉCIFIQUE (pour édition)
 app.get('/api/ads/:adId', async (req, res) => {
   try {
