@@ -463,6 +463,32 @@ app.put('/api/ads/:adId/renew', async (req, res) => {
 
 console.log('✅ Routes DELETE et PUT ads ACTIVE');
 
+// ROUTE GET POUR RÉCUPÉRER UNE ANNONCE PUBLIQUE (pour messagerie)
+app.get('/api/ads/public/:adId', async (req, res) => {
+  try {
+    const Ad = require('./server/models/Ad');
+    const ad = await Ad.findOne({
+      _id: req.params.adId,
+      status: 'active',
+    }).populate('userId', 'profile'); // On récupère le profil de l'utilisateur
+
+    if (!ad) {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Annonce non trouvée' },
+      });
+    }
+
+    res.json({ success: true, ad: ad });
+  } catch (error) {
+    console.error('Erreur récupération annonce publique:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur serveur' },
+    });
+  }
+});
+
 // ROUTE GET POUR RÉCUPÉRER UNE ANNONCE SPÉCIFIQUE (pour édition)
 app.get('/api/ads/:adId', async (req, res) => {
   try {

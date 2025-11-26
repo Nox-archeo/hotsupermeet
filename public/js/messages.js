@@ -81,7 +81,7 @@ class MessagesManager {
   async openConversationFromAd(adId) {
     try {
       // Récupérer les détails de l'annonce pour connaître l'annonceur
-      const response = await fetch(`/api/ads/${adId}`);
+      const response = await fetch(`/api/ads/public/${adId}`);
       const result = await response.json();
 
       if (result.success && result.ad) {

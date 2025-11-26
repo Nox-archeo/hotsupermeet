@@ -778,13 +778,13 @@ function showAdDetails(ad) {
 }
 
 function contactAdvertiser(adId) {
-  // Redirection vers messages avec l'ID de l'annonce
-  window.location.href = `/messages?ad=${adId}`;
+  // Redirection vers messages avec l'ID de l'annonce pour ouvrir une conversation spécifique
+  window.location.href = `/messages.html?ad=${adId}`;
 }
 
 function viewProfile(userId) {
   // Redirection vers le profil de l'utilisateur
-  window.location.href = `/profile?user=${userId}`;
+  window.location.href = `/profile-view.html?id=${userId}`;
 }
 
 // =================================
