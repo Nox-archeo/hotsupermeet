@@ -74,4 +74,14 @@ router.put('/:id/likes/:likeId/accept', auth, updateLastActivity, acceptLike); /
 router.put('/:id/likes/:likeId/reject', auth, updateLastActivity, rejectLike); // PUT /api/tonight/:id/likes/:likeId/reject
 router.delete('/:id', auth, updateLastActivity, deleteTonightMeet); // DELETE /api/tonight/:id
 
+// GET /api/tonight/requests - Récupérer les demandes Ce Soir pour la messagerie
+router.get('/requests', auth, updateLastActivity, (req, res) => {
+  // Pour l'instant, retourner un tableau vide
+  // TODO: Implémenter la logique pour récupérer les vraies demandes
+  res.json({
+    success: true,
+    requests: [],
+  });
+});
+
 module.exports = router;
