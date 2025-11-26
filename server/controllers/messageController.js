@@ -2,6 +2,9 @@ const Message = require('../models/Message');
 const User = require('../models/User');
 const { validationResult } = require('express-validator');
 
+// Import pour Socket.io - sera injecté par le serveur
+let io;
+
 // Envoyer un message
 const sendMessage = async (req, res) => {
   try {
@@ -188,6 +191,44 @@ const sendMessage = async (req, res) => {
       'fromUserId',
       'profile.nom profile.age profile.sexe profile.localisation profile.photos'
     );
+
+    // ✨ TEMPS RÉEL: Émettre le nouveau message via Socket.io
+    if (io) {
+      const conversationId = [fromUserId.toString(), toUserId.toString()]
+        .sort()
+        .join('_');
+
+      if (messageStatus === 'approved') {
+        // Message approuvé - diffuser immédiatement
+        io.to(`conversation_${conversationId}`).emit('message-received', {
+          messageId: message._id,
+          fromUserId: fromUserId.toString(),
+          toUserId: toUserId.toString(),
+          content: message.content,
+          status: message.status,
+          isInitialRequest: message.isInitialRequest,
+          createdAt: message.createdAt,
+          fromUser: {
+            id: message.fromUserId._id,
+            profile: message.fromUserId.profile,
+          },
+        });
+      } else if (messageStatus === 'pending' && isInitialRequest) {
+        // Nouvelle demande de chat - notifier le destinataire
+        io.emit('chat-request-received', {
+          toUserId: toUserId.toString(),
+          requestId: message._id,
+          fromUser: {
+            id: message.fromUserId._id,
+            profile: message.fromUserId.profile,
+          },
+          content: message.content,
+          provenance: message.provenance,
+        });
+      }
+
+      console.log(`🚀 Socket.io: Message émis (status: ${messageStatus})`);
+    }
 
     res.status(201).json({
       success: true,
@@ -807,6 +848,11 @@ const markConversationAsRead = async (req, res) => {
   }
 };
 
+// Fonction pour initialiser Socket.io
+const setSocketIO = socketIO => {
+  io = socketIO;
+};
+
 module.exports = {
   sendMessage,
   getMessages,
@@ -819,4 +865,5 @@ module.exports = {
   getApprovedConversations,
   getConversationMessages,
   markConversationAsRead,
+  setSocketIO,
 };

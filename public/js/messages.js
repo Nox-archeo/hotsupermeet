@@ -9,16 +9,56 @@ class MessagesManager {
     this.pollInterval = null; // Pour vérifier les nouveaux messages
     this.isPolling = false;
     this.currentChatUser = null; // Utilisateur actuel dans le chat ouvert
+    this.socket = null; // Socket.io connection
     this.init();
   }
 
   // Initialisation de la page messages
   init() {
     this.setupEventListeners();
+    this.setupSocket();
     this.loadRealData();
     this.updateNotificationBadges();
     this.checkUrlParams();
     this.startMessagePolling(); // Démarrer la vérification automatique
+  }
+
+  // Configuration Socket.io pour le temps réel
+  setupSocket() {
+    try {
+      this.socket = io();
+
+      // Écouter les nouveaux messages reçus
+      this.socket.on('message-received', data => {
+        this.handleNewMessage(data);
+      });
+
+      // Écouter les nouvelles demandes de chat
+      this.socket.on('chat-request-received', data => {
+        this.handleNewChatRequest(data);
+      });
+
+      // Indicateurs de frappe
+      this.socket.on('user-typing', data => {
+        this.showTypingIndicator(data.userId);
+      });
+
+      this.socket.on('user-stopped-typing', data => {
+        this.hideTypingIndicator(data.userId);
+      });
+
+      // Rejoindre les conversations quand on ouvre un chat
+      this.socket.on('connect', () => {
+        console.log('✅ Socket.io connecté pour les messages');
+      });
+
+      this.socket.on('disconnect', () => {
+        console.log('❌ Socket.io déconnecté');
+      });
+    } catch (error) {
+      console.error('❌ Erreur Socket.io:', error);
+      // Fallback vers polling si Socket.io échoue
+    }
   }
 
   // Vérifier les paramètres d'URL pour ouvrir automatiquement une conversation
@@ -663,6 +703,17 @@ class MessagesManager {
       photo: conversation.otherUser.photo,
     };
 
+    // ✨ TEMPS RÉEL: Rejoindre la conversation via Socket.io
+    if (this.socket) {
+      const currentUser = JSON.parse(
+        localStorage.getItem('hotmeet_user') || '{}'
+      );
+      this.socket.emit('join-conversation', {
+        userId: currentUser._id,
+        otherUserId: conversation.otherUser.id,
+      });
+    }
+
     // Mettre à jour l'en-tête du chat - CORRIGÉ: otherUser au lieu de withUser + statut en ligne
     chatHeader.innerHTML = `
             <img src="${conversation.otherUser.photo || '/images/default-avatar.jpg'}" alt="${conversation.otherUser.nom}" onerror="this.src='/images/default-avatar.jpg'">
@@ -775,6 +826,17 @@ class MessagesManager {
     const chatWindow = document.getElementById('chatWindow');
     chatWindow.style.display = 'none';
 
+    // ✨ TEMPS RÉEL: Quitter la conversation via Socket.io
+    if (this.socket && this.currentChatUser) {
+      const currentUser = JSON.parse(
+        localStorage.getItem('hotmeet_user') || '{}'
+      );
+      this.socket.emit('leave-conversation', {
+        userId: currentUser._id,
+        otherUserId: this.currentChatUser.otherUserId,
+      });
+    }
+
     // Réinitialiser l'utilisateur actuel du chat
     this.currentChatUser = null;
 
@@ -841,6 +903,21 @@ class MessagesManager {
         const messageElement = this.createChatMessageElement(newMessage);
         chatMessagesContainer.appendChild(messageElement);
         chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+
+        // ✨ TEMPS RÉEL: Émettre le message via Socket.io
+        if (this.socket) {
+          const currentUser = JSON.parse(
+            localStorage.getItem('hotmeet_user') || '{}'
+          );
+          this.socket.emit('new-message', {
+            fromUserId: currentUser._id,
+            toUserId: this.currentChatUser.otherUserId,
+            message: {
+              content: messageContent,
+              createdAt: new Date().toISOString(),
+            },
+          });
+        }
 
         // Puis recharger depuis l'API pour la synchronisation complète
         if (this.currentChatUser && this.currentChatUser.otherUserId) {
@@ -1254,6 +1331,92 @@ class MessagesManager {
       this.updateNotificationBadges();
     } catch (error) {
       // Erreur silencieuse pour éviter le spam
+    }
+  }
+
+  // ===== GESTION TEMPS RÉEL SOCKET.IO =====
+
+  // Gérer un nouveau message reçu en temps réel
+  handleNewMessage(data) {
+    const { fromUserId, toUserId, message, messageId } = data;
+    const currentUser = JSON.parse(
+      localStorage.getItem('hotmeet_user') || '{}'
+    );
+
+    // Vérifier si c'est pour nous
+    if (toUserId !== currentUser._id) return;
+
+    // Si le chat est ouvert avec cet utilisateur, afficher le message immédiatement
+    if (
+      this.currentChatUser &&
+      this.currentChatUser.otherUserId === fromUserId
+    ) {
+      const chatMessagesContainer = document.querySelector('.chat-messages');
+      if (chatMessagesContainer) {
+        const messageElement = this.createChatMessageElement({
+          content: message.content,
+          isOwn: false,
+          createdAt: message.createdAt,
+          fromUser: message.fromUser,
+        });
+        chatMessagesContainer.appendChild(messageElement);
+        chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+      }
+    }
+
+    // Mettre à jour les badges de notifications
+    this.updateNotificationBadges();
+
+    // Afficher une notification toast
+    this.showNotification(
+      `Nouveau message de ${data.fromUser?.profile?.nom || 'Un utilisateur'}`,
+      'info'
+    );
+  }
+
+  // Gérer une nouvelle demande de chat reçue
+  handleNewChatRequest(data) {
+    const currentUser = JSON.parse(
+      localStorage.getItem('hotmeet_user') || '{}'
+    );
+
+    // Vérifier si c'est pour nous
+    if (data.toUserId !== currentUser._id) return;
+
+    // Ajouter la demande à la liste
+    this.chatRequests.unshift(data.requestData);
+
+    // Rafraîchir l'affichage des demandes
+    this.renderChatRequests();
+    this.updateNotificationBadges();
+
+    // Notification
+    this.showNotification(
+      `Nouvelle demande de chat de ${data.requestData.fromUser?.profile?.nom || 'Un utilisateur'}`,
+      'info'
+    );
+  }
+
+  // Indicateurs de frappe
+  showTypingIndicator(userId) {
+    if (this.currentChatUser && this.currentChatUser.otherUserId === userId) {
+      const chatMessages = document.querySelector('.chat-messages');
+      if (chatMessages && !chatMessages.querySelector('.typing-indicator')) {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'typing-indicator';
+        typingDiv.innerHTML = "<span>En train d'écrire...</span>";
+        chatMessages.appendChild(typingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    }
+  }
+
+  hideTypingIndicator(userId) {
+    if (this.currentChatUser && this.currentChatUser.otherUserId === userId) {
+      const typingIndicator = document.querySelector('.typing-indicator');
+      if (typingIndicator) {
+        typingIndicator.remove();
+      }
     }
   }
 
