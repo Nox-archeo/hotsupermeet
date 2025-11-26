@@ -385,6 +385,139 @@ app.get('/api/my-ads', async (req, res) => {
 });
 console.log('✅ Route GET my-ads ACTIVE');
 
+// ROUTES CHAT D'ANNONCES - SYSTÈME INDÉPENDANT 🔥
+console.log("🚀 CRÉATION ROUTES CHAT D'ANNONCES...");
+
+// Envoyer un message pour une annonce
+app.post('/api/ads/:adId/messages', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res
+        .status(401)
+        .json({ success: false, error: { message: 'Token manquant' } });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const jwt = require('jsonwebtoken');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const senderId = decoded.userId;
+
+    const { adId } = req.params;
+    const { message, receiverId } = req.body;
+
+    if (!message || !receiverId) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Message et receiverId requis' },
+      });
+    }
+
+    const AdMessage = require('./server/models/AdMessage');
+    const User = require('./server/models/User');
+    const Ad = require('./server/models/Ad');
+
+    // Vérifier que l'annonce existe
+    const ad = await Ad.findById(adId);
+    if (!ad) {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Annonce non trouvée' },
+      });
+    }
+
+    // Créer l'ID de conversation unique
+    const conversationId = `ad-${adId}-${Math.min(senderId, receiverId)}-${Math.max(senderId, receiverId)}`;
+
+    // Créer le message
+    const newMessage = new AdMessage({
+      adId,
+      senderId,
+      receiverId,
+      message,
+      conversationId,
+    });
+
+    await newMessage.save();
+
+    // Peupler les informations de l'expéditeur
+    await newMessage.populate('senderId', 'nom photo');
+
+    console.log("✅ Message d'annonce envoyé:", newMessage._id);
+
+    res.json({
+      success: true,
+      message: newMessage,
+    });
+  } catch (error) {
+    console.error('❌ Erreur envoi message annonce:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur serveur: ' + error.message },
+    });
+  }
+});
+
+// Récupérer les messages d'une conversation d'annonce
+app.get('/api/ads/:adId/messages', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res
+        .status(401)
+        .json({ success: false, error: { message: 'Token manquant' } });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const jwt = require('jsonwebtoken');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    const { adId } = req.params;
+    const { otherUserId } = req.query;
+
+    if (!otherUserId) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'otherUserId requis' },
+      });
+    }
+
+    const AdMessage = require('./server/models/AdMessage');
+
+    // Créer l'ID de conversation
+    const conversationId = `ad-${adId}-${Math.min(userId, otherUserId)}-${Math.max(userId, otherUserId)}`;
+
+    // Récupérer les messages
+    const messages = await AdMessage.find({ conversationId })
+      .populate('senderId', 'nom photo')
+      .populate('receiverId', 'nom photo')
+      .sort({ timestamp: 1 })
+      .limit(50);
+
+    // Marquer les messages comme lus
+    await AdMessage.updateMany(
+      { conversationId, receiverId: userId, isRead: false },
+      { isRead: true }
+    );
+
+    console.log(`✅ Messages récupérés pour annonce ${adId}:`, messages.length);
+
+    res.json({
+      success: true,
+      messages,
+    });
+  } catch (error) {
+    console.error('❌ Erreur récupération messages annonce:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur serveur: ' + error.message },
+    });
+  }
+});
+
+console.log("✅ ROUTES CHAT D'ANNONCES CRÉÉES");
+
 // ROUTE DELETE POUR SUPPRIMER UNE ANNONCE
 app.delete('/api/ads/:adId', async (req, res) => {
   try {
