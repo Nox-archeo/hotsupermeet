@@ -785,7 +785,7 @@ async function contactAdvertiser(adId) {
     const response = await fetch(`/api/ads/public/${adId}`);
     const data = await response.json();
 
-    if (data.success && data.ad) {
+    if (data.success && data.ad && data.ad.author) {
       const advertiserInfo = {
         id: data.ad.author._id,
         nom: data.ad.author.nom,
