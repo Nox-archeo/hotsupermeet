@@ -1109,21 +1109,9 @@ io.on('connection', socket => {
     console.log(`⬅️ User ${userId} quitte conversation ${conversationId}`);
   });
 
-  // Nouveau message envoyé
-  socket.on('new-message', data => {
-    const { fromUserId, toUserId, message } = data;
-    const conversationId = [fromUserId, toUserId].sort().join('_');
-
-    // Diffuser le message à tous les participants de la conversation
-    socket.to(`conversation_${conversationId}`).emit('message-received', {
-      fromUserId,
-      toUserId,
-      message,
-      timestamp: new Date(),
-    });
-
-    console.log(`💬 Message diffusé dans conversation ${conversationId}`);
-  });
+  // NOTE: Nouveau message géré dans messageController.js via l'API REST
+  // Plus besoin de gérer 'new-message' ici car l'émission Socket.io se fait déjà
+  // dans messageController.js après sauvegarde en base
 
   // Notification de nouvelle demande de chat
   socket.on('new-chat-request', data => {
