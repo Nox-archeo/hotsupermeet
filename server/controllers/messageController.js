@@ -204,26 +204,33 @@ const sendMessage = async (req, res) => {
           messageId: message._id,
           fromUserId: fromUserId.toString(),
           toUserId: toUserId.toString(),
-          content: message.content,
+          message: {
+            content: message.content,
+            createdAt: message.createdAt,
+            fromUser: {
+              id: message.fromUserId._id,
+              profile: message.fromUserId.profile,
+            },
+          },
           status: message.status,
           isInitialRequest: message.isInitialRequest,
-          createdAt: message.createdAt,
-          fromUser: {
-            id: message.fromUserId._id,
-            profile: message.fromUserId.profile,
-          },
         });
       } else if (messageStatus === 'pending' && isInitialRequest) {
         // Nouvelle demande de chat - notifier le destinataire
         io.emit('chat-request-received', {
           toUserId: toUserId.toString(),
-          requestId: message._id,
-          fromUser: {
-            id: message.fromUserId._id,
-            profile: message.fromUserId.profile,
+          requestData: {
+            _id: message._id,
+            content: message.content,
+            fromUser: {
+              id: message.fromUserId._id,
+              profile: message.fromUserId.profile,
+            },
+            provenance: message.provenance,
+            createdAt: message.createdAt,
+            status: message.status,
+            isInitialRequest: message.isInitialRequest,
           },
-          content: message.content,
-          provenance: message.provenance,
         });
       }
 
