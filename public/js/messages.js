@@ -759,15 +759,17 @@ class MessagesManager {
       console.log('❌ Socket non disponible pour rejoindre conversation');
     }
 
-    // Mettre à jour l'en-tête du chat - CORRIGÉ: otherUser au lieu de withUser + statut en ligne
-    chatHeader.innerHTML = `
-            <img src="${conversation.otherUser.photo || '/images/default-avatar.jpg'}" alt="${conversation.otherUser.nom}" onerror="this.src='/images/default-avatar.jpg'">
-            <div>
-                <h3>${conversation.otherUser.nom}</h3>
-                <span class="chat-status">En ligne</span>
-            </div>
-            <button class="close-chat" title="Fermer">×</button>
-        `;
+    // Mettre à jour seulement les infos du partenaire (pas le bouton close)
+    const chatPartnerInfo = chatWindow.querySelector('.chat-partner-info');
+    if (chatPartnerInfo) {
+      chatPartnerInfo.innerHTML = `
+              <img src="${conversation.otherUser.photo || '/images/default-avatar.jpg'}" alt="${conversation.otherUser.nom}" onerror="this.src='/images/default-avatar.jpg'">
+              <div>
+                  <h3>${conversation.otherUser.nom}</h3>
+                  <span class="chat-status">En ligne</span>
+              </div>
+          `;
+    }
 
     // Charger les messages de la conversation
     this.loadConversationMessages(conversation.otherUser.id, chatMessages);
