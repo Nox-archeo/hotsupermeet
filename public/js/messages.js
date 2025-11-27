@@ -874,7 +874,13 @@ class MessagesManager {
   closeChatWindow() {
     console.log('🔍 DEBUG - closeChatWindow appelée !');
     const chatWindow = document.getElementById('chatWindow');
-    chatWindow.style.display = 'none';
+    if (chatWindow) {
+      chatWindow.style.display = 'none';
+      chatWindow.classList.remove('active');
+      console.log('🔍 DEBUG - Fenêtre cachée et classe active supprimée');
+    } else {
+      console.error('🔍 DEBUG - chatWindow introuvable !');
+    }
 
     // ✨ TEMPS RÉEL: Quitter la conversation via Socket.io
     if (this.socket && this.currentChatUser) {
