@@ -287,6 +287,7 @@ class MessagesManager {
       } else if (e.target.classList.contains('view-profile')) {
         this.viewUserProfile(e.target);
       } else if (e.target.classList.contains('close-chat')) {
+        console.log('🔍 DEBUG - Bouton close-chat cliqué !');
         this.closeChatWindow();
       } else if (e.target.classList.contains('send-message')) {
         this.sendChatMessage();
@@ -871,6 +872,7 @@ class MessagesManager {
 
   // Fermer la fenêtre de chat
   closeChatWindow() {
+    console.log('🔍 DEBUG - closeChatWindow appelée !');
     const chatWindow = document.getElementById('chatWindow');
     chatWindow.style.display = 'none';
 
