@@ -766,6 +766,7 @@ class MessagesManager {
                 <h3>${conversation.otherUser.nom}</h3>
                 <span class="chat-status">En ligne</span>
             </div>
+            <button class="close-chat" title="Fermer">×</button>
         `;
 
     // Charger les messages de la conversation
@@ -873,13 +874,47 @@ class MessagesManager {
 
     // ✨ TEMPS RÉEL: Quitter la conversation via Socket.io
     if (this.socket && this.currentChatUser) {
-      const currentUser = JSON.parse(
-        localStorage.getItem('hotmeet_user') || '{}'
-      );
-      this.socket.emit('leave-conversation', {
-        userId: currentUser._id,
-        otherUserId: this.currentChatUser.otherUserId,
-      });
+      // Utiliser le même système que showChatWindow pour récupérer userId
+      let currentUserId = null;
+
+      // Méthode 1: localStorage user profile
+      try {
+        const userProfile = localStorage.getItem('hotmeet_user_profile');
+        if (userProfile) {
+          const currentUser = JSON.parse(userProfile);
+          if (currentUser._id) {
+            currentUserId = currentUser._id;
+          }
+        }
+      } catch (error) {
+        console.warn(
+          'Erreur parsing user profile dans closeChatWindow:',
+          error
+        );
+      }
+
+      // Méthode 2: Token JWT
+      if (!currentUserId) {
+        try {
+          const token = localStorage.getItem('hotmeet_token');
+          if (token) {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            currentUserId = payload.userId;
+          }
+        } catch (error) {
+          console.warn(
+            'Erreur décodage token JWT dans closeChatWindow:',
+            error
+          );
+        }
+      }
+
+      if (currentUserId) {
+        this.socket.emit('leave-conversation', {
+          userId: currentUserId,
+          otherUserId: this.currentChatUser.otherUserId,
+        });
+      }
     }
 
     // Réinitialiser l'utilisateur actuel du chat
@@ -1396,12 +1431,28 @@ class MessagesManager {
       console.warn('Erreur parsing user profile dans handleNewMessage:', error);
     }
 
-    // Si pas trouvé, essayer avec le token (alternative)
+    // Si pas trouvé, essayer avec le token JWT
+    if (!currentUser || !currentUser._id) {
+      try {
+        const token = localStorage.getItem('hotmeet_token');
+        if (token) {
+          // Décoder le token JWT pour récupérer l'userId
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          currentUser = { _id: payload.userId };
+          console.log(
+            '🔍 handleNewMessage - UserId récupéré depuis token JWT:',
+            currentUser._id
+          );
+        }
+      } catch (error) {
+        console.warn('Erreur décodage token JWT dans handleNewMessage:', error);
+      }
+    }
+
     if (!currentUser || !currentUser._id) {
       console.warn(
-        "⚠️ Pas d'utilisateur dans localStorage, tentative alternative..."
+        "⚠️ Pas d'utilisateur trouvé, mais on va quand même essayer d'afficher le message..."
       );
-      // Pour l'instant, continuer quand même pour voir le message dans les logs
     }
 
     console.log('🔍 DIAGNOSTIC handleNewMessage - Data reçue:', data);
@@ -1410,11 +1461,13 @@ class MessagesManager {
     console.log('🔍 Chat ouvert avec:', this.currentChatUser?.otherUserId);
 
     // MODIFICATION: Si pas d'utilisateur défini, essayer quand même d'afficher le message
-    // dans la fenêtre ouverte (pour debug)
+    // dans la fenêtre ouverte (pour que ça marche même avec localStorage vide)
     if (currentUser && currentUser._id && toUserId !== currentUser._id) {
       console.log('❌ Message pas pour nous, ignoré');
       return;
-    } // Si le chat est ouvert avec cet utilisateur, afficher le message immédiatement
+    }
+
+    // Si on a pas d'user ou si c'est pour nous, continuer avec l'affichage // Si le chat est ouvert avec cet utilisateur, afficher le message immédiatement
     if (
       this.currentChatUser &&
       this.currentChatUser.otherUserId === fromUserId
