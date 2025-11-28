@@ -752,6 +752,67 @@ app.get('/api/ads/responses', async (req, res) => {
   }
 });
 
+// ROUTE GET POUR RÉCUPÉRER LES MESSAGES D'UNE CONVERSATION D'ANNONCE
+app.get('/api/ads/:adId/messages/:senderId', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({
+        success: false,
+        error: { message: 'Token manquant' },
+      });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const jwt = require('jsonwebtoken');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    const { adId, senderId } = req.params;
+    const AdMessage = require('./server/models/AdMessage');
+
+    // Récupérer tous les messages entre l'utilisateur et l'expéditeur pour cette annonce
+    const messages = await AdMessage.find({
+      adId: adId,
+      $or: [
+        { senderId: senderId, receiverId: userId },
+        { senderId: userId, receiverId: senderId },
+      ],
+    })
+      .populate('senderId', 'nom profile')
+      .populate('receiverId', 'nom profile')
+      .sort({ timestamp: 1 })
+      .limit(100);
+
+    // Formater les messages pour le frontend
+    const formattedMessages = messages.map(message => ({
+      id: message._id,
+      message: message.message,
+      timestamp: message.timestamp,
+      isOwn: message.senderId._id.toString() === userId,
+      sender: {
+        id: message.senderId._id,
+        nom: message.senderId.nom,
+        photo:
+          message.senderId.profile?.photos?.find(p => p.isProfile)?.url ||
+          message.senderId.profile?.photos?.[0]?.url ||
+          null,
+      },
+    }));
+
+    res.json({
+      success: true,
+      messages: formattedMessages,
+    });
+  } catch (error) {
+    console.error('Erreur récupération messages conversation annonce:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur serveur' },
+    });
+  }
+});
+
 // ROUTE GET POUR RÉCUPÉRER UNE ANNONCE SPÉCIFIQUE (pour édition)
 app.get('/api/ads/:adId', async (req, res) => {
   try {

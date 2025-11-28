@@ -674,6 +674,29 @@ class MessagesManager {
     }
   }
 
+  // Ouvrir une conversation d'annonce
+  openAdConversation(conversationId, adTitle, senderId, senderName) {
+    console.log('🔍 DEBUG - openAdConversation called with:', {
+      conversationId,
+      adTitle,
+      senderId,
+      senderName,
+    });
+
+    // Create a mock conversation object for ad chats
+    const adConversation = {
+      id: conversationId,
+      adTitle: adTitle,
+      otherUser: {
+        id: senderId,
+        nom: senderName,
+        photo: '/images/avatar-placeholder.png', // Default photo, will be updated when loading messages
+      },
+    };
+
+    this.showAdChatWindow(adConversation);
+  }
+
   // Afficher la fenêtre de chat
   showChatWindow(conversation) {
     console.log('🔍 DEBUG - showChatWindow appelée avec:', conversation);
@@ -794,6 +817,56 @@ class MessagesManager {
     );
   }
 
+  // Afficher la fenêtre de chat pour les annonces
+  showAdChatWindow(adConversation) {
+    console.log('🔍 DEBUG - showAdChatWindow appelée avec:', adConversation);
+
+    const chatWindow = document.getElementById('chatWindow');
+    if (!chatWindow) {
+      console.error('❌ Élément chatWindow non trouvé !');
+      return;
+    }
+
+    const chatHeader = chatWindow.querySelector('.chat-partner-info');
+    const chatMessages = chatWindow.querySelector('.chat-messages');
+
+    if (!chatHeader) {
+      console.error('❌ Élément .chat-partner-info non trouvé !');
+      return;
+    }
+
+    // Sauvegarder l'utilisateur actuel du chat pour le polling
+    this.currentChatUser = {
+      otherUserId: adConversation.otherUser.id,
+      nom: adConversation.otherUser.nom,
+      photo: adConversation.otherUser.photo,
+    };
+
+    // Mettre à jour les infos du partenaire avec le titre de l'annonce
+    const chatPartnerInfo = chatWindow.querySelector('.chat-partner-info');
+    if (chatPartnerInfo) {
+      chatPartnerInfo.innerHTML = `
+              <img src="${adConversation.otherUser.photo || '/images/default-avatar.jpg'}" alt="${adConversation.otherUser.nom}" onerror="this.src='/images/default-avatar.jpg'">
+              <div>
+                  <h3>${adConversation.otherUser.nom}</h3>
+                  <span class="chat-status">Réponse à l'annonce: "${adConversation.adTitle}"</span>
+              </div>
+          `;
+    }
+
+    // Charger les messages de la conversation d'annonce
+    this.loadAdConversationMessages(adConversation, chatMessages);
+
+    // Masquer tous les onglets
+    document.querySelectorAll('.tab-content').forEach(content => {
+      content.style.display = 'none';
+    });
+
+    // Afficher la fenêtre de chat
+    chatWindow.style.display = 'block';
+    chatWindow.classList.add('active');
+  }
+
   // Charger les messages d'une conversation
   async loadConversationMessages(otherUserId, chatMessagesContainer) {
     try {
@@ -847,6 +920,62 @@ class MessagesManager {
     }
   }
 
+  // Charger les messages d'une conversation d'annonce
+  async loadAdConversationMessages(adConversation, chatMessagesContainer) {
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+
+      if (!token) {
+        chatMessagesContainer.innerHTML =
+          '<div class="error-message">Erreur d\'authentification. Veuillez vous reconnecter.</div>';
+        return;
+      }
+
+      // Parse conversation ID to get adId and senderId
+      const [adId, senderId] = adConversation.id.split('-');
+
+      const response = await fetch(
+        `/api/ads/${adId}/messages/${senderId}?_=${Date.now()}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            Pragma: 'no-cache',
+          },
+          credentials: 'include',
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success && data.messages) {
+        // Vider le container
+        chatMessagesContainer.innerHTML = '';
+
+        // Ajouter chaque message
+        data.messages.forEach(message => {
+          const messageElement = this.createAdChatMessageElement(message);
+          chatMessagesContainer.appendChild(messageElement);
+        });
+
+        // Scroller vers le bas
+        chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+      } else {
+        chatMessagesContainer.innerHTML =
+          '<div class="no-messages">Aucun message dans cette conversation.</div>';
+      }
+    } catch (error) {
+      chatMessagesContainer.innerHTML =
+        '<div class="error-message">Erreur lors du chargement des messages.</div>';
+    }
+  }
+
   // Créer un élément message pour le chat
   createChatMessageElement(message) {
     const messageDiv = document.createElement('div');
@@ -863,6 +992,29 @@ class MessagesManager {
     messageDiv.innerHTML = `
       <div class="chat-message-content">
         <p>${message.content}</p>
+        <span class="message-time">${messageTime}</span>
+      </div>
+    `;
+
+    return messageDiv;
+  }
+
+  // Créer un élément message pour le chat d'annonce
+  createAdChatMessageElement(message) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${message.isOwn ? 'sent' : 'received'}`;
+
+    const messageTime = new Date(message.timestamp).toLocaleTimeString(
+      'fr-FR',
+      {
+        hour: '2-digit',
+        minute: '2-digit',
+      }
+    );
+
+    messageDiv.innerHTML = `
+      <div class="chat-message-content">
+        <p>${message.message}</p>
         <span class="message-time">${messageTime}</span>
       </div>
     `;
@@ -1676,8 +1828,9 @@ class MessagesManager {
       return;
     }
 
+    // Filter responses that have unread messages
     const unreadResponses = this.adResponses.filter(
-      resp => resp.status === 'unread'
+      resp => resp.unreadCount > 0
     );
 
     if (unreadResponses.length === 0) {
@@ -1693,20 +1846,21 @@ class MessagesManager {
                 <div class="ad-response-header">
                     <h3>Réponse à votre annonce: "${response.adTitle}"</h3>
                     <span class="response-time">${this.formatTimeAgo(response.timestamp)}</span>
+                    ${response.unreadCount > 0 ? `<span class="unread-count">${response.unreadCount}</span>` : ''}
                 </div>
                 <div class="ad-response-content">
                     <div class="responder-info">
-                        <img src="${response.responder.photo}" alt="${response.responder.name}" onerror="this.src='/images/avatar-placeholder.png'">
+                        <img src="${response.senderPhoto || '/images/avatar-placeholder.png'}" alt="${response.senderName}" onerror="this.src='/images/avatar-placeholder.png'">
                         <div>
-                            <strong>${response.responder.name}</strong>
-                            <span>${response.responder.age} ans • ${response.responder.gender.charAt(0).toUpperCase() + response.responder.gender.slice(1)} • ${response.responder.location}</span>
+                            <strong>${response.senderName}</strong>
+                            <span>Nouveau message</span>
                         </div>
                     </div>
-                    <p class="response-message">"${response.message}"</p>
+                    <p class="response-message">"${response.lastMessage}"</p>
                 </div>
                 <div class="ad-response-actions">
-                    <button class="btn-primary">Répondre</button>
-                    <button class="btn-secondary">Voir le profil</button>
+                    <button class="btn-primary" onclick="messagesManager.openAdConversation('${response.id}', '${response.adTitle}', '${response.senderId}', '${response.senderName}')">Répondre</button>
+                    <button class="btn-secondary" onclick="window.open('/pages/profile-view.html?id=${response.senderId}', '_blank')">Voir le profil</button>
                 </div>
             </div>
         `
