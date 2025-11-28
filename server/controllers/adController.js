@@ -395,14 +395,17 @@ const getAdResponses = async (req, res) => {
     }
 
     // Récupérer les messages de réponse aux annonces
+    // TEMPORAIRE: Chercher tous les types de messages pour debug
     const responses = await Message.find({
       toUserId: req.user.id,
-      provenance: 'annonces',
-      isInitialRequest: true,
     })
       .populate('fromUserId', 'nom age sexe localisation photo')
       .populate('originalPostId', 'title')
       .sort({ createdAt: -1 });
+
+    console.log(
+      `DEBUG: Trouvé ${responses.length} messages pour user ${req.user.id}`
+    );
 
     // Formater les réponses pour le frontend
     const formattedResponses = responses.map(response => ({
