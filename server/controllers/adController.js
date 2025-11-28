@@ -394,38 +394,37 @@ const getAdResponses = async (req, res) => {
       });
     }
 
-    // Récupérer les messages de réponse aux annonces
-    // TEMPORAIRE: Chercher tous les types de messages pour debug
-    const responses = await Message.find({
-      toUserId: req.user.id,
+    // Récupérer les messages de réponse aux annonces depuis AdMessage
+    const AdMessage = require('../models/AdMessage');
+
+    const responses = await AdMessage.find({
+      receiverId: req.user.id,
     })
-      .populate('fromUserId', 'nom age sexe localisation photo')
-      .populate('originalPostId', 'title')
+      .populate('senderId', 'nom age sexe localisation photo')
+      .populate('adId', 'title')
       .sort({ createdAt: -1 });
 
     console.log(
-      `DEBUG: Trouvé ${responses.length} messages pour user ${req.user.id}`
+      `DEBUG: Trouvé ${responses.length} messages AdMessage pour user ${req.user.id}`
     );
 
     // Formater les réponses pour le frontend
     const formattedResponses = responses.map(response => ({
       id: response._id,
-      adTitle: response.originalPostId
-        ? response.originalPostId.title
-        : 'Annonce supprimée',
-      message: response.content,
+      adTitle: response.adId ? response.adId.title : 'Annonce supprimée',
+      message: response.message, // AdMessage utilise 'message' pas 'content'
       timestamp: response.createdAt,
-      status: response.read ? 'read' : 'unread',
+      status: 'unread', // AdMessage n'a pas de champ read
       responder: {
-        id: response.fromUserId._id,
-        name: response.fromUserId.nom,
-        age: response.fromUserId.age,
-        gender: response.fromUserId.sexe,
+        id: response.senderId._id,
+        name: response.senderId.nom,
+        age: response.senderId.age,
+        gender: response.senderId.sexe,
         location:
-          `${response.fromUserId.localisation?.ville || ''}, ${response.fromUserId.localisation?.region || ''}`
+          `${response.senderId.localisation?.ville || ''}, ${response.senderId.localisation?.region || ''}`
             .trim()
             .replace(/^,\s*/, ''),
-        photo: response.fromUserId.photo || '/images/default-avatar.jpg',
+        photo: response.senderId.photo || '/images/default-avatar.jpg',
       },
     }));
 
