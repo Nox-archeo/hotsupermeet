@@ -428,7 +428,23 @@ class MessagesManager {
 
         if (adResponsesResponse.ok) {
           const adResponsesData = await adResponsesResponse.json();
-          this.adResponses = adResponsesData.responses || [];
+          const rawResponses = adResponsesData.responses || [];
+
+          // Transformer les données serveur pour qu'elles matchent le format attendu par renderAdResponses()
+          this.adResponses = rawResponses.map(resp => ({
+            id: resp.id,
+            adTitle: resp.adTitle,
+            timestamp: resp.timestamp,
+            responder: {
+              name: resp.senderName,
+              photo: resp.senderPhoto || '/images/avatar-placeholder.png',
+              age: 25, // Valeur par défaut - pourra être améliorée plus tard
+              gender: 'homme', // Valeur par défaut - pourra être améliorée plus tard
+              location: 'France', // Valeur par défaut - pourra être améliorée plus tard
+            },
+            message: resp.lastMessage,
+            status: resp.unreadCount > 0 ? 'unread' : 'read',
+          }));
         } else {
           this.adResponses = [];
         }
