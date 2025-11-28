@@ -386,8 +386,16 @@ const respondToAd = async (req, res) => {
 
 // Récupérer les réponses aux annonces de l'utilisateur
 const getAdResponses = async (req, res) => {
+  console.log(
+    '🚀 getAdResponses APPELÉE !!! USER ID:',
+    req.user?.id,
+    'NOM:',
+    req.user?.nom
+  );
+
   try {
     if (!req.user || !req.user.id) {
+      console.log('❌ ERREUR: Utilisateur non authentifié');
       return res.status(401).json({
         success: false,
         message: 'Utilisateur non authentifié',
