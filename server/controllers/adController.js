@@ -354,11 +354,14 @@ const respondToAd = async (req, res) => {
 
     // Créer le message
     const newMessage = new Message({
-      senderId: req.user.id,
-      recipientId: ad.userId,
+      fromUserId: req.user.id,
+      toUserId: ad.userId,
       content: message.trim(),
-      adId: ad._id,
-      adTitle: ad.title,
+      provenance: 'annonces',
+      originalPostId: ad._id,
+      provenanceModel: 'Ad',
+      isInitialRequest: true,
+      status: 'pending',
     });
 
     await newMessage.save();
@@ -381,6 +384,62 @@ const respondToAd = async (req, res) => {
   }
 };
 
+// Récupérer les réponses aux annonces de l'utilisateur
+const getAdResponses = async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({
+        success: false,
+        message: 'Utilisateur non authentifié',
+      });
+    }
+
+    // Récupérer les messages de réponse aux annonces
+    const responses = await Message.find({
+      toUserId: req.user.id,
+      provenance: 'annonces',
+      isInitialRequest: true,
+    })
+      .populate('fromUserId', 'nom age sexe localisation photo')
+      .populate('originalPostId', 'title')
+      .sort({ createdAt: -1 });
+
+    // Formater les réponses pour le frontend
+    const formattedResponses = responses.map(response => ({
+      id: response._id,
+      adTitle: response.originalPostId
+        ? response.originalPostId.title
+        : 'Annonce supprimée',
+      message: response.content,
+      timestamp: response.createdAt,
+      status: response.read ? 'read' : 'unread',
+      responder: {
+        id: response.fromUserId._id,
+        name: response.fromUserId.nom,
+        age: response.fromUserId.age,
+        gender: response.fromUserId.sexe,
+        location:
+          `${response.fromUserId.localisation?.ville || ''}, ${response.fromUserId.localisation?.region || ''}`
+            .trim()
+            .replace(/^,\s*/, ''),
+        photo: response.fromUserId.photo || '/images/default-avatar.jpg',
+      },
+    }));
+
+    res.json({
+      success: true,
+      responses: formattedResponses,
+    });
+  } catch (error) {
+    console.error('Erreur récupération réponses annonces:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération des réponses',
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createAd,
   getAds,
@@ -389,4 +448,5 @@ module.exports = {
   updateAd,
   deleteAd,
   respondToAd,
+  getAdResponses,
 };
