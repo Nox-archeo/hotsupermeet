@@ -30,4 +30,7 @@ router.delete('/ads/:id', adController.deleteAd);
 // Répondre à une annonce (envoyer un message)
 router.post('/ads/:id/respond', adController.respondToAd);
 
+// Récupérer les réponses aux annonces de l'utilisateur
+router.get('/responses', adController.getAdResponses);
+
 module.exports = router;
