@@ -716,21 +716,29 @@ app.get('/api/ads/responses', async (req, res) => {
           id: conversationKey,
           adId: message.adId._id,
           adTitle: message.adId.title,
-          senderId: message.senderId._id,
-          senderName: message.senderId.nom,
-          senderPhoto:
-            message.senderId.profile?.photos?.find(p => p.isProfile)?.url ||
-            message.senderId.profile?.photos?.[0]?.url ||
-            null,
-          lastMessage: message.message,
+          responder: {
+            name: message.senderId.nom,
+            photo:
+              message.senderId.profile?.photos?.find(p => p.isProfile)?.url ||
+              message.senderId.profile?.photos?.[0]?.url ||
+              '/images/avatar-placeholder.png',
+            age: message.senderId.profile?.age || 25,
+            gender: message.senderId.profile?.sexe || 'homme',
+            location: `${message.senderId.profile?.localisation?.ville || 'Paris'}, ${message.senderId.profile?.localisation?.region || 'France'}`,
+          },
+          message: message.message,
           timestamp: message.timestamp,
-          unreadCount: 0,
+          status: 'unread',
         };
       }
 
-      // Compter les messages non lus
+      // Compter les messages non lus et adapter le statut
       if (!message.isRead) {
-        conversations[conversationKey].unreadCount++;
+        // Garder le statut unread si au moins un message n'est pas lu
+        // (le statut 'unread' est déjà défini par défaut)
+      } else if (conversations[conversationKey].status === 'unread') {
+        // Si tous les messages sont lus, changer le statut
+        conversations[conversationKey].status = 'read';
       }
     }
 
