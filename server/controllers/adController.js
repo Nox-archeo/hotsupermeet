@@ -397,6 +397,27 @@ const getAdResponses = async (req, res) => {
     // Récupérer les messages de réponse aux annonces depuis AdMessage
     const AdMessage = require('../models/AdMessage');
 
+    // Debug: d'abord récupérer TOUS les AdMessage pour voir
+    const allAdMessages = await AdMessage.find({})
+      .populate('senderId', 'nom')
+      .populate('receiverId', 'nom')
+      .populate('adId', 'title')
+      .sort({ createdAt: -1 });
+
+    console.log(`DEBUG: Total AdMessage dans DB: ${allAdMessages.length}`);
+    allAdMessages.slice(0, 5).forEach((msg, i) => {
+      console.log(`DEBUG AdMessage ${i}:`, {
+        id: msg._id,
+        senderId: msg.senderId._id,
+        senderNom: msg.senderId.nom,
+        receiverId: msg.receiverId._id,
+        receiverNom: msg.receiverId.nom,
+        message: msg.message,
+        adTitle: msg.adId?.title || "Pas d'annonce",
+      });
+    });
+
+    // Ensuite chercher pour cet utilisateur spécifiquement
     const responses = await AdMessage.find({
       receiverId: req.user.id,
     })
@@ -405,7 +426,7 @@ const getAdResponses = async (req, res) => {
       .sort({ createdAt: -1 });
 
     console.log(
-      `DEBUG: Trouvé ${responses.length} messages AdMessage pour user ${req.user.id}`
+      `DEBUG: Trouvé ${responses.length} messages AdMessage pour user ${req.user.id} (${req.user.nom || 'nom inconnu'})`
     );
 
     // Formater les réponses pour le frontend
