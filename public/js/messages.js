@@ -1677,7 +1677,7 @@ class MessagesManager {
     }
 
     const unreadResponses = this.adResponses.filter(
-      resp => resp.status === 'unread'
+      resp => resp.unreadCount > 0
     );
 
     if (unreadResponses.length === 0) {
@@ -1696,13 +1696,13 @@ class MessagesManager {
                 </div>
                 <div class="ad-response-content">
                     <div class="responder-info">
-                        <img src="${response.responder.photo}" alt="${response.responder.name}" onerror="this.src='/images/avatar-placeholder.png'">
+                        <img src="${response.senderPhoto || '/images/avatar-placeholder.png'}" alt="${response.senderName}" onerror="this.src='/images/avatar-placeholder.png'">
                         <div>
-                            <strong>${response.responder.name}</strong>
-                            <span>${response.responder.age} ans • ${response.responder.gender.charAt(0).toUpperCase() + response.responder.gender.slice(1)} • ${response.responder.location}</span>
+                            <strong>${response.senderName}</strong>
+                            <span>Nouvelle réponse</span>
                         </div>
                     </div>
-                    <p class="response-message">"${response.message}"</p>
+                    <p class="response-message">"${response.lastMessage}"</p>
                 </div>
                 <div class="ad-response-actions">
                     <button class="btn-primary">Répondre</button>
