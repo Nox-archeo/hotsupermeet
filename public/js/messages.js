@@ -1676,9 +1676,8 @@ class MessagesManager {
       return;
     }
 
-    // Filter responses that have unread messages (adapt to server format)
     const unreadResponses = this.adResponses.filter(
-      resp => resp.unreadCount > 0
+      resp => resp.status === 'unread'
     );
 
     if (unreadResponses.length === 0) {
@@ -1694,17 +1693,16 @@ class MessagesManager {
                 <div class="ad-response-header">
                     <h3>Réponse à votre annonce: "${response.adTitle}"</h3>
                     <span class="response-time">${this.formatTimeAgo(response.timestamp)}</span>
-                    <span class="unread-count">${response.unreadCount} nouveau${response.unreadCount > 1 ? 'x' : ''} message${response.unreadCount > 1 ? 's' : ''}</span>
                 </div>
                 <div class="ad-response-content">
                     <div class="responder-info">
-                        <img src="${response.senderPhoto || '/images/avatar-placeholder.png'}" alt="${response.senderName}" onerror="this.src='/images/avatar-placeholder.png'">
+                        <img src="${response.responder.photo}" alt="${response.responder.name}" onerror="this.src='/images/avatar-placeholder.png'">
                         <div>
-                            <strong>${response.senderName}</strong>
-                            <span>A répondu à votre annonce</span>
+                            <strong>${response.responder.name}</strong>
+                            <span>${response.responder.age} ans • ${response.responder.gender.charAt(0).toUpperCase() + response.responder.gender.slice(1)} • ${response.responder.location}</span>
                         </div>
                     </div>
-                    <p class="response-message">"${response.lastMessage}"</p>
+                    <p class="response-message">"${response.message}"</p>
                 </div>
                 <div class="ad-response-actions">
                     <button class="btn-primary">Répondre</button>
