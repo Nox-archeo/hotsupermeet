@@ -1218,3 +1218,4 @@ document.addEventListener('DOMContentLoaded', function () {
 
   console.log('✅ Initialisation des annonces terminée');
 });
+// Force reload
