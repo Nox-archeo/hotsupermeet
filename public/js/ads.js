@@ -1219,3 +1219,4 @@ document.addEventListener('DOMContentLoaded', function () {
   console.log('✅ Initialisation des annonces terminée');
 });
 // Display complete ad info
+// Fix CSP modal
