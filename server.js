@@ -27,8 +27,11 @@ const io = new Server(server, {
 // Configuration du proxy pour Infomaniak
 app.set('trust proxy', 1);
 
-// TIMESTAMP POUR FORCER RESTART COMPLET RENDER
-console.log('🚀 SERVEUR REDÉMARRÉ COMPLÈTEMENT :', new Date().toISOString());
+// TIMESTAMP POUR FORCER RESTART COMPLET RENDER - CORRECTION CSP FINALE
+console.log(
+  '🚀 SERVEUR REDÉMARRÉ COMPLÈTEMENT AVEC CSP CORRIGÉ:',
+  new Date().toISOString()
+);
 
 // Middleware de sécurité avec CSP personnalisée pour Cloudinary
 app.use(
