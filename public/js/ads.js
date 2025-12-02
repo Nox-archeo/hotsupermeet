@@ -101,11 +101,19 @@ function updatePhotoPreview() {
     photoDiv.className = 'photo-preview-item';
     photoDiv.innerHTML = `
       <img src="${photo.url}" alt="Photo ${index + 1}" />
-      <button type="button" onclick="removeAdPhoto(${index})" class="remove-photo-btn">
+      <button type="button" class="remove-photo-btn" data-index="${index}">
         ×
       </button>
     `;
     preview.appendChild(photoDiv);
+  });
+
+  // Ajouter event listeners pour les boutons de suppression
+  preview.querySelectorAll('.remove-photo-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const index = parseInt(e.target.dataset.index);
+      removeAdPhoto(index);
+    });
   });
 }
 
@@ -654,11 +662,13 @@ async function loadAds() {
 
         // Event listener pour cliquer sur l'annonce
         adElement.addEventListener('click', e => {
+          console.log('🎯 CLIC SUR ANNONCE DÉTECTÉ !', ad.title);
           if (
             !e.target.classList.contains('btn-secondary') &&
             !e.target.classList.contains('btn-primary')
           ) {
-            showAdDetails(ad);
+            console.log('🚀 APPEL showAdDetailsWithFullData...');
+            showAdDetailsWithFullData(ad._id);
           }
         });
 
@@ -734,8 +744,50 @@ function formatCountryName(countryKey) {
   return countries[countryKey] || countryKey;
 }
 
+// Fonction pour afficher les détails d'une annonce avec chargement des données complètes
+async function showAdDetailsWithFullData(adId) {
+  console.log('🔍 Chargement des détails complets pour annonce:', adId);
+
+  try {
+    // Charger les données complètes depuis l'API
+    const response = await fetch(`/api/ads/public/${adId}`);
+    const result = await response.json();
+
+    console.log('🔍 Réponse API complète:', result);
+
+    if (result.success && result.ad) {
+      const ad = result.ad;
+      console.log('🔍 Objet ad complet:', ad);
+      console.log('🔍 Services:', ad.services);
+      console.log('🔍 Contact:', ad.contact_telephone, ad.contact_email);
+
+      // Appeler showAdDetails avec les données complètes
+      showAdDetails(ad);
+    } else {
+      console.error('❌ Erreur chargement détails annonce:', result);
+      showMessage('Erreur lors du chargement des détails', 'error');
+    }
+  } catch (error) {
+    console.error('❌ Erreur API:', error);
+    showMessage('Erreur de connexion', 'error');
+  }
+}
+
 // Fonction pour afficher les détails d'une annonce
+// FIX FINAL: Affichage complet des annonces avec toutes les infos
 function showAdDetails(ad) {
+  // DEBUG: Log complet de l'objet ad
+  console.log('🔍 DEBUG showAdDetails - Objet ad complet:', ad);
+  console.log('🔍 Services:', ad.services);
+  console.log('🔍 Contact téléphone:', ad.contact_telephone);
+  console.log('🔍 Contact email:', ad.contact_email);
+  console.log('🔍 Disponibilités:', ad.disponibilites_details);
+
+  // DEBUG: Afficher TOUTES les propriétés de l'objet ad
+  console.log('🔍 TOUTES LES PROPRIÉTÉS DE AD:');
+  for (const [key, value] of Object.entries(ad)) {
+    console.log(`   ${key}:`, value);
+  }
   const modal = document.createElement('div');
   modal.className = 'ad-modal';
   modal.style.cssText = `
@@ -750,28 +802,105 @@ function showAdDetails(ad) {
       : '<div style="width: 200px; height: 200px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">📷 Pas de photo</div>';
 
   modal.innerHTML = `
-    <div style="background: white; padding: 30px; border-radius: 12px; max-width: 500px; max-height: 80vh; overflow-y: auto;">
+    <div style="background: white; padding: 30px; border-radius: 12px; max-width: 600px; max-height: 80vh; overflow-y: auto;">
       <h2>${ad.title}</h2>
       ${imageHtml}
-      <p><strong>Catégorie:</strong> ${formatCategory(ad.category)}</p>
-      <p><strong>Description:</strong> ${ad.description}</p>
-      <p><strong>Lieu:</strong> ${ad.city}, ${ad.region}, ${formatCountryName(ad.country)}</p>
-      ${ad.tarifs ? `<p><strong>Tarifs:</strong> ${ad.tarifs}</p>` : ''}
-      ${ad.age ? `<p><strong>Âge:</strong> ${ad.age} ans</p>` : ''}
-      ${ad.sexe ? `<p><strong>Sexe:</strong> ${ad.sexe}</p>` : ''}
-      <p><strong>Publié le:</strong> ${new Date(ad.createdAt).toLocaleDateString()}</p>
+      
+      <div style="margin-bottom: 20px;">
+        <p><strong>Catégorie:</strong> ${formatCategory(ad.category)}</p>
+        ${ad.type ? `<p><strong>Type:</strong> ${ad.type}</p>` : ''}
+        <p><strong>Description:</strong> ${ad.description}</p>
+        <p><strong>Lieu:</strong> ${ad.city}, ${ad.region}, ${formatCountryName(ad.country)}</p>
+        ${ad.tarifs ? `<p><strong>💰 Tarifs:</strong> ${ad.tarifs}</p>` : ''}
+        
+        <!-- Infos personnelles -->
+        ${ad.age ? `<p><strong>🎂 Âge:</strong> ${ad.age} ans</p>` : ''}
+        ${ad.sexe ? `<p><strong>👤 Sexe:</strong> ${ad.sexe}</p>` : ''}
+        ${ad.taille ? `<p><strong>📏 Taille:</strong> ${ad.taille} cm</p>` : ''}
+        ${ad.poids ? `<p><strong>⚖️ Poids:</strong> ${ad.poids} kg</p>` : ''}
+        ${ad.cheveux ? `<p><strong>💇 Cheveux:</strong> ${ad.cheveux}</p>` : ''}
+        ${ad.yeux ? `<p><strong>👀 Yeux:</strong> ${ad.yeux}</p>` : ''}
+        
+        <!-- Détails escort -->
+        ${ad.bonnet ? `<p><strong>👙 Bonnet:</strong> ${ad.bonnet}</p>` : ''}
+        ${ad.origine ? `<p><strong>🌍 Origine:</strong> ${ad.origine}</p>` : ''}
+        ${ad.silhouette ? `<p><strong>💃 Silhouette:</strong> ${ad.silhouette}</p>` : ''}
+        ${ad.depilation ? `<p><strong>✨ Épilation:</strong> ${ad.depilation}</p>` : ''}
+        
+        <!-- Services et prestations -->
+        ${
+          ad.services && ad.services.length > 0
+            ? `
+        <div style="margin-top: 15px; padding: 10px; background: #e3f2fd; border-radius: 8px;">
+          <h4 style="margin: 0 0 10px 0;">💎 Prestations proposées:</h4>
+          <p style="margin: 5px 0;"><strong>${ad.services.join(' • ')}</strong></p>
+        </div>`
+            : ''
+        }
+        
+        <!-- Horaires et disponibilités -->
+        ${
+          ad.horaires || ad.deplacement || ad.disponibilites_details
+            ? `
+        <div style="margin-top: 15px; padding: 10px; background: #fff3e0; border-radius: 8px;">
+          <h4 style="margin: 0 0 10px 0;">🕐 Disponibilités:</h4>
+          ${ad.horaires ? `<p><strong>⏰ Horaires:</strong> ${ad.horaires}</p>` : ''}
+          ${ad.deplacement ? `<p><strong>🚗 Déplacement:</strong> ${ad.deplacement}</p>` : ''}
+          ${ad.disponibilites_details ? `<p><strong>📅 Détails:</strong> ${ad.disponibilites_details}</p>` : ''}
+        </div>`
+            : ''
+        }
+        
+        ${
+          ad.contact_telephone ||
+          ad.contact_email ||
+          ad.disponibilites_details ||
+          ad.contact_whatsapp
+            ? `
+          <div style="margin-top: 15px; padding: 15px; background: #f9f9f9; border-radius: 8px;">
+            <h4 style="margin: 0 0 10px 0;">📞 Informations de contact:</h4>
+            ${ad.contact_telephone ? `<p><strong>📱 Téléphone:</strong> ${ad.contact_telephone}</p>` : ''}
+            ${ad.contact_email ? `<p><strong>📧 Email:</strong> ${ad.contact_email}</p>` : ''}
+            ${ad.contact_whatsapp ? `<p><strong>📱 WhatsApp:</strong> ${ad.contact_whatsapp}</p>` : ''}
+            ${ad.disponibilites_details ? `<p><strong>⏰ Disponibilités:</strong> ${ad.disponibilites_details}</p>` : ''}
+            ${ad.deplacement ? `<p><strong>🚗 Déplacement:</strong> ${ad.deplacement}</p>` : ''}
+          </div>
+        `
+            : ''
+        }
+        
+        <p style="margin-top: 15px; color: #666;"><strong>Publié le:</strong> ${new Date(ad.createdAt).toLocaleDateString()}</p>
+      </div>
       <div style="margin-top: 20px; display: flex; gap: 10px;">
-        <button class="btn-secondary" onclick="viewProfile('${ad.userId._id}')">👤 Voir profil</button>
-        <button class="btn-primary" onclick="contactAdvertiser('${ad._id}')">💬 Contacter</button>
-        <button class="btn-secondary" onclick="this.closest('.ad-modal').remove()">Fermer</button>
+        <button class="btn-secondary view-profile-modal-btn" data-user-id="${ad.userId._id}">👤 Voir profil</button>
+        <button class="btn-primary contact-modal-btn" data-ad-id="${ad._id}">💬 Contacter</button>
+        <button class="btn-secondary close-modal-btn">Fermer</button>
       </div>
     </div>
   `;
 
+  // Ajouter les event listeners après avoir créé le modal
   modal.addEventListener('click', e => {
     if (e.target === modal) {
       modal.remove();
     }
+  });
+
+  // Event listeners pour les boutons
+  const viewProfileBtn = modal.querySelector('.view-profile-modal-btn');
+  const contactBtn = modal.querySelector('.contact-modal-btn');
+  const closeBtn = modal.querySelector('.close-modal-btn');
+
+  viewProfileBtn.addEventListener('click', () => {
+    viewProfile(ad.userId._id);
+  });
+
+  contactBtn.addEventListener('click', () => {
+    contactAdvertiser(ad._id);
+  });
+
+  closeBtn.addEventListener('click', () => {
+    modal.remove();
   });
 
   document.body.appendChild(modal);
@@ -786,32 +915,162 @@ async function contactAdvertiser(adId) {
     const data = await response.json();
 
     console.log('🔍 Données API reçues:', data);
-    console.log('🔍 Ad data:', data.ad);
-    console.log('🔍 Author data:', data.ad?.author);
 
     if (data.success && data.ad && data.ad.author) {
-      const advertiserInfo = {
-        id: data.ad.author._id,
-        nom: data.ad.author.nom || 'Utilisateur',
-        photo: data.ad.author.photo || '/images/default-avatar.jpg',
-        adTitle: data.ad.title,
-      };
+      const author = data.ad.author;
+      const ad = data.ad;
 
-      // Ouvrir le chat d'annonce avec le gestionnaire dédié
-      if (window.adChatManager) {
-        window.adChatManager.openAdChat(adId, advertiserInfo);
-      } else {
-        // Fallback si le gestionnaire n'est pas encore chargé
-        setTimeout(() => {
-          window.adChatManager.openAdChat(adId, advertiserInfo);
-        }, 100);
-      }
+      // Créer la modal de contact
+      showContactModal(author, ad);
     } else {
       alert("Impossible de contacter l'annonceur");
     }
   } catch (error) {
     console.error('Erreur contact annonceur:', error);
     alert('Erreur technique lors du contact');
+  }
+}
+
+function showContactModal(author, ad) {
+  const modal = document.createElement('div');
+  modal.className = 'contact-modal';
+  modal.style.cssText = `
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+    background: rgba(0,0,0,0.8); z-index: 1000; 
+    display: flex; align-items: center; justify-content: center;
+  `;
+
+  // Préparer les moyens de contact
+  let contactOptions = '';
+
+  // Email
+  if (author.email) {
+    contactOptions += `
+      <div class="contact-option">
+        <strong>📧 Email:</strong> 
+        <a href="mailto:${author.email}" target="_blank">${author.email}</a>
+      </div>
+    `;
+  }
+
+  // Téléphone
+  if (author.telephone || author.phone) {
+    const phone = author.telephone || author.phone;
+    contactOptions += `
+      <div class="contact-option">
+        <strong>📱 Téléphone:</strong> 
+        <a href="tel:${phone}">${phone}</a>
+      </div>
+    `;
+  }
+
+  // Si pas d'infos de contact direct
+  if (!contactOptions) {
+    contactOptions =
+      '<p style="color: #666;">Aucune information de contact directe fournie.</p>';
+  }
+
+  modal.innerHTML = `
+    <div style="background: white; padding: 30px; border-radius: 12px; max-width: 500px; max-height: 80vh; overflow-y: auto;">
+      <h2>Contacter ${author.nom}</h2>
+      
+      <div style="text-align: center; margin-bottom: 20px;">
+        <img src="${author.photo || '/images/default-avatar.jpg'}" 
+             alt="${author.nom}" 
+             style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;"
+             onerror="this.src='/images/default-avatar.jpg'">
+        <h3 style="margin: 10px 0 5px 0;">${author.nom}</h3>
+        <p style="margin: 0; color: #666;">Annonce: "${ad.title}"</p>
+      </div>
+
+      <div style="margin-bottom: 25px;">
+        <h4>Moyens de contact disponibles:</h4>
+        ${contactOptions}
+      </div>
+
+      <div style="margin-bottom: 25px;">
+        <h4>Ou contactez via le site:</h4>
+        <button class="btn-primary send-chat-btn" data-user-id="${author._id}" data-message="J'ai vu votre annonce &quot;${ad.title}&quot; et je suis intéressé(e). Pouvons-nous discuter ?" style="width: 100%; margin-bottom: 10px;">
+          💬 Envoyer une demande de chat
+        </button>
+        <button class="btn-secondary view-profile-contact-btn" data-user-id="${author._id}" style="width: 100%;">
+          👤 Voir le profil complet
+        </button>
+      </div>
+
+      <button class="btn-secondary close-contact-btn" style="width: 100%;">
+        Fermer
+      </button>
+    </div>
+  `;
+
+  // Event listeners pour éviter les erreurs CSP
+  const sendChatBtn = modal.querySelector('.send-chat-btn');
+  const viewProfileContactBtn = modal.querySelector(
+    '.view-profile-contact-btn'
+  );
+  const closeContactBtn = modal.querySelector('.close-contact-btn');
+
+  if (sendChatBtn) {
+    sendChatBtn.addEventListener('click', () => {
+      sendChatRequest(sendChatBtn.dataset.userId, sendChatBtn.dataset.message);
+    });
+  }
+
+  if (viewProfileContactBtn) {
+    viewProfileContactBtn.addEventListener('click', () => {
+      viewProfile(viewProfileContactBtn.dataset.userId);
+    });
+  }
+
+  if (closeContactBtn) {
+    closeContactBtn.addEventListener('click', () => {
+      modal.remove();
+    });
+  }
+
+  modal.addEventListener('click', e => {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  });
+
+  document.body.appendChild(modal);
+}
+
+// Fonction pour envoyer une demande de chat avec message pré-rempli
+async function sendChatRequest(userId, message) {
+  try {
+    const token = localStorage.getItem('hotmeet_token');
+    if (!token) {
+      alert('Vous devez être connecté pour envoyer une demande de chat');
+      return;
+    }
+
+    const response = await fetch('/api/messages/send-request', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        toUserId: userId,
+        content: message,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert('Demande de chat envoyée avec succès !');
+      // Fermer la modal
+      document.querySelector('.contact-modal')?.remove();
+    } else {
+      alert(data.error?.message || "Erreur lors de l'envoi de la demande");
+    }
+  } catch (error) {
+    console.error('Erreur envoi demande chat:', error);
+    alert("Erreur technique lors de l'envoi");
   }
 }
 
@@ -913,7 +1172,7 @@ async function loadMyAds() {
           <p><strong>Vous n'avez encore aucune annonce publiée.</strong></p>
           <p>Créez votre première annonce pour commencer à rencontrer des personnes qui partagent vos envies !</p>
           <p class="help-text">💡 Vos annonces seront automatiquement supprimées après 30 jours. Vous pouvez les renouveler à tout moment.</p>
-          <button class="btn-primary" onclick="showCreateSection()" style="margin-top: 1rem;">
+          <button class="btn-primary create-first-ad-btn" style="margin-top: 1rem;">
             ✍️ Créer ma première annonce
           </button>
         </div>
@@ -1218,12 +1477,3 @@ document.addEventListener('DOMContentLoaded', function () {
 
   console.log('✅ Initialisation des annonces terminée');
 });
-// Display complete ad info
-/* FORCE SYNC Tue Dec  2 15:04:22 CET 2025 */
-// Fix sync Tue Dec  2 15:16:03 CET 2025
-// Test change 1764690220
-// Force debug 1764690694
-// Complete display 1764691250
-// Debug click 1764692103
-// Fix CSP 1764692598
-// Final deploy 1764693082
