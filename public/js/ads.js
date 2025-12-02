@@ -1219,3 +1219,4 @@ document.addEventListener('DOMContentLoaded', function () {
   console.log('✅ Initialisation des annonces terminée');
 });
 // Display complete ad info
+/* FORCE SYNC Tue Dec  2 15:04:22 CET 2025 */
