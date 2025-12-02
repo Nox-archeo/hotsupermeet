@@ -1220,4 +1220,3 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 // Display complete ad info
 /* FORCE SYNC Tue Dec  2 15:04:22 CET 2025 */
-// Fix sync Tue Dec  2 15:16:03 CET 2025
