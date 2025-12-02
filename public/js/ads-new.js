@@ -736,6 +736,8 @@ function formatCountryName(countryKey) {
 
 // Fonction pour afficher les détails d'une annonce
 function showAdDetails(ad) {
+  console.log('🔍 showAdDetails appelé avec:', ad);
+
   const modal = document.createElement('div');
   modal.className = 'ad-modal';
   modal.style.cssText = `
@@ -744,35 +746,117 @@ function showAdDetails(ad) {
     display: flex; align-items: center; justify-content: center;
   `;
 
+  modal.addEventListener('click', e => {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  });
+
   const imageHtml =
     ad.images && ad.images.length > 0
       ? `<img src="${ad.images[0]}" alt="Photo annonce" style="width: 200px; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;">`
       : '<div style="width: 200px; height: 200px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">📷 Pas de photo</div>';
 
   modal.innerHTML = `
-    <div style="background: white; padding: 30px; border-radius: 12px; max-width: 500px; max-height: 80vh; overflow-y: auto;">
+    <div style="background: white; padding: 30px; border-radius: 12px; max-width: 600px; max-height: 80vh; overflow-y: auto;">
       <h2>${ad.title}</h2>
       ${imageHtml}
-      <p><strong>Catégorie:</strong> ${formatCategory(ad.category)}</p>
-      <p><strong>Description:</strong> ${ad.description}</p>
-      <p><strong>Lieu:</strong> ${ad.city}, ${ad.region}, ${formatCountryName(ad.country)}</p>
-      ${ad.tarifs ? `<p><strong>Tarifs:</strong> ${ad.tarifs}</p>` : ''}
-      ${ad.age ? `<p><strong>Âge:</strong> ${ad.age} ans</p>` : ''}
-      ${ad.sexe ? `<p><strong>Sexe:</strong> ${ad.sexe}</p>` : ''}
-      <p><strong>Publié le:</strong> ${new Date(ad.createdAt).toLocaleDateString()}</p>
+      
+      <div style="margin-bottom: 20px;">
+        <p><strong>Catégorie:</strong> ${formatCategory(ad.category)}</p>
+        ${ad.type ? `<p><strong>Type:</strong> ${ad.type}</p>` : ''}
+        <p><strong>Description:</strong> ${ad.description}</p>
+        <p><strong>Lieu:</strong> ${ad.city}, ${ad.region}, ${formatCountryName(ad.country)}</p>
+        ${ad.tarifs ? `<p><strong>💰 Tarifs:</strong> ${ad.tarifs}</p>` : ''}
+        
+        <!-- Infos personnelles -->
+        ${ad.age ? `<p><strong>🎂 Âge:</strong> ${ad.age} ans</p>` : ''}
+        ${ad.sexe ? `<p><strong>👤 Sexe:</strong> ${ad.sexe}</p>` : ''}
+        ${ad.taille ? `<p><strong>📏 Taille:</strong> ${ad.taille} cm</p>` : ''}
+        ${ad.poids ? `<p><strong>⚖️ Poids:</strong> ${ad.poids} kg</p>` : ''}
+        ${ad.cheveux ? `<p><strong>💇 Cheveux:</strong> ${ad.cheveux}</p>` : ''}
+        ${ad.yeux ? `<p><strong>👀 Yeux:</strong> ${ad.yeux}</p>` : ''}
+        
+        <!-- Détails escort -->
+        ${ad.bonnet ? `<p><strong>👙 Bonnet:</strong> ${ad.bonnet}</p>` : ''}
+        ${ad.origine ? `<p><strong>🌍 Origine:</strong> ${ad.origine}</p>` : ''}
+        ${ad.silhouette ? `<p><strong>💃 Silhouette:</strong> ${ad.silhouette}</p>` : ''}
+        ${ad.depilation ? `<p><strong>✨ Épilation:</strong> ${ad.depilation}</p>` : ''}
+        
+        <!-- Services et prestations -->
+        ${
+          ad.services && ad.services.length > 0
+            ? `
+        <div style="margin-top: 15px; padding: 10px; background: #e3f2fd; border-radius: 8px;">
+          <h4 style="margin: 0 0 10px 0;">💎 Prestations proposées:</h4>
+          <p style="margin: 5px 0;"><strong>${ad.services.join(' • ')}</strong></p>
+        </div>`
+            : ''
+        }
+        
+        <!-- Horaires et disponibilités -->
+        ${
+          ad.horaires || ad.deplacement || ad.disponibilites_details
+            ? `
+        <div style="margin-top: 15px; padding: 10px; background: #fff3e0; border-radius: 8px;">
+          <h4 style="margin: 0 0 10px 0;">🕐 Disponibilités:</h4>
+          ${ad.horaires ? `<p><strong>⏰ Horaires:</strong> ${ad.horaires}</p>` : ''}
+          ${ad.deplacement ? `<p><strong>🚗 Déplacement:</strong> ${ad.deplacement}</p>` : ''}
+          ${ad.disponibilites_details ? `<p><strong>📅 Détails:</strong> ${ad.disponibilites_details}</p>` : ''}
+        </div>`
+            : ''
+        }
+        
+        ${
+          ad.contact_telephone ||
+          ad.contact_email ||
+          ad.disponibilites_details ||
+          ad.contact_whatsapp
+            ? `
+          <div style="margin-top: 15px; padding: 15px; background: #f9f9f9; border-radius: 8px;">
+            <h4 style="margin: 0 0 10px 0;">📞 Informations de contact:</h4>
+            ${ad.contact_telephone ? `<p><strong>📱 Téléphone:</strong> ${ad.contact_telephone}</p>` : ''}
+            ${ad.contact_email ? `<p><strong>📧 Email:</strong> ${ad.contact_email}</p>` : ''}
+            ${ad.contact_whatsapp ? `<p><strong>📱 WhatsApp:</strong> ${ad.contact_whatsapp}</p>` : ''}
+            ${ad.disponibilites_details ? `<p><strong>⏰ Disponibilités:</strong> ${ad.disponibilites_details}</p>` : ''}
+            ${ad.deplacement ? `<p><strong>🚗 Déplacement:</strong> ${ad.deplacement}</p>` : ''}
+          </div>
+        `
+            : ''
+        }
+        
+        <p style="margin-top: 15px; color: #666;"><strong>Publié le:</strong> ${new Date(ad.createdAt).toLocaleDateString()}</p>
+      </div>
       <div style="margin-top: 20px; display: flex; gap: 10px;">
-        <button class="btn-secondary" onclick="viewProfile('${ad.userId._id}')">👤 Voir profil</button>
-        <button class="btn-primary" onclick="contactAdvertiser('${ad._id}')">💬 Contacter</button>
-        <button class="btn-secondary" onclick="this.closest('.ad-modal').remove()">Fermer</button>
+        <button class="btn-secondary view-profile-modal-btn" data-user-id="${ad.userId._id}">👤 Voir profil</button>
+        <button class="btn-primary contact-modal-btn" data-ad-id="${ad._id}">💬 Contacter</button>
+        <button class="btn-secondary close-modal-btn">Fermer</button>
       </div>
     </div>
   `;
 
-  modal.addEventListener('click', e => {
-    if (e.target === modal) {
-      modal.remove();
-    }
-  });
+  // Event listeners pour les boutons
+  const closeBtn = modal.querySelector('.close-modal-btn');
+  const viewProfileBtn = modal.querySelector('.view-profile-modal-btn');
+  const contactBtn = modal.querySelector('.contact-modal-btn');
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => modal.remove());
+  }
+
+  if (viewProfileBtn) {
+    viewProfileBtn.addEventListener('click', () => {
+      const userId = viewProfileBtn.getAttribute('data-user-id');
+      viewProfile(userId);
+    });
+  }
+
+  if (contactBtn) {
+    contactBtn.addEventListener('click', () => {
+      const adId = contactBtn.getAttribute('data-ad-id');
+      contactAdvertiser(adId);
+    });
+  }
 
   document.body.appendChild(modal);
 }
