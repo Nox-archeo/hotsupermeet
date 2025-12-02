@@ -300,9 +300,38 @@ app.post('/api/ads', async (req, res) => {
       region: req.body.region,
       city: req.body.city,
       images: req.body.images || [],
+
+      // Informations personnelles
       age: req.body.age,
       sexe: req.body.sexe,
+      taille: req.body.taille,
+      poids: req.body.poids,
+      cheveux: req.body.cheveux,
+      yeux: req.body.yeux,
+
+      // Détails escort
+      bonnet: req.body.bonnet,
+      origine: req.body.origine,
+      silhouette: req.body.silhouette,
+      depilation: req.body.depilation,
+
+      // Services et tarifs
+      services: req.body.services || [],
+      tarifs: req.body.tarifs,
+
+      // Disponibilités
+      horaires: req.body.horaires,
+      deplacement: req.body.deplacement,
+      disponibilites_details: req.body.disponibilites_details,
+
+      // Contact
       contact_methods: req.body.contact_methods || ['site'],
+      contact_email: req.body.contact_email,
+      contact_telephone: req.body.contact_telephone,
+      contact_whatsapp: req.body.contact_whatsapp,
+      contact_telegram: req.body.contact_telegram,
+      contact_snap: req.body.contact_snap,
+
       status: 'active',
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     });
