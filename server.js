@@ -37,6 +37,7 @@ app.use(
       directives: {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-inline'"], // Autoriser scripts inline
+        'script-src-attr': ["'unsafe-inline'"], // Autoriser onclick inline
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: [
           "'self'",
