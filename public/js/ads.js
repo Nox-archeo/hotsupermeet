@@ -990,7 +990,7 @@ function showContactModal(author, ad) {
 
       <div style="margin-bottom: 25px;">
         <h4>Ou contactez via le site:</h4>
-        <button class="btn-primary send-chat-btn" data-user-id="${author._id}" data-message="J'ai vu votre annonce &quot;${ad.title}&quot; et je suis intéressé(e). Pouvons-nous discuter ?" style="width: 100%; margin-bottom: 10px;">
+        <button class="btn-primary send-chat-btn" data-user-id="${author._id}" data-ad-id="${ad._id}" data-message="J'ai vu votre annonce &quot;${ad.title}&quot; et je suis intéressé(e). Pouvons-nous discuter ?" style="width: 100%; margin-bottom: 10px;">
           💬 Répondre à l'annonce
         </button>
         <button class="btn-secondary view-profile-contact-btn" data-user-id="${author._id}" style="width: 100%;">
@@ -1013,7 +1013,11 @@ function showContactModal(author, ad) {
 
   if (sendChatBtn) {
     sendChatBtn.addEventListener('click', () => {
-      sendChatRequest(sendChatBtn.dataset.userId, sendChatBtn.dataset.message);
+      sendAdChatMessage(
+        sendChatBtn.dataset.adId,
+        sendChatBtn.dataset.userId,
+        sendChatBtn.dataset.message
+      );
     });
   }
 
@@ -1036,6 +1040,42 @@ function showContactModal(author, ad) {
   });
 
   document.body.appendChild(modal);
+}
+
+// Fonction pour envoyer un message via le système de chat d'annonces
+async function sendAdChatMessage(adId, receiverId, message) {
+  try {
+    const token = localStorage.getItem('hotmeet_token');
+    if (!token) {
+      alert("Vous devez être connecté pour répondre à l'annonce");
+      return;
+    }
+
+    const response = await fetch(`/api/ads/${adId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        receiverId: receiverId,
+        content: message,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert('Message envoyé avec succès !');
+      // Fermer la modal
+      document.querySelector('.contact-modal')?.remove();
+    } else {
+      alert(data.error || "Erreur lors de l'envoi du message");
+    }
+  } catch (error) {
+    console.error('Erreur envoi message annonce:', error);
+    alert("Erreur technique lors de l'envoi");
+  }
 }
 
 // Fonction pour envoyer une demande de chat avec message pré-rempli
