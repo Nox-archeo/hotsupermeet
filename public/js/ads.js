@@ -1059,7 +1059,7 @@ async function sendAdChatMessage(adId, receiverId, message) {
       },
       body: JSON.stringify({
         receiverId: receiverId,
-        content: message,
+        message: message,
       }),
     });
 
