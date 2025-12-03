@@ -162,7 +162,7 @@ class HotMeetApp {
                 <div class="user-menu">
                     <div class="user-info">
                         <div class="user-avatar">
-                            <img src="${this.currentUser.profile.photos?.[0] || '/images/avatar-placeholder.png'}" alt="${this.currentUser.profile.nom}">
+                            <img src="${this.currentUser.profile.photos?.[0] || '/images/default-avatar.jpg'}" alt="${this.currentUser.profile.nom}">
                         </div>
                         <span class="user-name">${this.currentUser.profile.nom}</span>
                     </div>

@@ -231,7 +231,7 @@ class ImageUpload {
     const div = document.createElement('div');
     div.className = 'photo-item';
     div.innerHTML = `
-      <img src="${photoUrl}" alt="Photo de profil" onerror="this.src='/images/avatar-placeholder.png'">
+      <img src="${photoUrl}" alt="Photo de profil" onerror="this.src='/images/default-avatar.jpg'">
       <div class="photo-actions">
         ${!isMain ? `<button class="set-main-photo-btn" data-photo-url="${photoUrl}">Photo principale</button>` : '<span class="main-badge">Principale</span>'}
         <button class="delete-photo-btn" data-photo-url="${photoUrl}">Supprimer</button>
