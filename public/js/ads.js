@@ -872,7 +872,7 @@ function showAdDetails(ad) {
         <p style="margin-top: 15px; color: #666;"><strong>Publié le:</strong> ${new Date(ad.createdAt).toLocaleDateString()}</p>
       </div>
       <div style="margin-top: 20px; display: flex; gap: 10px;">
-        <button class="btn-secondary view-profile-modal-btn" data-user-id="${ad.userId._id}">👤 Voir profil</button>
+        <button class="btn-secondary view-profile-modal-btn" data-user-id="${ad.author._id}">👤 Voir profil</button>
         <button class="btn-primary contact-modal-btn" data-ad-id="${ad._id}">💬 Contacter</button>
         <button class="btn-secondary close-modal-btn">Fermer</button>
       </div>
