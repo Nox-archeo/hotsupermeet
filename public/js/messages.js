@@ -1696,7 +1696,7 @@ class MessagesManager {
                 </div>
                 <div class="ad-response-content">
                     <div class="responder-info">
-                        <img src="${response.responder.photo}" alt="${response.responder.name}" onerror="this.src='/images/avatar-placeholder.png'">
+                        <img src="${response.responder.photo}" alt="${response.responder.name}" onerror="this.src='/images/default-avatar.jpg'">
                         <div>
                             <strong>${response.responder.name}</strong>
                             <span>${response.responder.age} ans • ${response.responder.gender.charAt(0).toUpperCase() + response.responder.gender.slice(1)} • ${response.responder.location}</span>
