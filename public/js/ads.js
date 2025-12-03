@@ -991,7 +991,7 @@ function showContactModal(author, ad) {
       <div style="margin-bottom: 25px;">
         <h4>Ou contactez via le site:</h4>
         <button class="btn-primary send-chat-btn" data-user-id="${author._id}" data-message="J'ai vu votre annonce &quot;${ad.title}&quot; et je suis intéressé(e). Pouvons-nous discuter ?" style="width: 100%; margin-bottom: 10px;">
-          💬 Envoyer une demande de chat
+          💬 Répondre à l'annonce
         </button>
         <button class="btn-secondary view-profile-contact-btn" data-user-id="${author._id}" style="width: 100%;">
           👤 Voir le profil complet
