@@ -1013,10 +1013,10 @@ function showContactModal(author, ad) {
 
   if (sendChatBtn) {
     sendChatBtn.addEventListener('click', () => {
-      sendAdChatMessage(
+      showAdMessageForm(
         sendChatBtn.dataset.adId,
         sendChatBtn.dataset.userId,
-        sendChatBtn.dataset.message
+        ad.title
       );
     });
   }
@@ -1040,6 +1040,61 @@ function showContactModal(author, ad) {
   });
 
   document.body.appendChild(modal);
+}
+
+// Fonction pour afficher le formulaire de message d'annonce
+function showAdMessageForm(adId, receiverId, adTitle) {
+  // Fermer la modal de contact existante
+  document.querySelector('.contact-modal')?.remove();
+
+  const modal = document.createElement('div');
+  modal.className = 'ad-message-modal';
+  modal.style.cssText = `
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+    background: rgba(0,0,0,0.8); z-index: 1000; 
+    display: flex; align-items: center; justify-content: center;
+  `;
+
+  modal.innerHTML = `
+    <div style="background: white; padding: 30px; border-radius: 12px; max-width: 500px; width: 90%;">
+      <h3>Répondre à l'annonce</h3>
+      <p><strong>"${adTitle}"</strong></p>
+      
+      <textarea id="ad-message-text" placeholder="Écrivez votre message..." 
+        style="width: 100%; height: 120px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; resize: vertical; margin: 15px 0;"></textarea>
+      
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="btn-secondary cancel-message-btn">Annuler</button>
+        <button class="btn-primary send-message-btn">Envoyer</button>
+      </div>
+    </div>
+  `;
+
+  // Event listeners
+  modal.addEventListener('click', e => {
+    if (e.target === modal) modal.remove();
+  });
+
+  const cancelBtn = modal.querySelector('.cancel-message-btn');
+  const sendBtn = modal.querySelector('.send-message-btn');
+  const textarea = modal.querySelector('#ad-message-text');
+
+  cancelBtn.addEventListener('click', () => modal.remove());
+
+  sendBtn.addEventListener('click', () => {
+    const message = textarea.value.trim();
+    if (!message) {
+      alert('Veuillez écrire un message');
+      return;
+    }
+
+    sendAdChatMessage(adId, receiverId, message);
+    modal.remove();
+  });
+
+  // Focus sur le textarea
+  document.body.appendChild(modal);
+  setTimeout(() => textarea.focus(), 100);
 }
 
 // Fonction pour envoyer un message via le système de chat d'annonces
