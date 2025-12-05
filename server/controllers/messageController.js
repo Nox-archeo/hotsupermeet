@@ -686,6 +686,12 @@ const getApprovedConversations = async (req, res) => {
   try {
     const currentUserId = req.user._id;
 
+    console.log('🔍 DEBUG getApprovedConversations - userId:', currentUserId);
+    console.log(
+      '🔍 DEBUG getApprovedConversations - user nom:',
+      req.user.profile?.nom
+    );
+
     // Récupérer toutes les conversations où l'utilisateur a des messages approuvés
     const conversations = await Message.aggregate([
       {
@@ -739,6 +745,15 @@ const getApprovedConversations = async (req, res) => {
         $sort: { lastMessageDate: -1 },
       },
     ]);
+
+    console.log(
+      '🔍 DEBUG getApprovedConversations - résultats bruts:',
+      conversations.length
+    );
+    console.log(
+      '🔍 DEBUG getApprovedConversations - premier résultat:',
+      conversations[0]
+    );
 
     const formattedConversations = conversations.map(conv => {
       const profilePhoto = conv.otherUserData.profile.photos?.find(
