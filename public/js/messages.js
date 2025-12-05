@@ -2795,14 +2795,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     messagesContainer.innerHTML = messages
       .map(msg => {
-        const isSent = msg.senderId === currentUserId;
+        const isSent =
+          (typeof msg.senderId === 'string'
+            ? msg.senderId
+            : msg.senderId?._id) === currentUserId;
         const messageClass = isSent ? 'sent' : 'received';
 
         return `
         <div class="ad-message ${messageClass}">
           <div class="ad-message-content">
-            <p class="ad-message-text">${this.escapeHtml(msg.message)}</p>
-            <span class="ad-message-time">${this.formatTimeAgo(msg.createdAt)}</span>
+            <p class="ad-message-text">${this.escapeHtml(msg.content || msg.message || '')}</p>
+            <span class="ad-message-time">${this.formatTimeAgo(msg.createdAt || msg.timestamp)}</span>
           </div>
         </div>
       `;
