@@ -428,8 +428,20 @@ class MessagesManager {
 
         if (adResponsesResponse.ok) {
           const adResponsesData = await adResponsesResponse.json();
+          console.log(
+            '🔍 DEBUG - Réponse /api/ads/responses:',
+            adResponsesData
+          );
           this.adResponses = adResponsesData.responses || [];
+          console.log(
+            '🔍 DEBUG - adResponses après assignation:',
+            this.adResponses
+          );
         } else {
+          console.warn(
+            '❌ Erreur API ads/responses - Status:',
+            adResponsesResponse.status
+          );
           this.adResponses = [];
         }
       } catch (error) {
