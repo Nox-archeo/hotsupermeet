@@ -223,6 +223,41 @@
             <button class="btn-primary send-message">Envoyer</button>
           </div>
         </div>
+
+        <!-- Chat Window pour Annonces (séparé du chat conversations) -->
+        <div id="adChatModal" class="ad-chat-modal" style="display: none">
+          <div class="ad-chat-overlay"></div>
+          <div class="ad-chat-container">
+            <div class="ad-chat-header">
+              <div class="ad-chat-info">
+                <img
+                  src="/images/default-avatar.jpg"
+                  alt="Contact"
+                  class="ad-chat-avatar"
+                  onerror="this.src='/images/default-avatar.jpg'"
+                />
+                <div class="ad-chat-details">
+                  <h3 class="ad-chat-name">Nom</h3>
+                  <p class="ad-chat-ad-title">Titre de l'annonce</p>
+                </div>
+              </div>
+              <button class="ad-chat-close">×</button>
+            </div>
+
+            <div class="ad-chat-messages">
+              <!-- Les messages seront chargés ici -->
+            </div>
+
+            <div class="ad-chat-input">
+              <textarea
+                placeholder="Répondre à cette annonce..."
+                rows="3"
+                class="ad-chat-textarea"
+              ></textarea>
+              <button class="btn-primary ad-chat-send">Envoyer</button>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
 
