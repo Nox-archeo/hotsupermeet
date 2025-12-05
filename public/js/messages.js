@@ -1697,21 +1697,27 @@ class MessagesManager {
       this.adResponses.length
     );
 
-    // TEMPORAIRE: Afficher TOUTES les réponses sans filtre pour debug
     console.log('🔍 DEBUG - Toutes les réponses:', this.adResponses);
     console.log('🔍 DEBUG - Structure première réponse:', this.adResponses[0]);
     console.log(
-      '🔍 DEBUG - Statuts des réponses:',
-      this.adResponses.map(r => ({ status: r.status, id: r.id }))
+      '🔍 DEBUG - unreadCount des réponses:',
+      this.adResponses.map(r => ({ unreadCount: r.unreadCount, id: r.id }))
     );
 
-    if (this.adResponses.length === 0) {
+    // Filtrer les réponses qui ont des messages non lus
+    const unreadResponses = this.adResponses.filter(
+      resp => resp.unreadCount > 0
+    );
+
+    console.log('🔍 DEBUG - Réponses avec messages non lus:', unreadResponses);
+
+    if (unreadResponses.length === 0) {
       adResponsesList.innerHTML =
         '<div class="no-responses">Aucune réponse à vos annonces</div>';
       return;
     }
 
-    adResponsesList.innerHTML = this.adResponses
+    adResponsesList.innerHTML = unreadResponses
       .map(
         response => `
             <div class="ad-response-item" data-response-id="${response.id}">
@@ -1721,16 +1727,16 @@ class MessagesManager {
                 </div>
                 <div class="ad-response-content">
                     <div class="responder-info">
-                        <img src="${response.responder.photo}" alt="${response.responder.name}" onerror="this.src='/images/default-avatar.jpg'">
+                        <img src="${response.senderPhoto || '/images/default-avatar.jpg'}" alt="${response.senderName}" onerror="this.src='/images/default-avatar.jpg'">
                         <div>
-                            <strong>${response.responder.name}</strong>
-                            <span>${response.responder.age} ans • ${response.responder.gender.charAt(0).toUpperCase() + response.responder.gender.slice(1)} • ${response.responder.location}</span>
+                            <strong>${response.senderName}</strong>
+                            <span>${response.unreadCount} nouveau${response.unreadCount > 1 ? 'x' : ''} message${response.unreadCount > 1 ? 's' : ''}</span>
                         </div>
                     </div>
-                    <p class="response-message">"${response.message}"</p>
+                    <p class="response-message">"${response.lastMessage}"</p>
                 </div>
                 <div class="ad-response-actions">
-                    <button class="btn-primary">Répondre</button>
+                    <button class="btn-primary" onclick="messagesManager.openAdConversation('${response.id}', '${response.adTitle}', '${response.senderName}')">Répondre</button>
                     <button class="btn-secondary">Voir le profil</button>
                 </div>
             </div>
