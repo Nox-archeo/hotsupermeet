@@ -1736,7 +1736,7 @@ class MessagesManager {
                     <p class="response-message">"${response.lastMessage}"</p>
                 </div>
                 <div class="ad-response-actions">
-                    <button class="btn-primary" onclick="messagesManager.openAdConversation('${response.id}', '${response.adTitle}', '${response.senderName}')">Répondre</button>
+                    <button class="btn-primary" onclick="messagesManager.openAdConversation('${response.id}', '${response.adTitle}', '${response.senderName}', '${response.senderPhoto}')">Répondre</button>
                     <button class="btn-secondary" onclick="messagesManager.viewAdProfile('${response.senderId}')">Voir le profil</button>
                 </div>
             </div>
@@ -2657,19 +2657,28 @@ document.addEventListener('DOMContentLoaded', () => {
   window.messagesManager.openAdConversation = function (
     conversationId,
     adTitle,
-    senderName
+    senderName,
+    senderPhoto
   ) {
     console.log('🚀 openAdConversation appelée:', {
       conversationId,
       adTitle,
       senderName,
+      senderPhoto,
     });
 
     // Extraire les IDs depuis conversationId (format: "adId-senderId")
     const [adId, senderId] = conversationId.split('-');
 
     // Afficher le modal
-    this.showAdChatModal(conversationId, adTitle, senderName, adId, senderId);
+    this.showAdChatModal(
+      conversationId,
+      adTitle,
+      senderName,
+      senderPhoto,
+      adId,
+      senderId
+    );
 
     // Charger les messages de la conversation d'annonce
     this.loadAdConversationMessages(adId, senderId);
@@ -2679,15 +2688,18 @@ document.addEventListener('DOMContentLoaded', () => {
     conversationId,
     adTitle,
     senderName,
+    senderPhoto,
     adId,
     senderId
   ) {
     const modal = document.getElementById('adChatModal');
     const name = modal.querySelector('.ad-chat-name');
     const title = modal.querySelector('.ad-chat-ad-title');
+    const avatar = modal.querySelector('.ad-chat-avatar');
 
     if (name) name.textContent = senderName;
     if (title) title.textContent = adTitle;
+    if (avatar) avatar.src = senderPhoto || '/images/default-avatar.jpg';
 
     // Stocker les infos pour l'envoi de messages
     this.currentAdChat = {
@@ -2736,6 +2748,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (response.ok) {
         const data = await response.json();
         console.log("📨 Messages de conversation d'annonce chargés:", data);
+        console.log('📨 Structure premier message:', data.messages?.[0]);
+        console.log('📨 Tous les messages:', data.messages);
         this.displayAdChatMessages(data.messages || []);
       } else {
         console.error(
