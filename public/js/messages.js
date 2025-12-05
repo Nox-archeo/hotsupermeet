@@ -1736,7 +1736,7 @@ class MessagesManager {
                     <p class="response-message">"${response.lastMessage}"</p>
                 </div>
                 <div class="ad-response-actions">
-                    <button class="btn-primary" onclick="messagesManager.openAdConversation('${response.id}', '${response.adTitle}', '${response.senderName}', '${response.senderPhoto}')">Répondre</button>
+                    <button class="btn-primary" onclick="messagesManager.openAdConversation('${response.id}', '${response.adTitle}', '${response.senderName}', '${response.senderPhoto}', '${response.otherUserId}')">Répondre</button>
                     <button class="btn-secondary" onclick="messagesManager.viewAdProfile('${response.senderId}')">Voir le profil</button>
                 </div>
             </div>
@@ -2658,13 +2658,15 @@ document.addEventListener('DOMContentLoaded', () => {
     conversationId,
     adTitle,
     senderName,
-    senderPhoto
+    senderPhoto,
+    otherUserId
   ) {
     console.log('🚀 openAdConversation appelée:', {
       conversationId,
       adTitle,
       senderName,
       senderPhoto,
+      otherUserId,
     });
 
     // Extraire les IDs depuis conversationId (format: "ad-adId-minUserId-maxUserId")
@@ -2679,7 +2681,7 @@ document.addEventListener('DOMContentLoaded', () => {
       senderName,
       senderPhoto,
       adId,
-      senderId
+      otherUserId
     );
 
     // Charger les messages de la conversation d'annonce
@@ -2692,7 +2694,7 @@ document.addEventListener('DOMContentLoaded', () => {
     senderName,
     senderPhoto,
     adId,
-    senderId
+    otherUserId
   ) {
     const modal = document.getElementById('adChatModal');
     const name = modal.querySelector('.ad-chat-name');
@@ -2707,7 +2709,7 @@ document.addEventListener('DOMContentLoaded', () => {
     this.currentAdChat = {
       conversationId,
       adId,
-      senderId,
+      otherUserId, // Utiliser otherUserId pour receiverId
       senderName,
       adTitle,
     };
@@ -2819,7 +2821,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             body: JSON.stringify({
               message: message,
-              receiverId: this.currentAdChat.senderId,
+              receiverId: this.currentAdChat.otherUserId,
             }),
           }
         );
