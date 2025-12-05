@@ -2699,7 +2699,7 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 
     // Charger les messages de la conversation d'annonce
-    this.loadAdConversationMessages(adId, senderId);
+    this.loadAdConversationMessages(adId, otherUserId);
   };
 
   window.messagesManager.showAdChatModal = function (
@@ -2749,12 +2749,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.messagesManager.loadAdConversationMessages = async function (
     adId,
-    senderId
+    otherUserId
   ) {
     try {
       const token = localStorage.getItem('hotmeet_token');
       const response = await fetch(
-        `/api/ads/${adId}/messages?otherUserId=${senderId}`,
+        `/api/ads/${adId}/messages?otherUserId=${otherUserId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -2850,7 +2850,7 @@ document.addEventListener('DOMContentLoaded', () => {
           // Recharger les messages
           this.loadAdConversationMessages(
             this.currentAdChat.adId,
-            this.currentAdChat.senderId
+            this.currentAdChat.otherUserId
           );
         } else {
           console.error('❌ Erreur envoi message annonce:', response.status);
