@@ -2667,8 +2667,10 @@ document.addEventListener('DOMContentLoaded', () => {
       senderPhoto,
     });
 
-    // Extraire les IDs depuis conversationId (format: "adId-senderId")
-    const [adId, senderId] = conversationId.split('-');
+    // Extraire les IDs depuis conversationId (format: "ad-adId-minUserId-maxUserId")
+    const parts = conversationId.split('-');
+    const adId = parts[1]; // L'adId est la deuxième partie
+    const senderId = parts[2]; // Utiliser minUserId comme senderId de référence
 
     // Afficher le modal
     this.showAdChatModal(
