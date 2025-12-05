@@ -1688,8 +1688,23 @@ class MessagesManager {
       return;
     }
 
+    console.log(
+      '🔍 DEBUG renderAdResponses - this.adResponses:',
+      this.adResponses
+    );
+    console.log(
+      '🔍 DEBUG renderAdResponses - Nombre total:',
+      this.adResponses.length
+    );
+
     const unreadResponses = this.adResponses.filter(
       resp => resp.status === 'unread'
+    );
+
+    console.log('🔍 DEBUG - Réponses après filtre unread:', unreadResponses);
+    console.log(
+      '🔍 DEBUG - Statuts des réponses:',
+      this.adResponses.map(r => r.status)
     );
 
     if (unreadResponses.length === 0) {
