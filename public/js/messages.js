@@ -1736,7 +1736,7 @@ class MessagesManager {
                     <p class="response-message">"${response.lastMessage}"</p>
                 </div>
                 <div class="ad-response-actions">
-                    <button class="btn-primary" onclick="messagesManager.openAdConversation('${response.id}', '${response.adTitle}', '${response.senderName}', '${response.senderPhoto}', '${response.otherUserId}')">Répondre</button>
+                    <button class="btn-primary" onclick="messagesManager.openAdConversation('${response.id}', '${response.adTitle}', '${response.senderName}', '${response.senderPhoto}', '${response.otherUserId || response.senderId}')">Répondre</button>
                     <button class="btn-secondary" onclick="messagesManager.viewAdProfile('${response.senderId}')">Voir le profil</button>
                 </div>
             </div>
@@ -2669,10 +2669,24 @@ document.addEventListener('DOMContentLoaded', () => {
       otherUserId,
     });
 
-    // Extraire les IDs depuis conversationId (format: "ad-adId-minUserId-maxUserId")
+    // Extraire les IDs depuis conversationId
+    // Format attendu: "ad-adId-minUserId-maxUserId"
+    // Format actuel reçu: "adId-senderId" (temporaire)
     const parts = conversationId.split('-');
-    const adId = parts[1]; // L'adId est la deuxième partie
-    const senderId = parts[2]; // Utiliser minUserId comme senderId de référence
+    let adId, senderId;
+
+    if (parts.length === 4 && parts[0] === 'ad') {
+      // Format correct: ad-adId-userId1-userId2
+      adId = parts[1];
+      senderId = parts[2];
+    } else if (parts.length === 2) {
+      // Format temporaire: adId-senderId
+      adId = parts[0];
+      senderId = parts[1];
+    } else {
+      console.error('❌ Format conversationId inconnu:', conversationId);
+      return;
+    }
 
     // Afficher le modal
     this.showAdChatModal(
