@@ -1737,7 +1737,7 @@ class MessagesManager {
                 </div>
                 <div class="ad-response-actions">
                     <button class="btn-primary" onclick="messagesManager.openAdConversation('${response.id}', '${response.adTitle}', '${response.senderName}')">Répondre</button>
-                    <button class="btn-secondary">Voir le profil</button>
+                    <button class="btn-secondary" onclick="messagesManager.viewAdProfile('${response.senderId}')">Voir le profil</button>
                 </div>
             </div>
         `
@@ -2652,4 +2652,219 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialiser le gestionnaire de messages
   window.messagesManager = new MessagesManager();
+
+  // ===== GESTIONNAIRE CHAT D'ANNONCES =====
+  window.messagesManager.openAdConversation = function (
+    conversationId,
+    adTitle,
+    senderName
+  ) {
+    console.log('🚀 openAdConversation appelée:', {
+      conversationId,
+      adTitle,
+      senderName,
+    });
+
+    // Extraire les IDs depuis conversationId (format: "adId-senderId")
+    const [adId, senderId] = conversationId.split('-');
+
+    // Afficher le modal
+    this.showAdChatModal(conversationId, adTitle, senderName, adId, senderId);
+
+    // Charger les messages de la conversation d'annonce
+    this.loadAdConversationMessages(adId, senderId);
+  };
+
+  window.messagesManager.showAdChatModal = function (
+    conversationId,
+    adTitle,
+    senderName,
+    adId,
+    senderId
+  ) {
+    const modal = document.getElementById('adChatModal');
+    const name = modal.querySelector('.ad-chat-name');
+    const title = modal.querySelector('.ad-chat-ad-title');
+
+    if (name) name.textContent = senderName;
+    if (title) title.textContent = adTitle;
+
+    // Stocker les infos pour l'envoi de messages
+    this.currentAdChat = {
+      conversationId,
+      adId,
+      senderId,
+      senderName,
+      adTitle,
+    };
+
+    // Afficher le modal
+    modal.style.display = 'flex';
+
+    // Gérer la fermeture
+    const closeBtn = modal.querySelector('.ad-chat-close');
+    const overlay = modal.querySelector('.ad-chat-overlay');
+
+    const closeModal = () => {
+      modal.style.display = 'none';
+      this.currentAdChat = null;
+    };
+
+    closeBtn.onclick = closeModal;
+    overlay.onclick = closeModal;
+
+    // Gérer l'envoi de messages
+    this.setupAdChatSending();
+  };
+
+  window.messagesManager.loadAdConversationMessages = async function (
+    adId,
+    senderId
+  ) {
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+      const response = await fetch(
+        `/api/ads/${adId}/messages?otherUserId=${senderId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("📨 Messages de conversation d'annonce chargés:", data);
+        this.displayAdChatMessages(data.messages || []);
+      } else {
+        console.error(
+          '❌ Erreur chargement messages annonce:',
+          response.status
+        );
+        this.displayAdChatMessages([]);
+      }
+    } catch (error) {
+      console.error('❌ Erreur réseau messages annonce:', error);
+      this.displayAdChatMessages([]);
+    }
+  };
+
+  window.messagesManager.displayAdChatMessages = function (messages) {
+    const messagesContainer = document.querySelector('.ad-chat-messages');
+
+    if (!messages || messages.length === 0) {
+      messagesContainer.innerHTML =
+        '<div class="ad-chat-empty">Aucun message dans cette conversation d\'annonce</div>';
+      return;
+    }
+
+    const currentUserId = this.getCurrentUserId();
+
+    messagesContainer.innerHTML = messages
+      .map(msg => {
+        const isSent = msg.senderId === currentUserId;
+        const messageClass = isSent ? 'sent' : 'received';
+
+        return `
+        <div class="ad-message ${messageClass}">
+          <div class="ad-message-content">
+            <p class="ad-message-text">${this.escapeHtml(msg.message)}</p>
+            <span class="ad-message-time">${this.formatTimeAgo(msg.createdAt)}</span>
+          </div>
+        </div>
+      `;
+      })
+      .join('');
+
+    // Scroll vers le bas
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  };
+
+  window.messagesManager.setupAdChatSending = function () {
+    const sendBtn = document.querySelector('.ad-chat-send');
+    const textarea = document.querySelector('.ad-chat-textarea');
+
+    const sendMessage = async () => {
+      const message = textarea.value.trim();
+      if (!message || !this.currentAdChat) return;
+
+      try {
+        sendBtn.disabled = true;
+
+        const token = localStorage.getItem('hotmeet_token');
+        const response = await fetch(
+          `/api/ads/${this.currentAdChat.adId}/messages`,
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              message: message,
+              receiverId: this.currentAdChat.senderId,
+            }),
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log("✅ Message d'annonce envoyé:", data);
+
+          // Vider le textarea
+          textarea.value = '';
+
+          // Recharger les messages
+          this.loadAdConversationMessages(
+            this.currentAdChat.adId,
+            this.currentAdChat.senderId
+          );
+        } else {
+          console.error('❌ Erreur envoi message annonce:', response.status);
+          alert("Erreur lors de l'envoi du message");
+        }
+      } catch (error) {
+        console.error('❌ Erreur réseau envoi message:', error);
+        alert('Erreur de connexion');
+      } finally {
+        sendBtn.disabled = false;
+      }
+    };
+
+    // Remplacer les anciens listeners
+    sendBtn.onclick = sendMessage;
+
+    textarea.onkeydown = e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    };
+  };
+
+  window.messagesManager.getCurrentUserId = function () {
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.userId;
+      }
+    } catch (error) {
+      console.warn('Erreur décodage token:', error);
+    }
+    return null;
+  };
+
+  window.messagesManager.escapeHtml = function (text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  };
+
+  window.messagesManager.viewAdProfile = function (userId) {
+    console.log('🔍 Voir profil utilisateur:', userId);
+    // Rediriger vers la page de profil (ou ouvrir modal profil)
+    window.location.href = `/profile-view?userId=${userId}`;
+  };
 });
