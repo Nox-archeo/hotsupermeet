@@ -1697,23 +1697,21 @@ class MessagesManager {
       this.adResponses.length
     );
 
-    const unreadResponses = this.adResponses.filter(
-      resp => resp.status === 'unread'
-    );
-
-    console.log('🔍 DEBUG - Réponses après filtre unread:', unreadResponses);
+    // TEMPORAIRE: Afficher TOUTES les réponses sans filtre pour debug
+    console.log('🔍 DEBUG - Toutes les réponses:', this.adResponses);
+    console.log('🔍 DEBUG - Structure première réponse:', this.adResponses[0]);
     console.log(
       '🔍 DEBUG - Statuts des réponses:',
-      this.adResponses.map(r => r.status)
+      this.adResponses.map(r => ({ status: r.status, id: r.id }))
     );
 
-    if (unreadResponses.length === 0) {
+    if (this.adResponses.length === 0) {
       adResponsesList.innerHTML =
         '<div class="no-responses">Aucune réponse à vos annonces</div>';
       return;
     }
 
-    adResponsesList.innerHTML = unreadResponses
+    adResponsesList.innerHTML = this.adResponses
       .map(
         response => `
             <div class="ad-response-item" data-response-id="${response.id}">
