@@ -1704,20 +1704,21 @@ class MessagesManager {
       this.adResponses.map(r => ({ unreadCount: r.unreadCount, id: r.id }))
     );
 
-    // Filtrer les réponses qui ont des messages non lus
-    const unreadResponses = this.adResponses.filter(
-      resp => resp.unreadCount > 0
+    // AFFICHER TOUTES LES CONVERSATIONS D'ANNONCES, PAS SEULEMENT LES NON LUES !
+    const allAdConversations = this.adResponses;
+
+    console.log(
+      "🔍 DEBUG - Toutes les conversations d'annonces:",
+      allAdConversations
     );
 
-    console.log('🔍 DEBUG - Réponses avec messages non lus:', unreadResponses);
-
-    if (unreadResponses.length === 0) {
+    if (allAdConversations.length === 0) {
       adResponsesList.innerHTML =
         '<div class="no-responses">Aucune réponse à vos annonces</div>';
       return;
     }
 
-    adResponsesList.innerHTML = unreadResponses
+    adResponsesList.innerHTML = allAdConversations
       .map(
         response => `
             <div class="ad-response-item" data-response-id="${response.id}">
