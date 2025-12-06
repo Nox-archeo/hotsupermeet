@@ -437,6 +437,26 @@ class MessagesManager {
             '🔍 DEBUG - adResponses après assignation:',
             this.adResponses
           );
+          // LOGS DÉTAILLÉS POUR DEBUG LILITH
+          console.log(
+            '🔍 DEBUG LILITH - Type adResponses:',
+            typeof this.adResponses
+          );
+          console.log(
+            '🔍 DEBUG LILITH - Est un Array?',
+            Array.isArray(this.adResponses)
+          );
+          console.log('🔍 DEBUG LILITH - Longueur:', this.adResponses.length);
+          if (this.adResponses.length > 0) {
+            console.log(
+              '🔍 DEBUG LILITH - Premier élément:',
+              this.adResponses[0]
+            );
+            console.log(
+              '🔍 DEBUG LILITH - Premier élément JSON:',
+              JSON.stringify(this.adResponses[0])
+            );
+          }
         } else {
           console.warn(
             '❌ Erreur API ads/responses - Status:',
