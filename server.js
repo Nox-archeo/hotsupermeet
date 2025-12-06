@@ -718,51 +718,72 @@ app.get('/api/ads/responses', async (req, res) => {
     const AdMessage = require('./server/models/AdMessage');
     const Ad = require('./server/models/Ad');
 
-    // Récupérer toutes les annonces de l'utilisateur
-    const userAds = await Ad.find({ userId: userId, status: 'active' });
-    const adIds = userAds.map(ad => ad._id);
-
-    if (adIds.length === 0) {
-      return res.json({
-        success: true,
-        responses: [],
-      });
-    }
-
-    // Récupérer les messages pour ces annonces où l'utilisateur est le receveur
+    // LOGIQUE BIDIRECTIONNELLE: Récupérer TOUS les messages où l'utilisateur participe
     const adMessages = await AdMessage.find({
-      adId: { $in: adIds },
-      receiverId: userId,
+      $or: [
+        { senderId: userId }, // Messages envoyés par l'utilisateur
+        { receiverId: userId }, // Messages reçus par l'utilisateur
+      ],
     })
       .populate('senderId', 'nom profile')
+      .populate('receiverId', 'nom profile')
       .populate('adId', 'title')
       .sort({ timestamp: -1 })
       .limit(100);
 
+    console.log(
+      '🚀 DEBUG BIDIRECTIONNEL - Messages trouvés:',
+      adMessages.length
+    );
+
     // Grouper les messages par conversation
     const conversations = {};
     for (const message of adMessages) {
-      const conversationKey = `${message.adId._id}-${message.senderId._id}`;
+      // Utiliser le conversationId existant pour grouper
+      const conversationKey = message.conversationId;
+
+      // Identifier l'autre utilisateur (celui avec qui on converse)
+      let otherUser;
+      if (message.senderId._id.toString() === userId.toString()) {
+        // L'utilisateur actuel a envoyé ce message, l'autre user est le receiver
+        otherUser = message.receiverId;
+      } else {
+        // L'utilisateur actuel a reçu ce message, l'autre user est le sender
+        otherUser = message.senderId;
+      }
 
       if (!conversations[conversationKey]) {
         conversations[conversationKey] = {
           id: conversationKey,
           adId: message.adId._id,
           adTitle: message.adId.title,
-          senderId: message.senderId._id,
-          senderName: message.senderId.nom,
+          senderId: otherUser._id,
+          senderName: otherUser.nom || otherUser.profile?.nom,
           senderPhoto:
-            message.senderId.profile?.photos?.find(p => p.isProfile)?.url ||
-            message.senderId.profile?.photos?.[0]?.url ||
+            otherUser.profile?.photos?.find(p => p.isProfile)?.url ||
+            otherUser.profile?.photos?.[0]?.url ||
             null,
+          otherUserId: otherUser._id,
           lastMessage: message.message,
           timestamp: message.timestamp,
           unreadCount: 0,
         };
       }
 
-      // Compter les messages non lus
-      if (!message.isRead) {
+      // Mettre à jour le dernier message si plus récent
+      if (
+        new Date(message.timestamp) >
+        new Date(conversations[conversationKey].timestamp)
+      ) {
+        conversations[conversationKey].lastMessage = message.message;
+        conversations[conversationKey].timestamp = message.timestamp;
+      }
+
+      // Compter les messages non lus (seulement ceux reçus par l'utilisateur actuel)
+      if (
+        !message.isRead &&
+        message.receiverId._id.toString() === userId.toString()
+      ) {
         conversations[conversationKey].unreadCount++;
       }
     }
