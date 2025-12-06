@@ -317,6 +317,20 @@ class MessagesManager {
         this.respondToAd(e.target.closest('.ad-response-item'));
       }
     });
+
+    // GESTIONNAIRE ONGLETS - RECHARGER DONNÉES QUAND ON CLIQUE SUR "ANNONCES"
+    document.addEventListener('click', e => {
+      if (
+        e.target.classList.contains('tab-btn') &&
+        e.target.getAttribute('data-tab') === 'ad-responses'
+      ) {
+        console.log(
+          '🔍 DEBUG - Clic sur onglet Annonces, rechargement des données...'
+        );
+        // Forcer le rechargement des réponses aux annonces
+        this.loadRealData();
+      }
+    });
   }
 
   // Charger les vraies données depuis l'API
