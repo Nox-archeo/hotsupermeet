@@ -476,8 +476,10 @@ class CamToCamSystem {
     // Remettre le bouton à "Commencer"
     this.updateSearchButton(false);
 
-    // 🔙 REVENIR À L'ÉTAT DE BASE (page recherche)
-    this.showSearchSection();
+    // 🔙 REVENIR À L'ÉTAT DE BASE (page recherche) SANS RELANCER
+    document.getElementById('camInterface').classList.add('hidden');
+    document.getElementById('searchSection').classList.remove('hidden');
+    document.getElementById('searchStatus').classList.add('hidden');
 
     console.log('✅ Recherche arrêtée');
   }
