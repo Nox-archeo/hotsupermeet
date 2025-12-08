@@ -9,6 +9,7 @@ class CamToCamSystem {
     this.isConnected = false;
     this.isPaused = false;
     this.isSearching = false; // 🎯 NOUVEAU: tracker si recherche en cours
+    this.isStoppedByUser = false; // 🛑 NOUVEAU: empêcher relance auto après stop manuel
     this.currentPartner = null;
     this.socket = null;
     this.connectionId = null;
@@ -165,6 +166,7 @@ class CamToCamSystem {
 
     // Bouton de recherche de partenaire
     addTouchListener('startSearch', () => {
+      this.isStoppedByUser = false; // 🔄 AUTORISER RECHERCHE
       this.startPartnerSearch();
     });
 
@@ -481,6 +483,9 @@ class CamToCamSystem {
   stopSearch() {
     // 🛑 RESET COMPLET - COMME RAFRAÎCHIR LA PAGE
     console.log('🛑 Arrêt de la recherche demandé');
+
+    // 🚨 EMPÊCHER TOUTE RELANCE AUTOMATIQUE
+    this.isStoppedByUser = true;
 
     // 🧹 NETTOYER TOUS LES ÉTATS
     this.isSearching = false;
