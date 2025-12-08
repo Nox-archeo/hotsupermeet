@@ -33,8 +33,8 @@ class CamToCamSystem {
     // Connexion Socket.IO
     this.connectSocket();
 
-    // Afficher l'interface de recherche
-    this.showSearchSection();
+    // Afficher l'interface de recherche directement
+    document.getElementById('searchSection').classList.remove('hidden');
   }
 
   connectSocket() {
@@ -870,41 +870,10 @@ class CamToCamSystem {
     // Quitter la file d'attente
     this.socket.emit('leave-cam-queue');
 
-    // Revenir à l'interface de recherche
-    this.showSearchSection();
-  }
-
-  showSearchSection() {
-    // Vérifier d'abord le statut premium
-    if (!this.checkPremiumStatus()) {
-      return;
-    }
-
-    // Retour à l'écran de recherche (depuis cam interface)
+    // Revenir à l'interface de recherche directement
     document.getElementById('camInterface').classList.add('hidden');
+    document.getElementById('searchSection').classList.remove('hidden');
     document.getElementById('searchStatus').classList.add('hidden');
-
-    // Vérifier si les autorisations sont déjà accordées
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
-      .then(stream => {
-        // Autorisations déjà accordées
-        this.localStream = stream;
-        const localVideo = document.getElementById('localVideo');
-        localVideo.srcObject = stream;
-
-        document.getElementById('permissionRequest').classList.add('hidden');
-        document.getElementById('searchSection').classList.remove('hidden');
-
-        // 🔄 REMETTRE LE BOUTON À L'ÉTAT INITIAL
-        this.updateSearchButton(false);
-      })
-      .catch(() => {
-        // Autorisations non accordées
-        document.getElementById('permissionRequest').classList.remove('hidden');
-        // Même si pas d'autorisation, remettre le bouton à l'état initial
-        this.updateSearchButton(false);
-      });
   }
 
   sendMessage() {
