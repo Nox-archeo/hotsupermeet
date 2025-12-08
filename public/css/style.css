@@ -1675,7 +1675,11 @@ h4 {
   font-size: 18px;
 }
 
-/* S'assurer que la vidéo a position relative pour l'overlay */
+/* S'assurer que la vidéo et son wrapper ont position relative pour l'overlay */
+.video-wrapper {
+  position: relative;
+}
+
 #remoteVideo {
   position: relative;
 }
