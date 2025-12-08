@@ -428,8 +428,6 @@ class CamToCamSystem {
     const remoteVideo = document.getElementById('remoteVideo');
 
     if (remoteVideo) {
-      remoteVideo.style.display = 'none';
-
       // Créer ou mettre à jour l'overlay de chargement
       let loadingOverlay =
         remoteVideo.parentElement.querySelector('.partner-loading');
@@ -437,15 +435,14 @@ class CamToCamSystem {
         loadingOverlay = document.createElement('div');
         loadingOverlay.className = 'partner-loading';
 
-        // 🎯 POSITIONNER PAR RAPPORT À LA VIDÉO
-        const videoRect = remoteVideo.getBoundingClientRect();
-        const parentRect = remoteVideo.parentElement.getBoundingClientRect();
-
+        // 🎯 POSITIONNER AU MÊME ENDROIT QUE LA VIDÉO
         loadingOverlay.style.position = 'absolute';
-        loadingOverlay.style.top = videoRect.top - parentRect.top + 'px';
-        loadingOverlay.style.left = videoRect.left - parentRect.left + 'px';
-        loadingOverlay.style.width = remoteVideo.offsetWidth + 'px';
-        loadingOverlay.style.height = remoteVideo.offsetHeight + 'px';
+        loadingOverlay.style.top = '0';
+        loadingOverlay.style.left = '0';
+        loadingOverlay.style.right = '0';
+        loadingOverlay.style.bottom = '0';
+        loadingOverlay.style.background = '#1a1a1a';
+        loadingOverlay.style.zIndex = '10';
 
         remoteVideo.parentElement.appendChild(loadingOverlay);
       }
@@ -456,6 +453,8 @@ class CamToCamSystem {
         <p>Patientez...</p>
       `;
 
+      // Cacher la vidéo et afficher l'overlay
+      remoteVideo.style.display = 'none';
       loadingOverlay.style.display = 'flex';
     }
   }
