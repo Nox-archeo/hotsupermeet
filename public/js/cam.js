@@ -476,6 +476,9 @@ class CamToCamSystem {
     // Remettre le bouton à "Commencer"
     this.updateSearchButton(false);
 
+    // 🔙 REVENIR À L'ÉTAT DE BASE (page recherche)
+    this.showSearchSection();
+
     console.log('✅ Recherche arrêtée');
   }
   handlePartnerFound(data) {
