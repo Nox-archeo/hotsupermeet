@@ -385,9 +385,17 @@ class CamToCamSystem {
       this.emitJoinCamQueue(searchCriteria);
     }
 
-    // Afficher le statut de recherche
-    document.getElementById('searchSection').classList.add('hidden');
-    document.getElementById('searchStatus').classList.remove('hidden');
+    // 🚨 GESTION INTERFACE INTELLIGENTE
+    // Si on est déjà en mode cam (nextPartner), ne pas changer l'interface
+    const camInterface = document.getElementById('camInterface');
+    const isAlreadyInCamMode = !camInterface.classList.contains('hidden');
+
+    if (!isAlreadyInCamMode) {
+      // Mode recherche initial - afficher le statut de recherche
+      document.getElementById('searchSection').classList.add('hidden');
+      document.getElementById('searchStatus').classList.remove('hidden');
+    }
+    // Sinon, garder l'interface cam affichée pour transition fluide
   }
 
   handlePartnerFound(data) {
@@ -405,8 +413,14 @@ class CamToCamSystem {
       connectionId: this.connectionId,
     });
 
+    // 🚨 GESTION INTERFACE INTELLIGENTE
+    // Cacher le statut de recherche seulement s'il est visible
+    const searchStatus = document.getElementById('searchStatus');
+    if (!searchStatus.classList.contains('hidden')) {
+      searchStatus.classList.add('hidden');
+    }
+
     // Afficher l'interface cam-to-cam
-    document.getElementById('searchStatus').classList.add('hidden');
     document.getElementById('camInterface').classList.remove('hidden');
 
     // Afficher les informations du partenaire réel
@@ -661,13 +675,53 @@ class CamToCamSystem {
   }
 
   nextPartner() {
-    // Terminer la connexion actuelle
-    this.endCall();
+    // 🚨 TRANSITION DIRECTE CHATROULETTE
+    console.log('🔄 Recherche partenaire suivant...');
 
-    // Recommencer la recherche
+    // 1. Terminer la connexion actuelle SANS revenir à l'interface recherche
+    this.endCurrentConnectionOnly();
+
+    // 2. Chercher directement un nouveau partenaire
+    this.addChatMessage('system', "Recherche d'un nouveau partenaire...");
+
+    // 3. Démarrer recherche immédiatement
     setTimeout(() => {
       this.startPartnerSearch();
-    }, 1000);
+    }, 500);
+  }
+
+  endCurrentConnectionOnly() {
+    // 🚨 TERMINER CONNEXION SANS CHANGER L'INTERFACE
+    if (this.connectionId) {
+      this.socket.emit('end-cam-connection');
+      console.log('🔓 Connexion actuelle terminée pour suivant');
+    }
+
+    if (this.peerConnection) {
+      this.peerConnection.close();
+      this.peerConnection = null;
+    }
+
+    if (this.remoteStream) {
+      this.remoteStream.getTracks().forEach(track => track.stop());
+      this.remoteStream = null;
+    }
+
+    const remoteVideo = document.getElementById('remoteVideo');
+    remoteVideo.srcObject = null;
+
+    this.isConnected = false;
+    this.currentPartner = null;
+    this.connectionId = null;
+
+    // Vider le chat
+    this.clearChat();
+
+    // Quitter la file d'attente
+    this.socket.emit('leave-cam-queue');
+
+    // 🚨 NE PAS REVENIR À L'INTERFACE RECHERCHE
+    // L'interface cam reste affichée pour transition fluide
   }
 
   endCall() {
