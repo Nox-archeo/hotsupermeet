@@ -1637,21 +1637,25 @@ h4 {
 
 /* 🎬 Animation de chargement partenaire cam */
 .partner-loading {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  /* 🎯 MÊMES STYLES QUE LA VIDÉO */
+  width: 100%;
+  height: 300px; /* Même hauteur qu'une vidéo typique */
+  min-height: 200px;
+  max-height: 400px;
+  aspect-ratio: 16/9;
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
   background: #1a1a1a;
   color: white;
   text-align: center;
   padding: 20px;
-  z-index: 10;
+  border-radius: 8px;
+
+  /* Responsive comme les vraies vidéos */
+  object-fit: cover;
 }
 
 .loading-spinner {

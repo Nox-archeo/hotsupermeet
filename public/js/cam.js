@@ -429,22 +429,17 @@ class CamToCamSystem {
 
     if (remoteVideo) {
       // Créer ou mettre à jour l'overlay de chargement
-      let loadingOverlay =
-        remoteVideo.parentElement.querySelector('.partner-loading');
+      let loadingOverlay = document.getElementById('partner-loading-overlay');
       if (!loadingOverlay) {
         loadingOverlay = document.createElement('div');
+        loadingOverlay.id = 'partner-loading-overlay';
         loadingOverlay.className = 'partner-loading';
 
-        // 🎯 POSITIONNER AU MÊME ENDROIT QUE LA VIDÉO
-        loadingOverlay.style.position = 'absolute';
-        loadingOverlay.style.top = '0';
-        loadingOverlay.style.left = '0';
-        loadingOverlay.style.right = '0';
-        loadingOverlay.style.bottom = '0';
-        loadingOverlay.style.background = '#1a1a1a';
-        loadingOverlay.style.zIndex = '10';
-
-        remoteVideo.parentElement.appendChild(loadingOverlay);
+        // 🎯 INSÉRER DIRECTEMENT APRÈS LA VIDÉO
+        remoteVideo.parentNode.insertBefore(
+          loadingOverlay,
+          remoteVideo.nextSibling
+        );
       }
 
       loadingOverlay.innerHTML = `
@@ -496,14 +491,11 @@ class CamToCamSystem {
       remoteVideo.style.display = 'block';
 
       // Nettoyer l'overlay de chargement
-      const videoWrapper = remoteVideo.parentElement;
-      const loadingOverlay = videoWrapper?.querySelector('.partner-loading');
+      const loadingOverlay = document.getElementById('partner-loading-overlay');
       if (loadingOverlay) {
         loadingOverlay.style.display = 'none';
       }
-    }
-
-    // Afficher les informations du partenaire réel
+    } // Afficher les informations du partenaire réel
     this.displayPartnerInfo();
 
     // Initialiser la connexion WebRTC
