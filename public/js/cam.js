@@ -349,6 +349,17 @@ class CamToCamSystem {
   async startPartnerSearch() {
     console.log('🔍 Début de la recherche de partenaire...');
 
+    // 🛑 VÉRIFICATIONS PRÉALABLES
+    if (this.isSearching) {
+      console.log('⚠️ Recherche déjà en cours');
+      return;
+    }
+
+    if (this.isConnected) {
+      console.log('⚠️ Déjà connecté à un partenaire');
+      return;
+    }
+
     // 🎯 MARQUER RECHERCHE EN COURS
     this.isSearching = true;
 
@@ -890,6 +901,9 @@ class CamToCamSystem {
   }
 
   showSearchSection() {
+    // 🎯 ARRÊT PROPRE - JUSTE INTERFACE PAS DE MEDIA
+    console.log("🔙 Retour à l'interface de recherche");
+
     // Vérifier d'abord le statut premium
     if (!this.checkPremiumStatus()) {
       return;
@@ -899,29 +913,26 @@ class CamToCamSystem {
     document.getElementById('camInterface').classList.add('hidden');
     document.getElementById('searchStatus').classList.add('hidden');
 
-    // Vérifier si les autorisations sont déjà accordées
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
-      .then(stream => {
-        // Autorisations déjà accordées
-        this.localStream = stream;
-        const localVideo = document.getElementById('localVideo');
-        localVideo.srcObject = stream;
+    // Nettoyer l'overlay de chargement s'il existe encore
+    const loadingOverlay = document.getElementById('partner-loading-overlay');
+    if (loadingOverlay) {
+      loadingOverlay.remove(); // Supprimer complètement
+    }
 
-        document.getElementById('permissionRequest').classList.add('hidden');
-        document.getElementById('searchSection').classList.remove('hidden');
+    // Remettre la vidéo partenaire visible (au cas où)
+    const remoteVideo = document.getElementById('remoteVideo');
+    if (remoteVideo) {
+      remoteVideo.style.display = 'block';
+      remoteVideo.srcObject = null;
+    }
 
-        // 🔄 REMETTRE LE BOUTON À L'ÉTAT INITIAL
-        this.updateSearchButton(false);
-      })
-      .catch(() => {
-        // Autorisations non accordées
-        document.getElementById('permissionRequest').classList.remove('hidden');
-        // Même si pas d'autorisation, remettre le bouton à l'état initial
-        this.updateSearchButton(false);
-      });
+    // Afficher la section de recherche
+    document.getElementById('permissionRequest').classList.add('hidden');
+    document.getElementById('searchSection').classList.remove('hidden');
+
+    // 🔄 REMETTRE LE BOUTON À L'ÉTAT INITIAL
+    this.updateSearchButton(false);
   }
-
   sendMessage() {
     const chatInput = document.getElementById('chatInput');
     const message = chatInput.value.trim();
