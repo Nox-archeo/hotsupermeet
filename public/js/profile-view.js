@@ -12,7 +12,7 @@ class ProfileViewChat {
   init() {
     // Get user ID from URL
     const urlParams = new URLSearchParams(window.location.search);
-    this.userId = urlParams.get('id');
+    this.userId = urlParams.get('userId') || urlParams.get('id'); // Support both userId and id parameters
 
     if (!this.userId) {
       this.showError('ID utilisateur manquant');
