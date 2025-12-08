@@ -479,30 +479,58 @@ class CamToCamSystem {
     }
   }
   stopSearch() {
-    // 🛑 JUSTE ARRÊTER LA RECHERCHE - POINT BARRE
+    // 🛑 RESET COMPLET - COMME RAFRAÎCHIR LA PAGE
     console.log('🛑 Arrêt de la recherche demandé');
 
-    // Marquer recherche arrêtée
+    // 🧹 NETTOYER TOUS LES ÉTATS
     this.isSearching = false;
+    this.isConnected = false;
+    this.isPaused = false;
+    this.currentPartner = null;
+    this.connectionId = null;
+    this.partnerSocketId = null;
+    this.mySocketId = null;
 
-    // Quitter la file d'attente serveur
-    this.socket.emit('leave-cam-queue');
-
-    // Cacher l'overlay de chargement
-    const loadingOverlay = document.getElementById('partner-loading-overlay');
-    if (loadingOverlay) {
-      loadingOverlay.style.display = 'none';
+    // 🔌 FERMER CONNEXIONS WebRTC
+    if (this.peerConnection) {
+      this.peerConnection.close();
+      this.peerConnection = null;
     }
 
-    // Remettre le bouton à "Commencer"
-    this.updateSearchButton(false);
+    if (this.remoteStream) {
+      this.remoteStream.getTracks().forEach(track => track.stop());
+      this.remoteStream = null;
+    }
 
-    // 🔙 REVENIR À L'ÉTAT DE BASE (page recherche) SANS RELANCER
+    // 📡 QUITTER FILE D'ATTENTE SERVEUR
+    this.socket.emit('leave-cam-queue');
+    this.socket.emit('end-cam-connection');
+
+    // 🎥 NETTOYER VIDÉOS
+    const remoteVideo = document.getElementById('remoteVideo');
+    if (remoteVideo) {
+      remoteVideo.srcObject = null;
+      remoteVideo.style.display = 'block';
+    }
+
+    // 🗑️ SUPPRIMER OVERLAY COMPLÈTEMENT
+    const loadingOverlay = document.getElementById('partner-loading-overlay');
+    if (loadingOverlay) {
+      loadingOverlay.remove();
+    }
+
+    // 💬 VIDER LE CHAT
+    this.clearChat();
+
+    // 🔄 REMETTRE INTERFACE À L'ÉTAT INITIAL
     document.getElementById('camInterface').classList.add('hidden');
     document.getElementById('searchSection').classList.remove('hidden');
     document.getElementById('searchStatus').classList.add('hidden');
 
-    console.log('✅ Recherche arrêtée');
+    // Bouton redevient "Commencer"
+    this.updateSearchButton(false);
+
+    console.log('✅ Reset complet effectué - état initial restauré');
   }
   handlePartnerFound(data) {
     console.log('🎉 Partenaire trouvé - données reçues:', data);
