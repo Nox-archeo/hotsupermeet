@@ -88,6 +88,17 @@ class CamToCamSystem {
     this.socket.on('left-queue', data => {
       console.log(data.message);
     });
+
+    // 🚨 GESTION DÉCONNEXION PARTENAIRE
+    this.socket.on('partner-disconnected', () => {
+      console.log('🔌 Partenaire déconnecté');
+      this.addChatMessage('system', "Votre partenaire s'est déconnecté");
+
+      // Terminer proprement la connexion
+      setTimeout(() => {
+        this.endCall();
+      }, 2000);
+    });
   }
 
   checkPremiumStatus() {
@@ -660,6 +671,12 @@ class CamToCamSystem {
   }
 
   endCall() {
+    // 🚨 LIBÉRER EXCLUSIVITÉ CHATROULETTE
+    if (this.connectionId) {
+      this.socket.emit('end-cam-connection');
+      console.log('🔓 Signal fin de connexion envoyé au serveur');
+    }
+
     if (this.peerConnection) {
       this.peerConnection.close();
       this.peerConnection = null;
