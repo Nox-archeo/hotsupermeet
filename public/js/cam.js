@@ -423,6 +423,12 @@ class CamToCamSystem {
     // Afficher l'interface cam-to-cam
     document.getElementById('camInterface').classList.remove('hidden');
 
+    // 🚨 REMETTRE VIDÉO PARTENAIRE EN CAS DE MODE "SUIVANT"
+    const remoteVideo = document.getElementById('remoteVideo');
+    if (remoteVideo) {
+      remoteVideo.style.display = 'block';
+    }
+
     // Afficher les informations du partenaire réel
     this.displayPartnerInfo();
 
@@ -460,15 +466,38 @@ class CamToCamSystem {
   handleWaitingForPartner(data) {
     console.log('⏳ En attente de partenaire:', data);
 
-    // Mettre à jour le statut de recherche
-    const statusElement = document.getElementById('searchStatus');
-    statusElement.innerHTML = `
-      <div class="searching-animation">
-        <div class="spinner"></div>
-        <p>${data.message}</p>
-        <p>Position dans la file: ${data.queuePosition}</p>
-      </div>
-    `;
+    // 🚨 GESTION RECHERCHE EN MODE CAM (SUIVANT)
+    const camInterface = document.getElementById('camInterface');
+    const searchStatus = document.getElementById('searchStatus');
+    const isInCamMode = !camInterface.classList.contains('hidden');
+
+    if (isInCamMode) {
+      // Mode "suivant" - afficher recherche dans l'interface cam
+      this.addChatMessage(
+        'system',
+        `🔍 ${data.message} (Position: ${data.queuePosition})`
+      );
+
+      // Masquer vidéo partenaire et afficher message
+      const remoteVideo = document.getElementById('remoteVideo');
+      const partnerInfo = document.querySelector('.partner-info');
+      if (remoteVideo) {
+        remoteVideo.style.display = 'none';
+      }
+      if (partnerInfo) {
+        partnerInfo.innerHTML =
+          "<p>🔍 Recherche d'un nouveau partenaire...</p>";
+      }
+    } else {
+      // Mode recherche initial - utiliser searchStatus
+      searchStatus.innerHTML = `
+        <div class="searching-animation">
+          <div class="spinner"></div>
+          <p>${data.message}</p>
+          <p>Position dans la file: ${data.queuePosition}</p>
+        </div>
+      `;
+    }
   }
 
   async handleWebRTCSignal(data) {
