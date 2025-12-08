@@ -426,19 +426,28 @@ class CamToCamSystem {
   showPartnerLoading() {
     // Afficher zone de chargement pour le partenaire
     const remoteVideo = document.getElementById('remoteVideo');
-    const videoWrapper = remoteVideo?.parentElement;
 
     if (remoteVideo) {
       remoteVideo.style.display = 'none';
-    }
 
-    if (videoWrapper) {
       // Créer ou mettre à jour l'overlay de chargement
-      let loadingOverlay = videoWrapper.querySelector('.partner-loading');
+      let loadingOverlay =
+        remoteVideo.parentElement.querySelector('.partner-loading');
       if (!loadingOverlay) {
         loadingOverlay = document.createElement('div');
         loadingOverlay.className = 'partner-loading';
-        videoWrapper.appendChild(loadingOverlay);
+
+        // 🎯 POSITIONNER PAR RAPPORT À LA VIDÉO
+        const videoRect = remoteVideo.getBoundingClientRect();
+        const parentRect = remoteVideo.parentElement.getBoundingClientRect();
+
+        loadingOverlay.style.position = 'absolute';
+        loadingOverlay.style.top = videoRect.top - parentRect.top + 'px';
+        loadingOverlay.style.left = videoRect.left - parentRect.left + 'px';
+        loadingOverlay.style.width = remoteVideo.offsetWidth + 'px';
+        loadingOverlay.style.height = remoteVideo.offsetHeight + 'px';
+
+        remoteVideo.parentElement.appendChild(loadingOverlay);
       }
 
       loadingOverlay.innerHTML = `
@@ -450,7 +459,6 @@ class CamToCamSystem {
       loadingOverlay.style.display = 'flex';
     }
   }
-
   stopSearch() {
     // 🛑 ARRÊTER VRAIMENT LA RECHERCHE
     console.log('🛑 Arrêt de la recherche demandé');
