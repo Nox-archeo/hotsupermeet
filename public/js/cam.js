@@ -8,6 +8,7 @@ class CamToCamSystem {
     this.dataChannel = null;
     this.isConnected = false;
     this.isPaused = false;
+    this.isSearching = false; // 🎯 NOUVEAU: tracker si recherche en cours
     this.currentPartner = null;
     this.socket = null;
     this.connectionId = null;
@@ -348,6 +349,9 @@ class CamToCamSystem {
   async startPartnerSearch() {
     console.log('🔍 Début de la recherche de partenaire...');
 
+    // 🎯 MARQUER RECHERCHE EN COURS
+    this.isSearching = true;
+
     // 🚨 NOUVELLE UX: AFFICHER INTERFACE CAM IMMÉDIATEMENT
     try {
       // 1. Demander les permissions média AVANT de changer l'interface
@@ -457,17 +461,48 @@ class CamToCamSystem {
     // 🛑 ARRÊTER VRAIMENT LA RECHERCHE
     console.log('🛑 Arrêt de la recherche demandé');
 
+    if (!this.isSearching) {
+      console.log('⚠️ Aucune recherche en cours');
+      return;
+    }
+
+    // 🎯 MARQUER RECHERCHE ARRÊTÉE
+    this.isSearching = false;
+
     // Quitter la file d'attente
     this.socket.emit('leave-cam-queue');
 
-    // Terminer connexion si elle existe
-    this.endCall();
+    // Nettoyer l'overlay de chargement
+    const loadingOverlay = document.getElementById('partner-loading-overlay');
+    if (loadingOverlay) {
+      loadingOverlay.style.display = 'none';
+    }
+
+    // Terminer connexion si elle existe SANS rappeler showSearchSection
+    if (this.peerConnection) {
+      this.peerConnection.close();
+      this.peerConnection = null;
+    }
+
+    if (this.remoteStream) {
+      this.remoteStream.getTracks().forEach(track => track.stop());
+      this.remoteStream = null;
+    }
+
+    // Reset état connexion
+    this.isConnected = false;
+    this.isPaused = false;
+    this.currentPartner = null;
+    this.connectionId = null;
 
     // Retour à l'interface de recherche
     this.showSearchSection();
   }
   handlePartnerFound(data) {
     console.log('🎉 Partenaire trouvé - données reçues:', data);
+
+    // 🎯 RECHERCHE TERMINÉE
+    this.isSearching = false;
 
     this.connectionId = data.connectionId;
     this.currentPartner = data.partner;
@@ -840,6 +875,7 @@ class CamToCamSystem {
 
     this.isConnected = false;
     this.isPaused = false;
+    this.isSearching = false; // 🛑 ARRÊTER TOUTE RECHERCHE
     this.currentPartner = null;
     this.connectionId = null;
 
