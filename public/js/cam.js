@@ -426,20 +426,28 @@ class CamToCamSystem {
   showPartnerLoading() {
     // Afficher zone de chargement pour le partenaire
     const remoteVideo = document.getElementById('remoteVideo');
-    const partnerInfo = document.querySelector('.partner-info');
+    const videoWrapper = remoteVideo?.parentElement;
 
     if (remoteVideo) {
       remoteVideo.style.display = 'none';
     }
 
-    if (partnerInfo) {
-      partnerInfo.innerHTML = `
-        <div class="partner-loading">
-          <div class="loading-spinner"></div>
-          <p>🔍 Recherche d'un partenaire...</p>
-          <p>Patientez...</p>
-        </div>
+    if (videoWrapper) {
+      // Créer ou mettre à jour l'overlay de chargement
+      let loadingOverlay = videoWrapper.querySelector('.partner-loading');
+      if (!loadingOverlay) {
+        loadingOverlay = document.createElement('div');
+        loadingOverlay.className = 'partner-loading';
+        videoWrapper.appendChild(loadingOverlay);
+      }
+
+      loadingOverlay.innerHTML = `
+        <div class="loading-spinner"></div>
+        <p>🔍 Recherche d'un partenaire...</p>
+        <p>Patientez...</p>
       `;
+
+      loadingOverlay.style.display = 'flex';
     }
   }
 
@@ -479,6 +487,13 @@ class CamToCamSystem {
     const remoteVideo = document.getElementById('remoteVideo');
     if (remoteVideo) {
       remoteVideo.style.display = 'block';
+
+      // Nettoyer l'overlay de chargement
+      const videoWrapper = remoteVideo.parentElement;
+      const loadingOverlay = videoWrapper?.querySelector('.partner-loading');
+      if (loadingOverlay) {
+        loadingOverlay.style.display = 'none';
+      }
     }
 
     // Afficher les informations du partenaire réel
