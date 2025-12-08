@@ -458,45 +458,25 @@ class CamToCamSystem {
     }
   }
   stopSearch() {
-    // 🛑 ARRÊTER VRAIMENT LA RECHERCHE
+    // 🛑 JUSTE ARRÊTER LA RECHERCHE - POINT BARRE
     console.log('🛑 Arrêt de la recherche demandé');
 
-    if (!this.isSearching) {
-      console.log('⚠️ Aucune recherche en cours');
-      return;
-    }
-
-    // 🎯 MARQUER RECHERCHE ARRÊTÉE
+    // Marquer recherche arrêtée
     this.isSearching = false;
 
-    // Quitter la file d'attente
+    // Quitter la file d'attente serveur
     this.socket.emit('leave-cam-queue');
 
-    // Nettoyer l'overlay de chargement
+    // Cacher l'overlay de chargement
     const loadingOverlay = document.getElementById('partner-loading-overlay');
     if (loadingOverlay) {
       loadingOverlay.style.display = 'none';
     }
 
-    // Terminer connexion si elle existe SANS rappeler showSearchSection
-    if (this.peerConnection) {
-      this.peerConnection.close();
-      this.peerConnection = null;
-    }
+    // Remettre le bouton à "Commencer"
+    this.updateSearchButton(false);
 
-    if (this.remoteStream) {
-      this.remoteStream.getTracks().forEach(track => track.stop());
-      this.remoteStream = null;
-    }
-
-    // Reset état connexion
-    this.isConnected = false;
-    this.isPaused = false;
-    this.currentPartner = null;
-    this.connectionId = null;
-
-    // Retour à l'interface de recherche
-    this.showSearchSection();
+    console.log('✅ Recherche arrêtée');
   }
   handlePartnerFound(data) {
     console.log('🎉 Partenaire trouvé - données reçues:', data);
