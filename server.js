@@ -950,6 +950,8 @@ app.use('/api/*', (req, res) => {
 
 // Configuration Socket.IO pour le cam-to-cam
 const waitingQueue = new Map();
+const activeConnections = new Map(); // Track connexions actives: socketId -> connectionId
+const connectionPairs = new Map(); // Track paires: connectionId -> {socket1, socket2}
 
 io.on('connection', socket => {
   console.log('Utilisateur connecté:', socket.id);
@@ -958,6 +960,22 @@ io.on('connection', socket => {
   socket.on('join-cam-queue', async data => {
     try {
       const { userId, criteria } = data;
+
+      // 🚨 VÉRIFICATION EXCLUSIVITÉ CHATROULETTE
+      if (activeConnections.has(socket.id)) {
+        console.log(`❌ ${socket.id} déjà en connexion active, refus`);
+        socket.emit('error', {
+          message:
+            "Vous êtes déjà en conversation. Terminez d'abord votre conversation actuelle.",
+        });
+        return;
+      }
+
+      // Vérifier si déjà en file d'attente
+      if (waitingQueue.has(socket.id)) {
+        console.log(`⚠️ ${socket.id} déjà en file d'attente`);
+        return;
+      }
 
       // En mode démo, simuler un utilisateur valide sans vérifier MongoDB
       const demoUser = {
@@ -991,6 +1009,14 @@ io.on('connection', socket => {
 
       for (const [otherSocketId, otherData] of waitingQueue.entries()) {
         if (otherSocketId === socket.id) {
+          continue;
+        }
+
+        // 🚨 EXCLUSION CONNEXIONS ACTIVES
+        if (activeConnections.has(otherSocketId)) {
+          console.log(
+            `⚠️ ${otherSocketId} déjà connecté, exclusion du matching`
+          );
           continue;
         }
 
@@ -1042,7 +1068,10 @@ io.on('connection', socket => {
       // Si aucun partenaire n'est trouvé avec critères, prendre le premier disponible
       if (!partnerSocketId && waitingQueue.size > 1) {
         for (const [otherSocketId, otherData] of waitingQueue.entries()) {
-          if (otherSocketId !== socket.id) {
+          if (
+            otherSocketId !== socket.id &&
+            !activeConnections.has(otherSocketId)
+          ) {
             partnerSocketId = otherSocketId;
             break;
           }
@@ -1056,6 +1085,16 @@ io.on('connection', socket => {
 
         const connectionId = `${socket.id}-${partnerSocketId}`;
         console.log('🔗 ID de connexion créé:', connectionId);
+
+        // 🚨 ENREGISTRER CONNEXION ACTIVE (EXCLUSIVITÉ)
+        activeConnections.set(socket.id, connectionId);
+        activeConnections.set(partnerSocketId, connectionId);
+        connectionPairs.set(connectionId, {
+          socket1: socket.id,
+          socket2: partnerSocketId,
+          startTime: new Date(),
+        });
+        console.log(`🔒 CONNEXION EXCLUSIVE enregistrée: ${connectionId}`);
 
         // Informer les deux utilisateurs avec les vrais socket IDs
         socket.emit('partner-found', {
@@ -1103,6 +1142,27 @@ io.on('connection', socket => {
     socket.emit('left-queue', {
       message: 'Vous avez quitté la file d\\' + 'attente',
     });
+  });
+
+  // 🚨 TERMINER CONNEXION CAM (LIBÉRER EXCLUSIVITÉ)
+  socket.on('end-cam-connection', () => {
+    const connectionId = activeConnections.get(socket.id);
+    if (connectionId) {
+      const pair = connectionPairs.get(connectionId);
+      if (pair) {
+        // Libérer les deux utilisateurs
+        activeConnections.delete(pair.socket1);
+        activeConnections.delete(pair.socket2);
+        connectionPairs.delete(connectionId);
+
+        // Notifier l'autre utilisateur
+        const otherSocket =
+          pair.socket1 === socket.id ? pair.socket2 : pair.socket1;
+        socket.to(otherSocket).emit('partner-disconnected');
+
+        console.log(`🔓 CONNEXION LIBÉRÉE: ${connectionId}`);
+      }
+    }
   });
 
   // Gestion des signaux WebRTC
@@ -1200,6 +1260,25 @@ io.on('connection', socket => {
   socket.on('disconnect', () => {
     console.log('Utilisateur déconnecté:', socket.id);
     waitingQueue.delete(socket.id);
+
+    // 🚨 NETTOYER CONNEXIONS ACTIVES
+    const connectionId = activeConnections.get(socket.id);
+    if (connectionId) {
+      const pair = connectionPairs.get(connectionId);
+      if (pair) {
+        // Libérer l'autre utilisateur
+        const otherSocket =
+          pair.socket1 === socket.id ? pair.socket2 : pair.socket1;
+        activeConnections.delete(otherSocket);
+        socket.to(otherSocket).emit('partner-disconnected');
+
+        // Nettoyer les maps
+        activeConnections.delete(socket.id);
+        connectionPairs.delete(connectionId);
+
+        console.log(`🧹 NETTOYAGE connexion déconnectée: ${connectionId}`);
+      }
+    }
   });
 });
 
