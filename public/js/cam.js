@@ -33,8 +33,29 @@ class CamToCamSystem {
     // Connexion Socket.IO
     this.connectSocket();
 
-    // Afficher l'interface de recherche directement
-    document.getElementById('searchSection').classList.remove('hidden');
+    // Demander permissions et afficher cam au démarrage
+    this.initializeCameraOnStartup();
+  }
+
+  async initializeCameraOnStartup() {
+    try {
+      // Demander permissions caméra
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
+      this.localStream = stream;
+
+      // Afficher la vidéo locale
+      const localVideo = document.getElementById('localVideo');
+      localVideo.srcObject = stream;
+
+      // Afficher interface de recherche
+      document.getElementById('searchSection').classList.remove('hidden');
+    } catch (error) {
+      // Si pas de permissions, afficher demande d'autorisation
+      document.getElementById('permissionRequest').classList.remove('hidden');
+    }
   }
 
   connectSocket() {
