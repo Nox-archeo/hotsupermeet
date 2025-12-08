@@ -345,9 +345,33 @@ class CamToCamSystem {
     );
   }
 
-  startPartnerSearch() {
+  async startPartnerSearch() {
     console.log('🔍 Début de la recherche de partenaire...');
 
+    // 🚨 NOUVELLE UX: AFFICHER INTERFACE CAM IMMÉDIATEMENT
+    try {
+      // 1. Demander les permissions média AVANT de changer l'interface
+      await this.requestMediaPermissions();
+
+      // 2. Afficher l'interface cam immédiatement
+      document.getElementById('searchSection').classList.add('hidden');
+      document.getElementById('camInterface').classList.remove('hidden');
+
+      // 3. Changer le bouton pour "Arrêter la recherche"
+      this.updateSearchButton(true);
+
+      // 4. Préparer zone partenaire avec loading
+      this.showPartnerLoading();
+
+      // 5. Démarrer la recherche réseau
+      this.initiateNetworkSearch();
+    } catch (error) {
+      console.error('❌ Erreur permissions média:', error);
+      this.showError('Autorisations camera/micro requises pour continuer');
+    }
+  }
+
+  initiateNetworkSearch() {
     // Récupérer les critères de recherche
     const country = document.getElementById('country').value;
     const gender = document.getElementById('gender').value;
@@ -384,20 +408,54 @@ class CamToCamSystem {
     } else {
       this.emitJoinCamQueue(searchCriteria);
     }
-
-    // 🚨 GESTION INTERFACE INTELLIGENTE
-    // Si on est déjà en mode cam (nextPartner), ne pas changer l'interface
-    const camInterface = document.getElementById('camInterface');
-    const isAlreadyInCamMode = !camInterface.classList.contains('hidden');
-
-    if (!isAlreadyInCamMode) {
-      // Mode recherche initial - afficher le statut de recherche
-      document.getElementById('searchSection').classList.add('hidden');
-      document.getElementById('searchStatus').classList.remove('hidden');
-    }
-    // Sinon, garder l'interface cam affichée pour transition fluide
   }
 
+  updateSearchButton(isSearching) {
+    const startBtn = document.getElementById('startSearch');
+    if (!startBtn) return;
+
+    if (isSearching) {
+      startBtn.textContent = '🛑 Arrêter la recherche';
+      startBtn.onclick = () => this.stopSearch();
+    } else {
+      startBtn.textContent = '🔍 Commencer la recherche';
+      startBtn.onclick = () => this.startPartnerSearch();
+    }
+  }
+
+  showPartnerLoading() {
+    // Afficher zone de chargement pour le partenaire
+    const remoteVideo = document.getElementById('remoteVideo');
+    const partnerInfo = document.querySelector('.partner-info');
+
+    if (remoteVideo) {
+      remoteVideo.style.display = 'none';
+    }
+
+    if (partnerInfo) {
+      partnerInfo.innerHTML = `
+        <div class="partner-loading">
+          <div class="loading-spinner"></div>
+          <p>🔍 Recherche d'un partenaire...</p>
+          <p>Patientez...</p>
+        </div>
+      `;
+    }
+  }
+
+  stopSearch() {
+    // 🛑 ARRÊTER VRAIMENT LA RECHERCHE
+    console.log('🛑 Arrêt de la recherche demandé');
+
+    // Quitter la file d'attente
+    this.socket.emit('leave-cam-queue');
+
+    // Terminer connexion si elle existe
+    this.endCall();
+
+    // Retour à l'interface de recherche
+    this.showSearchSection();
+  }
   handlePartnerFound(data) {
     console.log('🎉 Partenaire trouvé - données reçues:', data);
 
@@ -413,14 +471,8 @@ class CamToCamSystem {
       connectionId: this.connectionId,
     });
 
-    // 🚨 GESTION INTERFACE INTELLIGENTE
-    // Cacher le statut de recherche seulement s'il est visible
-    const searchStatus = document.getElementById('searchStatus');
-    if (!searchStatus.classList.contains('hidden')) {
-      searchStatus.classList.add('hidden');
-    }
-
-    // Afficher l'interface cam-to-cam
+    // 🚨 S'ASSURER QUE L'INTERFACE CAM EST VISIBLE
+    document.getElementById('searchStatus').classList.add('hidden');
     document.getElementById('camInterface').classList.remove('hidden');
 
     // 🚨 REMETTRE VIDÉO PARTENAIRE EN CAS DE MODE "SUIVANT"
@@ -442,7 +494,6 @@ class CamToCamSystem {
 
     // Plus de message de bienvenue automatique
   }
-
   emitJoinCamQueue(searchCriteria) {
     console.log('📡 Émission join-cam-queue avec critères:', searchCriteria);
 
@@ -785,8 +836,17 @@ class CamToCamSystem {
     this.socket.emit('leave-cam-queue');
 
     // Revenir à l'interface de recherche
+    this.showSearchSection();
+  }
+
+  showSearchSection() {
+    // Retour à l'écran de recherche
     document.getElementById('camInterface').classList.add('hidden');
     document.getElementById('searchSection').classList.remove('hidden');
+    document.getElementById('searchStatus').classList.add('hidden');
+
+    // Remettre le bouton à l'état initial
+    this.updateSearchButton(false);
   }
 
   sendMessage() {
