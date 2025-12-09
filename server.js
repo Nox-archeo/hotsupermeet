@@ -1299,6 +1299,20 @@ io.on('connection', socket => {
     }
   });
 
+  // 🌍 MISE À JOUR LANGUE CHAT EN TEMPS RÉEL
+  socket.on('update-chat-language', data => {
+    const { language } = data;
+    console.log(`🌍 Mise à jour langue chat pour ${socket.id}: ${language}`);
+
+    // Mettre à jour la langue dans waitingQueue si utilisateur présent
+    if (waitingQueue.has(socket.id)) {
+      const userData = waitingQueue.get(socket.id);
+      userData.language = language;
+      waitingQueue.set(socket.id, userData);
+      console.log(`✅ Langue mise à jour: ${language}`);
+    }
+  });
+
   // 💬 GESTION MESSAGES CHAT CAM-TO-CAM AVEC TRADUCTION
   socket.on('send-chat-message', async data => {
     const { connectionId, message, targetSocketId } = data;
@@ -1308,7 +1322,7 @@ io.on('connection', socket => {
 
     // Vérifier que les deux sont bien connectés
     if (activeConnections.get(socket.id) === connectionId) {
-      // Récupérer les langues des utilisateurs
+      // Récupérer les langues des utilisateurs depuis waitingQueue (langue de chat actuelle)
       const senderUserData = waitingQueue.get(socket.id) || {};
       const targetUserData = waitingQueue.get(targetSocketId) || {};
       const senderLanguage = senderUserData.language || 'fr';
@@ -1317,6 +1331,8 @@ io.on('connection', socket => {
       console.log(
         `🌍 Langue expéditeur: ${senderLanguage}, destinataire: ${targetLanguage}`
       );
+      console.log(`📊 DEBUG - Sender data:`, senderUserData);
+      console.log(`📊 DEBUG - Target data:`, targetUserData);
 
       let translatedMessage = message;
 

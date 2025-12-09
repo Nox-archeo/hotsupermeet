@@ -292,8 +292,15 @@ class CamToCamSystem {
   }
 
   updateChatLanguage(language) {
-    // Mettre à jour la langue de traduction en temps réel (sans message chat)
-    // Pas de message système dans le chat pour les changements de langue
+    // Mettre à jour la langue de traduction en temps réel
+    console.log(`🌍 Changement langue chat: ${language}`);
+
+    // Notifier le serveur du changement de langue
+    if (this.socket) {
+      this.socket.emit('update-chat-language', {
+        language: language,
+      });
+    }
   }
 
   updateAnonymityMode(mode) {
