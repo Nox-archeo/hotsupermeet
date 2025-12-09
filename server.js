@@ -24,14 +24,13 @@ async function translateMessage(text, fromLang, toLang) {
     // En production, remplacer par Google Translate API ou DeepL
     console.log(`🔄 Traduction simple: ${fromLang} → ${toLang}`);
 
-    // Pour l'instant, retourner le message original avec indication de langue
+    // Pour l'instant, retourner le message original avec indication de langue CIBLE
     return `[${toLang.toUpperCase()}] ${text}`;
   } catch (error) {
     console.log(`🚫 Erreur traduction: ${error.message}`);
     return text; // Retourner texte original en cas d'erreur
   }
 }
-
 const app = express();
 const server = createServer(app);
 const PORT = process.env.PORT || 10000;
