@@ -1094,12 +1094,25 @@ class CamToCamSystem {
     const chatInput = document.getElementById('chatInput');
     const message = chatInput.value.trim();
 
-    if (message) {
-      // Ajouter uniquement le message de l'utilisateur (pas de réponse automatique)
+    if (message && this.isConnected && this.currentPartner) {
+      // 💬 ENVOYER MESSAGE AU PARTENAIRE
+      this.socket.emit('send-chat-message', {
+        connectionId: this.connectionId,
+        message: message,
+        targetSocketId: this.partnerSocketId,
+      });
+
+      // Ajouter le message localement
       this.addChatMessage('self', message);
+      console.log('💬 Message envoyé:', message);
 
       // Vider le champ de saisie
       chatInput.value = '';
+    } else if (!this.isConnected) {
+      this.addChatMessage(
+        'system',
+        'Vous devez être connecté pour envoyer un message'
+      );
     }
   }
 
