@@ -1190,7 +1190,9 @@ io.on('connection', socket => {
         const partnerData = waitingQueue.get(partnerSocketId) || {};
         userLanguages.set(socket.id, socketData.language || 'fr');
         userLanguages.set(partnerSocketId, partnerData.language || 'en');
-        console.log(`🌍 Langues sauvegardées: ${socket.id}=${socketData.language}, ${partnerSocketId}=${partnerData.language}`);
+        console.log(
+          `🌍 Langues sauvegardées: ${socket.id}=${socketData.language}, ${partnerSocketId}=${partnerData.language}`
+        );
 
         // Retirer les deux utilisateurs de la file d'attente
         waitingQueue.delete(socket.id);
@@ -1312,11 +1314,11 @@ io.on('connection', socket => {
   socket.on('update-chat-language', data => {
     const { language } = data;
     console.log(`🌍 Mise à jour langue chat pour ${socket.id}: ${language}`);
-    
+
     // Mettre à jour la langue dans userLanguages (utilisateurs connectés)
     userLanguages.set(socket.id, language);
     console.log(`✅ Langue mise à jour dans userLanguages: ${language}`);
-    
+
     // Aussi mettre à jour dans waitingQueue si présent (pour compatibilité)
     if (waitingQueue.has(socket.id)) {
       const userData = waitingQueue.get(socket.id);
@@ -1325,13 +1327,8 @@ io.on('connection', socket => {
       console.log(`✅ Langue aussi mise à jour dans waitingQueue: ${language}`);
     }
   });
-    if (waitingQueue.has(socket.id)) {
-      const userData = waitingQueue.get(socket.id);
-      userData.language = language;
-      waitingQueue.set(socket.id, userData);
-      console.log(`✅ Langue aussi mise à jour dans waitingQueue: ${language}`);
-    }
-  });  // 💬 GESTION MESSAGES CHAT CAM-TO-CAM AVEC TRADUCTION
+
+  // 💬 GESTION MESSAGES CHAT CAM-TO-CAM AVEC TRADUCTION
   socket.on('send-chat-message', async data => {
     const { connectionId, message, targetSocketId } = data;
 
