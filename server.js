@@ -1136,11 +1136,11 @@ io.on('connection', socket => {
         connectionHistory.get(socket.id).push(partnerSocketId);
         connectionHistory.get(partnerSocketId).push(socket.id);
 
-        // Limiter historique à 5 derniers partenaires
-        if (connectionHistory.get(socket.id).length > 5) {
+        // Limiter historique à 1 seul dernier partenaire (rotation rapide)
+        if (connectionHistory.get(socket.id).length > 1) {
           connectionHistory.get(socket.id).shift();
         }
-        if (connectionHistory.get(partnerSocketId).length > 5) {
+        if (connectionHistory.get(partnerSocketId).length > 1) {
           connectionHistory.get(partnerSocketId).shift();
         }
 
