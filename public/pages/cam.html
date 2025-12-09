@@ -9,6 +9,7 @@
     <title>Cam-to-Cam Live - HotMeet</title>
     <link rel="stylesheet" href="/css/style.css?v=3" />
     <link rel="stylesheet" href="/css/animations.css" />
+    <link rel="stylesheet" href="/css/cam-interface.css" />
   </head>
   <body>
     <header class="header">
@@ -212,53 +213,51 @@
 
         <!-- Interface cam-to-cam principale -->
         <div id="camInterface" class="hidden">
-          <div class="cam-content">
-            <div class="video-section">
-              <div class="video-container">
-                <div class="video-wrapper">
-                  <video id="localVideo" autoplay muted></video>
-                  <div class="video-label">Vous</div>
-                </div>
-                <div class="video-wrapper">
-                  <video id="remoteVideo" autoplay></video>
-                  <div class="video-label">Partenaire</div>
-                </div>
+          <div class="cam-layout">
+            <!-- Zone vidéos avec picture-in-picture -->
+            <div class="video-container-main">
+              <!-- Vidéo partenaire (principale) -->
+              <div class="remote-video-wrapper">
+                <video
+                  id="remoteVideo"
+                  autoplay
+                  muted
+                  playsinline
+                  class="remote-video"
+                ></video>
+
+                <!-- Bouton plein écran -->
+                <button
+                  class="fullscreen-btn"
+                  id="fullscreenBtn"
+                  title="Plein écran"
+                >
+                  ⛶
+                </button>
+
+                <!-- Informations partenaire -->
+                <div class="partner-info"></div>
               </div>
 
-              <div class="controls">
-                <button class="control-btn" id="pauseBtn">
-                  <span>⏸️ Pause</span>
-                </button>
-                <button class="control-btn" id="nextBtn">
-                  <span>⏭️ Suivant</span>
-                </button>
-                <button class="control-btn danger" id="reportBtn">
-                  <span>🚨 Signaler</span>
-                </button>
-                <button class="control-btn danger" id="endBtn">
-                  <span>❌ Terminer</span>
-                </button>
+              <!-- Vidéo locale (picture-in-picture) -->
+              <div class="local-video-wrapper">
+                <video
+                  id="localVideo"
+                  autoplay
+                  muted
+                  playsinline
+                  class="local-video"
+                ></video>
+                <div class="video-label">Vous</div>
               </div>
             </div>
 
+            <!-- Chat section à droite -->
             <div class="chat-section">
               <div class="chat-header">
                 <h3>Chat en direct</h3>
-                <div
-                  class="chat-settings"
-                  style="display: flex; gap: 0.5rem; margin-top: 0.5rem"
-                >
-                  <select
-                    id="chatLanguage"
-                    class="chat-setting"
-                    style="
-                      padding: 0.25rem;
-                      border-radius: 4px;
-                      border: 1px solid rgba(255, 255, 255, 0.3);
-                      background: rgba(255, 255, 255, 0.2);
-                      color: white;
-                    "
-                  >
+                <div class="chat-settings">
+                  <select id="chatLanguage" class="chat-setting">
                     <option value="fr">🇫🇷 FR</option>
                     <option value="en">🇺🇸 EN</option>
                     <option value="de">🇩🇪 DE</option>
@@ -266,17 +265,7 @@
                     <option value="es">🇪🇸 ES</option>
                     <option value="pt">🇵🇹 PT</option>
                   </select>
-                  <select
-                    id="chatAnonymity"
-                    class="chat-setting"
-                    style="
-                      padding: 0.25rem;
-                      border-radius: 4px;
-                      border: 1px solid rgba(255, 255, 255, 0.3);
-                      background: rgba(255, 255, 255, 0.2);
-                      color: white;
-                    "
-                  >
+                  <select id="chatAnonymity" class="chat-setting">
                     <option value="normal">👤 Normal</option>
                     <option value="mask">🎭 Masque</option>
                     <option value="blur">🌀 Flou</option>
@@ -305,6 +294,22 @@
                 </button>
               </div>
             </div>
+          </div>
+
+          <!-- Contrôles cam en bas -->
+          <div class="cam-controls">
+            <button class="control-btn" id="pauseBtn">
+              <span>⏸️ Pause</span>
+            </button>
+            <button class="control-btn" id="nextBtn">
+              <span>⏭️ Suivant</span>
+            </button>
+            <button class="control-btn danger" id="reportBtn">
+              <span>🚨 Signaler</span>
+            </button>
+            <button class="control-btn danger" id="endBtn">
+              <span>❌ Terminer</span>
+            </button>
           </div>
         </div>
       </div>

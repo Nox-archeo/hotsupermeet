@@ -192,6 +192,11 @@ class CamToCamSystem {
       this.endCall();
     });
 
+    // 🖥️ NOUVEAU: Plein écran pour la vidéo partenaire
+    addTouchListener('fullscreenBtn', () => {
+      this.toggleFullscreen();
+    });
+
     // Chat
     addTouchListener('sendBtn', () => {
       this.sendMessage();
@@ -1218,6 +1223,24 @@ class LocationService {
         }
       );
     });
+  }
+
+  // 🖥️ NOUVELLE FONCTION: Basculer le mode plein écran
+  toggleFullscreen() {
+    const camLayout = document.querySelector('.cam-layout');
+    const isFullscreen = camLayout.classList.contains('fullscreen-mode');
+
+    if (!isFullscreen) {
+      // Activer le plein écran
+      camLayout.classList.add('fullscreen-mode');
+      document.getElementById('fullscreenBtn').innerHTML = '🔙';
+      document.getElementById('fullscreenBtn').title = 'Quitter plein écran';
+    } else {
+      // Désactiver le plein écran
+      camLayout.classList.remove('fullscreen-mode');
+      document.getElementById('fullscreenBtn').innerHTML = '⛶';
+      document.getElementById('fullscreenBtn').title = 'Plein écran';
+    }
   }
 }
 
