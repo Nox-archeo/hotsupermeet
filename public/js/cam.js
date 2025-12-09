@@ -149,6 +149,12 @@ class CamToCamSystem {
         this.cleanupConnection();
       }
     });
+
+    // 💬 RÉCEPTION MESSAGES CHAT
+    this.socket.on('chat-message', data => {
+      console.log('💬 Message reçu:', data);
+      this.addChatMessage('other', data.message);
+    });
   }
   checkPremiumStatus() {
     // En mode démo, on simule un utilisateur premium
