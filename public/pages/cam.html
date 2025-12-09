@@ -123,6 +123,59 @@
           </button>
         </div>
 
+        <!-- Configuration du profil -->
+        <div id="profileSetup" class="profile-setup hidden">
+          <h2 style="color: #2c3e50; margin-bottom: 1rem">
+            Configuration de votre profil
+          </h2>
+          <p style="color: #666; margin-bottom: 1rem">
+            Complétez votre profil pour commencer le cam-to-cam
+          </p>
+
+          <div class="profile-config">
+            <div class="form-group" style="margin-bottom: 1rem">
+              <label for="userGender">Votre genre *</label>
+              <select id="userGender" required>
+                <option value="">Choisissez votre genre...</option>
+                <option value="male">👨 Homme</option>
+                <option value="female">👩 Femme</option>
+                <option value="other">🌈 Autre</option>
+              </select>
+              <small style="color: #666"
+                >Cette information est obligatoire pour le matching</small
+              >
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1rem">
+              <label for="detectedCountry">Votre localisation</label>
+              <div
+                id="countryDisplay"
+                style="
+                  padding: 0.75rem;
+                  background: #f8f9fa;
+                  border-radius: 4px;
+                  border: 1px solid #ddd;
+                "
+              >
+                <span id="countryFlag">🌍</span>
+                <span id="countryName">Détection en cours...</span>
+              </div>
+              <small style="color: #666"
+                >Détectée automatiquement via votre adresse IP</small
+              >
+            </div>
+          </div>
+
+          <button
+            class="btn-primary"
+            id="validateProfile"
+            style="min-height: 44px; font-size: 16px"
+            disabled
+          >
+            Continuer vers la recherche
+          </button>
+        </div>
+
         <!-- Recherche de partenaire -->
         <div id="searchSection" class="search-partner hidden">
           <h2 style="color: #2c3e50; margin-bottom: 1rem">
@@ -192,6 +245,21 @@
                     flex-wrap: wrap;
                   "
                 >
+                  <div
+                    class="user-info"
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 0.5rem;
+                      padding: 0.25rem 0.5rem;
+                      background: rgba(255, 255, 255, 0.1);
+                      border-radius: 4px;
+                    "
+                  >
+                    <span id="userCountryFlag">🌍</span>
+                    <span id="userGenderIcon">👤</span>
+                    <small style="color: #ccc">Vous</small>
+                  </div>
                   <select
                     id="chatGender"
                     class="chat-setting"
@@ -203,10 +271,10 @@
                       color: white;
                     "
                   >
-                    <option value="all">👥 Tous</option>
-                    <option value="male">👨 Homme</option>
-                    <option value="female">👩 Femme</option>
-                    <option value="other">🌈 Autre</option>
+                    <option value="all">👥 Chercher: Tous</option>
+                    <option value="male">👨 Chercher: Homme</option>
+                    <option value="female">👩 Chercher: Femme</option>
+                    <option value="other">🌈 Chercher: Autre</option>
                   </select>
                   <select
                     id="chatLanguage"
