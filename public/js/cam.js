@@ -465,24 +465,21 @@ class CamToCamSystem {
   }
 
   initiateNetworkSearch() {
-    // Récupérer les critères de recherche
-    const country = document.getElementById('country').value;
-    const gender = document.getElementById('gender').value;
-    const anonymity = document.getElementById('anonymity').value;
-    const language = document.getElementById('language').value;
-    const ageMin = document.getElementById('ageMin').value;
-    const ageMax = document.getElementById('ageMax').value;
+    // Récupérer les critères de recherche (valeurs par défaut car filtres déplacés)
+    const anonymity = document.getElementById('anonymity')?.value || 'normal';
+    const gender = document.getElementById('chatGender')?.value || 'all';
+    const language = document.getElementById('chatLanguage')?.value || 'fr';
 
     // Récupérer l'ID utilisateur (simulation pour la démo)
     this.userId = 'demo-user-id-' + Date.now();
 
     const searchCriteria = {
-      country: country,
+      country: 'all', // Recherche globale par défaut
       gender: gender,
       anonymity: anonymity,
       language: language,
-      ageMin: parseInt(ageMin) || 18,
-      ageMax: parseInt(ageMax) || 100,
+      ageMin: 18, // Valeur par défaut
+      ageMax: 100, // Valeur par défaut
     };
 
     console.log('🎯 Critères de recherche:', searchCriteria);
@@ -1121,7 +1118,8 @@ class CamToCamSystem {
       });
 
       // Ajouter le message localement
-      const userLanguage = document.getElementById('language').value;
+      const userLanguage =
+        document.getElementById('chatLanguage')?.value || 'fr';
       this.addChatMessage('self', message, userLanguage);
       console.log('💬 Message envoyé:', message);
 
