@@ -541,6 +541,12 @@ class CamToCamSystem {
       loadingOverlay.remove();
     }
 
+    // 🧹 NETTOYER AFFICHAGE PARTENAIRE
+    const partnerInfo = document.querySelector('.partner-info');
+    if (partnerInfo) {
+      partnerInfo.innerHTML = '';
+    }
+
     // 💬 VIDER LE CHAT
     this.clearChat();
 
@@ -941,6 +947,12 @@ class CamToCamSystem {
 
     // Vider le chat
     this.clearChat();
+
+    // 🧹 NETTOYER AFFICHAGE PARTENAIRE
+    const partnerInfo = document.querySelector('.partner-info');
+    if (partnerInfo) {
+      partnerInfo.innerHTML = '';
+    }
 
     // Quitter la file d'attente
     this.socket.emit('leave-cam-queue');
