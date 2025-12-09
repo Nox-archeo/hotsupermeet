@@ -117,10 +117,17 @@ class CamToCamSystem {
       console.log('🔌 Partenaire déconnecté');
       this.addChatMessage('system', "Votre partenaire s'est déconnecté");
 
-      // Terminer proprement la connexion et relancer automatiquement la recherche
-      setTimeout(() => {
-        this.endCallAndSearchAgain();
-      }, 2000);
+      // 🔄 AUTO-REQUEUE: Relancer automatiquement la recherche si pas arrêtée manuellement
+      if (!this.isStoppedByUser) {
+        console.log("🔄 Auto-requeue activé car pas d'arrêt manuel");
+        setTimeout(() => {
+          this.endCallAndSearchAgain();
+        }, 2000);
+      } else {
+        console.log("⏹️ Pas d'auto-requeue car arrêt manuel");
+        // Juste nettoyer la connexion sans relancer
+        this.cleanupConnection();
+      }
     });
   }
 
@@ -1026,6 +1033,46 @@ class CamToCamSystem {
       document.getElementById('searchSection').classList.remove('hidden');
       this.updateSearchButton(false);
     }
+  }
+
+  // 🧹 MÉTHODE POUR NETTOYER CONNEXION SANS RELANCER RECHERCHE
+  cleanupConnection() {
+    console.log('🧹 Nettoyage connexion sans relancer recherche');
+
+    // Libérer la connexion côté serveur
+    if (this.connectionId) {
+      this.socket.emit('end-cam-connection');
+      console.log('🔓 Signal fin de connexion envoyé au serveur');
+    }
+
+    // Nettoyer WebRTC
+    if (this.peerConnection) {
+      this.peerConnection.close();
+      this.peerConnection = null;
+    }
+
+    if (this.remoteStream) {
+      this.remoteStream.getTracks().forEach(track => track.stop());
+      this.remoteStream = null;
+    }
+
+    const remoteVideo = document.getElementById('remoteVideo');
+    remoteVideo.srcObject = null;
+
+    // Remettre les variables à zéro
+    this.isConnected = false;
+    this.isPaused = false;
+    this.isSearching = false;
+    this.currentPartner = null;
+    this.connectionId = null;
+
+    // Vider le chat
+    this.clearChat();
+
+    // Retourner à l'interface de recherche
+    document.getElementById('camInterface').classList.add('hidden');
+    document.getElementById('searchSection').classList.remove('hidden');
+    this.updateSearchButton(false);
   }
 
   sendMessage() {

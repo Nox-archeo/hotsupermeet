@@ -952,6 +952,8 @@ app.use('/api/*', (req, res) => {
 const waitingQueue = new Map();
 const activeConnections = new Map(); // Track connexions actives: socketId -> connectionId
 const connectionPairs = new Map(); // Track paires: connectionId -> {socket1, socket2}
+const recentConnections = new Map(); // Blacklist temporaire: socketId -> Set(partenaires récents)
+const connectionHistory = new Map(); // Historique: socketId -> [socketIds des anciens partenaires]
 
 io.on('connection', socket => {
   console.log('Utilisateur connecté:', socket.id);
@@ -1003,9 +1005,10 @@ io.on('connection', socket => {
         `📊 File d'attente actuelle: ${waitingQueue.size} utilisateurs`
       );
 
-      // Rechercher un partenaire compatible avec critères de matching
+      // Rechercher un partenaire compatible avec critères de matching + blacklist
       let partnerSocketId = null;
       let bestMatchScore = 0;
+      const myHistory = connectionHistory.get(socket.id) || [];
 
       for (const [otherSocketId, otherData] of waitingQueue.entries()) {
         if (otherSocketId === socket.id) {
@@ -1016,6 +1019,14 @@ io.on('connection', socket => {
         if (activeConnections.has(otherSocketId)) {
           console.log(
             `⚠️ ${otherSocketId} déjà connecté, exclusion du matching`
+          );
+          continue;
+        }
+
+        // 🚫 BLACKLIST: Éviter reconnexion immédiate aux mêmes partenaires
+        if (myHistory.includes(otherSocketId)) {
+          console.log(
+            `🚫 ${otherSocketId} dans historique récent, skip pour rotation`
           );
           continue;
         }
@@ -1066,14 +1077,33 @@ io.on('connection', socket => {
       }
 
       // Si aucun partenaire n'est trouvé avec critères, prendre le premier disponible
+      // MAIS éviter l'historique si possible
       if (!partnerSocketId && waitingQueue.size > 1) {
+        // D'abord essayer sans historique
         for (const [otherSocketId, otherData] of waitingQueue.entries()) {
           if (
             otherSocketId !== socket.id &&
-            !activeConnections.has(otherSocketId)
+            !activeConnections.has(otherSocketId) &&
+            !myHistory.includes(otherSocketId)
           ) {
             partnerSocketId = otherSocketId;
             break;
+          }
+        }
+
+        // Si toujours rien, accepter quelqu'un de l'historique
+        if (!partnerSocketId) {
+          for (const [otherSocketId, otherData] of waitingQueue.entries()) {
+            if (
+              otherSocketId !== socket.id &&
+              !activeConnections.has(otherSocketId)
+            ) {
+              partnerSocketId = otherSocketId;
+              console.log(
+                `🔄 Reconnexion acceptée par manque d'alternatives: ${otherSocketId}`
+              );
+              break;
+            }
           }
         }
       }
@@ -1094,7 +1124,35 @@ io.on('connection', socket => {
           socket2: partnerSocketId,
           startTime: new Date(),
         });
+
+        // 📝 ENREGISTRER HISTORIQUE pour éviter reconnexions immédiates
+        if (!connectionHistory.has(socket.id)) {
+          connectionHistory.set(socket.id, []);
+        }
+        if (!connectionHistory.has(partnerSocketId)) {
+          connectionHistory.set(partnerSocketId, []);
+        }
+
+        connectionHistory.get(socket.id).push(partnerSocketId);
+        connectionHistory.get(partnerSocketId).push(socket.id);
+
+        // Limiter historique à 5 derniers partenaires
+        if (connectionHistory.get(socket.id).length > 5) {
+          connectionHistory.get(socket.id).shift();
+        }
+        if (connectionHistory.get(partnerSocketId).length > 5) {
+          connectionHistory.get(partnerSocketId).shift();
+        }
+
         console.log(`🔒 CONNEXION EXCLUSIVE enregistrée: ${connectionId}`);
+        console.log(
+          `📝 Historique ${socket.id}:`,
+          connectionHistory.get(socket.id)
+        );
+        console.log(
+          `📝 Historique ${partnerSocketId}:`,
+          connectionHistory.get(partnerSocketId)
+        );
 
         // Informer les deux utilisateurs avec les vrais socket IDs
         socket.emit('partner-found', {
@@ -1260,6 +1318,12 @@ io.on('connection', socket => {
   socket.on('disconnect', () => {
     console.log('Utilisateur déconnecté:', socket.id);
     waitingQueue.delete(socket.id);
+
+    // 🧹 NETTOYER HISTORIQUE après délai (pour éviter reconnexions immédiates)
+    setTimeout(() => {
+      connectionHistory.delete(socket.id);
+      recentConnections.delete(socket.id);
+    }, 60000); // Nettoyer après 1 minute
 
     // 🚨 NETTOYER CONNEXIONS ACTIVES
     const connectionId = activeConnections.get(socket.id);
