@@ -47,8 +47,8 @@ class CamToCamSystem {
 
   async initializeCameraOnStartup() {
     try {
-      // Détecter le pays de l'utilisateur
-      await this.detectUserCountry();
+      // Détecter le pays de l'utilisateur en arrière-plan
+      this.detectUserCountry();
 
       // Demander permissions caméra
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -61,8 +61,8 @@ class CamToCamSystem {
       const localVideo = document.getElementById('localVideo');
       localVideo.srcObject = stream;
 
-      // Afficher configuration du profil
-      document.getElementById('profileSetup').classList.remove('hidden');
+      // Afficher directement l'interface de recherche
+      document.getElementById('searchSection').classList.remove('hidden');
     } catch (error) {
       // Si pas de permissions, afficher demande d'autorisation
       document.getElementById('permissionRequest').classList.remove('hidden');
@@ -299,9 +299,6 @@ class CamToCamSystem {
     });
 
     console.log('✅ Écouteurs d\\' + 'événements tactiles configurés');
-
-    // Configuration validation du profil
-    this.setupProfileValidation();
   }
 
   updateChatLanguage(language) {
@@ -478,13 +475,42 @@ class CamToCamSystem {
   }
 
   initiateNetworkSearch() {
-    // Vérifier que le profil est complet
+    // Demander le genre si pas encore défini
     if (!this.userProfile.gender) {
-      this.showError("Veuillez d'abord configurer votre profil.");
+      this.askUserGender(() => {
+        this.startSearch();
+      });
       return;
     }
 
-    // Récupérer les critères de recherche (valeurs par défaut car filtres déplacés)
+    this.startSearch();
+  }
+
+  askUserGender(callback) {
+    // Simple prompt pour demander le genre
+    const gender = prompt(
+      '👤 Pour commencer, quel est votre genre ?\n\n1 - Homme\n2 - Femme\n3 - Autre\n\nTapez 1, 2 ou 3:'
+    );
+
+    if (gender === '1') {
+      this.userProfile.gender = 'male';
+      this.updateUserCountryFlag();
+      callback();
+    } else if (gender === '2') {
+      this.userProfile.gender = 'female';
+      this.updateUserCountryFlag();
+      callback();
+    } else if (gender === '3') {
+      this.userProfile.gender = 'other';
+      this.updateUserCountryFlag();
+      callback();
+    } else {
+      this.showError('Genre requis pour continuer.');
+    }
+  }
+
+  startSearch() {
+    // Récupérer les critères de recherche
     const anonymity = document.getElementById('anonymity')?.value || 'normal';
     const gender = document.getElementById('chatGender')?.value || 'all';
     const language = document.getElementById('chatLanguage')?.value || 'fr';
@@ -1501,42 +1527,8 @@ class LocationService {
     return flags[countryCode] || '🌐';
   }
 
-  // 👤 VALIDATION DU PROFIL UTILISATEUR
-  setupProfileValidation() {
-    const userGenderSelect = document.getElementById('userGender');
-    const validateBtn = document.getElementById('validateProfile');
-
-    userGenderSelect.addEventListener('change', () => {
-      this.userProfile.gender = userGenderSelect.value;
-      validateBtn.disabled = !userGenderSelect.value;
-
-      if (userGenderSelect.value) {
-        validateBtn.textContent = 'Continuer vers la recherche';
-        validateBtn.style.opacity = '1';
-      }
-    });
-
-    validateBtn.addEventListener('click', () => {
-      if (this.userProfile.gender) {
-        this.completeProfileSetup();
-      }
-    });
-  }
-
-  completeProfileSetup() {
-    // Masquer la config profil et afficher la recherche
-    document.getElementById('profileSetup').classList.add('hidden');
-    document.getElementById('searchSection').classList.remove('hidden');
-
-    // Mettre à jour l'affichage dans le chat
-    this.updateUserInfoInChat();
-
-    console.log('✅ Profil utilisateur configuré:', this.userProfile);
-  }
-
-  updateUserInfoInChat() {
+  updateUserCountryFlag() {
     const userCountryFlag = document.getElementById('userCountryFlag');
-    const userGenderIcon = document.getElementById('userGenderIcon');
 
     // Afficher le drapeau du pays
     if (this.userProfile.countryCode) {
@@ -1544,14 +1536,6 @@ class LocationService {
         this.userProfile.countryCode
       );
     }
-
-    // Afficher l'icône du genre
-    const genderIcons = {
-      male: '👨',
-      female: '👩',
-      other: '🌈',
-    };
-    userGenderIcon.textContent = genderIcons[this.userProfile.gender] || '👤';
   }
 
   // 🎯 VÉRIFICATION DU FILTRE DE GENRE
