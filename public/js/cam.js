@@ -117,9 +117,9 @@ class CamToCamSystem {
       console.log('🔌 Partenaire déconnecté');
       this.addChatMessage('system', "Votre partenaire s'est déconnecté");
 
-      // Terminer proprement la connexion
+      // Terminer proprement la connexion et relancer automatiquement la recherche
       setTimeout(() => {
-        this.endCall();
+        this.endCallAndSearchAgain();
       }, 2000);
     });
   }
@@ -949,6 +949,56 @@ class CamToCamSystem {
     document.getElementById('camInterface').classList.add('hidden');
     document.getElementById('searchSection').classList.remove('hidden');
     document.getElementById('searchStatus').classList.add('hidden');
+  }
+
+  endCallAndSearchAgain() {
+    // 🔄 NOUVEAU: Terminer l'appel ET relancer automatiquement la recherche
+
+    // 🚨 LIBÉRER EXCLUSIVITÉ CHATROULETTE
+    if (this.connectionId) {
+      this.socket.emit('end-cam-connection');
+      console.log('🔓 Signal fin de connexion envoyé au serveur');
+    }
+
+    if (this.peerConnection) {
+      this.peerConnection.close();
+      this.peerConnection = null;
+    }
+
+    if (this.remoteStream) {
+      this.remoteStream.getTracks().forEach(track => track.stop());
+      this.remoteStream = null;
+    }
+
+    const remoteVideo = document.getElementById('remoteVideo');
+    remoteVideo.srcObject = null;
+
+    this.isConnected = false;
+    this.isPaused = false;
+    // 🎯 NE PAS mettre isSearching = false car on va relancer la recherche !
+    this.currentPartner = null;
+    this.connectionId = null;
+
+    // Vider le chat
+    this.clearChat();
+
+    // ✅ RESTER dans l'interface cam ET relancer la recherche automatiquement
+    console.log(
+      '🔄 Partenaire déconnecté - relance automatique de la recherche'
+    );
+
+    // Afficher l'écran de chargement
+    this.showPartnerLoading();
+
+    // Relancer la recherche (sauf si l'utilisateur avait cliqué Arrêter)
+    if (!this.isStoppedByUser) {
+      this.startPartnerSearch();
+    } else {
+      // Si l'utilisateur avait arrêté, on revient à l'interface de recherche
+      document.getElementById('camInterface').classList.add('hidden');
+      document.getElementById('searchSection').classList.remove('hidden');
+      this.updateSearchButton(false);
+    }
   }
 
   sendMessage() {
