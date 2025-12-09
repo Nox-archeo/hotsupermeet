@@ -8,10 +8,8 @@ class CamToCamSystem {
     this.dataChannel = null;
     this.isConnected = false;
     this.isPaused = false;
-    this.isSearching = false; // 🎯 NOUVEAU: tracker si recherche en cours
-    this.isStoppedByUser = false; // 🛑 NOUVEAU: empêcher relance auto après stop manuel
-    this.pendingNextPartner = false; // 🔄 NOUVEAU: attente confirmation déconnexion
-    this.nextPartnerTimeout = null; // ⏰ NOUVEAU: timeout de sécurité
+    this.isSearching = false; // 🎯 Tracker si recherche en cours
+    this.isStoppedByUser = false; // 🛑 Empêcher relance auto après stop manuel
     this.currentPartner = null;
     this.socket = null;
     this.connectionId = null;
@@ -114,48 +112,23 @@ class CamToCamSystem {
       console.log(data.message);
     });
 
-    // 🚨 GESTION DÉCONNEXION PARTENAIRE
+    // 🚨 GESTION DÉCONNEXION PARTENAIRE - AUTO-RECHERCHE
     this.socket.on('partner-disconnected', () => {
       console.log('🔌 Partenaire déconnecté');
       this.addChatMessage('system', "Votre partenaire s'est déconnecté");
 
-      // 🔄 AUTO-REQUEUE: Relancer automatiquement la recherche si pas arrêtée manuellement
+      // 🔄 AUTO-RECHERCHE si pas arrêté manuellement
       if (!this.isStoppedByUser) {
-        console.log("🔄 Auto-requeue activé car pas d'arrêt manuel");
+        console.log('🔄 Auto-recherche après déconnexion partenaire');
         setTimeout(() => {
           this.endCallAndSearchAgain();
-        }, 2000);
+        }, 1000);
       } else {
-        console.log("⏹️ Pas d'auto-requeue car arrêt manuel");
-        // Juste nettoyer la connexion sans relancer
+        console.log("⏹️ Pas d'auto-recherche car arrêt manuel");
         this.cleanupConnection();
       }
     });
-
-    // 🔄 CONFIRMATION DÉCONNEXION (pour éviter race condition)
-    this.socket.on('connection-ended', () => {
-      console.log('✅ Déconnexion confirmée par serveur');
-
-      // Nettoyer le timeout si il existe
-      if (this.nextPartnerTimeout) {
-        clearTimeout(this.nextPartnerTimeout);
-        this.nextPartnerTimeout = null;
-      }
-
-      // Maintenant on peut relancer la recherche en sécurité
-      if (this.pendingNextPartner) {
-        this.pendingNextPartner = false;
-        this.isSearching = false; // Reset flag de recherche
-        console.log('🔄 Relance recherche suite à confirmation déconnexion');
-        setTimeout(() => {
-          if (!this.isStoppedByUser) {
-            this.startPartnerSearch();
-          }
-        }, 100);
-      }
-    });
   }
-
   checkPremiumStatus() {
     // En mode démo, on simule un utilisateur premium
     // En production, cette fonction vérifierait l'abonnement
@@ -545,17 +518,10 @@ class CamToCamSystem {
     this.isSearching = false;
     this.isConnected = false;
     this.isPaused = false;
-    this.pendingNextPartner = false; // 🔄 Reset attente confirmation
     this.currentPartner = null;
     this.connectionId = null;
     this.partnerSocketId = null;
     this.mySocketId = null;
-
-    // ⏰ NETTOYER TIMEOUT
-    if (this.nextPartnerTimeout) {
-      clearTimeout(this.nextPartnerTimeout);
-      this.nextPartnerTimeout = null;
-    }
 
     // 🔌 FERMER CONNEXIONS WebRTC
     if (this.peerConnection) {
@@ -922,36 +888,17 @@ class CamToCamSystem {
   }
 
   nextPartner() {
-    // 🚫 PROTECTION CONTRE DOUBLE-CLICS
-    if (this.pendingNextPartner) {
-      console.log('⚠️ Transition déjà en cours, ignore double-clic');
+    // 🔄 CHATROULETTE SIMPLE - Suivant immédiat
+    console.log('🔄 Recherche partenaire suivant...');
+
+    // Protection contre spam clics
+    if (this.isSearching) {
+      console.log('⚠️ Recherche déjà en cours, ignore');
       return;
     }
 
-    // 🚨 TRANSITION DIRECTE CHATROULETTE avec synchronisation
-    console.log('🔄 Recherche partenaire suivant...');
-
-    // 1. Terminer la connexion actuelle
-    this.endCurrentConnectionOnly();
-
-    // 2. Message d'attente
-    this.addChatMessage('system', "Recherche d'un nouveau partenaire...");
-
-    // 3. ⏳ ATTENDRE confirmation serveur avant relance (évite race condition)
-    this.pendingNextPartner = true;
-    console.log('⏳ En attente confirmation déconnexion serveur...');
-
-    // 4. Timeout de sécurité si pas de réponse serveur
-    this.nextPartnerTimeout = setTimeout(() => {
-      if (this.pendingNextPartner) {
-        console.log('⚠️ Timeout confirmation serveur, relance forcée');
-        this.pendingNextPartner = false;
-        this.isSearching = false; // Reset flag de recherche
-        if (!this.isStoppedByUser) {
-          this.startPartnerSearch();
-        }
-      }
-    }, 3000); // 3 secondes max d'attente
+    // Terminer connexion actuelle et chercher immédiatement
+    this.endCallAndSearchAgain();
   }
 
   endCurrentConnectionOnly() {
