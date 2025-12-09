@@ -153,7 +153,12 @@ class CamToCamSystem {
     // 💬 RÉCEPTION MESSAGES CHAT
     this.socket.on('chat-message', data => {
       console.log('💬 Message reçu:', data);
-      this.addChatMessage('other', data.message, data.language);
+      this.addChatMessage(
+        'other',
+        data.message,
+        data.language,
+        data.originalMessage
+      );
     });
   }
   checkPremiumStatus() {
@@ -1123,7 +1128,7 @@ class CamToCamSystem {
     }
   }
 
-  addChatMessage(sender, message, language = null) {
+  addChatMessage(sender, message, language = null, originalMessage = null) {
     const chatMessages = document.getElementById('chatMessages');
     const messageDiv = document.createElement('div');
 
@@ -1133,7 +1138,16 @@ class CamToCamSystem {
     if (sender === 'other' && language) {
       // Message du partenaire avec langue traduite
       const languageFlag = this.getLanguageFlag(language);
-      messageDiv.innerHTML = `<span style="margin-right: 5px;">${languageFlag}</span> ${message}`;
+      if (originalMessage && originalMessage !== message) {
+        // Afficher message original + traduction
+        messageDiv.innerHTML = `
+          <span style="margin-right: 5px;">${languageFlag}</span>
+          <div style="font-size: 0.9em; color: #666; margin-bottom: 3px;">Original: "${originalMessage}"</div>
+          <div style="font-size: 1.1em; font-weight: 500;">${message}</div>
+        `;
+      } else {
+        messageDiv.innerHTML = `<span style="margin-right: 5px;">${languageFlag}</span> ${message}`;
+      }
     } else if (sender === 'other' && this.currentPartner) {
       // Message du partenaire avec langue du profil
       const languageFlag = this.getLanguageFlag(this.currentPartner.language);
@@ -1254,6 +1268,33 @@ class CamToCamSystem {
       it: '🇮🇹',
       es: '🇪🇸',
       pt: '🇵🇹',
+      nl: '🇳🇱',
+      ru: '🇷🇺',
+      ja: '🇯🇵',
+      ko: '🇰🇷',
+      zh: '🇨🇳',
+      ar: '🇸🇦',
+      hi: '🇮🇳',
+      tr: '🇹🇷',
+      pl: '🇵🇱',
+      sv: '🇸🇪',
+      da: '🇩🇰',
+      no: '🇳🇴',
+      fi: '🇫🇮',
+      el: '🇬🇷',
+      he: '🇮🇱',
+      th: '🇹🇭',
+      vi: '🇻🇳',
+      cs: '🇨🇿',
+      hu: '🇭🇺',
+      ro: '🇷🇴',
+      bg: '🇧🇬',
+      hr: '🇭🇷',
+      sk: '🇸🇰',
+      sl: '🇸🇮',
+      et: '🇪🇪',
+      lv: '🇱🇻',
+      lt: '🇱🇹',
     };
     return flags[language] || '🌐';
   }

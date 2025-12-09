@@ -1308,23 +1308,29 @@ io.on('connection', socket => {
 
     // Vérifier que les deux sont bien connectés
     if (activeConnections.get(socket.id) === connectionId) {
-      // Récupérer la langue du destinataire
+      // Récupérer les langues des utilisateurs
+      const senderUserData = waitingQueue.get(socket.id) || {};
       const targetUserData = waitingQueue.get(targetSocketId) || {};
+      const senderLanguage = senderUserData.language || 'fr';
       const targetLanguage = targetUserData.language || 'en';
 
-      console.log(`🌍 Langue destinataire: ${targetLanguage}`);
+      console.log(
+        `🌍 Langue expéditeur: ${senderLanguage}, destinataire: ${targetLanguage}`
+      );
 
       let translatedMessage = message;
 
-      // Traduire si langue différente de 'fr'
-      if (targetLanguage !== 'fr' && message.trim()) {
+      // Traduire si les langues sont différentes
+      if (targetLanguage !== senderLanguage && message.trim()) {
         try {
           translatedMessage = await translateMessage(
             message,
-            'fr',
+            senderLanguage,
             targetLanguage
           );
-          console.log(`🔄 Traduit: "${message}" → "${translatedMessage}"`);
+          console.log(
+            `🔄 Traduit de ${senderLanguage} vers ${targetLanguage}: "${message}" → "${translatedMessage}"`
+          );
         } catch (error) {
           console.log(`❌ Erreur traduction: ${error.message}`);
           // Garder message original en cas d'erreur
@@ -1338,6 +1344,7 @@ io.on('connection', socket => {
         fromSocketId: socket.id,
         connectionId: connectionId,
         language: targetLanguage,
+        sourceLanguage: senderLanguage,
       });
       console.log(`✅ Message transmis à ${targetSocketId}`);
     } else {
