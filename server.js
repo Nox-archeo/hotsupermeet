@@ -7,29 +7,78 @@ const rateLimit = require('express-rate-limit');
 const fileUpload = require('express-fileupload');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
+const https = require('https');
 
 // Charger les variables d'environnement
 require('dotenv').config();
 
 // 🌍 SERVICE DE TRADUCTION avec MyMemory API
-// Fonction de traduction simple avec fallback
 async function translateMessage(text, fromLang, toLang) {
   if (fromLang === toLang) return text;
-
-  // Si pas de traduction nécessaire, retourner original
   if (!text || !text.trim()) return text;
 
-  try {
-    // Utiliser une traduction simple pour éviter les erreurs de MyMemory
-    // En production, remplacer par Google Translate API ou DeepL
-    console.log(`🔄 Traduction simple: ${fromLang} → ${toLang}`);
+  return new Promise(resolve => {
+    try {
+      console.log(`🔄 Traduction: "${text}" (${fromLang} → ${toLang})`);
 
-    // Pour l'instant, retourner le message original avec indication de langue CIBLE
-    return `[${toLang.toUpperCase()}] ${text}`;
-  } catch (error) {
-    console.log(`🚫 Erreur traduction: ${error.message}`);
-    return text; // Retourner texte original en cas d'erreur
-  }
+      // Encoder le texte pour l'URL
+      const encodedText = encodeURIComponent(text);
+      const url = `https://api.mymemory.translated.net/get?q=${encodedText}&langpair=${fromLang}|${toLang}`;
+
+      const request = https.get(
+        url,
+        {
+          headers: {
+            'User-Agent': 'HotMeet-Translation-Service',
+          },
+          timeout: 5000,
+        },
+        response => {
+          let data = '';
+
+          response.on('data', chunk => {
+            data += chunk;
+          });
+
+          response.on('end', () => {
+            try {
+              const result = JSON.parse(data);
+
+              if (
+                result.responseStatus === 200 &&
+                result.responseData &&
+                result.responseData.translatedText
+              ) {
+                const translatedText = result.responseData.translatedText;
+                console.log(`✅ Traduction réussie: "${translatedText}"`);
+                resolve(translatedText);
+              } else {
+                console.log('⚠️ MyMemory ne peut pas traduire ce message');
+                resolve(text); // Retourner le texte original
+              }
+            } catch (error) {
+              console.log(`🚫 Erreur parsing JSON: ${error.message}`);
+              resolve(text);
+            }
+          });
+        }
+      );
+
+      request.on('error', error => {
+        console.log(`🚫 Erreur requête: ${error.message}`);
+        resolve(text);
+      });
+
+      request.on('timeout', () => {
+        console.log('🚫 Timeout de traduction');
+        request.destroy();
+        resolve(text);
+      });
+    } catch (error) {
+      console.log(`🚫 Erreur traduction: ${error.message}`);
+      resolve(text);
+    }
+  });
 }
 const app = express();
 const server = createServer(app);
@@ -1337,34 +1386,22 @@ io.on('connection', socket => {
 
     // Vérifier que les deux sont bien connectés
     if (activeConnections.get(socket.id) === connectionId) {
-      // Récupérer les langues des utilisateurs depuis waitingQueue (langue de chat actuelle)
-      const senderUserData = waitingQueue.get(socket.id) || {};
-      const targetUserData = waitingQueue.get(targetSocketId) || {};
-      const senderLanguage = senderUserData.language || 'fr';
-      const targetLanguage = targetUserData.language || 'en';
+      // Récupérer les langues depuis userLanguages (mise à jour en temps réel)
+      const senderLanguage = userLanguages.get(socket.id) || 'fr';
+      const targetLanguage = userLanguages.get(targetSocketId) || 'en';
 
       console.log(`🌍 LANGUE DEBUG - Socket expéditeur: ${socket.id}`);
       console.log(`🌍 LANGUE DEBUG - Socket destinataire: ${targetSocketId}`);
-      console.log(
-        `🌍 LANGUE DEBUG - Sender data complet:`,
-        JSON.stringify(senderUserData)
-      );
-      console.log(
-        `🌍 LANGUE DEBUG - Target data complet:`,
-        JSON.stringify(targetUserData)
-      );
       console.log(`🌍 LANGUE DEBUG - Sender language: ${senderLanguage}`);
       console.log(`🌍 LANGUE DEBUG - Target language: ${targetLanguage}`);
       console.log(
-        `🌍 LANGUE DEBUG - WaitingQueue keys:`,
-        Array.from(waitingQueue.keys())
+        `🌍 LANGUE DEBUG - UserLanguages:`,
+        Object.fromEntries(userLanguages)
       );
 
       console.log(
         `🌍 Langue expéditeur: ${senderLanguage}, destinataire: ${targetLanguage}`
       );
-      console.log(`📊 DEBUG - Sender data:`, senderUserData);
-      console.log(`📊 DEBUG - Target data:`, targetUserData);
 
       let translatedMessage = message;
 
