@@ -1125,25 +1125,6 @@ io.on('connection', socket => {
           startTime: new Date(),
         });
 
-        // 📝 ENREGISTRER HISTORIQUE pour éviter reconnexions immédiates
-        if (!connectionHistory.has(socket.id)) {
-          connectionHistory.set(socket.id, []);
-        }
-        if (!connectionHistory.has(partnerSocketId)) {
-          connectionHistory.set(partnerSocketId, []);
-        }
-
-        connectionHistory.get(socket.id).push(partnerSocketId);
-        connectionHistory.get(partnerSocketId).push(socket.id);
-
-        // Limiter historique à 1 seul dernier partenaire (rotation rapide)
-        if (connectionHistory.get(socket.id).length > 1) {
-          connectionHistory.get(socket.id).shift();
-        }
-        if (connectionHistory.get(partnerSocketId).length > 1) {
-          connectionHistory.get(partnerSocketId).shift();
-        }
-
         console.log(`🔒 CONNEXION EXCLUSIVE enregistrée: ${connectionId}`);
         console.log(
           `📝 Historique ${socket.id}:`,
@@ -1211,6 +1192,20 @@ io.on('connection', socket => {
         // Identifier l'autre utilisateur
         const otherSocket =
           pair.socket1 === socket.id ? pair.socket2 : pair.socket1;
+
+        // 🎯 BLACKLIST ASYMÉTRIQUE: Seulement celui qui clique "Suivant" évite son ancien partenaire
+        if (!connectionHistory.has(socket.id)) {
+          connectionHistory.set(socket.id, []);
+        }
+        connectionHistory.get(socket.id).push(otherSocket);
+
+        // Limiter historique à 1 seul dernier partenaire
+        if (connectionHistory.get(socket.id).length > 1) {
+          connectionHistory.get(socket.id).shift();
+        }
+
+        console.log(`🚫 ${socket.id} évitera ${otherSocket} au prochain match`);
+        console.log(`✅ ${otherSocket} peut rematchers avec n'importe qui`);
 
         // Libérer les deux utilisateurs
         activeConnections.delete(pair.socket1);
