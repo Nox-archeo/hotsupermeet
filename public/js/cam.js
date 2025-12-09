@@ -592,10 +592,11 @@ class CamToCamSystem {
     if (remoteVideo) {
       remoteVideo.style.display = 'block';
 
-      // Nettoyer l'overlay de chargement
+      // SUPPRIMER COMPLÈTEMENT l'overlay de chargement
       const loadingOverlay = document.getElementById('partner-loading-overlay');
       if (loadingOverlay) {
-        loadingOverlay.style.display = 'none';
+        loadingOverlay.remove(); // SUPPRIMER au lieu de cacher
+        console.log('🚫 Overlay de loading supprimé');
       }
     } // Afficher les informations du partenaire réel
     this.displayPartnerInfo();
@@ -748,6 +749,15 @@ class CamToCamSystem {
           remoteVideo.srcObject = event.streams[0];
           this.remoteStream = event.streams[0];
           console.log('✅ Flux distant assigné à la vidéo');
+
+          // SUPPRIMER L'OVERLAY DE LOADING dès que la vidéo arrive
+          const loadingOverlay = document.getElementById(
+            'partner-loading-overlay'
+          );
+          if (loadingOverlay) {
+            loadingOverlay.remove();
+            console.log('🚫 Overlay supprimé car vidéo reçue');
+          }
 
           // Vérifier l'état de la vidéo après un délai
           setTimeout(() => {
