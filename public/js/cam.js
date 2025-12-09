@@ -599,7 +599,7 @@ class CamToCamSystem {
         console.log('🚫 Overlay de loading supprimé');
       }
     } // Afficher les informations du partenaire réel
-    this.displayPartnerInfo();
+    // this.displayPartnerInfo(); // DÉSACTIVÉ - CAUSAIT VOILE NOIR
 
     // Initialiser la connexion WebRTC
     this.initiateWebRTCConnection();
