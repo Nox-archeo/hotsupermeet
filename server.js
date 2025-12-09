@@ -1278,6 +1278,27 @@ io.on('connection', socket => {
     }
   });
 
+  // 💬 GESTION MESSAGES CHAT CAM-TO-CAM
+  socket.on('send-chat-message', data => {
+    const { connectionId, message, targetSocketId } = data;
+
+    console.log(`💬 Message chat: ${socket.id} → ${targetSocketId}`);
+    console.log(`📝 Contenu: ${message}`);
+
+    // Vérifier que les deux sont bien connectés
+    if (activeConnections.get(socket.id) === connectionId) {
+      // Envoyer le message au partenaire
+      socket.to(targetSocketId).emit('chat-message', {
+        message: message,
+        fromSocketId: socket.id,
+        connectionId: connectionId,
+      });
+      console.log(`✅ Message transmis à ${targetSocketId}`);
+    } else {
+      console.log(`❌ Message refusé - connexion invalide`);
+    }
+  });
+
   // Quitter une conversation
   socket.on('leave-conversation', data => {
     const { userId, otherUserId } = data;
