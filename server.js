@@ -1247,6 +1247,9 @@ io.on('connection', socket => {
         // Notifier l'autre utilisateur
         socket.to(otherSocket).emit('partner-disconnected');
 
+        // 🔄 CONFIRMER LA DÉCONNEXION au client qui a demandé
+        socket.emit('connection-ended');
+
         console.log(`🔓 CONNEXION LIBÉRÉE: ${connectionId}`);
       }
     }
