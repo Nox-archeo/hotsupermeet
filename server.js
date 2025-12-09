@@ -983,6 +983,8 @@ io.on('connection', socket => {
         return;
       }
 
+      console.log(`✅ ${socket.id} va rejoindre la queue - DEBUT MATCHING`);
+
       // En mode démo, simuler un utilisateur valide sans vérifier MongoDB
       const demoUser = {
         profile: {
