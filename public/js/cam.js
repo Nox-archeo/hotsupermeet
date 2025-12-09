@@ -372,6 +372,23 @@ class CamToCamSystem {
   async startPartnerSearch() {
     console.log('🔍 Début de la recherche de partenaire...');
 
+    // 🛑 BLOQUER SI UTILISATEUR A CLIQUÉ "ARRÊTER"
+    if (this.isStoppedByUser) {
+      console.log('❌ Recherche bloquée - utilisateur a cliqué Arrêter');
+      return;
+    }
+
+    // 🛑 VÉRIFICATIONS PRÉALABLES
+    if (this.isSearching) {
+      console.log('⚠️ Recherche déjà en cours');
+      return;
+    }
+
+    if (this.isConnected) {
+      console.log('⚠️ Déjà connecté à un partenaire');
+      return;
+    }
+
     // 🎯 MARQUER RECHERCHE EN COURS
     this.isSearching = true;
 
