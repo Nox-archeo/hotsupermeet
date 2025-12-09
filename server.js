@@ -11,6 +11,27 @@ const { Server } = require('socket.io');
 // Charger les variables d'environnement
 require('dotenv').config();
 
+// 🌍 SERVICE DE TRADUCTION avec MyMemory API
+async function translateMessage(text, fromLang, toLang) {
+  if (fromLang === toLang) return text;
+
+  try {
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${fromLang}|${toLang}`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.responseStatus === 200 && data.responseData.translatedText) {
+      return data.responseData.translatedText;
+    } else {
+      throw new Error('Translation failed');
+    }
+  } catch (error) {
+    console.log(`🚫 Erreur traduction: ${error.message}`);
+    return text; // Retourner texte original en cas d'erreur
+  }
+}
+
 const app = express();
 const server = createServer(app);
 const PORT = process.env.PORT || 10000;
@@ -1278,8 +1299,8 @@ io.on('connection', socket => {
     }
   });
 
-  // 💬 GESTION MESSAGES CHAT CAM-TO-CAM
-  socket.on('send-chat-message', data => {
+  // 💬 GESTION MESSAGES CHAT CAM-TO-CAM AVEC TRADUCTION
+  socket.on('send-chat-message', async data => {
     const { connectionId, message, targetSocketId } = data;
 
     console.log(`💬 Message chat: ${socket.id} → ${targetSocketId}`);
@@ -1287,11 +1308,36 @@ io.on('connection', socket => {
 
     // Vérifier que les deux sont bien connectés
     if (activeConnections.get(socket.id) === connectionId) {
-      // Envoyer le message au partenaire
+      // Récupérer la langue du destinataire
+      const targetUserData = waitingQueue.get(targetSocketId) || {};
+      const targetLanguage = targetUserData.language || 'en';
+
+      console.log(`🌍 Langue destinataire: ${targetLanguage}`);
+
+      let translatedMessage = message;
+
+      // Traduire si langue différente de 'fr'
+      if (targetLanguage !== 'fr' && message.trim()) {
+        try {
+          translatedMessage = await translateMessage(
+            message,
+            'fr',
+            targetLanguage
+          );
+          console.log(`🔄 Traduit: "${message}" → "${translatedMessage}"`);
+        } catch (error) {
+          console.log(`❌ Erreur traduction: ${error.message}`);
+          // Garder message original en cas d'erreur
+        }
+      }
+
+      // Envoyer le message (traduit ou original) au partenaire
       socket.to(targetSocketId).emit('chat-message', {
-        message: message,
+        message: translatedMessage,
+        originalMessage: message,
         fromSocketId: socket.id,
         connectionId: connectionId,
+        language: targetLanguage,
       });
       console.log(`✅ Message transmis à ${targetSocketId}`);
     } else {

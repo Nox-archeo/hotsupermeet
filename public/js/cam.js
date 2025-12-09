@@ -153,7 +153,7 @@ class CamToCamSystem {
     // 💬 RÉCEPTION MESSAGES CHAT
     this.socket.on('chat-message', data => {
       console.log('💬 Message reçu:', data);
-      this.addChatMessage('other', data.message);
+      this.addChatMessage('other', data.message, data.language);
     });
   }
   checkPremiumStatus() {
@@ -1109,7 +1109,8 @@ class CamToCamSystem {
       });
 
       // Ajouter le message localement
-      this.addChatMessage('self', message);
+      const userLanguage = document.getElementById('language').value;
+      this.addChatMessage('self', message, userLanguage);
       console.log('💬 Message envoyé:', message);
 
       // Vider le champ de saisie
@@ -1122,15 +1123,24 @@ class CamToCamSystem {
     }
   }
 
-  addChatMessage(sender, message) {
+  addChatMessage(sender, message, language = null) {
     const chatMessages = document.getElementById('chatMessages');
     const messageDiv = document.createElement('div');
 
     messageDiv.className = `message ${sender}`;
 
-    // Ajouter une icône de langue si c'est un message de partenaire
-    if (sender === 'other' && this.currentPartner) {
+    // Ajouter une icône de langue pour tous les messages
+    if (sender === 'other' && language) {
+      // Message du partenaire avec langue traduite
+      const languageFlag = this.getLanguageFlag(language);
+      messageDiv.innerHTML = `<span style="margin-right: 5px;">${languageFlag}</span> ${message}`;
+    } else if (sender === 'other' && this.currentPartner) {
+      // Message du partenaire avec langue du profil
       const languageFlag = this.getLanguageFlag(this.currentPartner.language);
+      messageDiv.innerHTML = `<span style="margin-right: 5px;">${languageFlag}</span> ${message}`;
+    } else if (sender === 'self' && language) {
+      // Message de l'utilisateur avec sa propre langue
+      const languageFlag = this.getLanguageFlag(language);
       messageDiv.innerHTML = `<span style="margin-right: 5px;">${languageFlag}</span> ${message}`;
     } else {
       messageDiv.textContent = message;
