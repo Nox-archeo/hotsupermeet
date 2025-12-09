@@ -11,6 +11,7 @@ class CamToCamSystem {
     this.isSearching = false; // 🎯 NOUVEAU: tracker si recherche en cours
     this.isStoppedByUser = false; // 🛑 NOUVEAU: empêcher relance auto après stop manuel
     this.pendingNextPartner = false; // 🔄 NOUVEAU: attente confirmation déconnexion
+    this.nextPartnerTimeout = null; // ⏰ NOUVEAU: timeout de sécurité
     this.currentPartner = null;
     this.socket = null;
     this.connectionId = null;
@@ -134,9 +135,17 @@ class CamToCamSystem {
     // 🔄 CONFIRMATION DÉCONNEXION (pour éviter race condition)
     this.socket.on('connection-ended', () => {
       console.log('✅ Déconnexion confirmée par serveur');
+
+      // Nettoyer le timeout si il existe
+      if (this.nextPartnerTimeout) {
+        clearTimeout(this.nextPartnerTimeout);
+        this.nextPartnerTimeout = null;
+      }
+
       // Maintenant on peut relancer la recherche en sécurité
       if (this.pendingNextPartner) {
         this.pendingNextPartner = false;
+        this.isSearching = false; // Reset flag de recherche
         console.log('🔄 Relance recherche suite à confirmation déconnexion');
         setTimeout(() => {
           if (!this.isStoppedByUser) {
@@ -536,10 +545,17 @@ class CamToCamSystem {
     this.isSearching = false;
     this.isConnected = false;
     this.isPaused = false;
+    this.pendingNextPartner = false; // 🔄 Reset attente confirmation
     this.currentPartner = null;
     this.connectionId = null;
     this.partnerSocketId = null;
     this.mySocketId = null;
+
+    // ⏰ NETTOYER TIMEOUT
+    if (this.nextPartnerTimeout) {
+      clearTimeout(this.nextPartnerTimeout);
+      this.nextPartnerTimeout = null;
+    }
 
     // 🔌 FERMER CONNEXIONS WebRTC
     if (this.peerConnection) {
@@ -906,6 +922,12 @@ class CamToCamSystem {
   }
 
   nextPartner() {
+    // 🚫 PROTECTION CONTRE DOUBLE-CLICS
+    if (this.pendingNextPartner) {
+      console.log('⚠️ Transition déjà en cours, ignore double-clic');
+      return;
+    }
+
     // 🚨 TRANSITION DIRECTE CHATROULETTE avec synchronisation
     console.log('🔄 Recherche partenaire suivant...');
 
@@ -920,10 +942,11 @@ class CamToCamSystem {
     console.log('⏳ En attente confirmation déconnexion serveur...');
 
     // 4. Timeout de sécurité si pas de réponse serveur
-    setTimeout(() => {
+    this.nextPartnerTimeout = setTimeout(() => {
       if (this.pendingNextPartner) {
         console.log('⚠️ Timeout confirmation serveur, relance forcée');
         this.pendingNextPartner = false;
+        this.isSearching = false; // Reset flag de recherche
         if (!this.isStoppedByUser) {
           this.startPartnerSearch();
         }
