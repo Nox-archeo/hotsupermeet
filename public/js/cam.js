@@ -114,7 +114,7 @@ class CamToCamSystem {
 
     // 🚨 GESTION DÉCONNEXION PARTENAIRE - AUTO-RECHERCHE
     this.socket.on('partner-disconnected', () => {
-      console.log('🔌 Partenaire déconnecté');
+      console.log('🔌 PARTNER-DISCONNECTED REÇU !');
       this.addChatMessage('system', "Votre partenaire s'est déconnecté");
 
       // 🧹 NETTOYER LOCALEMENT (serveur a déjà déconnecté)
@@ -136,9 +136,12 @@ class CamToCamSystem {
 
       // 🔄 AUTO-RECHERCHE DIRECTE si pas arrêté manuellement
       if (!this.isStoppedByUser) {
-        console.log('🔄 Auto-recherche immédiate après déconnexion partenaire');
+        console.log(
+          '🔄 AUTO-RECHERCHE après partner-disconnected dans 500ms...'
+        );
         this.showPartnerLoading();
         setTimeout(() => {
+          console.log('🔄 DÉCLENCHEMENT startPartnerSearch maintenant !');
           this.startPartnerSearch();
         }, 500);
       } else {
