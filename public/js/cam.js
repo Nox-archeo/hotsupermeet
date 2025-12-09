@@ -837,8 +837,10 @@ class CamToCamSystem {
       const localVideo = document.getElementById('localVideo');
       localVideo.style.filter = 'none';
 
-      // Rejoindre à nouveau la file d'attente
-      this.startPartnerSearch();
+      // Rejoindre à nouveau la file d'attente SEULEMENT si pas arrêté par utilisateur
+      if (!this.isStoppedByUser) {
+        this.startPartnerSearch();
+      }
     }
   }
 
@@ -852,9 +854,11 @@ class CamToCamSystem {
     // 2. Chercher directement un nouveau partenaire
     this.addChatMessage('system', "Recherche d'un nouveau partenaire...");
 
-    // 3. Démarrer recherche immédiatement
+    // 3. Démarrer recherche immédiatement SEULEMENT si pas arrêté
     setTimeout(() => {
-      this.startPartnerSearch();
+      if (!this.isStoppedByUser) {
+        this.startPartnerSearch();
+      }
     }, 500);
   }
 
