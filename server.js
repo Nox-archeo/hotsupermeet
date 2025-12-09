@@ -1057,22 +1057,24 @@ io.on('connection', socket => {
 
       console.log(`✅ ${socket.id} va rejoindre la queue - DEBUT MATCHING`);
 
-      // En mode démo, simuler un utilisateur valide sans vérifier MongoDB
+      // En mode démo, simuler un utilisateur valide avec le profil reçu
       const demoUser = {
         profile: {
           nom: 'Utilisateur Démo',
           age: 25,
-          country: criteria.country || 'fr',
-          gender: criteria.gender || 'all',
+          country: criteria.userProfile?.countryName || 'Inconnu',
+          countryCode: criteria.userProfile?.country || 'unknown',
+          gender: criteria.userProfile?.gender || 'unknown',
           language: criteria.language || 'fr',
         },
       };
 
-      // Ajouter l'utilisateur à la file d'attente
+      // Ajouter l'utilisateur à la file d'attente avec son profil complet
       waitingQueue.set(socket.id, {
         ...criteria,
         userId: userId.toString(),
         userData: demoUser.profile,
+        userProfile: criteria.userProfile, // Profil utilisateur séparé pour matching
       });
 
       console.log(
@@ -1123,13 +1125,27 @@ io.on('connection', socket => {
           matchScore += 30;
         }
 
-        // Critère genre (priorité élevée)
-        if (
-          criteria.gender === otherData.gender ||
-          criteria.gender === 'all' ||
-          otherData.gender === 'all'
-        ) {
+        // Critère genre (priorité élevée) - vérifier que chacun cherche l'autre
+        const myGenderSearch = criteria.gender || 'all'; // Genre que JE cherche
+        const myGender = criteria.userProfile?.gender || 'unknown'; // MON genre
+        const partnerGenderSearch = otherData.gender || 'all'; // Genre que le PARTENAIRE cherche
+        const partnerGender = otherData.userProfile?.gender || 'unknown'; // Genre du PARTENAIRE
+
+        console.log(
+          `🎯 GENDER DEBUG: ${socket.id} (genre: ${myGender}, cherche: ${myGenderSearch}) vs ${otherSocketId} (genre: ${partnerGender}, cherche: ${partnerGenderSearch})`
+        );
+
+        // Vérifier compatibilité bidirectionnelle
+        const genderCompatible =
+          (myGenderSearch === 'all' || myGenderSearch === partnerGender) &&
+          (partnerGenderSearch === 'all' || partnerGenderSearch === myGender);
+
+        if (genderCompatible) {
           matchScore += 30;
+          console.log(`✅ GENRE COMPATIBLE: +30 points`);
+        } else {
+          console.log(`❌ GENRE INCOMPATIBLE: pas de match possible`);
+          continue; // Passer au suivant si pas compatible
         }
 
         // Critère langue (priorité moyenne)

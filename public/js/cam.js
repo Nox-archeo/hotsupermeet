@@ -15,6 +15,13 @@ class CamToCamSystem {
     this.connectionId = null;
     this.userId = null;
 
+    // Profil utilisateur
+    this.userProfile = {
+      gender: null,
+      country: null,
+      countryCode: null,
+    };
+
     // Configuration STUN/TURN servers
     this.iceServers = [
       { urls: 'stun:stun.l.google.com:19302' },
@@ -40,6 +47,9 @@ class CamToCamSystem {
 
   async initializeCameraOnStartup() {
     try {
+      // Détecter le pays de l'utilisateur
+      await this.detectUserCountry();
+
       // Demander permissions caméra
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
@@ -51,8 +61,8 @@ class CamToCamSystem {
       const localVideo = document.getElementById('localVideo');
       localVideo.srcObject = stream;
 
-      // Afficher interface de recherche
-      document.getElementById('searchSection').classList.remove('hidden');
+      // Afficher configuration du profil
+      document.getElementById('profileSetup').classList.remove('hidden');
     } catch (error) {
       // Si pas de permissions, afficher demande d'autorisation
       document.getElementById('permissionRequest').classList.remove('hidden');
@@ -289,6 +299,9 @@ class CamToCamSystem {
     });
 
     console.log('✅ Écouteurs d\\' + 'événements tactiles configurés');
+
+    // Configuration validation du profil
+    this.setupProfileValidation();
   }
 
   updateChatLanguage(language) {
@@ -465,6 +478,12 @@ class CamToCamSystem {
   }
 
   initiateNetworkSearch() {
+    // Vérifier que le profil est complet
+    if (!this.userProfile.gender) {
+      this.showError("Veuillez d'abord configurer votre profil.");
+      return;
+    }
+
     // Récupérer les critères de recherche (valeurs par défaut car filtres déplacés)
     const anonymity = document.getElementById('anonymity')?.value || 'normal';
     const gender = document.getElementById('chatGender')?.value || 'all';
@@ -474,12 +493,18 @@ class CamToCamSystem {
     this.userId = 'demo-user-id-' + Date.now();
 
     const searchCriteria = {
-      country: 'all', // Recherche globale par défaut
-      gender: gender,
+      country: this.userProfile.countryCode || 'unknown',
+      gender: gender, // Genre recherché
       anonymity: anonymity,
       language: language,
-      ageMin: 18, // Valeur par défaut
-      ageMax: 100, // Valeur par défaut
+      ageMin: 18,
+      ageMax: 100,
+      // Profil utilisateur
+      userProfile: {
+        gender: this.userProfile.gender,
+        country: this.userProfile.countryCode,
+        countryName: this.userProfile.country,
+      },
     };
 
     console.log('🎯 Critères de recherche:', searchCriteria);
@@ -1392,6 +1417,152 @@ class LocationService {
       document.getElementById('fullscreenBtn').innerHTML = '⛶';
       document.getElementById('fullscreenBtn').title = 'Plein écran';
     }
+  }
+
+  // 🌍 DÉTECTION AUTOMATIQUE DU PAYS
+  async detectUserCountry() {
+    try {
+      // Utiliser l'API ipapi.co pour détecter le pays
+      const response = await fetch('https://ipapi.co/json/', {
+        method: 'GET',
+        headers: {
+          'User-Agent': 'HotMeet-GeoLocation',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        this.userProfile.country = data.country_name || 'Inconnu';
+        this.userProfile.countryCode = data.country_code
+          ? data.country_code.toLowerCase()
+          : null;
+
+        console.log(
+          '🌍 Pays détecté:',
+          this.userProfile.country,
+          this.userProfile.countryCode
+        );
+
+        // Mettre à jour l'affichage
+        this.updateCountryDisplay();
+      } else {
+        throw new Error('Erreur API géolocalisation');
+      }
+    } catch (error) {
+      console.log('⚠️ Impossible de détecter le pays:', error.message);
+      this.userProfile.country = 'Inconnu';
+      this.userProfile.countryCode = null;
+      this.updateCountryDisplay();
+    }
+  }
+
+  updateCountryDisplay() {
+    const countryFlag = document.getElementById('countryFlag');
+    const countryName = document.getElementById('countryName');
+
+    if (this.userProfile.countryCode) {
+      countryFlag.textContent = this.getCountryFlag(
+        this.userProfile.countryCode
+      );
+    } else {
+      countryFlag.textContent = '🌐';
+    }
+
+    countryName.textContent =
+      this.userProfile.country || 'Localisation inconnue';
+  }
+
+  getCountryFlag(countryCode) {
+    const flags = {
+      fr: '🇫🇷',
+      ch: '🇨🇭',
+      be: '🇧🇪',
+      ca: '🇨🇦',
+      us: '🇺🇸',
+      gb: '🇬🇧',
+      de: '🇩🇪',
+      it: '🇮🇹',
+      es: '🇪🇸',
+      pt: '🇵🇹',
+      nl: '🇳🇱',
+      se: '🇸🇪',
+      no: '🇳🇴',
+      dk: '🇩🇰',
+      fi: '🇫🇮',
+      au: '🇦🇺',
+      nz: '🇳🇿',
+      jp: '🇯🇵',
+      kr: '🇰🇷',
+      cn: '🇨🇳',
+      br: '🇧🇷',
+      mx: '🇲🇽',
+      ar: '🇦🇷',
+    };
+    return flags[countryCode] || '🌐';
+  }
+
+  // 👤 VALIDATION DU PROFIL UTILISATEUR
+  setupProfileValidation() {
+    const userGenderSelect = document.getElementById('userGender');
+    const validateBtn = document.getElementById('validateProfile');
+
+    userGenderSelect.addEventListener('change', () => {
+      this.userProfile.gender = userGenderSelect.value;
+      validateBtn.disabled = !userGenderSelect.value;
+
+      if (userGenderSelect.value) {
+        validateBtn.textContent = 'Continuer vers la recherche';
+        validateBtn.style.opacity = '1';
+      }
+    });
+
+    validateBtn.addEventListener('click', () => {
+      if (this.userProfile.gender) {
+        this.completeProfileSetup();
+      }
+    });
+  }
+
+  completeProfileSetup() {
+    // Masquer la config profil et afficher la recherche
+    document.getElementById('profileSetup').classList.add('hidden');
+    document.getElementById('searchSection').classList.remove('hidden');
+
+    // Mettre à jour l'affichage dans le chat
+    this.updateUserInfoInChat();
+
+    console.log('✅ Profil utilisateur configuré:', this.userProfile);
+  }
+
+  updateUserInfoInChat() {
+    const userCountryFlag = document.getElementById('userCountryFlag');
+    const userGenderIcon = document.getElementById('userGenderIcon');
+
+    // Afficher le drapeau du pays
+    if (this.userProfile.countryCode) {
+      userCountryFlag.textContent = this.getCountryFlag(
+        this.userProfile.countryCode
+      );
+    }
+
+    // Afficher l'icône du genre
+    const genderIcons = {
+      male: '👨',
+      female: '👩',
+      other: '🌈',
+    };
+    userGenderIcon.textContent = genderIcons[this.userProfile.gender] || '👤';
+  }
+
+  // 🎯 VÉRIFICATION DU FILTRE DE GENRE
+  validateGenderFilter(partnerGender) {
+    const selectedFilter = document.getElementById('chatGender').value;
+
+    if (selectedFilter === 'all') {
+      return true; // Accepter tous les genres
+    }
+
+    return selectedFilter === partnerGender;
   }
 }
 
