@@ -117,12 +117,30 @@ class CamToCamSystem {
       console.log('🔌 Partenaire déconnecté');
       this.addChatMessage('system', "Votre partenaire s'est déconnecté");
 
-      // 🔄 AUTO-RECHERCHE si pas arrêté manuellement
+      // 🧹 NETTOYER LOCALEMENT (serveur a déjà déconnecté)
+      if (this.peerConnection) {
+        this.peerConnection.close();
+        this.peerConnection = null;
+      }
+      if (this.remoteStream) {
+        this.remoteStream.getTracks().forEach(track => track.stop());
+        this.remoteStream = null;
+      }
+      const remoteVideo = document.getElementById('remoteVideo');
+      remoteVideo.srcObject = null;
+
+      this.isConnected = false;
+      this.currentPartner = null;
+      this.connectionId = null;
+      this.clearChat();
+
+      // 🔄 AUTO-RECHERCHE DIRECTE si pas arrêté manuellement
       if (!this.isStoppedByUser) {
-        console.log('🔄 Auto-recherche après déconnexion partenaire');
+        console.log('🔄 Auto-recherche immédiate après déconnexion partenaire');
+        this.showPartnerLoading();
         setTimeout(() => {
-          this.endCallAndSearchAgain();
-        }, 1000);
+          this.startPartnerSearch();
+        }, 500);
       } else {
         console.log("⏹️ Pas d'auto-recherche car arrêt manuel");
         this.cleanupConnection();
