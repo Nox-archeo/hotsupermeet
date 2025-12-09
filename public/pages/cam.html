@@ -140,104 +140,6 @@
             </select>
           </div>
 
-          <div class="filters">
-            <div class="filter-group">
-              <label for="country">Pays</label>
-              <select id="country">
-                <option value="all">Tous les pays</option>
-                <option value="fr">France</option>
-                <option value="ch">Suisse</option>
-                <option value="be">Belgique</option>
-                <option value="ca">Canada</option>
-                <option value="us">États-Unis</option>
-                <option value="gb">Royaume-Uni</option>
-                <option value="de">Allemagne</option>
-                <option value="it">Italie</option>
-                <option value="es">Espagne</option>
-                <option value="pt">Portugal</option>
-                <option value="nl">Pays-Bas</option>
-                <option value="se">Suède</option>
-                <option value="no">Norvège</option>
-                <option value="dk">Danemark</option>
-                <option value="fi">Finlande</option>
-                <option value="au">Australie</option>
-                <option value="nz">Nouvelle-Zélande</option>
-                <option value="jp">Japon</option>
-                <option value="kr">Corée du Sud</option>
-                <option value="cn">Chine</option>
-                <option value="br">Brésil</option>
-                <option value="mx">Mexique</option>
-                <option value="ar">Argentine</option>
-              </select>
-            </div>
-            <div class="filter-group">
-              <label for="gender">Genre recherché</label>
-              <select id="gender">
-                <option value="all">Tous</option>
-                <option value="male">Homme</option>
-                <option value="female">Femme</option>
-                <option value="other">Autre</option>
-              </select>
-            </div>
-            <div class="filter-group">
-              <label for="ageMin">Âge minimum</label>
-              <input type="number" id="ageMin" min="18" max="100" value="18" />
-            </div>
-            <div class="filter-group">
-              <label for="ageMax">Âge maximum</label>
-              <input type="number" id="ageMax" min="18" max="100" value="100" />
-            </div>
-          </div>
-
-          <!-- Sélection de langue -->
-          <div class="filter-group" style="margin-bottom: 1rem">
-            <label for="language">Langue de traduction</label>
-            <select id="language">
-              <option value="fr">Français</option>
-              <option value="en">Anglais</option>
-              <option value="de">Allemand</option>
-              <option value="it">Italien</option>
-              <option value="es">Espagnol</option>
-              <option value="pt">Portugais</option>
-              <option value="nl">Néerlandais</option>
-              <option value="ru">Russe</option>
-              <option value="ja">Japonais</option>
-              <option value="ko">Coréen</option>
-              <option value="zh">Chinois</option>
-              <option value="ar">Arabe</option>
-              <option value="hi">Hindi</option>
-              <option value="tr">Turc</option>
-              <option value="pl">Polonais</option>
-              <option value="sv">Suédois</option>
-              <option value="da">Danois</option>
-              <option value="no">Norvégien</option>
-              <option value="fi">Finnois</option>
-              <option value="el">Grec</option>
-              <option value="he">Hébreu</option>
-              <option value="th">Thaï</option>
-              <option value="vi">Vietnamien</option>
-              <option value="cs">Tchèque</option>
-              <option value="hu">Hongrois</option>
-              <option value="ro">Roumain</option>
-              <option value="bg">Bulgare</option>
-              <option value="hr">Croate</option>
-              <option value="sk">Slovaque</option>
-              <option value="sl">Slovène</option>
-              <option value="et">Estonien</option>
-              <option value="lv">Letton</option>
-              <option value="lt">Lituanien</option>
-            </select>
-              <option value="ro">Roumain</option>
-              <option value="bg">Bulgare</option>
-              <option value="hr">Croate</option>
-              <option value="sk">Slovaque</option>
-              <option value="sl">Slovène</option>
-              <option value="et">Estonien</option>
-              <option value="lv">Letton</option>
-              <option value="lt">Lituanien</option>
-            </select>
-          </div>
-
           <button
             class="btn-primary"
             id="startSearch"
@@ -283,8 +185,29 @@
                 <h3>Chat en direct</h3>
                 <div
                   class="chat-settings"
-                  style="display: flex; gap: 0.5rem; margin-top: 0.5rem"
+                  style="
+                    display: flex;
+                    gap: 0.5rem;
+                    margin-top: 0.5rem;
+                    flex-wrap: wrap;
+                  "
                 >
+                  <select
+                    id="chatGender"
+                    class="chat-setting"
+                    style="
+                      padding: 0.25rem;
+                      border-radius: 4px;
+                      border: 1px solid rgba(255, 255, 255, 0.3);
+                      background: rgba(255, 255, 255, 0.2);
+                      color: white;
+                    "
+                  >
+                    <option value="all">👥 Tous</option>
+                    <option value="male">👨 Homme</option>
+                    <option value="female">👩 Femme</option>
+                    <option value="other">🌈 Autre</option>
+                  </select>
                   <select
                     id="chatLanguage"
                     class="chat-setting"
@@ -296,12 +219,39 @@
                       color: white;
                     "
                   >
-                    <option value="fr">🇫🇷 FR</option>
-                    <option value="en">🇺🇸 EN</option>
-                    <option value="de">🇩🇪 DE</option>
-                    <option value="it">🇮🇹 IT</option>
-                    <option value="es">🇪🇸 ES</option>
-                    <option value="pt">🇵🇹 PT</option>
+                    <option value="fr">🇫🇷 Français</option>
+                    <option value="en">🇺🇸 Anglais</option>
+                    <option value="de">🇩🇪 Allemand</option>
+                    <option value="it">🇮🇹 Italien</option>
+                    <option value="es">🇪🇸 Espagnol</option>
+                    <option value="pt">🇵🇹 Portugais</option>
+                    <option value="nl">🇳🇱 Néerlandais</option>
+                    <option value="ru">🇷🇺 Russe</option>
+                    <option value="ja">🇯🇵 Japonais</option>
+                    <option value="ko">🇰🇷 Coréen</option>
+                    <option value="zh">🇨🇳 Chinois</option>
+                    <option value="ar">🇸🇦 Arabe</option>
+                    <option value="hi">🇮🇳 Hindi</option>
+                    <option value="tr">🇹🇷 Turc</option>
+                    <option value="pl">🇵🇱 Polonais</option>
+                    <option value="sv">🇸🇪 Suédois</option>
+                    <option value="da">🇩🇰 Danois</option>
+                    <option value="no">🇳🇴 Norvégien</option>
+                    <option value="fi">🇫🇮 Finnois</option>
+                    <option value="el">🇬🇷 Grec</option>
+                    <option value="he">🇮🇱 Hébreu</option>
+                    <option value="th">🇹🇭 Thaï</option>
+                    <option value="vi">🇻🇳 Vietnamien</option>
+                    <option value="cs">🇨🇿 Tchèque</option>
+                    <option value="hu">🇭🇺 Hongrois</option>
+                    <option value="ro">🇷🇴 Roumain</option>
+                    <option value="bg">🇧🇬 Bulgare</option>
+                    <option value="hr">🇭🇷 Croate</option>
+                    <option value="sk">🇸🇰 Slovaque</option>
+                    <option value="sl">🇸🇮 Slovène</option>
+                    <option value="et">🇪🇪 Estonien</option>
+                    <option value="lv">🇱🇻 Letton</option>
+                    <option value="lt">🇱🇹 Lituanien</option>
                   </select>
                   <select
                     id="chatAnonymity"
