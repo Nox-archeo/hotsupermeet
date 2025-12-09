@@ -1217,38 +1217,8 @@ io.on('connection', socket => {
         activeConnections.delete(pair.socket2);
         connectionPairs.delete(connectionId);
 
-        // 🔄 AUTO-REQUEUE: Remettre l'autre utilisateur en file d'attente
-        // (sauf s'il a déjà rejoint manuellement)
-        if (!waitingQueue.has(otherSocket)) {
-          // Récupérer les critères de base pour remettre en queue
-          const basicCriteria = {
-            userId: 'demo-user',
-            country: 'all',
-            gender: 'all',
-            anonymity: 'normal',
-            language: 'fr',
-            ageMin: 18,
-            ageMax: 100,
-            userData: {
-              nom: 'Utilisateur Démo',
-              age: 25,
-              country: 'fr',
-              gender: 'all',
-              language: 'fr',
-            },
-          };
-
-          waitingQueue.set(otherSocket, basicCriteria);
-          console.log(
-            `🔄 AUTO-REQUEUE: ${otherSocket} remis en file d'attente`
-          );
-        }
-
         // Notifier l'autre utilisateur
         socket.to(otherSocket).emit('partner-disconnected');
-
-        // 🔄 CONFIRMER LA DÉCONNEXION au client qui a demandé
-        socket.emit('connection-ended');
 
         console.log(`🔓 CONNEXION LIBÉRÉE: ${connectionId}`);
       }
@@ -1378,95 +1348,7 @@ io.on('connection', socket => {
   });
 });
 
-// 🔄 SYSTÈME DE MATCHING AUTOMATIQUE POUR LA QUEUE
-// Vérifier périodiquement si des utilisateurs en attente peuvent être connectés
-const matchmakingInterval = setInterval(() => {
-  if (waitingQueue.size < 2) return; // Pas assez d'utilisateurs
-
-  const queueArray = Array.from(waitingQueue.entries());
-  const matched = new Set();
-
-  for (let i = 0; i < queueArray.length; i++) {
-    if (matched.has(queueArray[i][0])) continue;
-
-    const [socket1Id, criteria1] = queueArray[i];
-
-    // Skip si déjà en connexion active
-    if (activeConnections.has(socket1Id)) continue;
-
-    for (let j = i + 1; j < queueArray.length; j++) {
-      if (matched.has(queueArray[j][0])) continue;
-
-      const [socket2Id, criteria2] = queueArray[j];
-
-      // Skip si déjà en connexion active
-      if (activeConnections.has(socket2Id)) continue;
-
-      // Vérifier blacklist
-      const history1 = connectionHistory.get(socket1Id) || [];
-      const history2 = connectionHistory.get(socket2Id) || [];
-
-      if (history1.includes(socket2Id) || history2.includes(socket1Id)) {
-        continue; // Skip si dans historique récent
-      }
-
-      // Match trouvé ! Connecter les deux
-      const connectionId = `${socket1Id}-${socket2Id}`;
-
-      // Enregistrer connexion active
-      activeConnections.set(socket1Id, connectionId);
-      activeConnections.set(socket2Id, connectionId);
-      connectionPairs.set(connectionId, {
-        socket1: socket1Id,
-        socket2: socket2Id,
-        startTime: new Date(),
-      });
-
-      // Enregistrer historique
-      if (!connectionHistory.has(socket1Id))
-        connectionHistory.set(socket1Id, []);
-      if (!connectionHistory.has(socket2Id))
-        connectionHistory.set(socket2Id, []);
-
-      connectionHistory.get(socket1Id).push(socket2Id);
-      connectionHistory.get(socket2Id).push(socket1Id);
-
-      // Limiter historique
-      if (connectionHistory.get(socket1Id).length > 5) {
-        connectionHistory.get(socket1Id).shift();
-      }
-      if (connectionHistory.get(socket2Id).length > 5) {
-        connectionHistory.get(socket2Id).shift();
-      }
-
-      // Émettre les connexions
-      io.to(socket1Id).emit('partner-found', {
-        connectionId: connectionId,
-        partner: criteria2.userData,
-        partnerSocketId: socket2Id,
-        mySocketId: socket1Id,
-      });
-
-      io.to(socket2Id).emit('partner-found', {
-        connectionId: connectionId,
-        partner: criteria1.userData,
-        partnerSocketId: socket1Id,
-        mySocketId: socket2Id,
-      });
-
-      // Retirer de la queue
-      waitingQueue.delete(socket1Id);
-      waitingQueue.delete(socket2Id);
-
-      // Marquer comme matchés
-      matched.add(socket1Id);
-      matched.add(socket2Id);
-
-      console.log(`🤖 AUTO-MATCH: ${socket1Id} ↔ ${socket2Id}`);
-      break;
-    }
-  }
-}, 2000); // Vérifier toutes les 2 secondes
+// 🎯 MATCHING SIMPLE - PAS D'AUTOMATION
 
 // Démarrer le serveur
 server.listen(PORT, '0.0.0.0', () => {
