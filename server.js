@@ -1327,6 +1327,23 @@ io.on('connection', socket => {
       const senderLanguage = senderUserData.language || 'fr';
       const targetLanguage = targetUserData.language || 'en';
 
+      console.log(`🌍 LANGUE DEBUG - Socket expéditeur: ${socket.id}`);
+      console.log(`🌍 LANGUE DEBUG - Socket destinataire: ${targetSocketId}`);
+      console.log(
+        `🌍 LANGUE DEBUG - Sender data complet:`,
+        JSON.stringify(senderUserData)
+      );
+      console.log(
+        `🌍 LANGUE DEBUG - Target data complet:`,
+        JSON.stringify(targetUserData)
+      );
+      console.log(`🌍 LANGUE DEBUG - Sender language: ${senderLanguage}`);
+      console.log(`🌍 LANGUE DEBUG - Target language: ${targetLanguage}`);
+      console.log(
+        `🌍 LANGUE DEBUG - WaitingQueue keys:`,
+        Array.from(waitingQueue.keys())
+      );
+
       console.log(
         `🌍 Langue expéditeur: ${senderLanguage}, destinataire: ${targetLanguage}`
       );
