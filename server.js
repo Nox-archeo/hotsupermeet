@@ -1008,11 +1008,13 @@ io.on('connection', socket => {
       console.log(
         `📊 File d'attente actuelle: ${waitingQueue.size} utilisateurs`
       );
+      console.log(`📊 QUEUE CONTENU:`, Array.from(waitingQueue.keys()));
 
       // Rechercher un partenaire compatible avec critères de matching + blacklist
       let partnerSocketId = null;
       let bestMatchScore = 0;
       const myHistory = connectionHistory.get(socket.id) || [];
+      console.log(`🚫 MA BLACKLIST ${socket.id}:`, myHistory);
 
       for (const [otherSocketId, otherData] of waitingQueue.entries()) {
         if (otherSocketId === socket.id) {
