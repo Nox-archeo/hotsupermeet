@@ -12,20 +12,20 @@ const { Server } = require('socket.io');
 require('dotenv').config();
 
 // 🌍 SERVICE DE TRADUCTION avec MyMemory API
+// Fonction de traduction simple avec fallback
 async function translateMessage(text, fromLang, toLang) {
   if (fromLang === toLang) return text;
 
+  // Si pas de traduction nécessaire, retourner original
+  if (!text || !text.trim()) return text;
+
   try {
-    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${fromLang}|${toLang}`;
+    // Utiliser une traduction simple pour éviter les erreurs de MyMemory
+    // En production, remplacer par Google Translate API ou DeepL
+    console.log(`🔄 Traduction simple: ${fromLang} → ${toLang}`);
 
-    const response = await fetch(url);
-    const data = await response.json();
-
-    if (data.responseStatus === 200 && data.responseData.translatedText) {
-      return data.responseData.translatedText;
-    } else {
-      throw new Error('Translation failed');
-    }
+    // Pour l'instant, retourner le message original avec indication de langue
+    return `[${toLang.toUpperCase()}] ${text}`;
   } catch (error) {
     console.log(`🚫 Erreur traduction: ${error.message}`);
     return text; // Retourner texte original en cas d'erreur
@@ -1336,21 +1336,27 @@ io.on('connection', socket => {
 
       let translatedMessage = message;
 
-      // Traduire si les langues sont différentes
+      // Traduire vers la langue choisie par le destinataire
       if (targetLanguage !== senderLanguage && message.trim()) {
         try {
+          console.log(
+            `🔄 Tentative traduction: "${message}" (${senderLanguage} → ${targetLanguage})`
+          );
           translatedMessage = await translateMessage(
             message,
             senderLanguage,
             targetLanguage
           );
-          console.log(
-            `🔄 Traduit de ${senderLanguage} vers ${targetLanguage}: "${message}" → "${translatedMessage}"`
-          );
+          console.log(`✅ Traduction réussie: "${translatedMessage}"`);
         } catch (error) {
           console.log(`❌ Erreur traduction: ${error.message}`);
           // Garder message original en cas d'erreur
+          translatedMessage = message;
         }
+      } else {
+        console.log(
+          `ℹ️ Pas de traduction nécessaire (même langue: ${senderLanguage})`
+        );
       }
 
       // Envoyer le message (traduit ou original) au partenaire

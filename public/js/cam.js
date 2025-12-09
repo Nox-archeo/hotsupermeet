@@ -1141,28 +1141,32 @@ class CamToCamSystem {
 
     messageDiv.className = `message ${sender}`;
 
-    // Ajouter une icône de langue pour tous les messages
-    if (sender === 'other' && language) {
-      // Message du partenaire avec langue traduite
+    // Affichage simplifié pour éviter les bugs
+    if (
+      sender === 'other' &&
+      originalMessage &&
+      originalMessage !== message &&
+      language
+    ) {
+      // Message traduit du partenaire
       const languageFlag = this.getLanguageFlag(language);
-      if (originalMessage && originalMessage !== message) {
-        // Afficher message original + traduction
-        messageDiv.innerHTML = `
-          <span style="margin-right: 5px;">${languageFlag}</span>
-          <div style="font-size: 0.9em; color: #666; margin-bottom: 3px;">Original: "${originalMessage}"</div>
-          <div style="font-size: 1.1em; font-weight: 500;">${message}</div>
-        `;
-      } else {
-        messageDiv.innerHTML = `<span style="margin-right: 5px;">${languageFlag}</span> ${message}`;
-      }
-    } else if (sender === 'other' && this.currentPartner) {
-      // Message du partenaire avec langue du profil
-      const languageFlag = this.getLanguageFlag(this.currentPartner.language);
-      messageDiv.innerHTML = `<span style="margin-right: 5px;">${languageFlag}</span> ${message}`;
+      messageDiv.innerHTML = `
+        <div style="display: flex; align-items: center; margin-bottom: 5px;">
+          <span style="margin-right: 8px; font-size: 1.2em;">${languageFlag}</span>
+          <div>
+            <div style="font-size: 0.85em; color: #666; font-style: italic;">"${originalMessage}"</div>
+            <div style="font-size: 1em; font-weight: 500; margin-top: 2px;">${message}</div>
+          </div>
+        </div>
+      `;
+    } else if (sender === 'other' && language) {
+      // Message normal du partenaire
+      const languageFlag = this.getLanguageFlag(language);
+      messageDiv.innerHTML = `<span style="margin-right: 8px;">${languageFlag}</span> ${message}`;
     } else if (sender === 'self' && language) {
-      // Message de l'utilisateur avec sa propre langue
+      // Message de l'utilisateur
       const languageFlag = this.getLanguageFlag(language);
-      messageDiv.innerHTML = `<span style="margin-right: 5px;">${languageFlag}</span> ${message}`;
+      messageDiv.innerHTML = `<span style="margin-right: 8px;">${languageFlag}</span> ${message}`;
     } else {
       messageDiv.textContent = message;
     }
