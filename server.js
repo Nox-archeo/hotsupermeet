@@ -965,12 +965,16 @@ io.on('connection', socket => {
 
       // 🚨 VÉRIFICATION EXCLUSIVITÉ CHATROULETTE
       if (activeConnections.has(socket.id)) {
-        console.log(`❌ ${socket.id} déjà en connexion active, refus`);
-        socket.emit('error', {
-          message:
-            "Vous êtes déjà en conversation. Terminez d'abord votre conversation actuelle.",
-        });
-        return;
+        console.log(
+          `⚠️ ${socket.id} encore dans activeConnections, nettoyage forcé`
+        );
+        // 🔧 FORCE CLEANUP si stuck
+        const oldConnectionId = activeConnections.get(socket.id);
+        activeConnections.delete(socket.id);
+        if (connectionPairs.has(oldConnectionId)) {
+          connectionPairs.delete(oldConnectionId);
+        }
+        console.log(`🧹 Nettoyage forcé effectué pour ${socket.id}`);
       }
 
       // Vérifier si déjà en file d'attente
