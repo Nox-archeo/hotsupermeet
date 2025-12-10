@@ -1142,6 +1142,25 @@ io.on('connection', socket => {
           `🎯 GENDER DEBUG: ${socket.id} (genre: ${myGender}, cherche: ${myGenderSearch}) vs ${otherSocketId} (genre: ${partnerGender}, cherche: ${partnerGenderSearch})`
         );
 
+        // Debug détaillé pour comprendre le matching
+        console.log('🔍 DÉTAIL MATCHING:');
+        console.log(
+          '  - Je cherche:',
+          myGenderSearch,
+          '- Partenaire est:',
+          partnerGender,
+          '- Compatible?',
+          myGenderSearch === 'all' || myGenderSearch === partnerGender
+        );
+        console.log(
+          '  - Partenaire cherche:',
+          partnerGenderSearch,
+          '- Je suis:',
+          myGender,
+          '- Compatible?',
+          partnerGenderSearch === 'all' || partnerGenderSearch === myGender
+        );
+
         // Vérifier compatibilité bidirectionnelle
         const genderCompatible =
           (myGenderSearch === 'all' || myGenderSearch === partnerGender) &&
@@ -1241,16 +1260,62 @@ io.on('connection', socket => {
         // Informer les deux utilisateurs avec les vrais socket IDs
         socket.emit('partner-found', {
           connectionId: connectionId,
-          partner: waitingQueue.get(partnerSocketId).userData,
+          partner: {
+            // Données du partenaire pour affichage
+            ...waitingQueue.get(partnerSocketId).userData,
+            userProfile: user2Data?.userProfile || {},
+            userData:
+              user2Data?.userData || waitingQueue.get(partnerSocketId).userData,
+            gender:
+              user2Data?.userProfile?.gender || user2Data?.userData?.gender,
+            country:
+              user2Data?.userProfile?.countryName ||
+              user2Data?.userData?.country,
+            countryCode:
+              user2Data?.userProfile?.country ||
+              user2Data?.userData?.countryCode,
+            countryName:
+              user2Data?.userProfile?.countryName ||
+              user2Data?.userData?.country,
+          },
           partnerSocketId: partnerSocketId,
           mySocketId: socket.id,
         });
 
         console.log('📤 Émission partner-found vers socket principal');
 
+        // Récupérer les données complètes de chaque utilisateur
+        const user1Data = waitingQueue.get(socket.id);
+        const user2Data = waitingQueue.get(partnerSocketId);
+
+        console.log('🔍 DONNÉES COMPLÈTES:');
+        console.log('  user1Data:', user1Data);
+        console.log('  user2Data:', user2Data);
+
         socket.to(partnerSocketId).emit('partner-found', {
           connectionId: connectionId,
-          partner: demoUser.profile,
+          partner: {
+            // Données pour affichage des infos partenaire
+            ...demoUser.profile,
+            userProfile: user1Data?.userProfile || {},
+            userData: user1Data?.userData || demoUser.profile,
+            gender:
+              user1Data?.userProfile?.gender ||
+              user1Data?.userData?.gender ||
+              demoUser.profile.gender,
+            country:
+              user1Data?.userProfile?.countryName ||
+              user1Data?.userData?.country ||
+              demoUser.profile.country,
+            countryCode:
+              user1Data?.userProfile?.country ||
+              user1Data?.userData?.countryCode ||
+              demoUser.profile.countryCode,
+            countryName:
+              user1Data?.userProfile?.countryName ||
+              user1Data?.userData?.country ||
+              demoUser.profile.country,
+          },
           partnerSocketId: socket.id,
           mySocketId: partnerSocketId,
         });
