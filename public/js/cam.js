@@ -801,24 +801,12 @@ class CamToCamSystem {
 
     console.log('📍 Données partenaire reçues:', partner);
 
-    // Récupération robuste du genre
-    const partnerGender =
-      partner?.userProfile?.gender ||
-      partner?.userData?.gender ||
-      partner?.gender ||
-      'inconnu';
+    // Récupération robuste du genre - CORRIGÉ
+    const partnerGender = partner?.gender || 'inconnu';
 
     // Récupération robuste du pays
-    const partnerCountry =
-      partner?.userProfile?.countryName ||
-      partner?.userData?.country ||
-      partner?.country ||
-      'Inconnu';
-    const partnerCountryCode =
-      partner?.userProfile?.country ||
-      partner?.userData?.countryCode ||
-      partner?.countryCode ||
-      null;
+    const partnerCountry = partner?.country || 'Inconnu';
+    const partnerCountryCode = partner?.countryCode || null;
 
     // Emojis et textes
     const genderEmoji =
