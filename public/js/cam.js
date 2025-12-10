@@ -1391,68 +1391,6 @@ class CamToCamSystem {
     }
   }
 
-  displayPartnerInfo() {
-    const partnerInfo = document.createElement('div');
-    partnerInfo.style.cssText = `
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(0,0,0,0.7);
-      color: white;
-      padding: 0.5rem;
-      border-radius: 5px;
-      font-size: 0.8rem;
-      z-index: 10;
-    `;
-
-    const countryFlag = this.getCountryFlag(this.currentPartner.country);
-    const genderIcon = this.getGenderIcon(this.currentPartner.gender);
-
-    partnerInfo.innerHTML = `
-      ${countryFlag} ${genderIcon} ${this.currentPartner.nom} (${this.currentPartner.age} ans)
-    `;
-
-    // Nettoyer l'ancienne info
-    const oldInfo = document.querySelector('.partner-info');
-    if (oldInfo) {
-      oldInfo.remove();
-    }
-
-    partnerInfo.className = 'partner-info';
-    document
-      .querySelector('.video-wrapper:last-child')
-      .appendChild(partnerInfo);
-  }
-
-  getCountryFlag(countryCode) {
-    const flags = {
-      fr: '🇫🇷',
-      ch: '🇨🇭',
-      be: '🇧🇪',
-      ca: '🇨🇦',
-      us: '🇺🇸',
-      gb: '🇬🇧',
-      de: '🇩🇪',
-      it: '🇮🇹',
-      es: '🇪🇸',
-      pt: '🇵🇹',
-      nl: '🇳🇱',
-      se: '🇸🇪',
-      no: '🇳🇴',
-      dk: '🇩🇰',
-      fi: '🇫🇮',
-      au: '🇦🇺',
-      nz: '🇳🇿',
-      jp: '🇯🇵',
-      kr: '🇰🇷',
-      cn: '🇨🇳',
-      br: '🇧🇷',
-      mx: '🇲🇽',
-      ar: '🇦🇷',
-    };
-    return flags[countryCode] || '🌍';
-  }
-
   getGenderIcon(gender) {
     const icons = {
       male: '👨',
@@ -1638,35 +1576,6 @@ class LocationService {
 
     countryName.textContent =
       this.userProfile.country || 'Localisation inconnue';
-  }
-
-  getCountryFlag(countryCode) {
-    const flags = {
-      fr: '🇫🇷',
-      ch: '🇨🇭',
-      be: '🇧🇪',
-      ca: '🇨🇦',
-      us: '🇺🇸',
-      gb: '🇬🇧',
-      de: '🇩🇪',
-      it: '🇮🇹',
-      es: '🇪🇸',
-      pt: '🇵🇹',
-      nl: '🇳🇱',
-      se: '🇸🇪',
-      no: '🇳🇴',
-      dk: '🇩🇰',
-      fi: '🇫🇮',
-      au: '🇦🇺',
-      nz: '🇳🇿',
-      jp: '🇯🇵',
-      kr: '🇰🇷',
-      cn: '🇨🇳',
-      br: '🇧🇷',
-      mx: '🇲🇽',
-      ar: '🇦🇷',
-    };
-    return flags[countryCode] || '🌐';
   }
 
   // 🎯 VÉRIFICATION DU FILTRE DE GENRE
