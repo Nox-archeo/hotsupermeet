@@ -482,11 +482,13 @@ class CamToCamSystem {
     // Demander le genre si pas encore défini
     if (!this.userProfile.gender) {
       this.askUserGender(() => {
-        this.startSearch();
+        // APRÈS sélection genre, relancer IMMÉDIATEMENT la recherche réseau
+        this.initiateNetworkSearch();
       });
       return;
     }
 
+    // Maintenant on a le genre, lancer la vraie recherche
     this.startSearch();
   }
 
@@ -527,7 +529,7 @@ class CamToCamSystem {
   startSearch() {
     // Récupérer les critères de recherche
     const anonymity = document.getElementById('anonymity')?.value || 'normal';
-    const gender = this.getSelectedGenderFilter(); // Utiliser la méthode dédiée
+    const genderFilter = this.getSelectedGenderFilter(); // Genre recherché (filtre)
     const language = this.getSelectedLanguage(); // Utiliser la méthode dédiée
 
     // Récupérer l'ID utilisateur (simulation pour la démo)
@@ -535,20 +537,26 @@ class CamToCamSystem {
 
     const searchCriteria = {
       country: this.userProfile.countryCode || 'unknown',
-      gender: gender, // Genre recherché
+      gender: genderFilter, // Genre recherché
       anonymity: anonymity,
       language: language,
       ageMin: 18,
       ageMax: 100,
-      // Profil utilisateur
+      // Profil utilisateur AVEC LE GENRE SÉLECTIONNÉ
       userProfile: {
-        gender: this.userProfile.gender,
+        gender: this.userProfile.gender, // MON genre (sélectionné dans la modale)
         country: this.userProfile.countryCode,
         countryName: this.userProfile.country,
       },
     };
 
     console.log('🎯 Critères de recherche:', searchCriteria);
+    console.log(
+      '🎯 MON GENRE:',
+      this.userProfile.gender,
+      'JE CHERCHE:',
+      genderFilter
+    );
 
     // Vérifier que le socket est connecté
     if (!this.socket.connected) {
@@ -786,6 +794,8 @@ class CamToCamSystem {
       userProfile: searchCriteria.userProfile,
       socketId: this.socket.id,
     };
+
+    console.log('📡 ENVOI AU SERVEUR:', searchData);
 
     this.socket.emit('search-partner', searchData, response => {
       if (response && response.error) {
