@@ -698,6 +698,11 @@ class CamToCamSystem {
       connectionId: this.connectionId,
     });
 
+    console.log(
+      '🔍 DÉTAIL OBJET PARTNER:',
+      JSON.stringify(data.partner, null, 2)
+    );
+
     // 🚨 S'ASSURER QUE L'INTERFACE CAM EST VISIBLE
     document.getElementById('searchStatus').classList.add('hidden');
     document.getElementById('camInterface').classList.remove('hidden');
@@ -716,6 +721,7 @@ class CamToCamSystem {
     }
 
     // 📍 AFFICHER LES INFOS DU PARTENAIRE
+    console.log('📍 APPEL displayPartnerInfo avec données:', data.partner);
     this.displayPartnerInfo(data.partner);
 
     // Initialiser la connexion WebRTC
