@@ -1138,8 +1138,18 @@ io.on('connection', socket => {
         const partnerGenderSearch = otherData.gender || 'all'; // Genre que le PARTENAIRE cherche
         const partnerGender = otherData.userProfile?.gender || 'unknown'; // Genre du PARTENAIRE
 
+        console.log(`🎯 GENDER MATCHING DÉTAILLÉ:`);
         console.log(
-          `🎯 GENDER DEBUG: ${socket.id} (genre: ${myGender}, cherche: ${myGenderSearch}) vs ${otherSocketId} (genre: ${partnerGender}, cherche: ${partnerGenderSearch})`
+          `  - MOI: Je suis "${myGender}" et je cherche "${myGenderSearch}"`
+        );
+        console.log(
+          `  - PARTENAIRE: Il/Elle est "${partnerGender}" et cherche "${partnerGenderSearch}"`
+        );
+        console.log(
+          `  - CONDITION 1: Je cherche "${myGenderSearch}", partenaire est "${partnerGender}" → ${myGenderSearch === 'all' || myGenderSearch === partnerGender}`
+        );
+        console.log(
+          `  - CONDITION 2: Partenaire cherche "${partnerGenderSearch}", je suis "${myGender}" → ${partnerGenderSearch === 'all' || partnerGenderSearch === myGender}`
         );
 
         // Vérifier compatibilité bidirectionnelle

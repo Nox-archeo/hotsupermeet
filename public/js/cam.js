@@ -713,8 +713,10 @@ class CamToCamSystem {
         loadingOverlay.remove(); // SUPPRIMER au lieu de cacher
         console.log('🚫 Overlay de loading supprimé');
       }
-    } // Afficher les informations du partenaire réel
-    // this.displayPartnerInfo(); // DÉSACTIVÉ - CAUSAIT VOILE NOIR
+    }
+
+    // 📍 AFFICHER LES INFOS DU PARTENAIRE
+    this.displayPartnerInfo(data.partner);
 
     // Initialiser la connexion WebRTC
     this.initiateWebRTCConnection();
@@ -781,6 +783,65 @@ class CamToCamSystem {
     };
 
     return flags[countryCode.toLowerCase()] || '🌍';
+  }
+
+  // 📍 AFFICHER LES INFOS DU PARTENAIRE
+  displayPartnerInfo(partner) {
+    const partnerInfo = document.querySelector('.partner-info');
+    if (!partnerInfo) {
+      console.warn('⚠️ Élément .partner-info non trouvé dans le DOM');
+      return;
+    }
+
+    console.log('📍 Données partenaire reçues:', partner);
+
+    // Récupération robuste du genre
+    const partnerGender =
+      partner?.userProfile?.gender ||
+      partner?.userData?.gender ||
+      partner?.gender ||
+      'inconnu';
+
+    // Récupération robuste du pays
+    const partnerCountry =
+      partner?.userProfile?.countryName ||
+      partner?.userData?.country ||
+      partner?.country ||
+      'Inconnu';
+    const partnerCountryCode =
+      partner?.userProfile?.country ||
+      partner?.userData?.countryCode ||
+      partner?.countryCode ||
+      null;
+
+    // Emojis et textes
+    const genderEmoji =
+      {
+        male: '👨',
+        female: '👩',
+        other: '🌈',
+      }[partnerGender] || '👤';
+
+    const genderText =
+      {
+        male: 'Homme',
+        female: 'Femme',
+        other: 'Autre',
+      }[partnerGender] || 'Inconnu';
+
+    const countryFlag = partnerCountryCode
+      ? this.getCountryFlag(partnerCountryCode)
+      : '🌍';
+
+    // Mise à jour de l'affichage
+    partnerInfo.innerHTML = `<p style="margin: 0;">${genderEmoji} ${genderText} ${countryFlag} ${partnerCountry}</p>`;
+
+    console.log('✅ Infos partenaire affichées:', {
+      partnerGender,
+      genderText,
+      partnerCountry,
+      countryFlag,
+    });
   }
 
   emitJoinCamQueue(searchCriteria) {
