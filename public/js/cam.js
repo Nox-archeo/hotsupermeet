@@ -827,7 +827,21 @@ class CamToCamSystem {
       ? this.getCountryFlag(partnerCountryCode)
       : '🌍';
 
-    // Mise à jour de l'affichage
+    // Mise à jour de l'affichage avec FORCE CSS
+    partnerInfo.style.cssText = `
+      position: absolute !important;
+      top: 10px !important;
+      right: 10px !important;
+      background: rgba(0, 0, 0, 0.8) !important;
+      color: white !important;
+      padding: 0.5rem !important;
+      border-radius: 8px !important;
+      font-size: 0.9rem !important;
+      font-weight: 600 !important;
+      z-index: 9999 !important;
+      display: block !important;
+      visibility: visible !important;
+    `;
     partnerInfo.innerHTML = `<p style="margin: 0;">${genderEmoji} ${genderText} ${countryFlag} ${partnerCountry}</p>`;
 
     console.log('✅ Infos partenaire affichées:', {
