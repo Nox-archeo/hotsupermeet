@@ -99,12 +99,23 @@ class CamMatchingService {
       return false;
     }
 
-    // Vérifier le genre (plus permissif en mode démo)
+    // Vérifier le genre - LOGIQUE CORRIGEE POUR BIDIRECTIONNEL
     if (criteria1.gender && criteria2.gender) {
       if (criteria1.gender !== 'all' && criteria2.gender !== 'all') {
-        if (criteria1.gender !== criteria2.gender) {
+        // Nouvelle logique : vérifier ce que chacun CHERCHE vs ce qu'est l'autre
+        const user1WantsGender = criteria1.gender; // Ce que user1 cherche
+        const user1IsGender = criteria1.userData?.gender || 'unknown'; // Ce qu'est user1
+        const user2WantsGender = criteria2.gender; // Ce que user2 cherche
+        const user2IsGender = criteria2.userData?.gender || 'unknown'; // Ce qu'est user2
+
+        // Vérification bidirectionnelle
+        const compatible =
+          (user1WantsGender === 'all' || user1WantsGender === user2IsGender) &&
+          (user2WantsGender === 'all' || user2WantsGender === user1IsGender);
+
+        if (!compatible) {
           console.log(
-            `❌ Genres incompatibles: ${criteria1.gender} vs ${criteria2.gender}`
+            `❌ Genres incompatibles: User1 cherche ${user1WantsGender}, User2 est ${user2IsGender} | User2 cherche ${user2WantsGender}, User1 est ${user1IsGender}`
           );
           return false;
         }
