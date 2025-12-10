@@ -495,22 +495,32 @@ class CamToCamSystem {
     const modal = document.getElementById('genderModal');
     modal.style.display = 'flex';
 
-    // Gérer les clics sur les boutons
+    // Nettoyer les anciens événements
     const genderButtons = document.querySelectorAll('.gender-choice');
     genderButtons.forEach(button => {
-      button.addEventListener('click', () => {
+      // Cloner le bouton pour supprimer tous les événements
+      const newButton = button.cloneNode(true);
+      button.parentNode.replaceChild(newButton, button);
+    });
+
+    // Réattacher les nouveaux événements
+    const freshButtons = document.querySelectorAll('.gender-choice');
+    freshButtons.forEach(button => {
+      button.onclick = () => {
         const selectedGender = button.getAttribute('data-gender');
         this.userProfile.gender = selectedGender;
 
+        console.log('🎯 Genre sélectionné:', selectedGender);
+
         // Mettre à jour l'affichage du pays
-        this.updateUserCountryFlag();
+        this.updateUserInfo();
 
         // Fermer la modale
         modal.style.display = 'none';
 
         // Continuer la recherche
         callback();
-      });
+      };
     });
   }
 
@@ -718,6 +728,51 @@ class CamToCamSystem {
   getSelectedLanguage() {
     const languageSelect = document.getElementById('chatLanguage');
     return languageSelect ? languageSelect.value : 'fr';
+  }
+
+  updateUserInfo() {
+    // Mettre à jour l'affichage des informations utilisateur
+    const userInfo = document.querySelector('.user-info');
+    const countryFlag = document.getElementById('userCountryFlag');
+    const countryName = document.getElementById('userCountryName');
+
+    if (countryFlag && this.userProfile.countryCode) {
+      countryFlag.textContent = this.getCountryFlag(
+        this.userProfile.countryCode
+      );
+    }
+
+    if (countryName) {
+      countryName.textContent = this.userProfile.country || 'Localisation...';
+    }
+
+    console.log('🌍 Info utilisateur mise à jour:', this.userProfile);
+  }
+
+  getCountryFlag(countryCode) {
+    if (!countryCode) return '🌍';
+
+    // Conversion code pays vers emoji drapeau
+    const flags = {
+      fr: '🇫🇷',
+      de: '🇩🇪',
+      es: '🇪🇸',
+      it: '🇮🇹',
+      gb: '🇬🇧',
+      us: '🇺🇸',
+      ca: '🇨🇦',
+      ch: '🇨🇭',
+      be: '🇧🇪',
+      nl: '🇳🇱',
+      pt: '🇵🇹',
+      at: '🇦🇹',
+      se: '🇸🇪',
+      no: '🇳🇴',
+      dk: '🇩🇰',
+      fi: '🇫🇮',
+    };
+
+    return flags[countryCode.toLowerCase()] || '🌍';
   }
 
   emitJoinCamQueue(searchCriteria) {
@@ -1489,7 +1544,7 @@ class LocationService {
         );
 
         // Mettre à jour l'affichage IMMÉDIATEMENT
-        this.updateUserCountryFlag();
+        this.updateUserInfo();
       } else {
         throw new Error('Erreur API géolocalisation');
       }
@@ -1497,7 +1552,7 @@ class LocationService {
       console.log('⚠️ Impossible de détecter le pays:', error.message);
       this.userProfile.country = 'Inconnu';
       this.userProfile.countryCode = null;
-      this.updateUserCountryFlag();
+      this.updateUserInfo();
     }
   }
 
@@ -1544,17 +1599,6 @@ class LocationService {
       ar: '🇦🇷',
     };
     return flags[countryCode] || '🌐';
-  }
-
-  updateUserCountryFlag() {
-    const userCountryFlag = document.getElementById('userCountryFlag');
-
-    // Afficher le drapeau du pays
-    if (this.userProfile.countryCode) {
-      userCountryFlag.textContent = this.getCountryFlag(
-        this.userProfile.countryCode
-      );
-    }
   }
 
   // 🎯 VÉRIFICATION DU FILTRE DE GENRE
