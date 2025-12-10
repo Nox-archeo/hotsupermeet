@@ -513,7 +513,6 @@ class CamToCamSystem {
         this.userProfile.gender = selectedGender;
 
         console.log('🎯 Genre sélectionné:', selectedGender);
-        console.log('🔍 Profil utilisateur mis à jour:', this.userProfile);
 
         // Mettre à jour l'affichage du pays
         this.updateUserInfo();
@@ -521,7 +520,7 @@ class CamToCamSystem {
         // Fermer la modale
         modal.style.display = 'none';
 
-        // Continuer la recherche avec le bon profil
+        // Continuer la recherche
         callback();
       };
     });
@@ -536,12 +535,6 @@ class CamToCamSystem {
     // Récupérer l'ID utilisateur (simulation pour la démo)
     this.userId = 'demo-user-id-' + Date.now();
 
-    // Validation du profil utilisateur
-    if (!this.userProfile.gender) {
-      console.error('❌ Genre utilisateur non défini');
-      return;
-    }
-
     const searchCriteria = {
       country: this.userProfile.countryCode || 'unknown',
       gender: genderFilter, // Genre recherché
@@ -552,8 +545,8 @@ class CamToCamSystem {
       // Profil utilisateur AVEC LE GENRE SÉLECTIONNÉ
       userProfile: {
         gender: this.userProfile.gender, // MON genre (sélectionné dans la modale)
-        country: this.userProfile.countryCode || 'unknown',
-        countryName: this.userProfile.country || 'Inconnu',
+        country: this.userProfile.countryCode,
+        countryName: this.userProfile.country,
       },
     };
 
@@ -720,21 +713,18 @@ class CamToCamSystem {
         loadingOverlay.remove(); // SUPPRIMER au lieu de cacher
         console.log('🚫 Overlay de loading supprimé');
       }
-    }
+    } // Afficher les informations du partenaire réel
+    // this.displayPartnerInfo(); // DÉSACTIVÉ - CAUSAIT VOILE NOIR
 
-    // 🎯 AFFICHER LES INFOS DU PARTENAIRE AVEC VALIDATION GENRE
-    if (this.validatePartnerGender(data.partner)) {
-      this.displayPartnerInfo(data.partner);
-      // Initialiser la connexion WebRTC
-      this.initiateWebRTCConnection();
-      this.isConnected = true;
-      this.clearChat();
-    } else {
-      // Genre incompatible, chercher un autre partenaire
-      console.log("❌ Genre incompatible, recherche d'un autre partenaire");
-      this.socket.emit('find-next-partner');
-      return;
-    }
+    // Initialiser la connexion WebRTC
+    this.initiateWebRTCConnection();
+
+    this.isConnected = true;
+
+    // Vider le chat avant de commencer une nouvelle session
+    this.clearChat();
+
+    // Plus de message de bienvenue automatique
   }
 
   // Méthodes pour récupérer les préférences des filtres
@@ -791,92 +781,6 @@ class CamToCamSystem {
     };
 
     return flags[countryCode.toLowerCase()] || '🌍';
-  }
-
-  // 🎯 VALIDATION DU GENRE DU PARTENAIRE
-  validatePartnerGender(partner) {
-    const myGenderFilter = this.getSelectedGenderFilter();
-    const partnerGender =
-      partner?.gender || partner?.userData?.gender || 'unknown';
-
-    console.log(
-      '🎯 VALIDATION GENRE - Je cherche:',
-      myGenderFilter,
-      'Partenaire est:',
-      partnerGender
-    );
-
-    // Si je cherche "tous", accepter
-    if (myGenderFilter === 'all') {
-      return true;
-    }
-
-    // Sinon vérifier correspondance exacte
-    return myGenderFilter === partnerGender;
-  }
-
-  // 📍 AFFICHER LES INFOS DU PARTENAIRE
-  displayPartnerInfo(partner) {
-    const partnerInfo = document.querySelector('.partner-info');
-    if (!partnerInfo) {
-      console.warn('⚠️ Élément .partner-info non trouvé');
-      return;
-    }
-
-    console.log('🔍 DONNÉES PARTENAIRE REÇUES:', partner);
-
-    // Récupération robuste des données partenaire
-    const partnerGender =
-      partner?.userProfile?.gender ||
-      partner?.userData?.gender ||
-      partner?.gender ||
-      'inconnu';
-
-    const partnerCountry =
-      partner?.userProfile?.countryName ||
-      partner?.userData?.country ||
-      partner?.countryName ||
-      partner?.country ||
-      'Inconnu';
-
-    const partnerCountryCode =
-      partner?.userProfile?.country ||
-      partner?.userData?.countryCode ||
-      partner?.countryCode ||
-      null;
-
-    const genderEmoji =
-      {
-        male: '👨',
-        female: '👩',
-        other: '🌈',
-      }[partnerGender] || '👤';
-
-    const genderText =
-      {
-        male: 'Homme',
-        female: 'Femme',
-        other: 'Autre',
-      }[partnerGender] || 'Inconnu';
-
-    const countryFlag = partnerCountryCode
-      ? this.getCountryFlag(partnerCountryCode)
-      : '🌍';
-
-    partnerInfo.innerHTML = `
-      <p style="margin: 0; font-weight: 600;">
-        ${genderEmoji} ${genderText} ${countryFlag} ${partnerCountry}
-      </p>
-    `;
-
-    console.log('📍 Infos partenaire affichées:', {
-      partnerGender,
-      genderText,
-      partnerCountry,
-      partnerCountryCode,
-      countryFlag,
-      rawData: partner,
-    });
   }
 
   emitJoinCamQueue(searchCriteria) {
