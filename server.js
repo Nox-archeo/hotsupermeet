@@ -1242,6 +1242,10 @@ io.on('connection', socket => {
 
         console.log('📤 Émission partner-found vers socket principal');
 
+        console.log(
+          '🔥🔥🔥 MON FIX EST BIEN DÉPLOYÉ !',
+          new Date().toISOString()
+        );
         socket.to(partnerSocketId).emit('partner-found', {
           connectionId: connectionId,
           partner: waitingQueue.get(socket.id).userData,
