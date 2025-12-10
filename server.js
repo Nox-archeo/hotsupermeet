@@ -1152,7 +1152,7 @@ io.on('connection', socket => {
           `  - CONDITION 2: Partenaire cherche "${partnerGenderSearch}", je suis "${myGender}" → ${partnerGenderSearch === 'all' || partnerGenderSearch === myGender}`
         );
 
-        // Vérifier compatibilité bidirectionnelle
+        // Vérifier compatibilité bidirectionnelle - LOGIQUE CORRIGEE
         const genderCompatible =
           (myGenderSearch === 'all' || myGenderSearch === partnerGender) &&
           (partnerGenderSearch === 'all' || partnerGenderSearch === myGender);
