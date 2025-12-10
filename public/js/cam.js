@@ -50,19 +50,23 @@ class CamToCamSystem {
       // Détecter le pays de l'utilisateur en arrière-plan
       this.detectUserCountry();
 
-      // Demander permissions caméra
+      // Demander permissions caméra et afficher immédiatement
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: true,
       });
       this.localStream = stream;
 
-      // Afficher la vidéo locale
+      // Afficher la vidéo locale IMMÉDIATEMENT
       const localVideo = document.getElementById('localVideo');
       localVideo.srcObject = stream;
+      localVideo.play(); // Forcer la lecture
 
       // Afficher directement l'interface de recherche
       document.getElementById('searchSection').classList.remove('hidden');
+
+      // S'assurer que la vidéo est visible
+      document.getElementById('camInterface').classList.remove('hidden');
     } catch (error) {
       // Si pas de permissions, afficher demande d'autorisation
       document.getElementById('permissionRequest').classList.remove('hidden');
@@ -487,33 +491,34 @@ class CamToCamSystem {
   }
 
   askUserGender(callback) {
-    // Simple prompt pour demander le genre
-    const gender = prompt(
-      '👤 Pour commencer, quel est votre genre ?\n\n1 - Homme\n2 - Femme\n3 - Autre\n\nTapez 1, 2 ou 3:'
-    );
+    // Afficher la modale stylée
+    const modal = document.getElementById('genderModal');
+    modal.style.display = 'flex';
 
-    if (gender === '1') {
-      this.userProfile.gender = 'male';
-      this.updateUserCountryFlag();
-      callback();
-    } else if (gender === '2') {
-      this.userProfile.gender = 'female';
-      this.updateUserCountryFlag();
-      callback();
-    } else if (gender === '3') {
-      this.userProfile.gender = 'other';
-      this.updateUserCountryFlag();
-      callback();
-    } else {
-      this.showError('Genre requis pour continuer.');
-    }
+    // Gérer les clics sur les boutons
+    const genderButtons = document.querySelectorAll('.gender-choice');
+    genderButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const selectedGender = button.getAttribute('data-gender');
+        this.userProfile.gender = selectedGender;
+
+        // Mettre à jour l'affichage du pays
+        this.updateUserCountryFlag();
+
+        // Fermer la modale
+        modal.style.display = 'none';
+
+        // Continuer la recherche
+        callback();
+      });
+    });
   }
 
   startSearch() {
     // Récupérer les critères de recherche
     const anonymity = document.getElementById('anonymity')?.value || 'normal';
-    const gender = document.getElementById('chatGender')?.value || 'all';
-    const language = document.getElementById('chatLanguage')?.value || 'fr';
+    const gender = this.getSelectedGenderFilter(); // Utiliser la méthode dédiée
+    const language = this.getSelectedLanguage(); // Utiliser la méthode dédiée
 
     // Récupérer l'ID utilisateur (simulation pour la démo)
     this.userId = 'demo-user-id-' + Date.now();
@@ -703,24 +708,38 @@ class CamToCamSystem {
 
     // Plus de message de bienvenue automatique
   }
-  emitJoinCamQueue(searchCriteria) {
-    console.log('📡 Émission join-cam-queue avec critères:', searchCriteria);
 
-    this.socket.emit(
-      'join-cam-queue',
-      {
-        userId: this.userId,
-        criteria: searchCriteria,
-      },
-      response => {
-        if (response && response.error) {
-          console.error('❌ Erreur du serveur:', response.error);
-          this.showError('Erreur lors de la recherche: ' + response.error);
-        } else {
-          console.log('✅ Requête join-cam-queue envoyée avec succès');
-        }
+  // Méthodes pour récupérer les préférences des filtres
+  getSelectedGenderFilter() {
+    const genderSelect = document.getElementById('chatGender');
+    return genderSelect ? genderSelect.value : 'all';
+  }
+
+  getSelectedLanguage() {
+    const languageSelect = document.getElementById('chatLanguage');
+    return languageSelect ? languageSelect.value : 'fr';
+  }
+
+  emitJoinCamQueue(searchCriteria) {
+    console.log('📡 Émission search-partner avec critères:', searchCriteria);
+
+    // Conversion des critères au format attendu par le serveur
+    const searchData = {
+      country: searchCriteria.country || 'all',
+      gender: searchCriteria.gender || 'all', // Genre recherché
+      language: searchCriteria.language || 'fr',
+      userProfile: searchCriteria.userProfile,
+      socketId: this.socket.id,
+    };
+
+    this.socket.emit('search-partner', searchData, response => {
+      if (response && response.error) {
+        console.error('❌ Erreur du serveur:', response.error);
+        this.showError('Erreur lors de la recherche: ' + response.error);
+      } else {
+        console.log('✅ Requête search-partner envoyée avec succès');
       }
-    );
+    });
   }
 
   handleWaitingForPartner(data) {
@@ -1469,8 +1488,8 @@ class LocationService {
           this.userProfile.countryCode
         );
 
-        // Mettre à jour l'affichage
-        this.updateCountryDisplay();
+        // Mettre à jour l'affichage IMMÉDIATEMENT
+        this.updateUserCountryFlag();
       } else {
         throw new Error('Erreur API géolocalisation');
       }
@@ -1478,7 +1497,7 @@ class LocationService {
       console.log('⚠️ Impossible de détecter le pays:', error.message);
       this.userProfile.country = 'Inconnu';
       this.userProfile.countryCode = null;
-      this.updateCountryDisplay();
+      this.updateUserCountryFlag();
     }
   }
 
