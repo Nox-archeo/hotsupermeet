@@ -1244,7 +1244,7 @@ io.on('connection', socket => {
 
         socket.to(partnerSocketId).emit('partner-found', {
           connectionId: connectionId,
-          partner: demoUser.profile,
+          partner: waitingQueue.get(socket.id).userData,
           partnerSocketId: socket.id,
           mySocketId: partnerSocketId,
         });
