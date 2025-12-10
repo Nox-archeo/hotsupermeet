@@ -784,25 +784,28 @@ class CamToCamSystem {
   }
 
   emitJoinCamQueue(searchCriteria) {
-    console.log('📡 Émission search-partner avec critères:', searchCriteria);
+    console.log('📡 Émission join-cam-queue avec critères:', searchCriteria);
 
-    // Conversion des critères au format attendu par le serveur
-    const searchData = {
-      country: searchCriteria.country || 'all',
-      gender: searchCriteria.gender || 'all', // Genre recherché
-      language: searchCriteria.language || 'fr',
-      userProfile: searchCriteria.userProfile,
-      socketId: this.socket.id,
+    // Format attendu par le serveur: { userId, criteria }
+    const payload = {
+      userId: this.userId || 'demo-user-' + Date.now(),
+      criteria: {
+        country: searchCriteria.country || 'all',
+        gender: searchCriteria.gender || 'all', // Genre recherché
+        language: searchCriteria.language || 'fr',
+        userProfile: searchCriteria.userProfile,
+        socketId: this.socket.id,
+      },
     };
 
-    console.log('📡 ENVOI AU SERVEUR:', searchData);
+    console.log('📡 ENVOI AU SERVEUR join-cam-queue:', payload);
 
-    this.socket.emit('search-partner', searchData, response => {
+    this.socket.emit('join-cam-queue', payload, response => {
       if (response && response.error) {
         console.error('❌ Erreur du serveur:', response.error);
         this.showError('Erreur lors de la recherche: ' + response.error);
       } else {
-        console.log('✅ Requête search-partner envoyée avec succès');
+        console.log('✅ Requête join-cam-queue envoyée avec succès');
       }
     });
   }

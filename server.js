@@ -1032,6 +1032,13 @@ io.on('connection', socket => {
 
   // Rejoindre la file d'attente pour le cam-to-cam
   socket.on('join-cam-queue', async data => {
+    console.log(
+      '🎯 ÉVÉNEMENT join-cam-queue REÇU de',
+      socket.id,
+      'avec data:',
+      data
+    );
+
     try {
       const { userId, criteria } = data;
 
