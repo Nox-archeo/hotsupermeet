@@ -1034,6 +1034,12 @@ io.on('connection', socket => {
       data
     );
 
+    // 🚨🚨🚨 LOG ULTRA VISIBLE POUR CONFIRMER QUE CA PASSE ICI 🚨🚨🚨
+    console.log('🔥🔥🔥🔥🔥 JOIN-CAM-QUEUE APPELÉ SUR RENDER ! 🔥🔥🔥🔥🔥');
+    console.log('⚡ TIMESTAMP:', new Date().toISOString());
+    console.log('⚡ SOCKET ID:', socket.id);
+    console.log('⚡ DATA REÇUE:', JSON.stringify(data, null, 2));
+
     try {
       const { userId, criteria } = data;
 
@@ -1133,14 +1139,35 @@ io.on('connection', socket => {
         const partnerGenderSearch = otherData.gender || 'all'; // Genre que le PARTENAIRE cherche
         const partnerGender = otherData.userProfile?.gender || 'unknown'; // Genre du PARTENAIRE
 
-        // Vérifier compatibilité bidirectionnelle SANS LOGS
-        const genderCompatible =
-          (myGenderSearch === 'all' || myGenderSearch === partnerGender) &&
-          (partnerGenderSearch === 'all' || partnerGenderSearch === myGender);
+        // 🚨 LOGS ULTRA VISIBLES POUR DEBUG
+        console.log('🚨🚨🚨 VERIFICATION GENRE BIDIRECTIONNELLE 🚨🚨🚨');
+        console.log(
+          `👤 MOI (${socket.id}): genre=${myGender}, cherche=${myGenderSearch}`
+        );
+        console.log(
+          `👥 PARTENAIRE (${otherSocketId}): genre=${partnerGender}, cherche=${partnerGenderSearch}`
+        );
+
+        // Vérifier compatibilité bidirectionnelle AVEC LOGS DETAILLES
+        const condition1 =
+          myGenderSearch === 'all' || myGenderSearch === partnerGender;
+        const condition2 =
+          partnerGenderSearch === 'all' || partnerGenderSearch === myGender;
+        const genderCompatible = condition1 && condition2;
+
+        console.log(
+          `✅ Je cherche ${myGenderSearch}, partenaire est ${partnerGender}: ${condition1}`
+        );
+        console.log(
+          `✅ Partenaire cherche ${partnerGenderSearch}, je suis ${myGender}: ${condition2}`
+        );
+        console.log(`🎯 COMPATIBLE ? ${genderCompatible}`);
 
         if (genderCompatible) {
           matchScore += 30;
+          console.log('🟢 GENRE COMPATIBLE - AJOUT 30 POINTS');
         } else {
+          console.log('🔴 GENRE INCOMPATIBLE - SKIP CE PARTENAIRE');
           continue; // Passer au suivant si pas compatible
         }
 
