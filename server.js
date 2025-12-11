@@ -1077,6 +1077,13 @@ io.on('connection', socket => {
         },
       };
 
+      console.log('🌍 PROFIL UTILISATEUR CRÉÉ:', {
+        country: demoUser.profile.country,
+        countryCode: demoUser.profile.countryCode,
+        source_countryName: criteria.userProfile?.countryName,
+        source_country: criteria.userProfile?.country,
+      });
+
       // Ajouter l'utilisateur à la file d'attente avec son profil complet
       waitingQueue.set(socket.id, {
         ...criteria,
@@ -1299,6 +1306,11 @@ io.on('connection', socket => {
         );
 
         // Informer les deux utilisateurs avec les vrais socket IDs
+        console.log('📤 DONNÉES PARTENAIRE ENVOYÉES:', {
+          partner: waitingQueue.get(partnerSocketId).userData,
+          partnerSocketId: partnerSocketId,
+        });
+
         socket.emit('partner-found', {
           connectionId: connectionId,
           partner: waitingQueue.get(partnerSocketId).userData,
