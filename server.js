@@ -1267,29 +1267,8 @@ io.on('connection', socket => {
         );
 
         // Programmer un timeout de 3 minutes pour informer l'utilisateur
-        setTimeout(
-          () => {
-            if (waitingQueue.has(socket.id)) {
-              const searchGender = criteria.gender || 'all';
-              const genderText =
-                searchGender === 'female'
-                  ? 'femme'
-                  : searchGender === 'male'
-                    ? 'homme'
-                    : 'personne';
-
-              socket.emit('no-match-timeout', {
-                message: `Aucun${searchGender === 'female' ? 'e' : ''} ${genderText} disponible actuellement. Vous pouvez modifier vos critères de recherche.`,
-                searchCriteria: criteria,
-                waitTime: '3 minutes',
-              });
-              console.log(
-                `⏰ TIMEOUT: Notification envoyée à ${socket.id} - Aucun${searchGender === 'female' ? 'e' : ''} ${genderText} disponible`
-              );
-            }
-          },
-          3 * 60 * 1000
-        ); // 3 minutes
+        // ✅ TIMEOUT SUPPRIMÉ - Laisse l'utilisateur décider quand arrêter
+        // Pas de timeout automatique pour éviter les confusions d'état UI
       }
 
       if (partnerSocketId) {

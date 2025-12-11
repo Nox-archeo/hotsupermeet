@@ -118,10 +118,7 @@ class CamToCamSystem {
       this.handleWebRTCSignal(data);
     });
 
-    // Écouter le timeout de recherche (pas de partenaire compatible trouvé)
-    this.socket.on('no-match-timeout', data => {
-      this.handleNoMatchTimeout(data);
-    });
+    // ✅ TIMEOUT SUPPRIMÉ - Plus de timeout automatique pour éviter confusion UI
 
     this.socket.on('error', data => {
       this.showError(data.message);
@@ -295,10 +292,10 @@ class CamToCamSystem {
       this.updateAnonymityMode(e.target.value);
     });
 
-    // 🔄 REDÉMARRAGE AUTOMATIQUE quand on change le genre pendant la recherche
-    document.getElementById('chatGender').addEventListener('change', e => {
-      this.handleGenderChange(e.target.value);
-    });
+    // 🔄 REDÉMARRAGE AUTOMATIQUE DÉSACTIVÉ (causait des bugs d'état UI)
+    // document.getElementById('chatGender').addEventListener('change', e => {
+    //   this.handleGenderChange(e.target.value);
+    // });
 
     // Gestion des événements tactiles pour les sélecteurs
     const selectElements = document.querySelectorAll('select');
@@ -333,37 +330,14 @@ class CamToCamSystem {
     // Pas de message système dans le chat pour les changements d'anonymat
   }
 
-  // 🔄 REDÉMARRAGE AUTOMATIQUE quand on change le genre pendant la recherche
-  handleGenderChange(newGender) {
-    console.log('🔄 Changement de genre détecté:', newGender);
-
-    // Si on est en train de chercher, redémarrer automatiquement
-    if (this.isSearching) {
-      console.log(
-        '🔄 Recherche en cours → Redémarrage automatique avec nouveaux critères'
-      );
-
-      // Afficher notification temporaire
-      this.showNotification(
-        'Critères modifiés - Recherche relancée automatiquement',
-        'info',
-        3000
-      );
-
-      // Arrêter la recherche actuelle
-      this.stopSearch();
-
-      // Relancer après un court délai pour éviter les conflits
-      setTimeout(() => {
-        console.log('🔄 Relance automatique avec nouveau genre:', newGender);
-        this.startPartnerSearch();
-      }, 500);
-    } else {
-      console.log(
-        '🔄 Pas de recherche en cours, nouveaux critères seront utilisés au prochain démarrage'
-      );
-    }
-  }
+  // 🔄 FONCTION DÉSACTIVÉE - causait des états UI incohérents
+  // handleGenderChange(newGender) {
+  //   console.log('🔄 Changement de genre détecté:', newGender);
+  //
+  //   if (this.isSearching) {
+  //     this.addMessage('system', '🔄 Veuillez arrêter la recherche pour changer de critères');
+  //   }
+  // }
 
   getLanguageName(language) {
     const languages = {
@@ -777,35 +751,8 @@ class CamToCamSystem {
     // Plus de message de bienvenue automatique
   }
 
-  // Gérer le timeout de recherche (aucun partenaire compatible trouvé)
-  handleNoMatchTimeout(data) {
-    console.log('⏰ Timeout de recherche reçu:', data);
-
-    // Arrêter la recherche
-    this.isSearching = false;
-
-    // Supprimer l'overlay de loading
-    const loadingOverlay = document.getElementById('partner-loading-overlay');
-    if (loadingOverlay) {
-      loadingOverlay.remove();
-    }
-
-    // Réinitialiser le bouton
-    const startBtn = document.getElementById('start-chat');
-    if (startBtn) {
-      startBtn.textContent = 'Démarrer la cam';
-      startBtn.classList.remove('searching');
-      startBtn.disabled = false;
-    }
-
-    // Afficher le message d'information
-    this.showNotification(data.message, 'warning', 10000); // 10 secondes
-
-    // Optionnel : ajouter un message dans le chat
-    this.addChatMessage('system', `⏰ ${data.message}`);
-
-    console.log('⏰ Recherche arrêtée automatiquement après timeout');
-  }
+  // ✅ FONCTION SUPPRIMÉE - Plus de timeout automatique
+  // handleNoMatchTimeout était source de confusion UI
 
   // Méthodes pour récupérer les préférences des filtres
   getSelectedGenderFilter() {
