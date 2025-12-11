@@ -264,14 +264,14 @@ class CamToCamSystem {
         }
       });
 
-      // Éviter le zoom sur iOS
-      chatInput.addEventListener(
-        'touchstart',
-        e => {
-          e.preventDefault();
-        },
-        { passive: false }
-      );
+      // 📱 CORRECTION MOBILE: Pas de preventDefault sur input pour permettre focus
+      // chatInput.addEventListener(
+      //   'touchstart',
+      //   e => {
+      //     e.preventDefault();
+      //   },
+      //   { passive: false }
+      // );
     }
 
     // Modal de signalement
