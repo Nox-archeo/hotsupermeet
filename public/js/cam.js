@@ -295,6 +295,11 @@ class CamToCamSystem {
       this.updateAnonymityMode(e.target.value);
     });
 
+    // 🔄 REDÉMARRAGE AUTOMATIQUE quand on change le genre pendant la recherche
+    document.getElementById('chatGender').addEventListener('change', e => {
+      this.handleGenderChange(e.target.value);
+    });
+
     // Gestion des événements tactiles pour les sélecteurs
     const selectElements = document.querySelectorAll('select');
     selectElements.forEach(select => {
@@ -326,6 +331,38 @@ class CamToCamSystem {
     // Appliquer le nouveau mode d'anonymat en temps réel (sans message chat)
     this.applyAnonymityMask(mode);
     // Pas de message système dans le chat pour les changements d'anonymat
+  }
+
+  // 🔄 REDÉMARRAGE AUTOMATIQUE quand on change le genre pendant la recherche
+  handleGenderChange(newGender) {
+    console.log('🔄 Changement de genre détecté:', newGender);
+
+    // Si on est en train de chercher, redémarrer automatiquement
+    if (this.isSearching) {
+      console.log(
+        '🔄 Recherche en cours → Redémarrage automatique avec nouveaux critères'
+      );
+
+      // Afficher notification temporaire
+      this.showNotification(
+        'Critères modifiés - Recherche relancée automatiquement',
+        'info',
+        3000
+      );
+
+      // Arrêter la recherche actuelle
+      this.stopSearch();
+
+      // Relancer après un court délai pour éviter les conflits
+      setTimeout(() => {
+        console.log('🔄 Relance automatique avec nouveau genre:', newGender);
+        this.startPartnerSearch();
+      }, 500);
+    } else {
+      console.log(
+        '🔄 Pas de recherche en cours, nouveaux critères seront utilisés au prochain démarrage'
+      );
+    }
   }
 
   getLanguageName(language) {
