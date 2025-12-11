@@ -123,6 +123,32 @@
           </button>
         </div>
 
+        <!-- Recherche de partenaire -->
+        <div id="searchSection" class="search-partner hidden">
+          <h2 style="color: #2c3e50; margin-bottom: 1rem">
+            Rechercher un partenaire
+          </h2>
+
+          <!-- Configuration anonymat -->
+          <div class="filter-group" style="margin-bottom: 1rem">
+            <label for="anonymity">Mode anonyme</label>
+            <select id="anonymity">
+              <option value="normal">Visage visible</option>
+              <option value="mask">Masque de protection</option>
+              <option value="blur">Flou du visage</option>
+              <option value="silhouette">Silhouette uniquement</option>
+            </select>
+          </div>
+
+          <button
+            class="btn-primary"
+            id="startSearch"
+            style="min-height: 44px; font-size: 16px"
+          >
+            Commencer la recherche
+          </button>
+        </div>
+
         <!-- Interface cam-to-cam principale -->
         <div id="camInterface" class="hidden">
           <div class="cam-content">
