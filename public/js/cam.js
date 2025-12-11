@@ -312,6 +312,27 @@ class CamToCamSystem {
     console.log('✅ Écouteurs d\\' + 'événements tactiles configurés');
   }
 
+  // 📱 FONCTION HELPER pour ajouter des écouteurs tactiles à un élément donné
+  addTouchListenerToElement(element, handler) {
+    if (!element) {
+      console.error('Élément non fourni pour addTouchListenerToElement');
+      return;
+    }
+
+    // Événement tactile pour mobile
+    element.addEventListener(
+      'touchstart',
+      e => {
+        e.preventDefault();
+        handler();
+      },
+      { passive: false }
+    );
+
+    // Événement clic pour desktop
+    element.addEventListener('click', handler);
+  }
+
   updateChatLanguage(language) {
     // Mettre à jour la langue de traduction en temps réel
     console.log(`🌍 Changement langue chat: ${language}`);
@@ -594,12 +615,16 @@ class CamToCamSystem {
     const startBtn = document.getElementById('startSearch');
     if (!startBtn) return;
 
+    // 📱 CORRECTION MOBILE: Supprimer tous les anciens écouteurs
+    const newBtn = startBtn.cloneNode(true);
+    startBtn.parentNode.replaceChild(newBtn, startBtn);
+
     if (isSearching) {
-      startBtn.textContent = '🛑 Arrêter la recherche';
-      startBtn.onclick = () => this.stopSearch();
+      newBtn.textContent = '🛑 Arrêter la recherche';
+      this.addTouchListenerToElement(newBtn, () => this.stopSearch());
     } else {
-      startBtn.textContent = '🔍 Commencer la recherche';
-      startBtn.onclick = () => this.startPartnerSearch();
+      newBtn.textContent = '🔍 Commencer la recherche';
+      this.addTouchListenerToElement(newBtn, () => this.startPartnerSearch());
     }
   }
 
