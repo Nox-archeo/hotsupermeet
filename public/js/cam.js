@@ -815,15 +815,15 @@ class CamToCamSystem {
   getCountryFlag(countryCode) {
     if (!countryCode) return '🌍';
 
-    // Conversion code pays vers emoji drapeau
+    // Conversion code pays vers emoji drapeau - ÉTENDUE
     const flags = {
+      // Europe
       fr: '🇫🇷',
       de: '🇩🇪',
       es: '🇪🇸',
       it: '🇮🇹',
       gb: '🇬🇧',
-      us: '🇺🇸',
-      ca: '🇨🇦',
+      uk: '🇬🇧',
       ch: '🇨🇭',
       be: '🇧🇪',
       nl: '🇳🇱',
@@ -833,9 +833,145 @@ class CamToCamSystem {
       no: '🇳🇴',
       dk: '🇩🇰',
       fi: '🇫🇮',
+      ie: '🇮🇪',
+      pl: '🇵🇱',
+      cz: '🇨🇿',
+      hu: '🇭🇺',
+      ro: '🇷🇴',
+      bg: '🇧🇬',
+      hr: '🇭🇷',
+      si: '🇸🇮',
+      sk: '🇸🇰',
+      lt: '🇱🇹',
+      lv: '🇱🇻',
+      ee: '🇪🇪',
+      gr: '🇬🇷',
+      cy: '🇨🇾',
+      mt: '🇲🇹',
+      lu: '🇱🇺',
+
+      // Amérique
+      us: '🇺🇸',
+      ca: '🇨🇦',
+      mx: '🇲🇽',
+      br: '🇧🇷',
+      ar: '🇦🇷',
+      co: '🇨🇴',
+      cl: '🇨🇱',
+      pe: '🇵🇪',
+      ve: '🇻🇪',
+      uy: '🇺🇾',
+
+      // Afrique
+      ma: '🇲🇦',
+      dz: '🇩🇿',
+      tn: '🇹🇳',
+      eg: '🇪🇬',
+      za: '🇿🇦',
+      ng: '🇳🇬',
+      ke: '🇰🇪',
+      gh: '🇬🇭',
+      sn: '🇸🇳',
+      ci: '🇨🇮',
+
+      // Asie
+      jp: '🇯🇵',
+      cn: '🇨🇳',
+      in: '🇮🇳',
+      kr: '🇰🇷',
+      th: '🇹🇭',
+      vn: '🇻🇳',
+      sg: '🇸🇬',
+      my: '🇲🇾',
+      id: '🇮🇩',
+      ph: '🇵🇭',
+      tw: '🇹🇼',
+      hk: '🇭🇰',
+      tr: '🇹🇷',
+      ru: '🇷🇺',
+      ua: '🇺🇦',
+
+      // Océanie
+      au: '🇦🇺',
+      nz: '🇳🇿',
+
+      // Moyen-Orient
+      ae: '🇦🇪',
+      sa: '🇸🇦',
+      il: '🇮🇱',
+      lb: '🇱🇧',
+      jo: '🇯🇴',
     };
 
     return flags[countryCode.toLowerCase()] || '🌍';
+  }
+
+  // 🗺️ OBTENIR NOM DU PAYS à partir du code
+  getCountryName(countryCode) {
+    const countries = {
+      // Europe
+      fr: 'France',
+      de: 'Allemagne',
+      es: 'Espagne',
+      it: 'Italie',
+      gb: 'Royaume-Uni',
+      uk: 'Royaume-Uni',
+      ch: 'Suisse',
+      be: 'Belgique',
+      nl: 'Pays-Bas',
+      pt: 'Portugal',
+      at: 'Autriche',
+      se: 'Suède',
+      no: 'Norvège',
+      dk: 'Danemark',
+      fi: 'Finlande',
+      ie: 'Irlande',
+      pl: 'Pologne',
+      cz: 'République tchèque',
+      hu: 'Hongrie',
+      ro: 'Roumanie',
+
+      // Amérique
+      us: 'États-Unis',
+      ca: 'Canada',
+      mx: 'Mexique',
+      br: 'Brésil',
+      ar: 'Argentine',
+      co: 'Colombie',
+      cl: 'Chili',
+      pe: 'Pérou',
+
+      // Afrique
+      ma: 'Maroc',
+      dz: 'Algérie',
+      tn: 'Tunisie',
+      eg: 'Égypte',
+      za: 'Afrique du Sud',
+      ng: 'Nigeria',
+
+      // Asie
+      jp: 'Japon',
+      cn: 'Chine',
+      in: 'Inde',
+      kr: 'Corée du Sud',
+      th: 'Thaïlande',
+      vn: 'Vietnam',
+      sg: 'Singapour',
+      tr: 'Turquie',
+      ru: 'Russie',
+      ua: 'Ukraine',
+
+      // Océanie
+      au: 'Australie',
+      nz: 'Nouvelle-Zélande',
+
+      // Moyen-Orient
+      ae: 'Émirats arabes unis',
+      sa: 'Arabie saoudite',
+      il: 'Israël',
+    };
+
+    return countries[countryCode.toLowerCase()] || 'Pays inconnu';
   }
 
   // 📍 AFFICHER LES INFOS DU PARTENAIRE
@@ -1586,39 +1722,67 @@ class LocationService {
     }
   }
 
-  // 🌍 DÉTECTION AUTOMATIQUE DU PAYS
+  // 🌍 DÉTECTION AUTOMATIQUE DU PAYS - AMÉLIORÉE
   async detectUserCountry() {
     try {
-      // Utiliser l'API ipapi.co pour détecter le pays
-      const response = await fetch('https://ipapi.co/json/', {
-        method: 'GET',
-        headers: {
-          'User-Agent': 'HotMeet-GeoLocation',
-        },
-      });
+      // Essayer plusieurs APIs pour plus de fiabilité
+      let response;
 
-      if (response.ok) {
-        const data = await response.json();
-        this.userProfile.country = data.country_name || 'Inconnu';
-        this.userProfile.countryCode = data.country_code
-          ? data.country_code.toLowerCase()
-          : null;
+      // API 1: ipapi.co (gratuite, fiable)
+      try {
+        response = await fetch('https://ipapi.co/json/', {
+          method: 'GET',
+          headers: { 'User-Agent': 'HotMeet-GeoLocation' },
+          timeout: 5000,
+        });
 
-        console.log(
-          '🌍 Pays détecté:',
-          this.userProfile.country,
-          this.userProfile.countryCode
-        );
-
-        // Mettre à jour l'affichage IMMÉDIATEMENT
-        this.updateUserInfo();
-      } else {
-        throw new Error('Erreur API géolocalisation');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.country_code && data.country_name) {
+            this.userProfile.country = data.country_name;
+            this.userProfile.countryCode = data.country_code.toLowerCase();
+            console.log(
+              '🌍 Pays détecté (ipapi.co):',
+              this.userProfile.country,
+              this.userProfile.countryCode
+            );
+            this.updateUserInfo();
+            return;
+          }
+        }
+      } catch (e) {
+        console.log('⚠️ ipapi.co échoué, essai API alternative...');
       }
+
+      // API 2: Alternative
+      try {
+        response = await fetch('https://api.country.is/', { timeout: 5000 });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.country) {
+            this.userProfile.countryCode = data.country.toLowerCase();
+            this.userProfile.country = this.getCountryName(
+              this.userProfile.countryCode
+            );
+            console.log(
+              '🌍 Pays détecté (country.is):',
+              this.userProfile.country,
+              this.userProfile.countryCode
+            );
+            this.updateUserInfo();
+            return;
+          }
+        }
+      } catch (e) {
+        console.log('⚠️ country.is échoué...');
+      }
+
+      // Si tout échoue
+      throw new Error('Toutes les APIs ont échoué');
     } catch (error) {
       console.log('⚠️ Impossible de détecter le pays:', error.message);
       this.userProfile.country = 'Inconnu';
-      this.userProfile.countryCode = null;
+      this.userProfile.countryCode = 'unknown';
       this.updateUserInfo();
     }
   }
