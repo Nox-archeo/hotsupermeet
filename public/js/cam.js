@@ -50,6 +50,11 @@ class CamToCamSystem {
       // Détecter le pays de l'utilisateur en arrière-plan
       this.detectUserCountry();
 
+      // Attendre un peu que la géolocalisation se fasse
+      setTimeout(() => {
+        this.updateUserInfo();
+      }, 2000);
+
       // Demander permissions caméra et afficher immédiatement
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
@@ -289,10 +294,6 @@ class CamToCamSystem {
       this.updateChatLanguage(e.target.value);
     });
 
-    document.getElementById('chatAnonymity').addEventListener('change', e => {
-      this.updateAnonymityMode(e.target.value);
-    });
-
     // 🔄 REDÉMARRAGE AUTOMATIQUE DÉSACTIVÉ (causait des bugs d'état UI)
     // document.getElementById('chatGender').addEventListener('change', e => {
     //   this.handleGenderChange(e.target.value);
@@ -344,12 +345,6 @@ class CamToCamSystem {
         language: language,
       });
     }
-  }
-
-  updateAnonymityMode(mode) {
-    // Appliquer le nouveau mode d'anonymat en temps réel (sans message chat)
-    this.applyAnonymityMask(mode);
-    // Pas de message système dans le chat pour les changements d'anonymat
   }
 
   // 🔄 FONCTION DÉSACTIVÉE - causait des états UI incohérents
@@ -566,7 +561,6 @@ class CamToCamSystem {
 
   startSearch() {
     // Récupérer les critères de recherche
-    const anonymity = document.getElementById('anonymity')?.value || 'normal';
     const genderFilter = this.getSelectedGenderFilter(); // Genre recherché (filtre)
     const language = this.getSelectedLanguage(); // Utiliser la méthode dédiée
 
@@ -576,7 +570,6 @@ class CamToCamSystem {
     const searchCriteria = {
       country: this.userProfile.countryCode || 'unknown',
       gender: genderFilter, // Genre recherché
-      anonymity: anonymity,
       language: language,
       ageMin: 18,
       ageMax: 100,
@@ -1567,26 +1560,6 @@ class CamToCamSystem {
   clearChat() {
     const chatMessages = document.getElementById('chatMessages');
     chatMessages.innerHTML = '';
-  }
-
-  applyAnonymityMask(mode) {
-    const localVideo = document.getElementById('localVideo');
-
-    switch (mode) {
-      case 'normal':
-        localVideo.style.filter = 'none';
-        break;
-      case 'mask':
-        localVideo.style.filter = 'brightness(0.3) contrast(0.8)';
-        // Ajouter un overlay de masque
-        break;
-      case 'blur':
-        localVideo.style.filter = 'blur(10px)';
-        break;
-      case 'silhouette':
-        localVideo.style.filter = 'brightness(0) contrast(2)';
-        break;
-    }
   }
 
   getGenderIcon(gender) {
