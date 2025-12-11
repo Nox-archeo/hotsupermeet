@@ -221,6 +221,12 @@
   .scroll-indicator {
     bottom: 1rem;
   }
+
+  /* 📱 SIMPLE FIX: Déplacer ta cam vers la gauche sur mobile */
+  #localVideo {
+    left: 10px !important;
+    right: auto !important;
+  }
 }
 
 /* ===== TABLETTE (769px - 1024px) ===== */
