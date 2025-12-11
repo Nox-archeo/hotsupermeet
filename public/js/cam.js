@@ -118,6 +118,11 @@ class CamToCamSystem {
       this.handleWebRTCSignal(data);
     });
 
+    // Écouter le timeout de recherche (pas de partenaire compatible trouvé)
+    this.socket.on('no-match-timeout', data => {
+      this.handleNoMatchTimeout(data);
+    });
+
     this.socket.on('error', data => {
       this.showError(data.message);
     });
@@ -733,6 +738,36 @@ class CamToCamSystem {
     this.clearChat();
 
     // Plus de message de bienvenue automatique
+  }
+
+  // Gérer le timeout de recherche (aucun partenaire compatible trouvé)
+  handleNoMatchTimeout(data) {
+    console.log('⏰ Timeout de recherche reçu:', data);
+
+    // Arrêter la recherche
+    this.isSearching = false;
+
+    // Supprimer l'overlay de loading
+    const loadingOverlay = document.getElementById('partner-loading-overlay');
+    if (loadingOverlay) {
+      loadingOverlay.remove();
+    }
+
+    // Réinitialiser le bouton
+    const startBtn = document.getElementById('start-chat');
+    if (startBtn) {
+      startBtn.textContent = 'Démarrer la cam';
+      startBtn.classList.remove('searching');
+      startBtn.disabled = false;
+    }
+
+    // Afficher le message d'information
+    this.showNotification(data.message, 'warning', 10000); // 10 secondes
+
+    // Optionnel : ajouter un message dans le chat
+    this.addChatMessage('system', `⏰ ${data.message}`);
+
+    console.log('⏰ Recherche arrêtée automatiquement après timeout');
   }
 
   // Méthodes pour récupérer les préférences des filtres
