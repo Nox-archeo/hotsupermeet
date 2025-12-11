@@ -1195,9 +1195,102 @@ io.on('connection', socket => {
         }
       }
 
-      // 🚨 PLUS DE FALLBACK SANS CRITÈRES !
-      // Si aucun partenaire compatible n'est trouvé, l'utilisateur reste en attente
-      // au lieu d'être forcé avec quelqu'un d'incompatible
+      // 🚨 FALLBACK INTELLIGENT avec respect du genre et de l'historique
+      if (!partnerSocketId && waitingQueue.size > 1) {
+        console.log(
+          '🔍 Aucun match parfait, recherche fallback avec genre respecté...'
+        );
+
+        // D'abord essayer sans historique (éviter les reconnexions récentes)
+        for (const [otherSocketId, otherData] of waitingQueue.entries()) {
+          if (
+            otherSocketId !== socket.id &&
+            !activeConnections.has(otherSocketId) &&
+            !myHistory.includes(otherSocketId)
+          ) {
+            // 🚨 VÉRIFICATION GENRE OBLIGATOIRE même en fallback
+            const myGender = criteria.userProfile?.gender || 'unknown';
+            const myGenderSearch = criteria.gender || 'all';
+            const partnerGender = otherData.userProfile?.gender || 'unknown';
+            const partnerGenderSearch = otherData.gender || 'all';
+
+            const genderCompatible =
+              (myGenderSearch === 'all' || myGenderSearch === partnerGender) &&
+              (partnerGenderSearch === 'all' ||
+                partnerGenderSearch === myGender);
+
+            if (genderCompatible) {
+              partnerSocketId = otherSocketId;
+              console.log(
+                '🟡 FALLBACK MATCH: Genre OK, évite historique, ignore autres critères'
+              );
+              break;
+            }
+          }
+        }
+
+        // Si toujours rien, accepter quelqu'un de l'historique MAIS toujours avec bon genre
+        if (!partnerSocketId) {
+          for (const [otherSocketId, otherData] of waitingQueue.entries()) {
+            if (
+              otherSocketId !== socket.id &&
+              !activeConnections.has(otherSocketId)
+            ) {
+              // 🚨 VÉRIFICATION GENRE OBLIGATOIRE même avec historique
+              const myGender = criteria.userProfile?.gender || 'unknown';
+              const myGenderSearch = criteria.gender || 'all';
+              const partnerGender = otherData.userProfile?.gender || 'unknown';
+              const partnerGenderSearch = otherData.gender || 'all';
+
+              const genderCompatible =
+                (myGenderSearch === 'all' ||
+                  myGenderSearch === partnerGender) &&
+                (partnerGenderSearch === 'all' ||
+                  partnerGenderSearch === myGender);
+
+              if (genderCompatible) {
+                partnerSocketId = otherSocketId;
+                console.log(
+                  "🔄 FALLBACK HISTORIQUE: Genre OK, reconnexion acceptée par manque d'alternatives"
+                );
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      // 🚨 TIMEOUT SYSTÈME : Si aucun match après 3 minutes, informer l'utilisateur
+      if (!partnerSocketId) {
+        console.log(
+          '⏰ Aucun partenaire compatible trouvé, utilisateur en attente...'
+        );
+
+        // Programmer un timeout de 3 minutes pour informer l'utilisateur
+        setTimeout(
+          () => {
+            if (waitingQueue.has(socket.id)) {
+              const searchGender = criteria.gender || 'all';
+              const genderText =
+                searchGender === 'female'
+                  ? 'femme'
+                  : searchGender === 'male'
+                    ? 'homme'
+                    : 'personne';
+
+              socket.emit('no-match-timeout', {
+                message: `Aucun${searchGender === 'female' ? 'e' : ''} ${genderText} disponible actuellement. Vous pouvez modifier vos critères de recherche.`,
+                searchCriteria: criteria,
+                waitTime: '3 minutes',
+              });
+              console.log(
+                `⏰ TIMEOUT: Notification envoyée à ${socket.id} - Aucun${searchGender === 'female' ? 'e' : ''} ${genderText} disponible`
+              );
+            }
+          },
+          3 * 60 * 1000
+        ); // 3 minutes
+      }
 
       if (partnerSocketId) {
         console.log(
