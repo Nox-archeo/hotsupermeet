@@ -50,11 +50,6 @@ class CamToCamSystem {
       // Détecter le pays de l'utilisateur en arrière-plan
       this.detectUserCountry();
 
-      // Attendre un peu que la géolocalisation se fasse
-      setTimeout(() => {
-        this.updateUserInfo();
-      }, 2000);
-
       // Demander permissions caméra et afficher immédiatement
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
@@ -797,11 +792,29 @@ class CamToCamSystem {
       countryFlag.textContent = this.getCountryFlag(
         this.userProfile.countryCode
       );
+    } else if (countryFlag) {
+      countryFlag.textContent = '🌍';
     }
 
     if (countryName) {
       countryName.textContent = this.userProfile.country || 'Localisation...';
     }
+
+    // Forcer mise à jour même si les éléments n'existent pas encore
+    setTimeout(() => {
+      const flagLater = document.getElementById('userCountryFlag');
+      const nameLater = document.getElementById('userCountryName');
+
+      if (flagLater && this.userProfile.countryCode) {
+        flagLater.textContent = this.getCountryFlag(
+          this.userProfile.countryCode
+        );
+      }
+
+      if (nameLater && this.userProfile.country) {
+        nameLater.textContent = this.userProfile.country;
+      }
+    }, 1000);
 
     console.log('🌍 Info utilisateur mise à jour:', this.userProfile);
   }
