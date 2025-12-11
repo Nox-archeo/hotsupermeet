@@ -225,8 +225,8 @@
     width: 120px;
     height: 90px;
     top: 10px;
-    right: 10px;
-    left: auto;
+    left: 10px;
+    right: auto;
   }
 
   #camInterface .controls {
