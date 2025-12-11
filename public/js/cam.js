@@ -624,7 +624,10 @@ class CamToCamSystem {
       this.addTouchListenerToElement(newBtn, () => this.stopSearch());
     } else {
       newBtn.textContent = '🔍 Commencer la recherche';
-      this.addTouchListenerToElement(newBtn, () => this.startPartnerSearch());
+      this.addTouchListenerToElement(newBtn, () => {
+        this.isStoppedByUser = false; // 🔄 RÉAUTORISER la recherche
+        this.startPartnerSearch();
+      });
     }
   }
 
