@@ -1241,6 +1241,22 @@ io.on('connection', socket => {
           '🔥🔥🔥 MON FIX EST BIEN DÉPLOYÉ !',
           new Date().toISOString()
         );
+
+        // DEBUG: Voir les vraies données avant envoi
+        console.log('📊 DEBUG AVANT ENVOI:');
+        console.log(
+          'Socket actuel:',
+          socket.id,
+          'userData:',
+          waitingQueue.get(socket.id)?.userData
+        );
+        console.log(
+          'Partner:',
+          partnerSocketId,
+          'userData:',
+          waitingQueue.get(partnerSocketId)?.userData
+        );
+
         socket.to(partnerSocketId).emit('partner-found', {
           connectionId: connectionId,
           partner: waitingQueue.get(socket.id).userData,
