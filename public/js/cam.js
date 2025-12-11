@@ -1720,7 +1720,6 @@ class LocationService {
         response = await fetch('https://ipapi.co/json/', {
           method: 'GET',
           headers: { 'User-Agent': 'HotMeet-GeoLocation' },
-          timeout: 5000,
         });
 
         if (response.ok) {
@@ -1741,9 +1740,9 @@ class LocationService {
         console.log('⚠️ ipapi.co échoué, essai API alternative...');
       }
 
-      // API 2: Alternative
+      // API 2: Alternative plus simple
       try {
-        response = await fetch('https://api.country.is/', { timeout: 5000 });
+        response = await fetch('https://api.country.is/');
         if (response.ok) {
           const data = await response.json();
           if (data.country) {
@@ -1764,14 +1763,59 @@ class LocationService {
         console.log('⚠️ country.is échoué...');
       }
 
+      // API 3: Utiliser ip-api.com comme backup
+      try {
+        response = await fetch('http://ip-api.com/json/');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.countryCode && data.country) {
+            this.userProfile.countryCode = data.countryCode.toLowerCase();
+            this.userProfile.country = data.country;
+            console.log(
+              '🌍 Pays détecté (ip-api.com):',
+              this.userProfile.country,
+              this.userProfile.countryCode
+            );
+            this.updateUserInfo();
+            return;
+          }
+        }
+      } catch (e) {
+        console.log('⚠️ ip-api.com échoué...');
+      }
+
       // Si tout échoue
       throw new Error('Toutes les APIs ont échoué');
     } catch (error) {
       console.log('⚠️ Impossible de détecter le pays:', error.message);
-      this.userProfile.country = 'Inconnu';
-      this.userProfile.countryCode = 'unknown';
+      // Fallback plus intelligent basé sur la langue du navigateur
+      const browserLang =
+        navigator.language || navigator.userLanguage || 'fr-FR';
+      const fallbackCountry = this.getFallbackCountryFromLanguage(browserLang);
+
+      this.userProfile.country = fallbackCountry.name;
+      this.userProfile.countryCode = fallbackCountry.code;
+      console.log(
+        '🔄 Fallback pays basé sur langue navigateur:',
+        fallbackCountry
+      );
       this.updateUserInfo();
     }
+  }
+
+  getFallbackCountryFromLanguage(lang) {
+    const langMap = {
+      fr: { name: 'France', code: 'fr' },
+      'en-US': { name: 'United States', code: 'us' },
+      'en-GB': { name: 'United Kingdom', code: 'gb' },
+      es: { name: 'Spain', code: 'es' },
+      de: { name: 'Germany', code: 'de' },
+      it: { name: 'Italy', code: 'it' },
+      pt: { name: 'Portugal', code: 'pt' },
+    };
+
+    const langCode = lang.split('-')[0];
+    return langMap[langCode] || { name: 'France', code: 'fr' };
   }
 
   updateCountryDisplay() {
