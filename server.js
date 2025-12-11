@@ -1195,37 +1195,9 @@ io.on('connection', socket => {
         }
       }
 
-      // Si aucun partenaire n'est trouvé avec critères, prendre le premier disponible
-      // MAIS éviter l'historique si possible
-      if (!partnerSocketId && waitingQueue.size > 1) {
-        // D'abord essayer sans historique
-        for (const [otherSocketId, otherData] of waitingQueue.entries()) {
-          if (
-            otherSocketId !== socket.id &&
-            !activeConnections.has(otherSocketId) &&
-            !myHistory.includes(otherSocketId)
-          ) {
-            partnerSocketId = otherSocketId;
-            break;
-          }
-        }
-
-        // Si toujours rien, accepter quelqu'un de l'historique
-        if (!partnerSocketId) {
-          for (const [otherSocketId, otherData] of waitingQueue.entries()) {
-            if (
-              otherSocketId !== socket.id &&
-              !activeConnections.has(otherSocketId)
-            ) {
-              partnerSocketId = otherSocketId;
-              console.log(
-                `🔄 Reconnexion acceptée par manque d'alternatives: ${otherSocketId}`
-              );
-              break;
-            }
-          }
-        }
-      }
+      // 🚨 PLUS DE FALLBACK SANS CRITÈRES !
+      // Si aucun partenaire compatible n'est trouvé, l'utilisateur reste en attente
+      // au lieu d'être forcé avec quelqu'un d'incompatible
 
       if (partnerSocketId) {
         console.log(
