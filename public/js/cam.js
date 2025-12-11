@@ -69,7 +69,8 @@ class CamToCamSystem {
       document.getElementById('camInterface').classList.remove('hidden');
     } catch (error) {
       // Si pas de permissions, afficher demande d'autorisation
-      document.getElementById('permissionRequest').classList.remove('hidden');
+      // document.getElementById('permissionRequest').classList.remove('hidden'); // REMOVED - direct to search
+      document.getElementById('searchSection').classList.remove('hidden');
     }
   }
 
@@ -212,10 +213,10 @@ class CamToCamSystem {
       element.addEventListener('click', handler);
     };
 
-    // Bouton de demande d'autorisations
-    addTouchListener('requestPermissions', () => {
-      this.requestMediaPermissions();
-    });
+    // Bouton de demande d'autorisations - REMOVED
+    // addTouchListener('requestPermissions', () => {
+    //   this.requestMediaPermissions();
+    // });
 
     // Bouton de recherche de partenaire
     addTouchListener('startSearch', () => {
@@ -434,7 +435,7 @@ class CamToCamSystem {
       localVideo.setAttribute('webkit-playsinline', 'true');
 
       // Cacher la demande d'autorisations, afficher la recherche
-      document.getElementById('permissionRequest').classList.add('hidden');
+      // document.getElementById('permissionRequest').classList.add('hidden'); // REMOVED
       document.getElementById('searchSection').classList.remove('hidden');
 
       console.log('🎥 Vidéo locale configurée pour mobile');
