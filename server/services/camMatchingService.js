@@ -102,21 +102,42 @@ class CamMatchingService {
     // Vérifier le genre - LOGIQUE CORRIGEE POUR BIDIRECTIONNEL
     if (criteria1.gender && criteria2.gender) {
       if (criteria1.gender !== 'all' && criteria2.gender !== 'all') {
+        // DEBUG - voir les vraies valeurs
+        console.log('🔍 MATCHING DEBUG:', {
+          user1: {
+            criteria: criteria1,
+            wants: criteria1.gender,
+            is: criteria1.userData?.gender || criteria1.userProfile?.gender,
+          },
+          user2: {
+            criteria: criteria2,
+            wants: criteria2.gender,
+            is: criteria2.userData?.gender || criteria2.userProfile?.gender,
+          },
+        });
+
         // Nouvelle logique : vérifier ce que chacun CHERCHE vs ce qu'est l'autre
         const user1WantsGender = criteria1.gender; // Ce que user1 cherche
-        const user1IsGender = criteria1.userData?.gender || 'unknown'; // Ce qu'est user1
+        const user1IsGender =
+          criteria1.userData?.gender ||
+          criteria1.userProfile?.gender ||
+          'unknown'; // Ce qu'est user1
         const user2WantsGender = criteria2.gender; // Ce que user2 cherche
-        const user2IsGender = criteria2.userData?.gender || 'unknown'; // Ce qu'est user2
+        const user2IsGender =
+          criteria2.userData?.gender ||
+          criteria2.userProfile?.gender ||
+          'unknown'; // Ce qu'est user2
 
         // Vérification bidirectionnelle
         const compatible =
           (user1WantsGender === 'all' || user1WantsGender === user2IsGender) &&
           (user2WantsGender === 'all' || user2WantsGender === user1IsGender);
 
+        console.log(
+          `Résultat: ${user1IsGender} cherche ${user1WantsGender} + ${user2IsGender} cherche ${user2WantsGender} = ${compatible ? 'COMPATIBLE' : 'INCOMPATIBLE'}`
+        );
+
         if (!compatible) {
-          console.log(
-            `❌ Genres incompatibles: User1 cherche ${user1WantsGender}, User2 est ${user2IsGender} | User2 cherche ${user2WantsGender}, User1 est ${user1IsGender}`
-          );
           return false;
         }
       }
