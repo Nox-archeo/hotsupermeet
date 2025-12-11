@@ -46,52 +46,9 @@
       <div class="container">
         <div class="page-header">
           <h1>Cam-to-Cam Live</h1>
-          <p>
-            Expériences en direct avec technologie WebRTC sécurisée -
-            Fonctionnalité réservée aux membres premium
-          </p>
         </div>
 
-        <!-- Section d'explication de la fonctionnalité -->
-        <div
-          style="
-            background: rgba(255, 255, 255, 0.95);
-            padding: 2rem;
-            border-radius: var(--radius);
-            margin-bottom: 2rem;
-          "
-        >
-          <h2 style="color: #2c3e50; margin-bottom: 1rem">
-            Expériences en Direct
-          </h2>
-          <div
-            style="
-              display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-              gap: 1.5rem;
-            "
-          >
-            <div style="text-align: center">
-              <div style="font-size: 2rem; margin-bottom: 1rem">📹</div>
-              <h3 style="color: #2c3e50; margin-bottom: 0.5rem">Vidéo Live</h3>
-              <p style="color: #666">
-                Communications en temps réel avec webcam
-              </p>
-            </div>
-            <div style="text-align: center">
-              <div style="font-size: 2rem; margin-bottom: 1rem">🔒</div>
-              <h3 style="color: #2c3e50; margin-bottom: 0.5rem">Sécurité</h3>
-              <p style="color: #666">Technologie WebRTC cryptée et sécurisée</p>
-            </div>
-            <div style="text-align: center">
-              <div style="font-size: 2rem; margin-bottom: 1rem">🌍</div>
-              <h3 style="color: #2c3e50; margin-bottom: 0.5rem">Global</h3>
-              <p style="color: #666">
-                Connectez-vous avec des personnes du monde entier
-              </p>
-            </div>
-          </div>
-        </div>
+
 
         <!-- Restriction pour les non-premium -->
         <div id="premiumRestriction" class="premium-restriction hidden">
@@ -106,39 +63,13 @@
           </button>
         </div>
 
-        <!-- Demande d'autorisations -->
-        <div id="permissionRequest" class="permission-request hidden">
-          <h2 style="color: #2c3e50; margin-bottom: 1rem">
-            Autorisations requises
-          </h2>
-          <p style="color: #666; margin-bottom: 1rem">
-            Le cam-to-cam nécessite l'accès à votre webcam et microphone.
-          </p>
-          <button
-            class="btn-primary"
-            id="requestPermissions"
-            style="min-height: 44px; font-size: 16px"
-          >
-            Autoriser l'accès
-          </button>
-        </div>
+
 
         <!-- Recherche de partenaire -->
         <div id="searchSection" class="search-partner hidden">
           <h2 style="color: #2c3e50; margin-bottom: 1rem">
             Rechercher un partenaire
           </h2>
-
-          <!-- Configuration anonymat -->
-          <div class="filter-group" style="margin-bottom: 1rem">
-            <label for="anonymity">Mode anonyme</label>
-            <select id="anonymity">
-              <option value="normal">Visage visible</option>
-              <option value="mask">Masque de protection</option>
-              <option value="blur">Flou du visage</option>
-              <option value="silhouette">Silhouette uniquement</option>
-            </select>
-          </div>
 
           <button
             class="btn-primary"
