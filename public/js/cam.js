@@ -246,10 +246,13 @@ class CamToCamSystem {
       this.endCall();
     });
 
-    // 🖥️ NOUVEAU: Plein écran pour la vidéo partenaire
-    addTouchListener('fullscreenBtn', () => {
-      this.toggleFullscreen();
-    });
+    // 🖥️ NOUVEAU: Plein écran pour la vidéo partenaire (optionnel)
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    if (fullscreenBtn) {
+      addTouchListener('fullscreenBtn', () => {
+        this.toggleFullscreen();
+      });
+    }
 
     // Chat
     addTouchListener('sendBtn', () => {
@@ -560,7 +563,7 @@ class CamToCamSystem {
     // 🌍 ESSAYER LA GÉOLOCALISATION SI PAS ENCORE FAITE
     if (!this.userProfile.country) {
       console.log('🌍 Géolocalisation en cours, veuillez patienter...');
-      this.showSearching('Détection de votre localisation...');
+      this.showPartnerLoading(); // Afficher le loading pendant la géolocalisation
 
       const geoSuccess = await this.detectUserCountry();
 
@@ -1712,18 +1715,22 @@ class LocationService {
   // 🖥️ NOUVELLE FONCTION: Basculer le mode plein écran
   toggleFullscreen() {
     const camLayout = document.querySelector('.cam-layout');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+    if (!camLayout || !fullscreenBtn) return;
+
     const isFullscreen = camLayout.classList.contains('fullscreen-mode');
 
     if (!isFullscreen) {
       // Activer le plein écran
       camLayout.classList.add('fullscreen-mode');
-      document.getElementById('fullscreenBtn').innerHTML = '🔙';
-      document.getElementById('fullscreenBtn').title = 'Quitter plein écran';
+      fullscreenBtn.innerHTML = '🔙';
+      fullscreenBtn.title = 'Quitter plein écran';
     } else {
       // Désactiver le plein écran
       camLayout.classList.remove('fullscreen-mode');
-      document.getElementById('fullscreenBtn').innerHTML = '⛶';
-      document.getElementById('fullscreenBtn').title = 'Plein écran';
+      fullscreenBtn.innerHTML = '⛶';
+      fullscreenBtn.title = 'Plein écran';
     }
   }
 
