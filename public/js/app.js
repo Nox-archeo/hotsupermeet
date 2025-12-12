@@ -386,7 +386,7 @@ window.addEventListener('error', event => {
   console.error('Erreur globale:', event.error);
 });
 
-// Service Worker pour le cache (optionnel)
+// Service Worker Registration
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
@@ -399,3 +399,40 @@ if ('serviceWorker' in navigator) {
       });
   });
 }
+
+// Fonctionnalité d'expansion des carrés de fonctionnalités
+document.addEventListener('DOMContentLoaded', function () {
+  const expandableCards = document.querySelectorAll('.feature-card.expandable');
+
+  expandableCards.forEach(card => {
+    card.addEventListener('click', function () {
+      const isExpanded = this.classList.contains('feature-expanded');
+
+      // Fermer toutes les autres cartes
+      expandableCards.forEach(otherCard => {
+        if (otherCard !== this) {
+          otherCard.classList.remove('feature-expanded');
+        }
+      });
+
+      // Basculer l'état de la carte actuelle
+      if (isExpanded) {
+        this.classList.remove('feature-expanded');
+      } else {
+        this.classList.add('feature-expanded');
+      }
+    });
+
+    // Empêcher la propagation des clics sur les éléments internes
+    card.addEventListener('click', function (e) {
+      e.stopPropagation();
+    });
+  });
+
+  // Fermer les cartes en cliquant ailleurs
+  document.addEventListener('click', function () {
+    expandableCards.forEach(card => {
+      card.classList.remove('feature-expanded');
+    });
+  });
+});
