@@ -88,6 +88,8 @@ const createAd = async (req, res) => {
 // Récupérer toutes les annonces avec filtres
 const getAds = async (req, res) => {
   try {
+    console.log('🔍 API getAds - Paramètres reçus:', req.query);
+
     const {
       page = 1,
       limit = 20,
@@ -128,8 +130,14 @@ const getAds = async (req, res) => {
       ];
     }
 
+    console.log('📋 FILTRES construits:', filters);
+
     const ads = await Ad.getActiveAds(filters, parseInt(page), parseInt(limit));
     const total = await Ad.countDocuments(filters);
+
+    console.log(
+      `📊 Résultat: ${ads.length} annonces trouvées sur ${total} total`
+    );
 
     res.json({
       success: true,
