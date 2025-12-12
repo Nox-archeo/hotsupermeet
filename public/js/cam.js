@@ -1709,139 +1709,33 @@ class LocationService {
     }
   }
 
-  // 🌍 DÉTECTION AUTOMATIQUE DU PAYS - AMÉLIORÉE
+  // 🌍 DÉTECTION AUTOMATIQUE DU PAYS - SIMPLE ET EFFICACE
   async detectUserCountry() {
     try {
-      // MÉTHODE 1: Utiliser la géolocalisation GPS (plus précise)
-      if (navigator.geolocation) {
-        try {
-          console.log('🧭 Tentative de géolocalisation GPS...');
-          const position = await new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject, {
-              timeout: 10000,
-              enableHighAccuracy: false,
-              maximumAge: 600000, // 10 minutes de cache
-            });
-          });
+      console.log('🌍 Détection pays en cours...');
+      const response = await fetch('https://ipinfo.io/json');
+      const data = await response.json();
 
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-          console.log(`🧭 GPS coordinates: ${lat}, ${lon}`);
+      if (data.country) {
+        this.userProfile.countryCode = data.country.toLowerCase();
+        this.userProfile.country = this.getCountryName(
+          this.userProfile.countryCode
+        );
 
-          // Utiliser BigDataCloud pour géocodage inverse gratuit
-          const geoResponse = await fetch(
-            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=fr`
-          );
-
-          if (geoResponse.ok) {
-            const geoData = await geoResponse.json();
-            console.log('🌍 Données géocodage:', geoData);
-            if (geoData.countryCode && geoData.countryName) {
-              this.userProfile.country = geoData.countryName;
-              this.userProfile.countryCode = geoData.countryCode.toLowerCase();
-              console.log(
-                '🌍 Pays détecté via GPS:',
-                this.userProfile.country,
-                this.userProfile.countryCode,
-                `(${lat.toFixed(3)}, ${lon.toFixed(3)})`
-              );
-              this.updateUserInfo();
-              return;
-            }
-          }
-        } catch (gpsError) {
-          console.log('⚠️ Géolocalisation GPS échouée:', gpsError.message);
-        }
+        console.log(
+          '🌍 PAYS DÉTECTÉ:',
+          this.userProfile.country,
+          this.userProfile.countryCode
+        );
+        this.updateUserInfo();
+        return;
       }
 
-      // MÉTHODE 2: APIs IP en fallback
-      // Essayer plusieurs APIs pour plus de fiabilité
-      let response;
-
-      // API 1: ipapi.co (gratuite, fiable)
-      try {
-        response = await fetch('https://ipapi.co/json/', {
-          method: 'GET',
-          headers: { 'User-Agent': 'HotMeet-GeoLocation' },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data.country_code && data.country_name) {
-            this.userProfile.country = data.country_name;
-            this.userProfile.countryCode = data.country_code.toLowerCase();
-            console.log(
-              '🌍 Pays détecté (ipapi.co):',
-              this.userProfile.country,
-              this.userProfile.countryCode
-            );
-            this.updateUserInfo();
-            return;
-          }
-        }
-      } catch (e) {
-        console.log('⚠️ ipapi.co échoué, essai API alternative...');
-      }
-
-      // API 2: Alternative plus simple
-      try {
-        response = await fetch('https://api.country.is/');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.country) {
-            this.userProfile.countryCode = data.country.toLowerCase();
-            this.userProfile.country = this.getCountryName(
-              this.userProfile.countryCode
-            );
-            console.log(
-              '🌍 Pays détecté (country.is):',
-              this.userProfile.country,
-              this.userProfile.countryCode
-            );
-            this.updateUserInfo();
-            return;
-          }
-        }
-      } catch (e) {
-        console.log('⚠️ country.is échoué...');
-      }
-
-      // API 3: Utiliser ip-api.com comme backup
-      try {
-        response = await fetch('http://ip-api.com/json/');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.countryCode && data.country) {
-            this.userProfile.countryCode = data.countryCode.toLowerCase();
-            this.userProfile.country = data.country;
-            console.log(
-              '🌍 Pays détecté (ip-api.com):',
-              this.userProfile.country,
-              this.userProfile.countryCode
-            );
-            this.updateUserInfo();
-            return;
-          }
-        }
-      } catch (e) {
-        console.log('⚠️ ip-api.com échoué...');
-      }
-
-      // Si tout échoue
-      throw new Error('Toutes les APIs ont échoué');
+      throw new Error('Pas de pays dans la réponse');
     } catch (error) {
-      console.log('⚠️ Impossible de détecter le pays:', error.message);
-      // Fallback plus intelligent basé sur la langue du navigateur
-      const browserLang =
-        navigator.language || navigator.userLanguage || 'fr-FR';
-      const fallbackCountry = this.getFallbackCountryFromLanguage(browserLang);
-
-      this.userProfile.country = fallbackCountry.name;
-      this.userProfile.countryCode = fallbackCountry.code;
-      console.log(
-        '🔄 Fallback pays basé sur langue navigateur:',
-        fallbackCountry
-      );
+      console.log('⚠️ Erreur détection pays, fallback France:', error.message);
+      this.userProfile.countryCode = 'fr';
+      this.userProfile.country = 'France';
       this.updateUserInfo();
     }
   }
