@@ -576,7 +576,7 @@ h4 {
   margin-top: 0;
 }
 
-.feature-card.feature-expanded .long-text {
+.feature-card.expanded .feature-expanded {
   max-height: 200px;
   opacity: 1;
   padding-top: 1rem;
@@ -591,15 +591,15 @@ h4 {
   transition: transform 0.3s ease;
 }
 
-.feature-card.feature-expanded .expand-indicator {
+.feature-card.expanded .expand-indicator {
   transform: rotate(180deg);
 }
 
-.feature-card .short-text {
+.feature-card .feature-short {
   transition: margin-bottom 0.3s ease;
 }
 
-.feature-card.feature-expanded .short-text {
+.feature-card.expanded .feature-short {
   margin-bottom: 0.5rem;
 }
 
