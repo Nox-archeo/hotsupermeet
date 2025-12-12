@@ -32,9 +32,6 @@ class CamToCamSystem {
   }
 
   initialize() {
-    // Vérifier si l'utilisateur est premium (simulation)
-    this.checkPremiumStatus();
-
     // Initialiser les écouteurs d'événements
     this.setupEventListeners();
 
@@ -180,17 +177,6 @@ class CamToCamSystem {
         data.originalMessage
       );
     });
-  }
-  checkPremiumStatus() {
-    // En mode démo, on simule un utilisateur premium
-    // En production, cette fonction vérifierait l'abonnement
-    const isPremium = true; // Simulation pour la démo
-
-    if (!isPremium) {
-      document.getElementById('premiumRestriction').classList.remove('hidden');
-      return false;
-    }
-    return true;
   }
 
   setupEventListeners() {
