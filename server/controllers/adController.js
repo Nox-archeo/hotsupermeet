@@ -91,7 +91,10 @@ const getAds = async (req, res) => {
     const {
       page = 1,
       limit = 20,
-      type,
+      category, // Changé de 'type' à 'category' pour correspondre au frontend
+      country, // Ajouté
+      region, // Ajouté
+      city, // Ajouté
       location,
       sexe,
       ageMin,
@@ -103,7 +106,10 @@ const getAds = async (req, res) => {
     // Construire les filtres
     const filters = { status: 'active' };
 
-    if (type) filters.type = type;
+    if (category) filters.category = category; // Changé de 'type' à 'category'
+    if (country) filters.country = country; // Ajouté
+    if (region) filters.region = region; // Ajouté
+    if (city) filters.city = new RegExp(city, 'i'); // Ajouté avec recherche insensible à la casse
     if (location) filters.location = new RegExp(location, 'i');
     if (sexe && sexe !== 'tous')
       filters['criteria.sexe'] = { $in: [sexe, 'tous'] };
@@ -127,7 +133,7 @@ const getAds = async (req, res) => {
 
     res.json({
       success: true,
-      ads,
+      data: ads,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
