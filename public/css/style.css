@@ -564,7 +564,7 @@ h4 {
   box-shadow: 0 8px 20px rgba(138, 43, 226, 0.2);
 }
 
-.feature-card .long-text {
+.feature-card .feature-expanded {
   max-height: 0;
   opacity: 0;
   overflow: hidden;
