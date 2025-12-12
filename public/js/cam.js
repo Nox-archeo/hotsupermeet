@@ -1712,6 +1712,49 @@ class LocationService {
   // 🌍 DÉTECTION AUTOMATIQUE DU PAYS - AMÉLIORÉE
   async detectUserCountry() {
     try {
+      // MÉTHODE 1: Utiliser la géolocalisation GPS (plus précise)
+      if (navigator.geolocation) {
+        try {
+          console.log('🧭 Tentative de géolocalisation GPS...');
+          const position = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              timeout: 10000,
+              enableHighAccuracy: false,
+              maximumAge: 600000, // 10 minutes de cache
+            });
+          });
+
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          console.log(`🧭 GPS coordinates: ${lat}, ${lon}`);
+
+          // Utiliser BigDataCloud pour géocodage inverse gratuit
+          const geoResponse = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=fr`
+          );
+
+          if (geoResponse.ok) {
+            const geoData = await geoResponse.json();
+            console.log('🌍 Données géocodage:', geoData);
+            if (geoData.countryCode && geoData.countryName) {
+              this.userProfile.country = geoData.countryName;
+              this.userProfile.countryCode = geoData.countryCode.toLowerCase();
+              console.log(
+                '🌍 Pays détecté via GPS:',
+                this.userProfile.country,
+                this.userProfile.countryCode,
+                `(${lat.toFixed(3)}, ${lon.toFixed(3)})`
+              );
+              this.updateUserInfo();
+              return;
+            }
+          }
+        } catch (gpsError) {
+          console.log('⚠️ Géolocalisation GPS échouée:', gpsError.message);
+        }
+      }
+
+      // MÉTHODE 2: APIs IP en fallback
       // Essayer plusieurs APIs pour plus de fiabilité
       let response;
 
