@@ -554,7 +554,25 @@ class CamToCamSystem {
     });
   }
 
-  startSearch() {
+  async startSearch() {
+    console.log('🎬 Démarrage de la recherche...');
+
+    // 🌍 ESSAYER LA GÉOLOCALISATION SI PAS ENCORE FAITE
+    if (!this.userProfile.country) {
+      console.log('🌍 Géolocalisation en cours, veuillez patienter...');
+      this.showSearching('Détection de votre localisation...');
+
+      const geoSuccess = await this.detectUserCountry();
+
+      if (!geoSuccess) {
+        console.log(
+          '⚠️ Géolocalisation impossible - utilisateur restera "Inconnu"'
+        );
+        this.userProfile.countryCode = 'unknown';
+        this.userProfile.country = 'Inconnu';
+      }
+    }
+
     // Récupérer les critères de recherche
     const genderFilter = this.getSelectedGenderFilter(); // Genre recherché (filtre)
     const language = this.getSelectedLanguage(); // Utiliser la méthode dédiée
@@ -568,11 +586,11 @@ class CamToCamSystem {
       language: language,
       ageMin: 18,
       ageMax: 100,
-      // Profil utilisateur AVEC LE GENRE SÉLECTIONNÉ
+      // Profil utilisateur AVEC LE GENRE SÉLECTIONNÉ ET GÉOLOCALISATION
       userProfile: {
         gender: this.userProfile.gender, // MON genre (sélectionné dans la modale)
-        country: this.userProfile.countryCode,
-        countryName: this.userProfile.country,
+        country: this.userProfile.countryCode || 'unknown',
+        countryName: this.userProfile.country || 'Inconnu',
       },
     };
 
@@ -996,7 +1014,7 @@ class CamToCamSystem {
 
     // Récupération robuste du pays
     const partnerCountry = partner?.country || 'Inconnu';
-    const partnerCountryCode = partner?.countryCode || null;
+    const partnerCountryCode = partner?.countryCode || 'unknown';
 
     // Emojis et textes
     const genderEmoji =
@@ -1728,15 +1746,17 @@ class LocationService {
           this.userProfile.countryCode
         );
         this.updateUserInfo();
-        return;
+        return true;
       }
 
       throw new Error('Pas de pays dans la réponse');
     } catch (error) {
-      console.log('⚠️ Erreur détection pays, fallback France:', error.message);
-      this.userProfile.countryCode = 'fr';
-      this.userProfile.country = 'France';
-      this.updateUserInfo();
+      console.log(
+        '⚠️ Erreur détection pays - géolocalisation indisponible:',
+        error.message
+      );
+      // NE PAS mettre de fallback automatique !
+      return false;
     }
   }
 
