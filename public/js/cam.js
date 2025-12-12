@@ -41,6 +41,9 @@ class CamToCamSystem {
     // Connexion Socket.IO
     this.connectSocket();
 
+    // 🌍 DÉMARRER LA GÉOLOCALISATION EN ARRIÈRE-PLAN DÈS LE DÉBUT
+    this.detectUserCountry();
+
     // Demander permissions et afficher cam au démarrage
     this.initializeCameraOnStartup();
   }
@@ -557,24 +560,8 @@ class CamToCamSystem {
     });
   }
 
-  async startSearch() {
+  startSearch() {
     console.log('🎬 Démarrage de la recherche...');
-
-    // 🌍 ESSAYER LA GÉOLOCALISATION SI PAS ENCORE FAITE
-    if (!this.userProfile.country) {
-      console.log('🌍 Géolocalisation en cours, veuillez patienter...');
-      this.showPartnerLoading(); // Afficher le loading pendant la géolocalisation
-
-      const geoSuccess = await this.detectUserCountry();
-
-      if (!geoSuccess) {
-        console.log(
-          '⚠️ Géolocalisation impossible - utilisateur restera "Inconnu"'
-        );
-        this.userProfile.countryCode = 'unknown';
-        this.userProfile.country = 'Inconnu';
-      }
-    }
 
     // Récupérer les critères de recherche
     const genderFilter = this.getSelectedGenderFilter(); // Genre recherché (filtre)
@@ -589,7 +576,7 @@ class CamToCamSystem {
       language: language,
       ageMin: 18,
       ageMax: 100,
-      // Profil utilisateur AVEC LE GENRE SÉLECTIONNÉ ET GÉOLOCALISATION
+      // Profil utilisateur AVEC LE GENRE SÉLECTIONNÉ
       userProfile: {
         gender: this.userProfile.gender, // MON genre (sélectionné dans la modale)
         country: this.userProfile.countryCode || 'unknown',
