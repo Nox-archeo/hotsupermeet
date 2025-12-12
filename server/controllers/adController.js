@@ -108,10 +108,34 @@ const getAds = async (req, res) => {
     // Construire les filtres
     const filters = { status: 'active' };
 
-    if (category) filters.category = category; // Changé de 'type' à 'category'
-    if (country) filters.country = country; // Ajouté
-    if (region) filters.region = region; // Ajouté
-    if (city) filters.city = new RegExp(city, 'i'); // Ajouté avec recherche insensible à la casse
+    if (category) filters.category = category;
+
+    // Filtrage géographique - recherche dans nouveaux ET anciens champs
+    const geoFilters = [];
+    if (country) {
+      geoFilters.push(
+        { country: country },
+        { location: new RegExp(country, 'i') }
+      );
+    }
+    if (region) {
+      geoFilters.push(
+        { region: region },
+        { location: new RegExp(region, 'i') }
+      );
+    }
+    if (city) {
+      geoFilters.push(
+        { city: new RegExp(city, 'i') },
+        { location: new RegExp(city, 'i') }
+      );
+    }
+
+    // Si on a des filtres géographiques, les combiner avec $or
+    if (geoFilters.length > 0) {
+      filters.$or = geoFilters;
+    }
+
     if (location) filters.location = new RegExp(location, 'i');
     if (sexe && sexe !== 'tous')
       filters['criteria.sexe'] = { $in: [sexe, 'tous'] };
