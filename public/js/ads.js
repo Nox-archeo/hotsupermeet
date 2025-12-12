@@ -607,11 +607,14 @@ async function handleFormSubmit(e) {
 // =================================
 
 async function loadAds() {
+  console.log('🔍 DÉBUT loadAds()');
   try {
     const category = document.getElementById('filter-category').value;
     const country = document.getElementById('filter-country').value;
     const region = document.getElementById('filter-region').value;
     const city = document.getElementById('filter-city').value;
+
+    console.log('📋 FILTRES:', { category, country, region, city });
 
     let url = '/api/ads?limit=20';
     if (category) url += `&category=${category}`;
@@ -619,12 +622,17 @@ async function loadAds() {
     if (region) url += `&region=${region}`;
     if (city) url += `&city=${city}`;
 
+    console.log('🌐 URL API:', url);
+
     const response = await fetch(url);
     const result = await response.json();
+
+    console.log('📥 RÉPONSE API:', result);
 
     const container = document.getElementById('ads-container');
 
     if (result.success && result.data && result.data.length > 0) {
+      console.log(`✅ ${result.data.length} annonces trouvées`);
       container.innerHTML = '';
       result.data.forEach(ad => {
         const adElement = document.createElement('div');
@@ -689,10 +697,17 @@ async function loadAds() {
         container.appendChild(adElement);
       });
     } else {
+      console.log('❌ AUCUNE ANNONCE TROUVÉE');
+      console.log('Result details:', {
+        success: result.success,
+        data: result.data,
+        length: result.data?.length,
+      });
       container.innerHTML =
         '<p class="no-ads">Aucune annonce trouvée. Ajustez vos filtres ou soyez le premier à publier !</p>';
     }
   } catch (error) {
+    console.error('💥 ERREUR loadAds:', error);
     document.getElementById('ads-container').innerHTML =
       '<p class="error">Erreur de chargement des annonces</p>';
   }
