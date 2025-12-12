@@ -406,20 +406,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
   expandableCards.forEach(card => {
     card.addEventListener('click', function () {
-      const isExpanded = this.classList.contains('feature-expanded');
+      const isExpanded = this.classList.contains('expanded');
 
       // Fermer toutes les autres cartes
       expandableCards.forEach(otherCard => {
         if (otherCard !== this) {
-          otherCard.classList.remove('feature-expanded');
+          otherCard.classList.remove('expanded');
         }
       });
 
       // Basculer l'état de la carte actuelle
       if (isExpanded) {
-        this.classList.remove('feature-expanded');
+        this.classList.remove('expanded');
       } else {
-        this.classList.add('feature-expanded');
+        this.classList.add('expanded');
       }
     });
 
@@ -432,7 +432,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Fermer les cartes en cliquant ailleurs
   document.addEventListener('click', function () {
     expandableCards.forEach(card => {
-      card.classList.remove('feature-expanded');
+      card.classList.remove('expanded');
     });
   });
 });
