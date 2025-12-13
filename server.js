@@ -323,6 +323,7 @@ app.get('/:page', (req, res) => {
 // Charger les routes API (elles gèrent elles-mêmes les erreurs MongoDB)
 app.use('/api/auth', require('./server/routes/auth'));
 app.use('/api/users', require('./server/routes/users'));
+app.use('/api/ads', require('./server/routes/ads')); // ← ROUTE ADS AJOUTÉE !
 app.use('/api/messages', require('./server/routes/messages'));
 app.use('/api/payments', require('./server/routes/payments'));
 app.use('/api/tonight', require('./server/routes/tonight'));
@@ -423,30 +424,10 @@ app.post('/api/ads', async (req, res) => {
 });
 console.log('✅ Route directe ads ACTIVE');
 
-// ROUTE GET POUR VOIR LES ANNONCES
-app.get('/api/ads', async (req, res) => {
-  try {
-    const Ad = require('./server/models/Ad');
-    const ads = await Ad.find({ status: 'active' })
-      .populate('userId', 'pseudo')
-      .sort({ createdAt: -1 })
-      .limit(50);
-
-    console.log('✅ RÉCUPÉRATION ANNONCES:', ads.length);
-
-    res.json({
-      success: true,
-      data: ads,
-    });
-  } catch (error) {
-    console.error('❌ ERREUR récupération annonces:', error);
-    res.status(500).json({
-      success: false,
-      error: { message: 'Erreur: ' + error.message },
-    });
-  }
-});
-console.log('✅ Route GET ads ACTIVE');
+// ROUTE GET SUPPRIMÉE - UTILISE MAINTENANT LE CONTROLLER AVEC FILTRES
+console.log(
+  '🔥 Route directe /api/ads SUPPRIMÉE - Controller avec filtres utilisé'
+);
 
 // ROUTE POUR MES ANNONCES - avec authentification
 app.get('/api/my-ads', async (req, res) => {
