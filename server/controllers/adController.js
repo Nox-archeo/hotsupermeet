@@ -9,9 +9,9 @@ const createAd = async (req, res) => {
       type,
       title,
       description,
-      country,    // ← Champ séparé depuis le formulaire
-      region,     // ← Champ séparé depuis le formulaire  
-      city,       // ← Champ séparé depuis le formulaire
+      country, // ← Champ séparé depuis le formulaire
+      region, // ← Champ séparé depuis le formulaire
+      city, // ← Champ séparé depuis le formulaire
       date,
       ageMin,
       ageMax,
@@ -30,7 +30,15 @@ const createAd = async (req, res) => {
     }
 
     // Valider les données
-    if (!type || !title || !description || !country || !region || !city || !date) {
+    if (
+      !type ||
+      !title ||
+      !description ||
+      !country ||
+      !region ||
+      !city ||
+      !date
+    ) {
       return res.status(400).json({
         success: false,
         message: 'Tous les champs obligatoires doivent être remplis',
@@ -51,9 +59,9 @@ const createAd = async (req, res) => {
       type,
       title: title.trim(),
       description: description.trim(),
-      country: country.trim(),    // ← Stockage séparé
-      region: region.trim(),      // ← Stockage séparé  
-      city: city.trim(),          // ← Stockage séparé
+      country: country.trim(), // ← Stockage séparé
+      region: region.trim(), // ← Stockage séparé
+      city: city.trim(), // ← Stockage séparé
       date: new Date(date),
       criteria: {
         ageMin: ageMin || 18,
@@ -95,8 +103,8 @@ const getAds = async (req, res) => {
     // FORCER PAS DE CACHE
     res.set({
       'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache',
-      'Expires': '0'
+      Pragma: 'no-cache',
+      Expires: '0',
     });
 
     console.log('🚀🚀🚀 API GETADS APPELÉE 🚀🚀🚀');
@@ -144,18 +152,29 @@ const getAds = async (req, res) => {
 
     // UTILISER DIRECTEMENT find() COMME L'ANNUAIRE
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    
+
     const ads = await Ad.find(filters)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit))
       .lean();
-      
+
     const total = await Ad.countDocuments(filters);
 
-    console.log(`📊 RÉSULTATS QUERY: ${ads.length} annonces trouvées sur ${total} total`);
+    console.log(
+      `📊 RÉSULTATS QUERY: ${ads.length} annonces trouvées sur ${total} total`
+    );
     ads.forEach((ad, i) => {
-      console.log(`📋 Annonce ${i+1}: "${ad.title}" - country: "${ad.country}" - region: "${ad.region}" - city: "${ad.city}"`);
+      console.log(
+        `📋 Annonce ${i + 1}: "${ad.title}" - country: "${ad.country}" - region: "${ad.region}" - city: "${ad.city}"`
+      );
+    });
+
+    console.log(
+      '🔍🔍🔍 FILTRES FINAUX APPLIQUÉS:',
+      JSON.stringify(filters, null, 2)
+    );
+
     res.json({
       success: true,
       data: ads,
