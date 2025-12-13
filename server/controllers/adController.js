@@ -108,46 +108,22 @@ const getAds = async (req, res) => {
     // Construire les filtres
     const filters = { status: 'active' };
 
-    // FILTRAGE CATÉGORIE - chercher dans category OU type
+    // FILTRAGE SIMPLE COMME L'ANNUAIRE
     if (category) {
-      filters.$or = filters.$or || [];
-      filters.$or.push({ category: category }, { type: category });
+      filters.type = category; // Recherche directe dans le champ type
     }
 
-    // FILTRAGE GÉOGRAPHIQUE SIMPLE ET PRÉCIS
     if (country) {
-      // Chercher le pays dans le champ location (ancien système)
-      const locationFilter = { location: new RegExp(country, 'i') };
-
-      if (filters.$or) {
-        // Si on a déjà un filtre catégorie, on combine avec $and
-        filters.$and = [
-          { $or: filters.$or }, // Garde le filtre catégorie
-          locationFilter, // Ajoute le filtre géographique
-        ];
-        delete filters.$or;
-      } else {
-        Object.assign(filters, locationFilter);
-      }
+      filters.country = new RegExp(country, 'i'); // Recherche dans le champ country
     }
 
     if (region && !country) {
-      // Seulement si pas de filtre pays
-      const locationFilter = { location: new RegExp(region, 'i') };
-      if (filters.$or) {
-        filters.$and = [{ $or: filters.$or }, locationFilter];
-        delete filters.$or;
-      } else {
-        Object.assign(filters, locationFilter);
-      }
+      filters.region = new RegExp(region, 'i'); // Recherche dans le champ region
     }
 
     if (city && !country && !region) {
-      // Seulement si pas d'autres filtres geo
-      const locationFilter = { location: new RegExp(city, 'i') };
-      if (filters.$or) {
-        filters.$and = [{ $or: filters.$or }, locationFilter];
-        delete filters.$or;
+      filters.city = new RegExp(city, 'i'); // Recherche dans le champ city
+    }
       } else {
         Object.assign(filters, locationFilter);
       }
