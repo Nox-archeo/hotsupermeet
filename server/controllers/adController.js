@@ -92,6 +92,14 @@ const createAd = async (req, res) => {
 // Récupérer toutes les annonces avec filtres
 const getAds = async (req, res) => {
   try {
+    // FORCER PAS DE CACHE
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+
+    console.log('🚀🚀🚀 API GETADS APPELÉE 🚀🚀🚀');
     console.log('🔍 API getAds - Paramètres reçus:', req.query);
 
     const {
