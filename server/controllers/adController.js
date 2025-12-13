@@ -142,7 +142,7 @@ const getAds = async (req, res) => {
       ];
     }
 
-    console.log('📋 FILTRES construits:', filters);
+    console.log('📋 FILTRES construits:', JSON.stringify(filters, null, 2));
 
     const ads = await Ad.getActiveAds(filters, parseInt(page), parseInt(limit));
     const total = await Ad.countDocuments(filters);
@@ -150,6 +150,14 @@ const getAds = async (req, res) => {
     console.log(
       `📊 Résultat: ${ads.length} annonces trouvées sur ${total} total`
     );
+
+    // LOG DÉTAILLÉ DES ANNONCES TROUVÉES
+    console.log('📋 DÉTAIL DES ANNONCES TROUVÉES:');
+    ads.forEach((ad, index) => {
+      console.log(
+        `   ${index + 1}. "${ad.title}" - location: "${ad.location || 'VIDE'}" - country: "${ad.country || 'VIDE'}" - category: "${ad.category || 'VIDE'}"`
+      );
+    });
 
     res.json({
       success: true,
