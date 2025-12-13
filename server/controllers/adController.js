@@ -110,38 +110,26 @@ const getAds = async (req, res) => {
 
     if (category) filters.category = category;
 
-    // Filtrage géographique - recherche dans nouveaux ET anciens champs
-    const geoFilters = [];
+    // FILTRAGE GÉOGRAPHIQUE SIMPLE ET PRÉCIS
     if (country) {
-      geoFilters.push(
-        { country: country },
-        { location: new RegExp(country, 'i') }
-      );
-    }
-    if (region) {
-      geoFilters.push(
-        { region: region },
-        { location: new RegExp(region, 'i') }
-      );
-    }
-    if (city) {
-      geoFilters.push(
-        { city: new RegExp(city, 'i') },
-        { location: new RegExp(city, 'i') }
-      );
+      // Chercher le pays dans le champ location (ancien système)
+      filters.location = new RegExp(country, 'i');
     }
 
-    // Si on a des filtres géographiques, les combiner avec $or
-    if (geoFilters.length > 0) {
-      filters.$or = geoFilters;
+    if (region && !country) {
+      // Seulement si pas de filtre pays
+      filters.location = new RegExp(region, 'i');
+    }
+
+    if (city && !country && !region) {
+      // Seulement si pas d'autres filtres geo
+      filters.location = new RegExp(city, 'i');
     }
 
     if (location) filters.location = new RegExp(location, 'i');
     if (sexe && sexe !== 'tous')
       filters['criteria.sexe'] = { $in: [sexe, 'tous'] };
-    if (premiumOnly === 'true') filters.premiumOnly = true;
-
-    // Filtres d'âge
+    if (premiumOnly === 'true') filters.premiumOnly = true; // Filtres d'âge
     if (ageMin) filters['criteria.ageMin'] = { $lte: parseInt(ageMin) };
     if (ageMax) filters['criteria.ageMax'] = { $gte: parseInt(ageMax) };
 
