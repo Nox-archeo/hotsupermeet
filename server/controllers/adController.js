@@ -9,7 +9,9 @@ const createAd = async (req, res) => {
       type,
       title,
       description,
-      location,
+      country,    // ← Champ séparé depuis le formulaire
+      region,     // ← Champ séparé depuis le formulaire  
+      city,       // ← Champ séparé depuis le formulaire
       date,
       ageMin,
       ageMax,
@@ -28,7 +30,7 @@ const createAd = async (req, res) => {
     }
 
     // Valider les données
-    if (!type || !title || !description || !location || !date) {
+    if (!type || !title || !description || !country || !region || !city || !date) {
       return res.status(400).json({
         success: false,
         message: 'Tous les champs obligatoires doivent être remplis',
@@ -43,13 +45,15 @@ const createAd = async (req, res) => {
       });
     }
 
-    // Créer l'annonce
+    // Créer l'annonce avec les champs séparés
     const newAd = new Ad({
       userId: req.user.id,
       type,
       title: title.trim(),
       description: description.trim(),
-      location: location.trim(),
+      country: country.trim(),    // ← Stockage séparé
+      region: region.trim(),      // ← Stockage séparé  
+      city: city.trim(),          // ← Stockage séparé
       date: new Date(date),
       criteria: {
         ageMin: ageMin || 18,

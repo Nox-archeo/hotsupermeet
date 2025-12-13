@@ -33,6 +33,7 @@ const adSchema = new mongoose.Schema(
     country: { type: String, required: true, trim: true },
     region: { type: String, required: true, trim: true },
     city: { type: String, required: true, trim: true },
+    location: { type: String, trim: true }, // Champ compatibilité pour anciennes annonces
 
     // Tarifs
     tarifs: { type: String, trim: true },
