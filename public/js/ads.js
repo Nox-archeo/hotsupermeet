@@ -1542,7 +1542,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (filterCountrySelect) {
     filterCountrySelect.addEventListener('change', e => {
       updateRegionOptions('filter-country', 'filter-region');
-      loadAds(); // Recharger les annonces quand le filtre pays change
+      // SUPPRIMÉ: loadAds(); - Recherche MANUELLE seulement !
     });
   }
 
