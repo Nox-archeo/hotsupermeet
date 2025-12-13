@@ -1568,22 +1568,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Event listeners pour les filtres
   const filterCategory = document.getElementById('filter-category');
+  const filterCountry = document.getElementById('filter-country');
   const filterRegion = document.getElementById('filter-region');
   const filterCity = document.getElementById('filter-city');
 
-  if (filterCategory) {
-    filterCategory.addEventListener('change', loadAds);
-  }
-  if (filterRegion) {
-    filterRegion.addEventListener('change', loadAds);
-  }
-  if (filterCity) {
-    filterCity.addEventListener('keyup', loadAds); // Recherche en temps réel pour la ville
-    filterCity.addEventListener('change', loadAds);
+  // SUPPRESSION DES EVENT LISTENERS AUTOMATIQUES !
+  // La recherche se fait SEULEMENT quand on clique sur "Rechercher"
+
+  // Les filtres country/region se mettent juste à jour visuellement
+  if (filterCountry) {
+    filterCountry.addEventListener('change', e => {
+      updateRegionOptions('filter-country', 'filter-region');
+    });
   }
 
   // Afficher le menu principal par défaut
   showAdsMenu();
 
-  console.log('✅ Initialisation des annonces terminée');
+  console.log(
+    '✅ Initialisation des annonces terminée - recherche MANUELLE seulement'
+  );
 });
