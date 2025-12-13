@@ -119,64 +119,35 @@ const getAds = async (req, res) => {
 
     if (country) {
       filters.country = new RegExp(country, 'i'); // Recherche dans le champ country
+      console.log(`🔍 FILTRE PAYS: "${country}" -> RegExp: /${country}/i`);
     }
 
     if (region && !country) {
       filters.region = new RegExp(region, 'i'); // Recherche dans le champ region
+      console.log(`🔍 FILTRE RÉGION: "${region}" -> RegExp: /${region}/i`);
     }
 
     if (city && !country && !region) {
       filters.city = new RegExp(city, 'i'); // Recherche dans le champ city
-    }
-      } else {
-        Object.assign(filters, locationFilter);
-      }
+      console.log(`🔍 FILTRE VILLE: "${city}" -> RegExp: /${city}/i`);
     }
 
-    if (location) {
-      const locationFilter = { location: new RegExp(location, 'i') };
-      if (filters.$or) {
-        filters.$and = [{ $or: filters.$or }, locationFilter];
-        delete filters.$or;
-      } else {
-        Object.assign(filters, locationFilter);
-      }
-    }
+    console.log('📋 FILTRES APPLIQUÉS:', JSON.stringify(filters, null, 2));
 
-    if (sexe && sexe !== 'tous')
-      filters['criteria.sexe'] = { $in: [sexe, 'tous'] };
-    if (premiumOnly === 'true') filters.premiumOnly = true;
-    filters['criteria.sexe'] = { $in: [sexe, 'tous'] };
-    if (premiumOnly === 'true') filters.premiumOnly = true; // Filtres d'âge
-    if (ageMin) filters['criteria.ageMin'] = { $lte: parseInt(ageMin) };
-    if (ageMax) filters['criteria.ageMax'] = { $gte: parseInt(ageMax) };
-
-    // Recherche textuelle
-    if (search) {
-      filters.$or = [
-        { title: new RegExp(search, 'i') },
-        { description: new RegExp(search, 'i') },
-        { tags: new RegExp(search, 'i') },
-      ];
-    }
-
-    console.log('📋 FILTRES construits:', JSON.stringify(filters, null, 2));
-
-    const ads = await Ad.getActiveAds(filters, parseInt(page), parseInt(limit));
+    // UTILISER DIRECTEMENT find() COMME L'ANNUAIRE
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    const ads = await Ad.find(filters)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit))
+      .lean();
+      
     const total = await Ad.countDocuments(filters);
 
-    console.log(
-      `📊 Résultat: ${ads.length} annonces trouvées sur ${total} total`
-    );
-
-    // LOG DÉTAILLÉ DES ANNONCES TROUVÉES
-    console.log('📋 DÉTAIL DES ANNONCES TROUVÉES:');
-    ads.forEach((ad, index) => {
-      console.log(
-        `   ${index + 1}. "${ad.title}" - location: "${ad.location || 'VIDE'}" - country: "${ad.country || 'VIDE'}" - category: "${ad.category || 'VIDE'}"`
-      );
-    });
-
+    console.log(`📊 RÉSULTATS QUERY: ${ads.length} annonces trouvées sur ${total} total`);
+    ads.forEach((ad, i) => {
+      console.log(`📋 Annonce ${i+1}: "${ad.title}" - country: "${ad.country}" - region: "${ad.region}" - city: "${ad.city}"`);
     res.json({
       success: true,
       data: ads,
