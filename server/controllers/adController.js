@@ -108,27 +108,65 @@ const getAds = async (req, res) => {
     // Construire les filtres
     const filters = { status: 'active' };
 
-    if (category) filters.category = category;
+    // FILTRAGE CATÉGORIE - chercher dans category OU type
+    if (category) {
+      filters.$or = filters.$or || [];
+      filters.$or.push({ category: category }, { type: category });
+    }
 
     // FILTRAGE GÉOGRAPHIQUE SIMPLE ET PRÉCIS
     if (country) {
       // Chercher le pays dans le champ location (ancien système)
-      filters.location = new RegExp(country, 'i');
+      const locationFilter = { location: new RegExp(country, 'i') };
+
+      if (filters.$or) {
+        // Si on a déjà un filtre catégorie, on combine avec $and
+        filters.$and = [
+          { $or: filters.$or }, // Garde le filtre catégorie
+          locationFilter, // Ajoute le filtre géographique
+        ];
+        delete filters.$or;
+      } else {
+        Object.assign(filters, locationFilter);
+      }
     }
 
     if (region && !country) {
       // Seulement si pas de filtre pays
-      filters.location = new RegExp(region, 'i');
+      const locationFilter = { location: new RegExp(region, 'i') };
+      if (filters.$or) {
+        filters.$and = [{ $or: filters.$or }, locationFilter];
+        delete filters.$or;
+      } else {
+        Object.assign(filters, locationFilter);
+      }
     }
 
     if (city && !country && !region) {
       // Seulement si pas d'autres filtres geo
-      filters.location = new RegExp(city, 'i');
+      const locationFilter = { location: new RegExp(city, 'i') };
+      if (filters.$or) {
+        filters.$and = [{ $or: filters.$or }, locationFilter];
+        delete filters.$or;
+      } else {
+        Object.assign(filters, locationFilter);
+      }
     }
 
-    if (location) filters.location = new RegExp(location, 'i');
+    if (location) {
+      const locationFilter = { location: new RegExp(location, 'i') };
+      if (filters.$or) {
+        filters.$and = [{ $or: filters.$or }, locationFilter];
+        delete filters.$or;
+      } else {
+        Object.assign(filters, locationFilter);
+      }
+    }
+
     if (sexe && sexe !== 'tous')
       filters['criteria.sexe'] = { $in: [sexe, 'tous'] };
+    if (premiumOnly === 'true') filters.premiumOnly = true;
+    filters['criteria.sexe'] = { $in: [sexe, 'tous'] };
     if (premiumOnly === 'true') filters.premiumOnly = true; // Filtres d'âge
     if (ageMin) filters['criteria.ageMin'] = { $lte: parseInt(ageMin) };
     if (ageMax) filters['criteria.ageMax'] = { $gte: parseInt(ageMax) };
