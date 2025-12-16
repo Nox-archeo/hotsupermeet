@@ -334,6 +334,69 @@ app.use('/api/subscriptions', require('./server/routes/subscriptions'));
 const messageController = require('./server/controllers/messageController');
 messageController.setSocketIO(io);
 
+// ROUTE MES ANNONCES - REMISE URGENTE !
+app.get('/api/my-ads', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) {
+      return res
+        .status(401)
+        .json({ success: false, error: { message: 'Token requis' } });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
+
+    const myAds = await Ad.find({ user: userId }).sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      data: myAds,
+    });
+  } catch (error) {
+    console.error('❌ ERREUR récupération mes annonces:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur serveur lors de la récupération' },
+    });
+  }
+});
+
+// ROUTE SUPPRESSION ANNONCE - REMISE URGENTE !
+app.delete('/api/ads/:id', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) {
+      return res
+        .status(401)
+        .json({ success: false, error: { message: 'Token requis' } });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
+
+    const ad = await Ad.findOne({ _id: req.params.id, user: userId });
+    if (!ad) {
+      return res
+        .status(404)
+        .json({ success: false, error: { message: 'Annonce non trouvée' } });
+    }
+
+    await Ad.findByIdAndDelete(req.params.id);
+
+    res.json({
+      success: true,
+      message: 'Annonce supprimée avec succès',
+    });
+  } catch (error) {
+    console.error('❌ ERREUR suppression annonce:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur serveur lors de la suppression' },
+    });
+  }
+});
+
 // ROUTE POST CRÉATION REMISE - CELLE QUI MARCHAIT !
 console.log('🚨 REMISE ROUTE CRÉATION QUI MARCHAIT');
 app.post('/api/ads', async (req, res) => {
