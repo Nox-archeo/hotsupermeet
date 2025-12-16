@@ -347,8 +347,8 @@ app.get('/api/ads/responses', async (req, res) => {
         { receiverId: userId }, // Messages reçus par l'utilisateur
       ],
     })
-      .populate('senderId', 'nom profile')
-      .populate('receiverId', 'nom profile')
+      .populate('senderId', 'profile')
+      .populate('receiverId', 'profile')
       .populate('adId', 'title')
       .sort({ timestamp: -1 })
       .limit(100);
@@ -361,6 +361,12 @@ app.get('/api/ads/responses', async (req, res) => {
     // Grouper les messages par conversation
     const conversations = {};
     for (const message of adMessages) {
+      // VÉRIFIER que l'annonce existe encore (populate peut retourner null si annonce supprimée)
+      if (!message.adId || !message.senderId || !message.receiverId) {
+        console.log('⚠️ Message avec référence manquante ignoré:', message._id);
+        continue; // Skip ce message
+      }
+
       // Utiliser le conversationId existant pour grouper
       const conversationKey = message.conversationId;
 
@@ -379,8 +385,9 @@ app.get('/api/ads/responses', async (req, res) => {
           id: conversationKey,
           adId: message.adId._id,
           adTitle: message.adId.title,
+          adTitle: message.adId.title,
           senderId: otherUser._id,
-          senderName: otherUser.nom || otherUser.profile?.nom,
+          senderName: otherUser.profile?.nom,
           senderPhoto:
             otherUser.profile?.photos?.find(p => p.isProfile)?.url ||
             otherUser.profile?.photos?.[0]?.url ||
