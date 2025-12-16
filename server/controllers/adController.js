@@ -128,39 +128,11 @@ const getAds = async (req, res) => {
     // Construire les filtres
     const filters = { status: 'active' };
 
-    // FILTRAGE SIMPLE COMME L'ANNUAIRE
+    // FILTRAGE DIRECT PAR CATÉGORIE - PAS DE MAPPING
     if (category) {
-      // MAPPING INTELLIGENT DE TOUTES LES CATÉGORIES
-      const categoryMapping = {
-        'femme-cherche-homme': 'rencontre',
-        'homme-cherche-femme': 'rencontre',
-        'femme-cherche-femme': 'rencontre',
-        'homme-cherche-homme': 'rencontre',
-        'couple-cherche-homme': 'rencontre',
-        'couple-cherche-femme': 'rencontre',
-        'couple-cherche-couple': 'rencontre',
-        'escort-girl': 'escort',
-        'escort-boy': 'escort',
-        'sugar-daddy': 'sugar',
-        'baby-girl': 'sugar',
-        'sugar-mommy': 'sugar',
-        'baby-boy': 'sugar',
-        masseuse: 'massage',
-        masseur: 'massage',
-        'massage-tantrique': 'massage',
-        domination: 'domination',
-        'cam-sexting': 'cam',
-        fetichisme: 'fetichisme',
-        'planning-soir': 'tonight',
-        'objets-accessoires': 'objets',
-        emploi: 'emploi',
-      };
-
-      // Utiliser le mapping ou la catégorie directement
-      const mappedType = categoryMapping[category] || category;
-      filters.type = mappedType;
+      filters.type = category; // Utilise directement le slug (escort-girl, escort-boy, etc.)
       console.log(
-        `🔍 FILTRE CATÉGORIE: "${category}" -> Mapped to type: "${mappedType}"`
+        `🔍 FILTRE CATÉGORIE: "${category}" -> Cherche type exact: "${category}"`
       );
     }
 
