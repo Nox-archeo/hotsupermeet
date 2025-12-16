@@ -128,24 +128,11 @@ const getAds = async (req, res) => {
     // Construire les filtres
     const filters = { status: 'active' };
 
-    // FILTRAGE PAR CATÉGORIE - RECHERCHE INTELLIGENTE
+    // FILTRAGE DIRECT PAR CATÉGORIE - TOUTES LES 21 CATÉGORIES
     if (category) {
-      // Si c'est escort-girl ou escort-boy, chercher aussi "escort"
-      if (category === 'escort-girl') {
-        filters.$or = [
-          { type: 'escort-girl' },
-          { type: 'escort' }, // compatibilité avec anciennes annonces
-        ];
-      } else if (category === 'escort-boy') {
-        filters.$or = [
-          { type: 'escort-boy' },
-          { type: 'escort' }, // compatibilité avec anciennes annonces
-        ];
-      } else {
-        filters.type = category; // recherche directe pour les autres
-      }
+      filters.type = category; // ✅ RECHERCHE EXACTE (escort-girl, masseur, planning-soir, etc.)
       console.log(
-        `🔍 FILTRE CATÉGORIE: "${category}" -> Filtres: ${JSON.stringify(filters.type || filters.$or)}`
+        `🔍 FILTRE CATÉGORIE: "${category}" -> Cherche type exact: "${category}"`
       );
     }
 

@@ -424,7 +424,39 @@ async function handleFormSubmit(e) {
     const categoryValue = document.getElementById('ad-category').value;
     const sexeFromForm = document.getElementById('ad-sexe')?.value || '';
 
-    // Plus besoin de calculer finalType - on utilise directement categoryValue
+    // Déterminer automatiquement le type basé sur la catégorie
+    let finalType = 'rencontre'; // par défaut
+    if (categoryValue) {
+      if (
+        categoryValue.includes('sugar') ||
+        categoryValue.includes('daddy') ||
+        categoryValue.includes('baby')
+      ) {
+        finalType = 'sugar';
+      } else if (
+        categoryValue.includes('escort') ||
+        categoryValue.includes('masseuse') ||
+        categoryValue.includes('masseur')
+      ) {
+        finalType = 'escort';
+      } else if (
+        [
+          'domination',
+          'massage-tantrique',
+          'cam-sexting',
+          'fetichisme',
+          'planning-soir',
+        ].includes(categoryValue)
+      ) {
+        finalType = 'service';
+      } else if (categoryValue === 'objets-accessoires') {
+        finalType = 'vente';
+      } else if (categoryValue === 'emploi') {
+        finalType = 'emploi';
+      } else {
+        finalType = 'rencontre'; // toutes les rencontres (femme-cherche-homme, etc.)
+      }
+    }
 
     // Déterminer automatiquement le sexe basé sur la catégorie si pas spécifié
     let finalSexe = sexeFromForm;
@@ -464,7 +496,7 @@ async function handleFormSubmit(e) {
       title: document.getElementById('ad-title').value,
       description: document.getElementById('ad-description').value,
       images: photoUrls, // URLs Cloudinary
-      type: categoryValue, // ← UTILISE DIRECTEMENT LA CATÉGORIE ! (escort-girl, escort-boy, etc.)      // Tarifs
+      type: categoryValue, // ✅ UTILISE DIRECTEMENT LA CATÉGORIE EXACTE (escort-girl, masseur, etc.)      // Tarifs
       tarifs: document.getElementById('ad-tarifs')?.value || '',
 
       // Informations personnelles de base
