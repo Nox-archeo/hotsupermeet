@@ -323,7 +323,7 @@ app.get('/:page', (req, res) => {
 // Charger les routes API (elles gèrent elles-mêmes les erreurs MongoDB)
 app.use('/api/auth', require('./server/routes/auth'));
 app.use('/api/users', require('./server/routes/users'));
-app.use('/api/ads', require('./server/routes/ads')); // ← ROUTE ADS AJOUTÉE !
+app.use('/api/ads', require('./server/routes/ads-simple')); // ← TEST AVEC VERSION SIMPLE
 app.use('/api/messages', require('./server/routes/messages'));
 app.use('/api/payments', require('./server/routes/payments'));
 app.use('/api/tonight', require('./server/routes/tonight'));
