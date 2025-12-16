@@ -33,7 +33,10 @@ const adSchema = new mongoose.Schema(
         'plan-cul',
         'sexfriend',
         'sugar-daddy',
-        'sugar-baby',
+        'sugar-mommy', // ← FIX: AJOUTÉ !
+        'baby-girl', // ← FIX: AJOUTÉ !
+        'baby-boy', // ← FIX: AJOUTÉ !
+        'sugar-baby', // ← Compatibilité
         'findom',
         'webcam',
         'telephone-rose',
