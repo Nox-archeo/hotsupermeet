@@ -350,7 +350,10 @@ app.get('/api/my-ads', async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.userId; // ← FIX: userId pas id !
 
-    const myAds = await Ad.find({ userId: userId }).sort({ createdAt: -1 }); // ← FIX: userId pas user !
+    const myAds = await Ad.find({
+      userId: userId,
+      status: { $ne: 'deleted' }, // ← EXCLURE LES SUPPRIMÉES
+    }).sort({ createdAt: -1 }); // ← FIX: userId pas user !
 
     res.json({
       success: true,
@@ -587,7 +590,10 @@ app.delete('/api/ads/:adId', async (req, res) => {
     ad.status = 'deleted';
     await ad.save();
 
-    console.log('✅ ANNONCE SUPPRIMÉE:', req.params.adId);
+    // 🗑️ VRAIE SUPPRESSION - Supprimer complètement de MongoDB
+    await Ad.findByIdAndDelete(req.params.adId);
+
+    console.log('✅ ANNONCE VRAIMENT SUPPRIMÉE DE MONGODB:', req.params.adId);
     res.json({ success: true, message: 'Annonce supprimée avec succès' });
   } catch (error) {
     console.error('❌ ERREUR suppression annonce:', error);
