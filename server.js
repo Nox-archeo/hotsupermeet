@@ -337,6 +337,9 @@ messageController.setSocketIO(io);
 // ROUTE MES ANNONCES - REMISE URGENTE !
 app.get('/api/my-ads', async (req, res) => {
   try {
+    const jwt = require('jsonwebtoken'); // ← FIX JWT MANQUANT !
+    const Ad = require('./server/models/Ad'); // ← FIX AD MANQUANT !
+
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (!token) {
       return res
@@ -345,9 +348,9 @@ app.get('/api/my-ads', async (req, res) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.id;
+    const userId = decoded.userId; // ← FIX: userId pas id !
 
-    const myAds = await Ad.find({ user: userId }).sort({ createdAt: -1 });
+    const myAds = await Ad.find({ userId: userId }).sort({ createdAt: -1 }); // ← FIX: userId pas user !
 
     res.json({
       success: true,
@@ -372,10 +375,13 @@ app.delete('/api/ads/:id', async (req, res) => {
         .json({ success: false, error: { message: 'Token requis' } });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.id;
+    const jwt = require('jsonwebtoken'); // ← FIX: JWT manquant !
+    const Ad = require('./server/models/Ad'); // ← FIX: Ad manquant !
 
-    const ad = await Ad.findOne({ _id: req.params.id, user: userId });
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId; // ← FIX: userId pas id !
+
+    const ad = await Ad.findOne({ _id: req.params.id, userId: userId }); // ← FIX: userId pas user !
     if (!ad) {
       return res
         .status(404)
