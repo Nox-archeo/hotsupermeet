@@ -130,7 +130,38 @@ const getAds = async (req, res) => {
 
     // FILTRAGE SIMPLE COMME L'ANNUAIRE
     if (category) {
-      filters.type = category; // Recherche directe dans le champ type
+      // MAPPING INTELLIGENT DE TOUTES LES CATÉGORIES
+      const categoryMapping = {
+        'femme-cherche-homme': 'rencontre',
+        'homme-cherche-femme': 'rencontre',
+        'femme-cherche-femme': 'rencontre',
+        'homme-cherche-homme': 'rencontre',
+        'couple-cherche-homme': 'rencontre',
+        'couple-cherche-femme': 'rencontre',
+        'couple-cherche-couple': 'rencontre',
+        'escort-girl': 'escort',
+        'escort-boy': 'escort',
+        'sugar-daddy': 'sugar',
+        'baby-girl': 'sugar',
+        'sugar-mommy': 'sugar',
+        'baby-boy': 'sugar',
+        masseuse: 'massage',
+        masseur: 'massage',
+        'massage-tantrique': 'massage',
+        domination: 'domination',
+        'cam-sexting': 'cam',
+        fetichisme: 'fetichisme',
+        'planning-soir': 'tonight',
+        'objets-accessoires': 'objets',
+        emploi: 'emploi',
+      };
+
+      // Utiliser le mapping ou la catégorie directement
+      const mappedType = categoryMapping[category] || category;
+      filters.type = mappedType;
+      console.log(
+        `🔍 FILTRE CATÉGORIE: "${category}" -> Mapped to type: "${mappedType}"`
+      );
     }
 
     if (country) {
@@ -166,7 +197,7 @@ const getAds = async (req, res) => {
     );
     ads.forEach((ad, i) => {
       console.log(
-        `📋 Annonce ${i + 1}: "${ad.title}" - country: "${ad.country}" - region: "${ad.region}" - city: "${ad.city}"`
+        `📋 Annonce ${i + 1}: "${ad.title}" - country: "${ad.country}" - region: "${ad.region}" - city: "${ad.city}" - TYPE: "${ad.type}"`
       );
     });
 
