@@ -686,8 +686,6 @@ app.get('/api/ads/public/:adId', async (req, res) => {
   }
 });
 
-});
-
 // ROUTE GET POUR RÉCUPÉRER LES RÉPONSES AUX ANNONCES (pour messagerie) - DOIT ÊTRE AVANT /api/ads/:adId
 app.get('/api/ads/responses', async (req, res) => {
   try {
