@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const adController = require('../controllers/adController');
-const authMiddleware = require('../middleware/auth');
+const { auth } = require('../middleware/auth'); // ← IMPORT CORRECT !
 
 // Route publique - Récupérer toutes les annonces avec filtres
 router.get('/', adController.getAds);
@@ -10,7 +10,7 @@ router.get('/', adController.getAds);
 router.get('/:id', adController.getAdById);
 
 // Route protégée - Créer une nouvelle annonce
-router.post('/', authMiddleware, adController.createAd);
+router.post('/', auth, adController.createAd); // ← UTILISE auth PAS authMiddleware !
 
 console.log('✅ Routes GET + POST configurées avec controller');
 
