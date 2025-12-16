@@ -323,7 +323,7 @@ app.get('/:page', (req, res) => {
 // Charger les routes API (elles gèrent elles-mêmes les erreurs MongoDB)
 app.use('/api/auth', require('./server/routes/auth'));
 app.use('/api/users', require('./server/routes/users'));
-app.use('/api/ads', require('./server/routes/ads-simple')); // ← TEST AVEC VERSION SIMPLE
+app.use('/api/ads', require('./server/routes/ads')); // ← ROUTE ADS AVEC CONTROLLER !
 app.use('/api/messages', require('./server/routes/messages'));
 app.use('/api/payments', require('./server/routes/payments'));
 app.use('/api/tonight', require('./server/routes/tonight'));
@@ -334,138 +334,8 @@ app.use('/api/subscriptions', require('./server/routes/subscriptions'));
 const messageController = require('./server/controllers/messageController');
 messageController.setSocketIO(io);
 
-// ROUTE DIRECTE ANNONCES QUI SAUVEGARDE EN BASE
-console.log('🚨 CRÉATION ROUTE ADS DIRECTE QUI SAUVEGARDE');
-app.post('/api/ads', async (req, res) => {
-  try {
-    console.log('� CRÉATION ANNONCE - DÉBUT');
-
-    // Récupération du token
-    const token = req.headers.authorization?.replace('Bearer ', '');
-    if (!token) {
-      return res
-        .status(401)
-        .json({ success: false, error: { message: 'Token requis' } });
-    }
-
-    // Import direct du modèle Ad
-    const Ad = require('./server/models/Ad');
-    const jwt = require('jsonwebtoken');
-
-    // Décodage du token pour récupérer l'userId
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.userId;
-
-    console.log('✅ User ID:', userId);
-
-    // Création de l'annonce
-    const newAd = new Ad({
-      userId: userId,
-      category: req.body.category,
-      type: req.body.type || 'rencontre',
-      title: req.body.title,
-      description: req.body.description,
-      country: req.body.country,
-      region: req.body.region,
-      city: req.body.city,
-      images: req.body.images || [],
-
-      // Informations personnelles
-      age: req.body.age,
-      sexe: req.body.sexe,
-      taille: req.body.taille,
-      poids: req.body.poids,
-      cheveux: req.body.cheveux,
-      yeux: req.body.yeux,
-
-      // Détails escort
-      bonnet: req.body.bonnet,
-      origine: req.body.origine,
-      silhouette: req.body.silhouette,
-      depilation: req.body.depilation,
-
-      // Services et tarifs
-      services: req.body.services || [],
-      tarifs: req.body.tarifs,
-
-      // Disponibilités
-      horaires: req.body.horaires,
-      deplacement: req.body.deplacement,
-      disponibilites_details: req.body.disponibilites_details,
-
-      // Contact
-      contact_methods: req.body.contact_methods || ['site'],
-      contact_email: req.body.contact_email,
-      contact_telephone: req.body.contact_telephone,
-      contact_whatsapp: req.body.contact_whatsapp,
-      contact_telegram: req.body.contact_telegram,
-      contact_snap: req.body.contact_snap,
-
-      status: 'active',
-      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    });
-
-    console.log('✅ Annonce créée, sauvegarde...');
-    await newAd.save();
-    console.log('✅ ANNONCE SAUVEGARDÉE EN BASE !');
-
-    res.json({
-      success: true,
-      message: 'Annonce publiée avec succès !',
-      data: newAd,
-    });
-  } catch (error) {
-    console.error('❌ ERREUR création annonce:', error);
-    res.status(500).json({
-      success: false,
-      error: { message: 'Erreur: ' + error.message },
-    });
-  }
-});
-console.log('✅ Route directe ads ACTIVE');
-
-// ROUTE GET SUPPRIMÉE - UTILISE MAINTENANT LE CONTROLLER AVEC FILTRES
-console.log(
-  '🔥 Route directe /api/ads SUPPRIMÉE - Controller avec filtres utilisé'
-);
-
-// ROUTE POUR MES ANNONCES - avec authentification
-app.get('/api/my-ads', async (req, res) => {
-  console.log('📞 APPEL /api/my-ads - headers:', req.headers.authorization);
-  try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({
-        success: false,
-        error: { message: 'Token manquant' },
-      });
-    }
-
-    const token = authHeader.split(' ')[1];
-    const jwt = require('jsonwebtoken');
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.userId;
-
-    const Ad = require('./server/models/Ad');
-    const ads = await Ad.find({ userId: userId, status: 'active' })
-      .sort({ createdAt: -1 })
-      .limit(50);
-
-    console.log('✅ MES ANNONCES - UserId:', userId, 'Trouvées:', ads.length);
-
-    res.json({
-      success: true,
-      data: ads,
-    });
-  } catch (error) {
-    console.error('❌ ERREUR mes annonces:', error);
-    res.status(500).json({
-      success: false,
-      error: { message: 'Erreur: ' + error.message },
-    });
-  }
-});
-console.log('✅ Route GET my-ads ACTIVE');
+// TOUTES LES ROUTES ADS SUPPRIMÉES - UTILISE MAINTENANT LE CONTROLLER
+console.log('🔥 Routes directes ads SUPPRIMÉES - Controller utilisé');
 
 // ROUTES CHAT D'ANNONCES - SYSTÈME INDÉPENDANT 🔥
 console.log("🚀 CRÉATION ROUTES CHAT D'ANNONCES...");
