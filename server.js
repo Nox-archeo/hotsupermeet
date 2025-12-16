@@ -320,6 +320,114 @@ app.get('/:page', (req, res) => {
   }
 });
 
+// =================== ROUTE SPÉCIFIQUE POUR MESSAGES D'ANNONCES ===================
+// CRITIQUE: Cette route DOIT être définie AVANT app.use('/api/ads', ...) sinon conflit !
+app.get('/api/ads/responses', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({
+        success: false,
+        error: { message: 'Token manquant' },
+      });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const jwt = require('jsonwebtoken');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    const AdMessage = require('./server/models/AdMessage');
+    const Ad = require('./server/models/Ad');
+
+    // LOGIQUE BIDIRECTIONNELLE: Récupérer TOUS les messages où l'utilisateur participe
+    const adMessages = await AdMessage.find({
+      $or: [
+        { senderId: userId }, // Messages envoyés par l'utilisateur
+        { receiverId: userId }, // Messages reçus par l'utilisateur
+      ],
+    })
+      .populate('senderId', 'nom profile')
+      .populate('receiverId', 'nom profile')
+      .populate('adId', 'title')
+      .sort({ timestamp: -1 })
+      .limit(100);
+
+    console.log(
+      '🚀 DEBUG BIDIRECTIONNEL - Messages trouvés:',
+      adMessages.length
+    );
+
+    // Grouper les messages par conversation
+    const conversations = {};
+    for (const message of adMessages) {
+      // Utiliser le conversationId existant pour grouper
+      const conversationKey = message.conversationId;
+
+      // Identifier l'autre utilisateur (celui avec qui on converse)
+      let otherUser;
+      if (message.senderId._id.toString() === userId.toString()) {
+        // L'utilisateur actuel a envoyé ce message, l'autre user est le receiver
+        otherUser = message.receiverId;
+      } else {
+        // L'utilisateur actuel a reçu ce message, l'autre user est le sender
+        otherUser = message.senderId;
+      }
+
+      if (!conversations[conversationKey]) {
+        conversations[conversationKey] = {
+          id: conversationKey,
+          adId: message.adId._id,
+          adTitle: message.adId.title,
+          senderId: otherUser._id,
+          senderName: otherUser.nom || otherUser.profile?.nom,
+          senderPhoto:
+            otherUser.profile?.photos?.find(p => p.isProfile)?.url ||
+            otherUser.profile?.photos?.[0]?.url ||
+            null,
+          otherUserId: otherUser._id,
+          lastMessage: message.message,
+          timestamp: message.timestamp,
+          unreadCount: 0,
+        };
+      }
+
+      // Mettre à jour le dernier message si plus récent
+      if (
+        new Date(message.timestamp) >
+        new Date(conversations[conversationKey].timestamp)
+      ) {
+        conversations[conversationKey].lastMessage = message.message;
+        conversations[conversationKey].timestamp = message.timestamp;
+      }
+
+      // Compter les messages non lus (seulement ceux reçus par l'utilisateur actuel)
+      if (
+        !message.isRead &&
+        message.receiverId._id.toString() === userId.toString()
+      ) {
+        conversations[conversationKey].unreadCount++;
+      }
+    }
+
+    // Convertir en array et trier par timestamp
+    const responses = Object.values(conversations).sort(
+      (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+    );
+
+    res.json({
+      success: true,
+      responses: responses,
+    });
+  } catch (error) {
+    console.error('Erreur récupération réponses aux annonces:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur serveur' },
+    });
+  }
+});
+
 // Charger les routes API (elles gèrent elles-mêmes les erreurs MongoDB)
 app.use('/api/auth', require('./server/routes/auth'));
 app.use('/api/users', require('./server/routes/users'));
@@ -679,113 +787,6 @@ app.get('/api/ads/public/:adId', async (req, res) => {
     res.json({ success: true, ad: adWithAuthor });
   } catch (error) {
     console.error('Erreur récupération annonce publique:', error);
-    res.status(500).json({
-      success: false,
-      error: { message: 'Erreur serveur' },
-    });
-  }
-});
-
-// ROUTE GET POUR RÉCUPÉRER LES RÉPONSES AUX ANNONCES (pour messagerie) - DOIT ÊTRE AVANT /api/ads/:adId
-app.get('/api/ads/responses', async (req, res) => {
-  try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({
-        success: false,
-        error: { message: 'Token manquant' },
-      });
-    }
-
-    const token = authHeader.split(' ')[1];
-    const jwt = require('jsonwebtoken');
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.userId;
-
-    const AdMessage = require('./server/models/AdMessage');
-    const Ad = require('./server/models/Ad');
-
-    // LOGIQUE BIDIRECTIONNELLE: Récupérer TOUS les messages où l'utilisateur participe
-    const adMessages = await AdMessage.find({
-      $or: [
-        { senderId: userId }, // Messages envoyés par l'utilisateur
-        { receiverId: userId }, // Messages reçus par l'utilisateur
-      ],
-    })
-      .populate('senderId', 'nom profile')
-      .populate('receiverId', 'nom profile')
-      .populate('adId', 'title')
-      .sort({ timestamp: -1 })
-      .limit(100);
-
-    console.log(
-      '🚀 DEBUG BIDIRECTIONNEL - Messages trouvés:',
-      adMessages.length
-    );
-
-    // Grouper les messages par conversation
-    const conversations = {};
-    for (const message of adMessages) {
-      // Utiliser le conversationId existant pour grouper
-      const conversationKey = message.conversationId;
-
-      // Identifier l'autre utilisateur (celui avec qui on converse)
-      let otherUser;
-      if (message.senderId._id.toString() === userId.toString()) {
-        // L'utilisateur actuel a envoyé ce message, l'autre user est le receiver
-        otherUser = message.receiverId;
-      } else {
-        // L'utilisateur actuel a reçu ce message, l'autre user est le sender
-        otherUser = message.senderId;
-      }
-
-      if (!conversations[conversationKey]) {
-        conversations[conversationKey] = {
-          id: conversationKey,
-          adId: message.adId._id,
-          adTitle: message.adId.title,
-          senderId: otherUser._id,
-          senderName: otherUser.nom || otherUser.profile?.nom,
-          senderPhoto:
-            otherUser.profile?.photos?.find(p => p.isProfile)?.url ||
-            otherUser.profile?.photos?.[0]?.url ||
-            null,
-          otherUserId: otherUser._id,
-          lastMessage: message.message,
-          timestamp: message.timestamp,
-          unreadCount: 0,
-        };
-      }
-
-      // Mettre à jour le dernier message si plus récent
-      if (
-        new Date(message.timestamp) >
-        new Date(conversations[conversationKey].timestamp)
-      ) {
-        conversations[conversationKey].lastMessage = message.message;
-        conversations[conversationKey].timestamp = message.timestamp;
-      }
-
-      // Compter les messages non lus (seulement ceux reçus par l'utilisateur actuel)
-      if (
-        !message.isRead &&
-        message.receiverId._id.toString() === userId.toString()
-      ) {
-        conversations[conversationKey].unreadCount++;
-      }
-    }
-
-    // Convertir en array et trier par timestamp
-    const responses = Object.values(conversations).sort(
-      (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
-    );
-
-    res.json({
-      success: true,
-      responses: responses,
-    });
-  } catch (error) {
-    console.error('Erreur récupération réponses aux annonces:', error);
     res.status(500).json({
       success: false,
       error: { message: 'Erreur serveur' },
