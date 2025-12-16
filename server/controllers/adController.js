@@ -5,20 +5,40 @@ const Message = require('../models/Message');
 // Créer une nouvelle annonce
 const createAd = async (req, res) => {
   try {
+    console.log('🔥 CRÉATION ANNONCE - CONTROLLER');
+    console.log('🔥 DONNÉES REÇUES:', req.body);
+    console.log('🔥 USER:', req.user);
+
     const {
+      category,
       type,
       title,
       description,
-      country, // ← Champ séparé depuis le formulaire
-      region, // ← Champ séparé depuis le formulaire
-      city, // ← Champ séparé depuis le formulaire
-      date,
-      ageMin,
-      ageMax,
+      country,
+      region,
+      city,
+      images,
+      tarifs,
+      age,
       sexe,
-      pratiques,
-      premiumOnly,
-      tags,
+      taille,
+      poids,
+      cheveux,
+      yeux,
+      bonnet,
+      origine,
+      silhouette,
+      depilation,
+      services,
+      horaires,
+      deplacement,
+      disponibilites_details,
+      contact_methods,
+      contact_email,
+      contact_telephone,
+      contact_whatsapp,
+      contact_telegram,
+      contact_snap,
     } = req.body;
 
     // Vérifier que l'utilisateur est connecté
@@ -29,66 +49,78 @@ const createAd = async (req, res) => {
       });
     }
 
-    // Valider les données
-    if (
-      !type ||
-      !title ||
-      !description ||
-      !country ||
-      !region ||
-      !city ||
-      !date
-    ) {
+    // Valider les données essentielles
+    if (!type || !title || !description || !country || !region || !city) {
       return res.status(400).json({
         success: false,
-        message: 'Tous les champs obligatoires doivent être remplis',
+        message:
+          'Les champs type, titre, description et localisation sont obligatoires',
       });
     }
 
-    // Vérifier que la date n'est pas dans le passé
-    if (new Date(date) < new Date()) {
-      return res.status(400).json({
-        success: false,
-        message: 'La date ne peut pas être dans le passé',
-      });
-    }
+    console.log('🔥 VALIDATION OK - CRÉATION ANNONCE...');
 
-    // Créer l'annonce avec les champs séparés
+    // Créer l'annonce avec TOUTES les données du frontend
     const newAd = new Ad({
       userId: req.user.id,
-      type,
+      category: category || type, // Utiliser category en priorité
+      type: type, // Type exact (escort-girl, masseur, etc.)
       title: title.trim(),
       description: description.trim(),
-      country: country.trim(), // ← Stockage séparé
-      region: region.trim(), // ← Stockage séparé
-      city: city.trim(), // ← Stockage séparé
-      date: new Date(date),
-      criteria: {
-        ageMin: ageMin || 18,
-        ageMax: ageMax || 100,
-        sexe: sexe || 'tous',
-        pratiques: pratiques || [],
-      },
-      premiumOnly: premiumOnly || false,
-      tags: tags || [],
-      images: req.uploadedPhotos || [],
+      country: country.trim(),
+      region: region.trim(),
+      city: city.trim(),
+      images: images || [],
+
+      // Tarifs
+      tarifs: tarifs || '',
+
+      // Informations personnelles
+      age: age ? parseInt(age) : undefined,
+      sexe: sexe || '',
+      taille: taille || '',
+      poids: poids || '',
+      cheveux: cheveux || '',
+      yeux: yeux || '',
+
+      // Détails escort
+      bonnet: bonnet || '',
+      origine: origine || '',
+      silhouette: silhouette || '',
+      depilation: depilation || '',
+
+      // Services
+      services: services || [],
+
+      // Disponibilités
+      horaires: horaires || '',
+      deplacement: deplacement || '',
+      disponibilites_details: disponibilites_details || '',
+
+      // Contact
+      contact_methods: contact_methods || ['site'],
+      contact_email: contact_email || '',
+      contact_telephone: contact_telephone || '',
+      contact_whatsapp: contact_whatsapp || '',
+      contact_telegram: contact_telegram || '',
+      contact_snap: contact_snap || '',
+
+      status: 'active',
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     });
 
-    const savedAd = await newAd.save();
+    console.log('🔥 OBJET ANNONCE CRÉÉ:', newAd);
 
-    // Peupler avec les infos utilisateur
-    await savedAd.populate(
-      'userId',
-      'profile.nom profile.age profile.sexe profile.localisation'
-    );
+    const savedAd = await newAd.save();
+    console.log('🔥 ANNONCE SAUVEGARDÉE:', savedAd);
 
     res.status(201).json({
       success: true,
       message: 'Annonce créée avec succès',
-      ad: savedAd,
+      data: savedAd,
     });
   } catch (error) {
-    console.error('Erreur création annonce:', error);
+    console.error('❌ ERREUR création annonce:', error);
     res.status(500).json({
       success: false,
       message: "Erreur lors de la création de l'annonce",
