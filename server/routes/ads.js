@@ -8,7 +8,7 @@ router.get('/', adController.getAds);
 // Route publique - Récupérer une annonce par ID
 router.get('/:id', adController.getAdById);
 
-// CRÉATION TEMPORAIREMENT DÉSACTIVÉE - FIX DU MIDDLEWARE EN COURS
-console.log('⚠️ Route POST création désactivée temporairement');
+// POST géré par route directe dans server.js qui fonctionne
+console.log('ℹ️ Routes GET seulement - POST dans server.js');
 
 module.exports = router;
