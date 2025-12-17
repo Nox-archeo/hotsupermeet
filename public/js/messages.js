@@ -2936,6 +2936,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Fonction pour supprimer une conversation (SUPPRESSION RÉELLE)
   window.messagesManager.deleteConversation = function (conversationId, type) {
+    console.log(
+      '🔥 SUPPRESSION APPELÉE - conversationId:',
+      conversationId,
+      'type:',
+      type
+    );
+    console.log('🔥 TYPE de conversationId:', typeof conversationId);
+
     // Confirmation avant suppression
     if (
       !confirm(
