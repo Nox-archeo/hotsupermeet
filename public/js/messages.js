@@ -2978,8 +2978,15 @@ document.addEventListener('DOMContentLoaded', () => {
         'Content-Type': 'application/json',
       },
     })
-      .then(response => response.json())
+      .then(response => {
+        console.log('🔥 RÉPONSE REÇUE:', response.status, response.statusText);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+      })
       .then(data => {
+        console.log('🔥 DATA REÇUE:', data);
         if (data.success) {
           console.log(`✅ Conversation ${type} supprimée:`, data.message);
 
