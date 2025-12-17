@@ -682,7 +682,7 @@ app.get('/api/my-ads', async (req, res) => {
   }
 });
 
-// ROUTE SUPPRESSION ANNONCE - REMISE URGENTE !
+// ROUTE SUPPRESSION ANNONCE - FIXÉE !
 app.delete('/api/ads/:id', async (req, res) => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
@@ -692,13 +692,10 @@ app.delete('/api/ads/:id', async (req, res) => {
         .json({ success: false, error: { message: 'Token requis' } });
     }
 
-    const jwt = require('jsonwebtoken'); // ← FIX: JWT manquant !
-    const Ad = require('./server/models/Ad'); // ← FIX: Ad manquant !
-
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.userId; // ← FIX: userId pas id !
+    const userId = decoded.userId;
 
-    const ad = await Ad.findOne({ _id: req.params.id, userId: userId }); // ← FIX: userId pas user !
+    const ad = await Ad.findOne({ _id: req.params.id, userId: userId });
     if (!ad) {
       return res
         .status(404)
@@ -707,6 +704,7 @@ app.delete('/api/ads/:id', async (req, res) => {
 
     await Ad.findByIdAndDelete(req.params.id);
 
+    console.log('✅ ANNONCE SUPPRIMÉE:', req.params.id);
     res.json({
       success: true,
       message: 'Annonce supprimée avec succès',
