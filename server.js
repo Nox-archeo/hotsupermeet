@@ -700,16 +700,38 @@ app.delete('/api/ads/conversations/:conversationId', async (req, res) => {
     const { conversationId } = req.params;
     const AdMessage = require('./server/models/AdMessage');
 
+    console.log(`🗑️ TENTATIVE SUPPRESSION conversation annonce:`, {
+      conversationId,
+      userId,
+    });
+
     // Vérifier que l'utilisateur fait partie de cette conversation
     const userMessage = await AdMessage.findOne({
       conversationId: conversationId,
       $or: [{ senderId: userId }, { receiverId: userId }],
     });
 
+    console.log(
+      `🔍 Message trouvé pour vérification:`,
+      userMessage ? 'OUI' : 'NON'
+    );
+
     if (!userMessage) {
+      // Lister toutes les conversations de l'utilisateur pour debug
+      const userConversations = await AdMessage.find({
+        $or: [{ senderId: userId }, { receiverId: userId }],
+      }).distinct('conversationId');
+
+      console.log(
+        `❌ Conversations disponibles pour ${userId}:`,
+        userConversations
+      );
+
       return res.status(403).json({
         success: false,
-        error: { message: 'Conversation non trouvée ou accès refusé' },
+        error: {
+          message: `Conversation ${conversationId} non trouvée ou accès refusé`,
+        },
       });
     }
 
@@ -755,26 +777,51 @@ app.delete('/api/messages/conversations/:conversationId', async (req, res) => {
     const { conversationId } = req.params;
     const Message = require('./server/models/Message');
 
+    console.log(`🗑️ TENTATIVE SUPPRESSION conversation classique:`, {
+      conversationId,
+      userId,
+    });
+
+    // Pour les conversations classiques, conversationId est l'ID de l'autre utilisateur
+    const otherUserId = conversationId;
+
     // Vérifier que l'utilisateur fait partie de cette conversation
     const userMessage = await Message.findOne({
       $or: [
-        { from: userId, to: conversationId }, // userId a envoyé à conversationId
-        { from: conversationId, to: userId }, // conversationId a envoyé à userId
+        { from: userId, to: otherUserId }, // userId a envoyé à otherUserId
+        { from: otherUserId, to: userId }, // otherUserId a envoyé à userId
       ],
     });
 
+    console.log(
+      `🔍 Message trouvé pour vérification:`,
+      userMessage ? 'OUI' : 'NON'
+    );
+
     if (!userMessage) {
+      // Lister toutes les conversations de l'utilisateur pour debug
+      const userMessages = await Message.find({
+        $or: [{ from: userId }, { to: userId }],
+      }).limit(10);
+
+      console.log(
+        `❌ Messages disponibles pour ${userId}:`,
+        userMessages.length
+      );
+
       return res.status(403).json({
         success: false,
-        error: { message: 'Conversation non trouvée ou accès refusé' },
+        error: {
+          message: `Conversation avec ${otherUserId} non trouvée ou accès refusé`,
+        },
       });
     }
 
     // SUPPRESSION RÉELLE de tous les messages entre ces 2 utilisateurs
     const deleteResult = await Message.deleteMany({
       $or: [
-        { from: userId, to: conversationId },
-        { from: conversationId, to: userId },
+        { from: userId, to: otherUserId },
+        { from: otherUserId, to: userId },
       ],
     });
 
