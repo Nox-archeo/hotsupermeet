@@ -905,11 +905,19 @@ app.delete(
       const userId = decoded.userId;
       const { conversationId } = req.params;
       const AdMessage = require('./server/models/AdMessage');
+      const mongoose = require('mongoose');
 
       console.log(
         `🔥 SUPPRESSION BRUTALE ANNONCE: ${conversationId} par ${userId}`
       );
       let totalDeleted = 0;
+
+      // Convertir les IDs en ObjectId pour MongoDB
+      const userObjectId = mongoose.Types.ObjectId(userId);
+      let otherUserObjectId = null;
+      if (conversationId.match(/^[0-9a-fA-F]{24}$/)) {
+        otherUserObjectId = mongoose.Types.ObjectId(conversationId);
+      }
 
       // Méthode 1: Par conversationId exact
       const delete1 = await AdMessage.deleteMany({ conversationId });
@@ -919,10 +927,11 @@ app.delete(
       // Méthode 2: Si c'est un ID d'annonce "ad-xxxxx-..."
       if (conversationId.startsWith('ad-')) {
         const adId = conversationId.split('-')[1];
-        if (adId) {
+        if (adId && adId.match(/^[0-9a-fA-F]{24}$/)) {
+          const adObjectId = mongoose.Types.ObjectId(adId);
           const delete2 = await AdMessage.deleteMany({
-            adId,
-            $or: [{ senderId: userId }, { receiverId: userId }],
+            adId: adObjectId,
+            $or: [{ senderId: userObjectId }, { receiverId: userObjectId }],
           });
           totalDeleted += delete2.deletedCount;
           console.log(`🔥 Méthode 2 (adId): ${delete2.deletedCount} messages`);
@@ -930,11 +939,11 @@ app.delete(
       }
 
       // Méthode 3: Si c'est un userId MongoDB
-      if (conversationId.match(/^[0-9a-fA-F]{24}$/)) {
+      if (otherUserObjectId) {
         const delete3 = await AdMessage.deleteMany({
           $or: [
-            { senderId: userId, receiverId: conversationId },
-            { senderId: conversationId, receiverId: userId },
+            { senderId: userObjectId, receiverId: otherUserObjectId },
+            { senderId: otherUserObjectId, receiverId: userObjectId },
           ],
         });
         totalDeleted += delete3.deletedCount;
@@ -980,16 +989,21 @@ app.delete(
       const userId = decoded.userId;
       const { conversationId } = req.params;
       const Message = require('./server/models/Message');
+      const mongoose = require('mongoose');
 
       console.log(
         `🔥 SUPPRESSION BRUTALE CLASSIQUE: ${conversationId} par ${userId}`
       );
 
-      // Suppression directe entre deux utilisateurs
+      // Convertir les IDs en ObjectId pour MongoDB
+      const userObjectId = mongoose.Types.ObjectId(userId);
+      const otherUserObjectId = mongoose.Types.ObjectId(conversationId);
+
+      // Suppression directe entre deux utilisateurs (CHAMPS CORRIGÉS + ObjectId)
       const deleteResult = await Message.deleteMany({
         $or: [
-          { from: userId, to: conversationId },
-          { from: conversationId, to: userId },
+          { fromUserId: userObjectId, toUserId: otherUserObjectId },
+          { fromUserId: otherUserObjectId, toUserId: userObjectId },
         ],
       });
 
