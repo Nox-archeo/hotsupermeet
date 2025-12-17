@@ -2948,7 +2948,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('hotmeet_token');
     if (!token) {
       alert('Vous devez être connecté');
       return;
