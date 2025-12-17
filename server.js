@@ -887,8 +887,13 @@ app.delete(
   '/api/ads/conversations/brutal/:conversationId',
   async (req, res) => {
     try {
+      console.log('🚨 ROUTE BRUTAL ANNONCES APPELÉE !!!');
+      console.log('🚨 Headers:', req.headers);
+      console.log('🚨 Params:', req.params);
+
       const authHeader = req.headers.authorization;
       if (!authHeader) {
+        console.log('🚨 ERREUR: Token manquant');
         return res
           .status(401)
           .json({ success: false, error: { message: 'Token manquant' } });
@@ -957,8 +962,13 @@ app.delete(
   '/api/messages/conversations/brutal/:conversationId',
   async (req, res) => {
     try {
+      console.log('🚨 ROUTE BRUTAL CLASSIQUE APPELÉE !!!');
+      console.log('🚨 Headers:', req.headers);
+      console.log('🚨 Params:', req.params);
+
       const authHeader = req.headers.authorization;
       if (!authHeader) {
+        console.log('🚨 ERREUR: Token manquant');
         return res
           .status(401)
           .json({ success: false, error: { message: 'Token manquant' } });
