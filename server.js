@@ -706,17 +706,33 @@ app.delete('/api/ads/conversations/:conversationId', async (req, res) => {
     });
 
     // Vérifier que l'utilisateur fait partie de cette conversation
-    const userMessage = await AdMessage.findOne({
+    let userMessages = await AdMessage.find({
       conversationId: conversationId,
       $or: [{ senderId: userId }, { receiverId: userId }],
     });
 
     console.log(
-      `🔍 Message trouvé pour vérification:`,
-      userMessage ? 'OUI' : 'NON'
+      `🔍 Messages trouvés par conversationId exact: ${userMessages.length}`
     );
 
-    if (!userMessage) {
+    // MÉTHODE 2: Si pas de résultat et conversationId contient "ad-", extraire l'adId
+    if (userMessages.length === 0 && conversationId.startsWith('ad-')) {
+      const parts = conversationId.split('-');
+      if (parts.length >= 2) {
+        const adId = parts[1];
+        console.log(`🔍 Extraction adId: ${adId}, recherche par adId + userId`);
+
+        // Chercher tous les messages de cette annonce où l'utilisateur participe
+        userMessages = await AdMessage.find({
+          adId: adId,
+          $or: [{ senderId: userId }, { receiverId: userId }],
+        });
+
+        console.log(`🔍 Messages trouvés par adId: ${userMessages.length}`);
+      }
+    }
+
+    if (userMessages.length === 0) {
       // Lister toutes les conversations de l'utilisateur pour debug
       const userConversations = await AdMessage.find({
         $or: [{ senderId: userId }, { receiverId: userId }],
@@ -735,10 +751,28 @@ app.delete('/api/ads/conversations/:conversationId', async (req, res) => {
       });
     }
 
-    // SUPPRESSION RÉELLE de tous les messages de cette conversation
-    const deleteResult = await AdMessage.deleteMany({
-      conversationId: conversationId,
-    });
+    // SUPPRESSION RÉELLE - utiliser les critères qui ont fonctionné
+    let deleteResult;
+    if (conversationId.startsWith('ad-') && conversationId.includes('NaN')) {
+      // Si conversationId cassé, supprimer par adId + userId
+      const parts = conversationId.split('-');
+      const adId = parts[1];
+      deleteResult = await AdMessage.deleteMany({
+        adId: adId,
+        $or: [{ senderId: userId }, { receiverId: userId }],
+      });
+      console.log(
+        `🗑️ SUPPRESSION PAR ADID: ${deleteResult.deletedCount} messages`
+      );
+    } else {
+      // Suppression normale par conversationId
+      deleteResult = await AdMessage.deleteMany({
+        conversationId: conversationId,
+      });
+      console.log(
+        `🗑️ SUPPRESSION PAR CONVERSATION: ${deleteResult.deletedCount} messages`
+      );
+    }
 
     console.log(
       `🗑️ Suppression conversation ${conversationId}: ${deleteResult.deletedCount} messages supprimés`
