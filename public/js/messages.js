@@ -2942,14 +2942,9 @@ document.addEventListener('DOMContentLoaded', () => {
       'type:',
       type
     );
-    console.log('🔥 TYPE de conversationId:', typeof conversationId);
 
     // Confirmation avant suppression
-    if (
-      !confirm(
-        '⚠️ ATTENTION ⚠️\n\nVoulez-vous VRAIMENT supprimer cette conversation définitivement ?\n\nCette action est IRRÉVERSIBLE et supprimera tous les messages de la base de données.'
-      )
-    ) {
+    if (!confirm('Supprimer cette conversation définitivement ?')) {
       return;
     }
 
@@ -2959,17 +2954,10 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Choisir les nouvelles routes BRUTALES
-    let apiUrl;
-    if (type === 'annonce') {
-      apiUrl = `/api/ads/conversations/brutal/${conversationId}`;
-    } else {
-      apiUrl = `/api/messages/conversations/brutal/${conversationId}`;
-    }
+    // SOLUTION DIRECTE - ON UTILISE LES ROUTES QUI EXISTENT DÉJÀ
+    let apiUrl = `/api/messages/delete-conversation/${conversationId}`;
 
-    console.log(
-      `🔥 SUPPRESSION BRUTALE conversation ${type}: ${conversationId}`
-    );
+    console.log(`🔥 SUPPRESSION DIRECTE: ${apiUrl}`);
 
     fetch(apiUrl, {
       method: 'DELETE',
@@ -2979,57 +2967,22 @@ document.addEventListener('DOMContentLoaded', () => {
       },
     })
       .then(response => {
-        console.log('🔥 RÉPONSE REÇUE:', response.status, response.statusText);
+        console.log('🔥 RÉPONSE REÇUE:', response.status);
         if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          throw new Error(`HTTP ${response.status}`);
         }
         return response.json();
       })
       .then(data => {
         console.log('🔥 DATA REÇUE:', data);
-        if (data.success) {
-          console.log(`✅ Conversation ${type} supprimée:`, data.message);
+        alert('✅ Conversation supprimée !');
 
-          // Supprimer de la liste locale
-          if (type === 'annonce') {
-            window.messagesManager.adResponses =
-              window.messagesManager.adResponses.filter(
-                r => r.id !== conversationId
-              );
-            window.messagesManager.renderAdResponses();
-          } else {
-            window.messagesManager.conversations =
-              window.messagesManager.conversations.filter(
-                c => c.id !== conversationId
-              );
-            window.messagesManager.renderConversations();
-          }
-
-          // Fermer le chat s'il était ouvert
-          if (window.messagesManager.currentChatUser === conversationId) {
-            const chatArea = document.querySelector('.chat-area');
-            if (chatArea) {
-              chatArea.innerHTML =
-                '<div class="no-chat-selected">Sélectionnez une conversation</div>';
-            }
-            window.messagesManager.currentChatUser = null;
-          }
-
-          // Mettre à jour les badges
-          window.messagesManager.updateNotificationBadges();
-
-          // Notification de succès
-          alert(
-            `✅ Conversation supprimée définitivement (${data.deletedCount} messages)`
-          );
-        } else {
-          console.error('❌ Erreur suppression:', data.error);
-          alert(`❌ Erreur: ${data.error.message}`);
-        }
+        // Recharger la page pour voir le changement
+        window.location.reload();
       })
       .catch(error => {
-        console.error('❌ Erreur réseau suppression:', error);
-        alert('❌ Erreur de connexion lors de la suppression');
+        console.error('❌ ERREUR:', error);
+        alert('❌ Erreur: ' + error.message);
       });
   };
 

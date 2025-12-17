@@ -582,6 +582,58 @@ app.delete(
 
 console.log('🔥 ROUTES BRUTALES CRÉÉES AVANT LES AUTRES ROUTES !');
 
+// ROUTE SIMPLE QUI MARCHE - SUPPRESSION CONVERSATION
+app.delete(
+  '/api/messages/delete-conversation/:conversationId',
+  async (req, res) => {
+    try {
+      console.log('🚨 SUPPRESSION CONVERSATION SIMPLE APPELÉE !!!');
+
+      const authHeader = req.headers.authorization;
+      if (!authHeader) {
+        return res
+          .status(401)
+          .json({ success: false, error: 'Token manquant' });
+      }
+
+      const token = authHeader.split(' ')[1];
+      const jwt = require('jsonwebtoken');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const userId = decoded.userId;
+      const { conversationId } = req.params;
+
+      console.log(
+        `🔥 SUPPRESSION par ${userId} de conversation ${conversationId}`
+      );
+
+      // Supprimer TOUS les messages entre ces deux utilisateurs
+      const Message = require('./server/models/Message');
+      const mongoose = require('mongoose');
+
+      const userObjectId = new mongoose.Types.ObjectId(userId);
+      const otherUserObjectId = new mongoose.Types.ObjectId(conversationId);
+
+      const deleteResult = await Message.deleteMany({
+        $or: [
+          { fromUserId: userObjectId, toUserId: otherUserObjectId },
+          { fromUserId: otherUserObjectId, toUserId: userObjectId },
+        ],
+      });
+
+      console.log(`🔥 SUPPRIMÉ: ${deleteResult.deletedCount} messages`);
+
+      res.json({
+        success: true,
+        message: `${deleteResult.deletedCount} messages supprimés`,
+        deletedCount: deleteResult.deletedCount,
+      });
+    } catch (error) {
+      console.error('❌ ERREUR SUPPRESSION:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
+
 // Charger les routes API (elles gèrent elles-mêmes les erreurs MongoDB)
 app.use('/api/auth', require('./server/routes/auth'));
 app.use('/api/users', require('./server/routes/users'));
