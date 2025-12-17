@@ -678,6 +678,126 @@ app.get('/api/ads/:adId/messages', async (req, res) => {
 
 console.log("✅ ROUTES CHAT D'ANNONCES CRÉÉES");
 
+// =================== ROUTES SUPPRESSION CONVERSATIONS ===================
+console.log('🗑️ CRÉATION ROUTES SUPPRESSION...');
+
+// Supprimer conversation chat d'annonce (suppression RÉELLE MongoDB)
+app.delete('/api/ads/conversations/:conversationId', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({
+        success: false,
+        error: { message: 'Token manquant' },
+      });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const jwt = require('jsonwebtoken');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    const { conversationId } = req.params;
+    const AdMessage = require('./server/models/AdMessage');
+
+    // Vérifier que l'utilisateur fait partie de cette conversation
+    const userMessage = await AdMessage.findOne({
+      conversationId: conversationId,
+      $or: [{ senderId: userId }, { receiverId: userId }],
+    });
+
+    if (!userMessage) {
+      return res.status(403).json({
+        success: false,
+        error: { message: 'Conversation non trouvée ou accès refusé' },
+      });
+    }
+
+    // SUPPRESSION RÉELLE de tous les messages de cette conversation
+    const deleteResult = await AdMessage.deleteMany({
+      conversationId: conversationId,
+    });
+
+    console.log(
+      `🗑️ Suppression conversation ${conversationId}: ${deleteResult.deletedCount} messages supprimés`
+    );
+
+    res.json({
+      success: true,
+      message: `Conversation supprimée définitivement (${deleteResult.deletedCount} messages)`,
+      deletedCount: deleteResult.deletedCount,
+    });
+  } catch (error) {
+    console.error('❌ Erreur suppression conversation annonce:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur serveur: ' + error.message },
+    });
+  }
+});
+
+// Supprimer conversation classique (suppression RÉELLE MongoDB)
+app.delete('/api/messages/conversations/:conversationId', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({
+        success: false,
+        error: { message: 'Token manquant' },
+      });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const jwt = require('jsonwebtoken');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    const { conversationId } = req.params;
+    const Message = require('./server/models/Message');
+
+    // Vérifier que l'utilisateur fait partie de cette conversation
+    const userMessage = await Message.findOne({
+      $or: [
+        { from: userId, to: conversationId }, // userId a envoyé à conversationId
+        { from: conversationId, to: userId }, // conversationId a envoyé à userId
+      ],
+    });
+
+    if (!userMessage) {
+      return res.status(403).json({
+        success: false,
+        error: { message: 'Conversation non trouvée ou accès refusé' },
+      });
+    }
+
+    // SUPPRESSION RÉELLE de tous les messages entre ces 2 utilisateurs
+    const deleteResult = await Message.deleteMany({
+      $or: [
+        { from: userId, to: conversationId },
+        { from: conversationId, to: userId },
+      ],
+    });
+
+    console.log(
+      `🗑️ Suppression conversation classique ${userId}<->${conversationId}: ${deleteResult.deletedCount} messages supprimés`
+    );
+
+    res.json({
+      success: true,
+      message: `Conversation supprimée définitivement (${deleteResult.deletedCount} messages)`,
+      deletedCount: deleteResult.deletedCount,
+    });
+  } catch (error) {
+    console.error('❌ Erreur suppression conversation classique:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur serveur: ' + error.message },
+    });
+  }
+});
+
+console.log('✅ ROUTES SUPPRESSION CRÉÉES');
+
 // ROUTE DELETE POUR SUPPRIMER UNE ANNONCE
 app.delete('/api/ads/:adId', async (req, res) => {
   try {

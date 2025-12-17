@@ -1706,7 +1706,8 @@ class MessagesManager {
                     </div>
                 </div>
                 <div class="conversation-actions">
-                    <button class="btn-secondary">Ouvrir</button>
+                    <button class="btn-secondary" onclick="messagesManager.openChat('${conversation.id}', '${conversation.otherUser.nom}', '${conversation.otherUser.photo || '/images/default-avatar.jpg'}')">Ouvrir</button>
+                    <button class="btn-danger btn-delete-conversation" onclick="messagesManager.deleteConversation('${conversation.id}', 'classique')" title="Supprimer conversation">🗑️</button>
                     ${conversation.unreadCount > 0 ? `<span class="unread-count">${conversation.unreadCount}</span>` : ''}
                 </div>
             </div>
@@ -1773,6 +1774,7 @@ class MessagesManager {
                 <div class="ad-response-actions">
                     <button class="btn-primary" onclick="messagesManager.openAdConversation('${response.id}', '${response.adTitle}', '${response.senderName}', '${response.senderPhoto}', '${response.otherUserId || response.senderId}')">Répondre</button>
                     <button class="btn-secondary" onclick="messagesManager.viewAdProfile('${response.senderId}')">Voir le profil</button>
+                    <button class="btn-danger btn-delete-conversation" onclick="messagesManager.deleteConversation('${response.id}', 'annonce')" title="Supprimer conversation">🗑️</button>
                 </div>
             </div>
         `
@@ -2930,6 +2932,88 @@ document.addEventListener('DOMContentLoaded', () => {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+  };
+
+  // Fonction pour supprimer une conversation (SUPPRESSION RÉELLE)
+  window.messagesManager.deleteConversation = function (conversationId, type) {
+    // Confirmation avant suppression
+    if (
+      !confirm(
+        '⚠️ ATTENTION ⚠️\n\nVoulez-vous VRAIMENT supprimer cette conversation définitivement ?\n\nCette action est IRRÉVERSIBLE et supprimera tous les messages de la base de données.'
+      )
+    ) {
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Vous devez être connecté');
+      return;
+    }
+
+    // Choisir la bonne API selon le type
+    let apiUrl;
+    if (type === 'annonce') {
+      apiUrl = `/api/ads/conversations/${conversationId}`;
+    } else {
+      apiUrl = `/api/messages/conversations/${conversationId}`;
+    }
+
+    console.log(`🗑️ Suppression conversation ${type}: ${conversationId}`);
+
+    fetch(apiUrl, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          console.log(`✅ Conversation ${type} supprimée:`, data.message);
+
+          // Supprimer de la liste locale
+          if (type === 'annonce') {
+            window.messagesManager.adResponses =
+              window.messagesManager.adResponses.filter(
+                r => r.id !== conversationId
+              );
+            window.messagesManager.renderAdResponses();
+          } else {
+            window.messagesManager.conversations =
+              window.messagesManager.conversations.filter(
+                c => c.id !== conversationId
+              );
+            window.messagesManager.renderConversations();
+          }
+
+          // Fermer le chat s'il était ouvert
+          if (window.messagesManager.currentChatUser === conversationId) {
+            const chatArea = document.querySelector('.chat-area');
+            if (chatArea) {
+              chatArea.innerHTML =
+                '<div class="no-chat-selected">Sélectionnez une conversation</div>';
+            }
+            window.messagesManager.currentChatUser = null;
+          }
+
+          // Mettre à jour les badges
+          window.messagesManager.updateNotificationBadges();
+
+          // Notification de succès
+          alert(
+            `✅ Conversation supprimée définitivement (${data.deletedCount} messages)`
+          );
+        } else {
+          console.error('❌ Erreur suppression:', data.error);
+          alert(`❌ Erreur: ${data.error.message}`);
+        }
+      })
+      .catch(error => {
+        console.error('❌ Erreur réseau suppression:', error);
+        alert('❌ Erreur de connexion lors de la suppression');
+      });
   };
 
   window.messagesManager.viewAdProfile = function (userId) {
