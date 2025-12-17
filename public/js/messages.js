@@ -2951,15 +2951,17 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Choisir la bonne API selon le type
+    // Choisir les nouvelles routes BRUTALES
     let apiUrl;
     if (type === 'annonce') {
-      apiUrl = `/api/ads/conversations/${conversationId}`;
+      apiUrl = `/api/ads/conversations/brutal/${conversationId}`;
     } else {
-      apiUrl = `/api/messages/conversations/${conversationId}`;
+      apiUrl = `/api/messages/conversations/brutal/${conversationId}`;
     }
 
-    console.log(`🗑️ Suppression conversation ${type}: ${conversationId}`);
+    console.log(
+      `🔥 SUPPRESSION BRUTALE conversation ${type}: ${conversationId}`
+    );
 
     fetch(apiUrl, {
       method: 'DELETE',

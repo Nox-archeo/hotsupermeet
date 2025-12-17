@@ -879,6 +879,128 @@ app.delete('/api/messages/conversations/:conversationId', async (req, res) => {
 
 console.log('✅ ROUTES SUPPRESSION CRÉÉES');
 
+// =================== ROUTES SUPPRESSION BRUTALES V2 ===================
+console.log('🔥 CRÉATION ROUTES SUPPRESSION BRUTALES...');
+
+// SUPPRESSION BRUTALE CONVERSATIONS D'ANNONCES
+app.delete(
+  '/api/ads/conversations/brutal/:conversationId',
+  async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader) {
+        return res
+          .status(401)
+          .json({ success: false, error: { message: 'Token manquant' } });
+      }
+
+      const token = authHeader.split(' ')[1];
+      const jwt = require('jsonwebtoken');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const userId = decoded.userId;
+      const { conversationId } = req.params;
+      const AdMessage = require('./server/models/AdMessage');
+
+      console.log(
+        `🔥 SUPPRESSION BRUTALE ANNONCE: ${conversationId} par ${userId}`
+      );
+      let totalDeleted = 0;
+
+      // Méthode 1: Par conversationId exact
+      const delete1 = await AdMessage.deleteMany({ conversationId });
+      totalDeleted += delete1.deletedCount;
+      console.log(`🔥 Méthode 1: ${delete1.deletedCount} messages`);
+
+      // Méthode 2: Si c'est un ID d'annonce "ad-xxxxx-..."
+      if (conversationId.startsWith('ad-')) {
+        const adId = conversationId.split('-')[1];
+        if (adId) {
+          const delete2 = await AdMessage.deleteMany({
+            adId,
+            $or: [{ senderId: userId }, { receiverId: userId }],
+          });
+          totalDeleted += delete2.deletedCount;
+          console.log(`🔥 Méthode 2 (adId): ${delete2.deletedCount} messages`);
+        }
+      }
+
+      // Méthode 3: Si c'est un userId MongoDB
+      if (conversationId.match(/^[0-9a-fA-F]{24}$/)) {
+        const delete3 = await AdMessage.deleteMany({
+          $or: [
+            { senderId: userId, receiverId: conversationId },
+            { senderId: conversationId, receiverId: userId },
+          ],
+        });
+        totalDeleted += delete3.deletedCount;
+        console.log(`🔥 Méthode 3 (userId): ${delete3.deletedCount} messages`);
+      }
+
+      console.log(`🔥 TOTAL DÉTRUIT: ${totalDeleted} messages`);
+
+      res.json({
+        success: true,
+        message: `CONVERSATION DÉTRUITE! ${totalDeleted} messages supprimés`,
+        deletedCount: totalDeleted,
+      });
+    } catch (error) {
+      console.error('💀 ERREUR SUPPRESSION BRUTALE:', error);
+      res
+        .status(500)
+        .json({ success: false, error: { message: error.message } });
+    }
+  }
+);
+
+// SUPPRESSION BRUTALE CONVERSATIONS CLASSIQUES
+app.delete(
+  '/api/messages/conversations/brutal/:conversationId',
+  async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader) {
+        return res
+          .status(401)
+          .json({ success: false, error: { message: 'Token manquant' } });
+      }
+
+      const token = authHeader.split(' ')[1];
+      const jwt = require('jsonwebtoken');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const userId = decoded.userId;
+      const { conversationId } = req.params;
+      const Message = require('./server/models/Message');
+
+      console.log(
+        `🔥 SUPPRESSION BRUTALE CLASSIQUE: ${conversationId} par ${userId}`
+      );
+
+      // Suppression directe entre deux utilisateurs
+      const deleteResult = await Message.deleteMany({
+        $or: [
+          { from: userId, to: conversationId },
+          { from: conversationId, to: userId },
+        ],
+      });
+
+      console.log(`🔥 TOTAL DÉTRUIT: ${deleteResult.deletedCount} messages`);
+
+      res.json({
+        success: true,
+        message: `CONVERSATION DÉTRUITE! ${deleteResult.deletedCount} messages supprimés`,
+        deletedCount: deleteResult.deletedCount,
+      });
+    } catch (error) {
+      console.error('💀 ERREUR SUPPRESSION BRUTALE:', error);
+      res
+        .status(500)
+        .json({ success: false, error: { message: error.message } });
+    }
+  }
+);
+
+console.log('🔥 ROUTES BRUTALES CRÉÉES');
+
 // ROUTE DELETE POUR SUPPRIMER UNE ANNONCE
 app.delete('/api/ads/:adId', async (req, res) => {
   try {
