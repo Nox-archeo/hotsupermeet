@@ -435,6 +435,153 @@ app.get('/api/ads/responses', async (req, res) => {
   }
 });
 
+// =================== ROUTES SUPPRESSION BRUTALES V2 ===================
+// CRITIQUES: CES ROUTES DOIVENT ÊTRE AVANT app.use() pour être prises en compte !
+console.log('🔥 CRÉATION ROUTES SUPPRESSION BRUTALES...');
+
+// SUPPRESSION BRUTALE CONVERSATIONS D'ANNONCES
+app.delete(
+  '/api/ads/conversations/brutal/:conversationId',
+  async (req, res) => {
+    try {
+      console.log('🚨 ROUTE BRUTAL ANNONCES APPELÉE !!!');
+      console.log('🚨 Headers:', req.headers);
+      console.log('🚨 Params:', req.params);
+
+      const authHeader = req.headers.authorization;
+      if (!authHeader) {
+        console.log('🚨 ERREUR: Token manquant');
+        return res
+          .status(401)
+          .json({ success: false, error: { message: 'Token manquant' } });
+      }
+
+      const token = authHeader.split(' ')[1];
+      const jwt = require('jsonwebtoken');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const userId = decoded.userId;
+      const { conversationId } = req.params;
+      const AdMessage = require('./server/models/AdMessage');
+      const mongoose = require('mongoose');
+
+      console.log(
+        `🔥 SUPPRESSION BRUTALE ANNONCE: ${conversationId} par ${userId}`
+      );
+      let totalDeleted = 0;
+
+      // Convertir les IDs en ObjectId pour MongoDB
+      const userObjectId = mongoose.Types.ObjectId(userId);
+      let otherUserObjectId = null;
+      if (conversationId.match(/^[0-9a-fA-F]{24}$/)) {
+        otherUserObjectId = mongoose.Types.ObjectId(conversationId);
+      }
+
+      // Méthode 1: Par conversationId exact
+      const delete1 = await AdMessage.deleteMany({ conversationId });
+      totalDeleted += delete1.deletedCount;
+      console.log(`🔥 Méthode 1: ${delete1.deletedCount} messages`);
+
+      // Méthode 2: Si c'est un ID d'annonce "ad-xxxxx-..."
+      if (conversationId.startsWith('ad-')) {
+        const adId = conversationId.split('-')[1];
+        if (adId && adId.match(/^[0-9a-fA-F]{24}$/)) {
+          const adObjectId = mongoose.Types.ObjectId(adId);
+          const delete2 = await AdMessage.deleteMany({
+            adId: adObjectId,
+            $or: [{ senderId: userObjectId }, { receiverId: userObjectId }],
+          });
+          totalDeleted += delete2.deletedCount;
+          console.log(`🔥 Méthode 2 (adId): ${delete2.deletedCount} messages`);
+        }
+      }
+
+      // Méthode 3: Si c'est un userId MongoDB
+      if (otherUserObjectId) {
+        const delete3 = await AdMessage.deleteMany({
+          $or: [
+            { senderId: userObjectId, receiverId: otherUserObjectId },
+            { senderId: otherUserObjectId, receiverId: userObjectId },
+          ],
+        });
+        totalDeleted += delete3.deletedCount;
+        console.log(`🔥 Méthode 3 (userId): ${delete3.deletedCount} messages`);
+      }
+
+      console.log(`🔥 TOTAL DÉTRUIT: ${totalDeleted} messages`);
+
+      res.json({
+        success: true,
+        message: `CONVERSATION DÉTRUITE! ${totalDeleted} messages supprimés`,
+        deletedCount: totalDeleted,
+      });
+    } catch (error) {
+      console.error('💀 ERREUR SUPPRESSION BRUTALE:', error);
+      res
+        .status(500)
+        .json({ success: false, error: { message: error.message } });
+    }
+  }
+);
+
+// SUPPRESSION BRUTALE CONVERSATIONS CLASSIQUES
+app.delete(
+  '/api/messages/conversations/brutal/:conversationId',
+  async (req, res) => {
+    try {
+      console.log('🚨 ROUTE BRUTAL CLASSIQUE APPELÉE !!!');
+      console.log('🚨 Headers:', req.headers);
+      console.log('🚨 Params:', req.params);
+
+      const authHeader = req.headers.authorization;
+      if (!authHeader) {
+        console.log('🚨 ERREUR: Token manquant');
+        return res
+          .status(401)
+          .json({ success: false, error: { message: 'Token manquant' } });
+      }
+
+      const token = authHeader.split(' ')[1];
+      const jwt = require('jsonwebtoken');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const userId = decoded.userId;
+      const { conversationId } = req.params;
+      const Message = require('./server/models/Message');
+      const mongoose = require('mongoose');
+
+      console.log(
+        `🔥 SUPPRESSION BRUTALE CLASSIQUE: ${conversationId} par ${userId}`
+      );
+
+      // Convertir les IDs en ObjectId pour MongoDB
+      const userObjectId = mongoose.Types.ObjectId(userId);
+      const otherUserObjectId = mongoose.Types.ObjectId(conversationId);
+
+      // Suppression directe entre deux utilisateurs (CHAMPS CORRIGÉS + ObjectId)
+      const deleteResult = await Message.deleteMany({
+        $or: [
+          { fromUserId: userObjectId, toUserId: otherUserObjectId },
+          { fromUserId: otherUserObjectId, toUserId: userObjectId },
+        ],
+      });
+
+      console.log(`🔥 TOTAL DÉTRUIT: ${deleteResult.deletedCount} messages`);
+
+      res.json({
+        success: true,
+        message: `CONVERSATION DÉTRUITE! ${deleteResult.deletedCount} messages supprimés`,
+        deletedCount: deleteResult.deletedCount,
+      });
+    } catch (error) {
+      console.error('💀 ERREUR SUPPRESSION BRUTALE:', error);
+      res
+        .status(500)
+        .json({ success: false, error: { message: error.message } });
+    }
+  }
+);
+
+console.log('🔥 ROUTES BRUTALES CRÉÉES AVANT LES AUTRES ROUTES !');
+
 // Charger les routes API (elles gèrent elles-mêmes les erreurs MongoDB)
 app.use('/api/auth', require('./server/routes/auth'));
 app.use('/api/users', require('./server/routes/users'));
@@ -878,152 +1025,6 @@ app.delete('/api/messages/conversations/:conversationId', async (req, res) => {
 });
 
 console.log('✅ ROUTES SUPPRESSION CRÉÉES');
-
-// =================== ROUTES SUPPRESSION BRUTALES V2 ===================
-console.log('🔥 CRÉATION ROUTES SUPPRESSION BRUTALES...');
-
-// SUPPRESSION BRUTALE CONVERSATIONS D'ANNONCES
-app.delete(
-  '/api/ads/conversations/brutal/:conversationId',
-  async (req, res) => {
-    try {
-      console.log('🚨 ROUTE BRUTAL ANNONCES APPELÉE !!!');
-      console.log('🚨 Headers:', req.headers);
-      console.log('🚨 Params:', req.params);
-
-      const authHeader = req.headers.authorization;
-      if (!authHeader) {
-        console.log('🚨 ERREUR: Token manquant');
-        return res
-          .status(401)
-          .json({ success: false, error: { message: 'Token manquant' } });
-      }
-
-      const token = authHeader.split(' ')[1];
-      const jwt = require('jsonwebtoken');
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const userId = decoded.userId;
-      const { conversationId } = req.params;
-      const AdMessage = require('./server/models/AdMessage');
-      const mongoose = require('mongoose');
-
-      console.log(
-        `🔥 SUPPRESSION BRUTALE ANNONCE: ${conversationId} par ${userId}`
-      );
-      let totalDeleted = 0;
-
-      // Convertir les IDs en ObjectId pour MongoDB
-      const userObjectId = mongoose.Types.ObjectId(userId);
-      let otherUserObjectId = null;
-      if (conversationId.match(/^[0-9a-fA-F]{24}$/)) {
-        otherUserObjectId = mongoose.Types.ObjectId(conversationId);
-      }
-
-      // Méthode 1: Par conversationId exact
-      const delete1 = await AdMessage.deleteMany({ conversationId });
-      totalDeleted += delete1.deletedCount;
-      console.log(`🔥 Méthode 1: ${delete1.deletedCount} messages`);
-
-      // Méthode 2: Si c'est un ID d'annonce "ad-xxxxx-..."
-      if (conversationId.startsWith('ad-')) {
-        const adId = conversationId.split('-')[1];
-        if (adId && adId.match(/^[0-9a-fA-F]{24}$/)) {
-          const adObjectId = mongoose.Types.ObjectId(adId);
-          const delete2 = await AdMessage.deleteMany({
-            adId: adObjectId,
-            $or: [{ senderId: userObjectId }, { receiverId: userObjectId }],
-          });
-          totalDeleted += delete2.deletedCount;
-          console.log(`🔥 Méthode 2 (adId): ${delete2.deletedCount} messages`);
-        }
-      }
-
-      // Méthode 3: Si c'est un userId MongoDB
-      if (otherUserObjectId) {
-        const delete3 = await AdMessage.deleteMany({
-          $or: [
-            { senderId: userObjectId, receiverId: otherUserObjectId },
-            { senderId: otherUserObjectId, receiverId: userObjectId },
-          ],
-        });
-        totalDeleted += delete3.deletedCount;
-        console.log(`🔥 Méthode 3 (userId): ${delete3.deletedCount} messages`);
-      }
-
-      console.log(`🔥 TOTAL DÉTRUIT: ${totalDeleted} messages`);
-
-      res.json({
-        success: true,
-        message: `CONVERSATION DÉTRUITE! ${totalDeleted} messages supprimés`,
-        deletedCount: totalDeleted,
-      });
-    } catch (error) {
-      console.error('💀 ERREUR SUPPRESSION BRUTALE:', error);
-      res
-        .status(500)
-        .json({ success: false, error: { message: error.message } });
-    }
-  }
-);
-
-// SUPPRESSION BRUTALE CONVERSATIONS CLASSIQUES
-app.delete(
-  '/api/messages/conversations/brutal/:conversationId',
-  async (req, res) => {
-    try {
-      console.log('🚨 ROUTE BRUTAL CLASSIQUE APPELÉE !!!');
-      console.log('🚨 Headers:', req.headers);
-      console.log('🚨 Params:', req.params);
-
-      const authHeader = req.headers.authorization;
-      if (!authHeader) {
-        console.log('🚨 ERREUR: Token manquant');
-        return res
-          .status(401)
-          .json({ success: false, error: { message: 'Token manquant' } });
-      }
-
-      const token = authHeader.split(' ')[1];
-      const jwt = require('jsonwebtoken');
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const userId = decoded.userId;
-      const { conversationId } = req.params;
-      const Message = require('./server/models/Message');
-      const mongoose = require('mongoose');
-
-      console.log(
-        `🔥 SUPPRESSION BRUTALE CLASSIQUE: ${conversationId} par ${userId}`
-      );
-
-      // Convertir les IDs en ObjectId pour MongoDB
-      const userObjectId = mongoose.Types.ObjectId(userId);
-      const otherUserObjectId = mongoose.Types.ObjectId(conversationId);
-
-      // Suppression directe entre deux utilisateurs (CHAMPS CORRIGÉS + ObjectId)
-      const deleteResult = await Message.deleteMany({
-        $or: [
-          { fromUserId: userObjectId, toUserId: otherUserObjectId },
-          { fromUserId: otherUserObjectId, toUserId: userObjectId },
-        ],
-      });
-
-      console.log(`🔥 TOTAL DÉTRUIT: ${deleteResult.deletedCount} messages`);
-
-      res.json({
-        success: true,
-        message: `CONVERSATION DÉTRUITE! ${deleteResult.deletedCount} messages supprimés`,
-        deletedCount: deleteResult.deletedCount,
-      });
-    } catch (error) {
-      console.error('💀 ERREUR SUPPRESSION BRUTALE:', error);
-      res
-        .status(500)
-        .json({ success: false, error: { message: error.message } });
-    }
-  }
-);
-
-console.log('🔥 ROUTES BRUTALES CRÉÉES');
 
 // ROUTE DELETE POUR SUPPRIMER UNE ANNONCE
 app.delete('/api/ads/:adId', async (req, res) => {
