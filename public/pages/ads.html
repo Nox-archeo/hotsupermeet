@@ -30,7 +30,7 @@
         <div class="nav-menu" id="navMenu">
           <a href="/" class="nav-link">Accueil</a>
           <a href="/directory" class="nav-link">Annuaire</a>
-          <a href="/ads" class="nav-link active">Annonces</a>
+          <a href="/ads" class="nav-link">Annonces</a>
           <a href="/tonight" class="nav-link">Ce Soir</a>
           <a href="/cam" class="nav-link">Cam-to-Cam</a>
           <a href="/messages" class="nav-link"
@@ -39,30 +39,20 @@
               class="notification-badge"
               id="messageBadge"
               style="display: none"
-            ></span
-          ></a>
-          <a href="/profile" class="nav-link"
-            >Profil
-            <span
-              class="notification-badge"
-              id="profileBadge"
-              style="display: none"
-            ></span
-          ></a>
-          <div class="auth-buttons" id="authButtons">
-            <a href="/auth" class="nav-link btn-primary">Connexion</a>
-            <a href="/auth" class="nav-link btn-secondary">Inscription</a>
-          </div>
-          <div class="user-menu" id="userMenu" style="display: none">
-            <span class="user-name" id="userName">Utilisateur</span>
-            <button class="btn-logout" id="logoutBtn">Déconnexion</button>
-          </div>
+              >0</span
+            ></a
+          >
+          <a href="/profile" class="nav-link">Mon Profil</a>
         </div>
 
-        <div class="nav-toggle" id="navToggle">
-          <span></span>
-          <span></span>
-          <span></span>
+        <div class="nav-actions">
+          <button class="btn-secondary" id="loginBtn">Connexion</button>
+          <button class="btn-primary" id="registerBtn">Inscription</button>
+          <div class="mobile-menu-toggle" id="mobileMenuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
         </div>
       </nav>
     </header>

@@ -13,6 +13,7 @@ class HotMeetApp {
     this.setupMobileMenu();
     this.setupSmoothScrolling();
     this.setupAgeVerification();
+    this.setActiveNavLink(); // Gestion automatique du menu actif
   }
 
   // Configuration des écouteurs d'événements
@@ -97,6 +98,37 @@ class HotMeetApp {
     });
   }
 
+  // Gestion automatique de la classe active dans la navigation
+  setActiveNavLink() {
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    // Supprimer toutes les classes active existantes
+    navLinks.forEach(link => {
+      link.classList.remove('active');
+    });
+
+    // Définir les correspondances path -> lien de navigation
+    const pathMapping = {
+      '/': 'nav-link[href="/"]',
+      '/directory': 'nav-link[href="/directory"]',
+      '/ads': 'nav-link[href="/ads"]',
+      '/tonight': 'nav-link[href="/tonight"]',
+      '/cam': 'nav-link[href="/cam"]',
+      '/messages': 'nav-link[href="/messages"]',
+      '/profile': 'nav-link[href="/profile"]',
+    };
+
+    // Activer le lien correspondant au path actuel
+    const activeSelector = pathMapping[currentPath];
+    if (activeSelector) {
+      const activeLink = document.querySelector(activeSelector);
+      if (activeLink) {
+        activeLink.classList.add('active');
+      }
+    }
+  }
+
   // Configuration de la vérification d'âge
   setupAgeVerification() {
     const confirmAgeBtn = document.getElementById('confirmAgeBtn');
@@ -164,9 +196,14 @@ class HotMeetApp {
                         <div class="user-avatar">
                             <img src="${this.currentUser.profile.photos?.[0] || '/images/default-avatar.jpg'}" alt="${this.currentUser.profile.nom}">
                         </div>
-                        <span class="user-name">${this.currentUser.profile.nom}</span>
                     </div>
                     <div class="dropdown-menu">
+                        <div class="dropdown-header">
+                            <div class="user-avatar-dropdown">
+                                <img src="${this.currentUser.profile.photos?.[0] || '/images/default-avatar.jpg'}" alt="${this.currentUser.profile.nom}">
+                            </div>
+                            <span class="user-name-dropdown">${this.currentUser.profile.nom}</span>
+                        </div>
                         <a href="/profile" class="dropdown-item">📋 Mon Profil</a>
                         <a href="/messages" class="dropdown-item">💬 Messages</a>
                         <a href="/premium" class="dropdown-item ${this.currentUser.premium.isPremium ? 'premium-active' : ''}">⭐ ${this.currentUser.premium.isPremium ? 'Premium Actif' : 'Devenir Premium'}</a>
