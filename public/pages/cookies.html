@@ -73,7 +73,10 @@
           <div class="cookie-notice">
             <p>
               <strong>🍪 Gestion de vos préférences :</strong>
-              <button onclick="showCookieSettings()" class="btn-inline">
+              <button
+                onclick="window.showCookieSettings && window.showCookieSettings()"
+                class="btn-inline"
+              >
                 Modifier mes paramètres cookies
               </button>
             </p>
@@ -265,7 +268,7 @@
               Cliquez sur le bouton ci-dessous pour modifier vos préférences :
             </p>
             <button
-              onclick="window.showCookieSettings ? window.showCookieSettings() : alert('Système de gestion des cookies en cours de chargement...')"
+              onclick="window.showCookieSettings && window.showCookieSettings()"
               class="btn-primary"
             >
               ⚙️ Paramètres des cookies

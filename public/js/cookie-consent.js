@@ -547,6 +547,9 @@
     };
   };
 
+  // Fonction publique pour afficher les paramètres cookies
+  window.showCookieSettings = showCookieSettings;
+
   // Démarrer quand le DOM est prêt
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
