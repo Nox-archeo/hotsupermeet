@@ -2024,6 +2024,7 @@ class MessagesManager {
                   : '❌ Refusée'
             }
           </span>
+          <button class="btn-danger btn-delete-photo-request" onclick="messagesManager.deletePhotoRequest('${request._id}')" title="Supprimer demande">🗑️</button>
         </div>
       </div>
     `
@@ -2659,6 +2660,29 @@ const messagesStyles = `
         font-size: 0.9em;
     }
 
+    /* Bouton suppression demande photo */
+    .btn-delete-photo-request {
+        background: #ff4444;
+        color: white;
+        border: none;
+        padding: 0.5rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        margin-left: 0.5rem;
+        transition: all 0.3s ease;
+        min-width: 35px;
+        height: 35px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-delete-photo-request:hover {
+        background: #cc0000;
+        transform: scale(1.1);
+    }
+
     @media (max-width: 768px) {
         .tabs-navigation {
             flex-direction: column;
@@ -2986,6 +3010,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Recharger la page pour voir le changement
         window.location.reload();
+      })
+      .catch(error => {
+        console.error('❌ ERREUR:', error);
+        alert('❌ Erreur: ' + error.message);
+      });
+  };
+
+  // Supprimer une demande de photo privée
+  window.messagesManager.deletePhotoRequest = function (requestId) {
+    console.log('🗑️ SUPPRESSION DEMANDE PHOTO:', requestId);
+
+    // Confirmation avant suppression
+    if (
+      !confirm('Supprimer cette demande de photos privées définitivement ?')
+    ) {
+      return;
+    }
+
+    const token = localStorage.getItem('hotmeet_token');
+    if (!token) {
+      alert('Vous devez être connecté');
+      return;
+    }
+
+    const apiUrl = `/api/auth/private-photos/delete/${requestId}`;
+
+    console.log(`🔥 SUPPRESSION DEMANDE PHOTO: ${apiUrl}`);
+
+    fetch(apiUrl, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => {
+        console.log('🔥 RÉPONSE REÇUE:', response.status);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('🔥 DATA REÇUE:', data);
+        alert('✅ Demande supprimée !');
+
+        // Recharger les demandes de photos
+        window.messagesManager.loadPrivatePhotosData();
       })
       .catch(error => {
         console.error('❌ ERREUR:', error);

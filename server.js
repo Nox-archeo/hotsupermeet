@@ -606,27 +606,55 @@ app.delete(
         `🔥 SUPPRESSION par ${userId} de conversation ${conversationId}`
       );
 
-      // Supprimer TOUS les messages entre ces deux utilisateurs
-      const Message = require('./server/models/Message');
-      const mongoose = require('mongoose');
+      // DÉTECTION : Conversation d'annonce ou classique ?
+      if (conversationId.startsWith('ad-')) {
+        console.log('🔍 CONVERSATION ANNONCE détectée');
+        
+        // Pour les annonces, utiliser AdMessage et extraire l'adId
+        const AdMessage = require('./server/models/AdMessage');
+        const parts = conversationId.split('-');
+        const adId = parts[1];
+        
+        console.log(`🔍 Extraction adId: ${adId} pour userId: ${userId}`);
+        
+        const deleteResult = await AdMessage.deleteMany({
+          adId: adId,
+          $or: [{ senderId: userId }, { receiverId: userId }],
+        });
+        
+        console.log(`🔥 SUPPRIMÉ ANNONCE: ${deleteResult.deletedCount} messages`);
+        
+        res.json({
+          success: true,
+          message: `${deleteResult.deletedCount} messages supprimés`,
+          deletedCount: deleteResult.deletedCount,
+        });
+        
+      } else {
+        console.log('🔍 CONVERSATION CLASSIQUE détectée');
+        
+        // Pour les conversations classiques, logique normale
+        const Message = require('./server/models/Message');
+        const mongoose = require('mongoose');
 
-      const userObjectId = new mongoose.Types.ObjectId(userId);
-      const otherUserObjectId = new mongoose.Types.ObjectId(conversationId);
+        const userObjectId = new mongoose.Types.ObjectId(userId);
+        const otherUserObjectId = new mongoose.Types.ObjectId(conversationId);
 
-      const deleteResult = await Message.deleteMany({
-        $or: [
-          { fromUserId: userObjectId, toUserId: otherUserObjectId },
-          { fromUserId: otherUserObjectId, toUserId: userObjectId },
-        ],
-      });
+        const deleteResult = await Message.deleteMany({
+          $or: [
+            { fromUserId: userObjectId, toUserId: otherUserObjectId },
+            { fromUserId: otherUserObjectId, toUserId: userObjectId },
+          ],
+        });
 
-      console.log(`🔥 SUPPRIMÉ: ${deleteResult.deletedCount} messages`);
+        console.log(`🔥 SUPPRIMÉ CLASSIQUE: ${deleteResult.deletedCount} messages`);
 
-      res.json({
-        success: true,
-        message: `${deleteResult.deletedCount} messages supprimés`,
-        deletedCount: deleteResult.deletedCount,
-      });
+        res.json({
+          success: true,
+          message: `${deleteResult.deletedCount} messages supprimés`,
+          deletedCount: deleteResult.deletedCount,
+        });
+      }
     } catch (error) {
       console.error('❌ ERREUR SUPPRESSION:', error);
       res.status(500).json({ success: false, error: error.message });
