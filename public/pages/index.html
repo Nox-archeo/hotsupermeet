@@ -42,35 +42,6 @@
     <link rel="stylesheet" href="/css/responsive.css?v=2" />
   </head>
   <body>
-    <!-- Modal de vérification d'âge - DOIT ÊTRE LE PREMIER ÉLÉMENT -->
-    <div id="ageVerificationModal" class="age-modal">
-      <div class="age-modal-content">
-        <div class="age-modal-header">
-          <h2>🔞 Vérification d'âge requise</h2>
-        </div>
-        <div class="age-modal-body">
-          <p>
-            <strong>Ce site est réservé aux adultes de 18 ans et plus.</strong>
-          </p>
-          <p>
-            En cliquant sur "J'ai plus de 18 ans", vous confirmez que vous êtes
-            majeur et acceptez nos conditions d'utilisation.
-          </p>
-          <div class="age-verification-actions">
-            <button class="btn-primary" id="confirmAgeBtn">
-              ✅ J'ai plus de 18 ans
-            </button>
-            <button class="btn-secondary" id="exitSiteBtn">
-              ❌ Quitter le site
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Overlay pour bloquer le contenu -->
-    <div id="ageOverlay" class="age-overlay"></div>
-
     <!-- Header -->
     <header class="header">
       <nav class="nav">
@@ -398,110 +369,11 @@
       </div>
     </footer>
 
+    <!-- Vérification d'âge globale -->
+    <script src="/js/age-verification.js"></script>
+
     <!-- JavaScript principal -->
     <script src="/js/app.js"></script>
-
-    <style>
-      /* Styles pour l'overlay qui bloque tout le contenu */
-      .age-overlay {
-        display: block; /* AFFICHÉ PAR DÉFAUT */
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.95);
-        z-index: 9998;
-        backdrop-filter: blur(5px);
-      }
-
-      /* Styles pour la modale de vérification d'âge */
-      .age-modal {
-        display: flex; /* AFFICHÉE PAR DÉFAUT */
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 9999;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .age-modal-content {
-        background: white;
-        border-radius: 15px;
-        padding: 2rem;
-        max-width: 500px;
-        width: 90%;
-        text-align: center;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-      }
-
-      .age-modal-header h2 {
-        color: #8a2be2;
-        margin-bottom: 1rem;
-        font-size: 1.8rem;
-      }
-
-      .age-modal-body p {
-        margin-bottom: 1rem;
-        line-height: 1.6;
-        color: #333;
-      }
-
-      .age-verification-actions {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        margin-top: 2rem;
-        flex-wrap: wrap;
-      }
-
-      .age-verification-actions .btn-primary {
-        background: #8a2be2;
-        border: none;
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        color: white;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 0.3s;
-      }
-
-      .age-verification-actions .btn-primary:hover {
-        background: #7b1fa2;
-      }
-
-      .age-verification-actions .btn-secondary {
-        background: #6c757d;
-        border: none;
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        color: white;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 0.3s;
-      }
-
-      .age-verification-actions .btn-secondary:hover {
-        background: #545b62;
-      }
-
-      @media (max-width: 768px) {
-        .age-modal-content {
-          padding: 1.5rem;
-        }
-
-        .age-verification-actions {
-          flex-direction: column;
-        }
-
-        .age-verification-actions button {
-          width: 100%;
-        }
-      }
-    </style>
 
     <!-- Script de notifications globales -->
     <script src="/js/global-notifications.js"></script>
