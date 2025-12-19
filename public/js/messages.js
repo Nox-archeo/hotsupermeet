@@ -1195,17 +1195,17 @@ class MessagesManager {
     const pendingRequests = this.chatRequests.filter(
       req => req.status === 'pending'
     ).length;
-    
+
     // CORRECTION: Compter les réponses aux annonces avec des messages non lus
     const unreadResponses = this.adResponses.filter(
       resp => resp.unreadCount > 0
     ).length;
-    
+
     // Compter le total des messages non lus dans les réponses aux annonces
     const totalUnreadAdMessages = this.adResponses.reduce((total, resp) => {
       return total + (resp.unreadCount || 0);
     }, 0);
-    
+
     const pendingTonightRequests = this.tonightRequests.filter(
       req => req.status === 'pending'
     ).length;
@@ -1289,9 +1289,12 @@ class MessagesManager {
         responsesBadge.textContent = unreadResponses;
         responsesBadge.style.display = 'inline';
         responsesBadge.classList.add('active');
-        
+
         // Afficher notification toast si c'est la première fois qu'on détecte des messages non lus
-        if (this.lastUnreadResponses !== unreadResponses && unreadResponses > this.lastUnreadResponses) {
+        if (
+          this.lastUnreadResponses !== unreadResponses &&
+          unreadResponses > this.lastUnreadResponses
+        ) {
           this.showResponseNotification(unreadResponses, totalUnreadAdMessages);
         }
       } else {
@@ -1299,7 +1302,7 @@ class MessagesManager {
         responsesBadge.classList.remove('active');
       }
     }
-    
+
     // Sauvegarder le nombre actuel pour la prochaine vérification
     this.lastUnreadResponses = unreadResponses;
 
@@ -2778,7 +2781,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Charger les messages de la conversation d'annonce
     this.loadAdConversationMessages(adId, otherUserId);
-    
+
     // Marquer la conversation comme lue et mettre à jour les badges
     this.markAdConversationAsRead(conversationId);
   };
@@ -2789,19 +2792,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const conversationIndex = this.adResponses.findIndex(
       resp => resp.id === conversationId
     );
-    
+
     if (conversationIndex !== -1) {
       this.adResponses[conversationIndex].unreadCount = 0;
-      
+
       // Mettre à jour les badges immédiatement
       this.updateNotificationBadges();
-      
-      console.log('📖 Conversation d\'annonce marquée comme lue:', conversationId);
+
+      console.log(
+        "📖 Conversation d'annonce marquée comme lue:",
+        conversationId
+      );
     }
   };
 
   // Afficher notification pour nouvelles réponses aux annonces
-  window.messagesManager.showResponseNotification = function (unreadResponses, totalMessages) {
+  window.messagesManager.showResponseNotification = function (
+    unreadResponses,
+    totalMessages
+  ) {
     // Créer le toast de notification
     const toast = document.createElement('div');
     toast.className = 'response-notification-toast';
@@ -2815,12 +2824,12 @@ document.addEventListener('DOMContentLoaded', () => {
         <button class="toast-close" onclick="this.parentElement.parentElement.remove()">×</button>
       </div>
     `;
-    
+
     // Ajouter les styles CSS inline si pas encore définis
     if (!document.querySelector('#response-notification-styles')) {
       const styles = document.createElement('style');
       styles.id = 'response-notification-styles';
-      styles.textContent = \`
+      styles.textContent = `
         .response-notification-toast {
           position: fixed;
           top: 20px;
@@ -2914,13 +2923,13 @@ document.addEventListener('DOMContentLoaded', () => {
             max-width: none;
           }
         }
-      \`;
+      `;
       document.head.appendChild(styles);
     }
-    
+
     // Ajouter au DOM
     document.body.appendChild(toast);
-    
+
     // Auto-suppression après 5 secondes
     setTimeout(() => {
       if (toast.parentElement) {
