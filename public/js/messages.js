@@ -2954,8 +2954,15 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // SOLUTION DIRECTE - ON UTILISE LES ROUTES QUI EXISTENT DÉJÀ
-    let apiUrl = `/api/messages/delete-conversation/${conversationId}`;
+    // DÉTECTION DU TYPE DE CONVERSATION ET ROUTE APPROPRIÉE
+    let apiUrl;
+    if (conversationId.startsWith('ad-') || type === 'annonce') {
+      // Conversation d'annonce -> utiliser la route ads
+      apiUrl = `/api/ads/conversations/${conversationId}`;
+    } else {
+      // Conversation classique -> utiliser la route messages
+      apiUrl = `/api/messages/delete-conversation/${conversationId}`;
+    }
 
     console.log(`🔥 SUPPRESSION DIRECTE: ${apiUrl}`);
 
