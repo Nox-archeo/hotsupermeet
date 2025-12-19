@@ -303,6 +303,7 @@ app.get('/:page', (req, res) => {
     'premium',
     'legal',
     'terms',
+    'mentions',
     'test-hero',
   ];
 
