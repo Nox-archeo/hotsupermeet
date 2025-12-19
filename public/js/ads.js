@@ -1302,23 +1302,44 @@ async function deleteAd(adId) {
     return;
   }
 
-  try {
-    const response = await fetch(`/api/ads/${adId}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('hotmeet_token')}`,
-      },
-    });
-
-    if (response.ok) {
-      loadMyAds(); // Recharger la liste
-      showNotification('Annonce supprimée avec succès', 'success');
-    } else {
-      throw new Error('Erreur lors de la suppression');
-    }
-  } catch (error) {
-    showNotification('Erreur lors de la suppression', 'error');
+  const token = localStorage.getItem('hotmeet_token');
+  if (!token) {
+    alert('Vous devez être connecté');
+    return;
   }
+
+  // SOLUTION DIRECTE - MÊME LOGIQUE QUE LES CONVERSATIONS
+  let apiUrl = `/api/ads/conversations/${adId}`;
+
+  console.log(`🔥 SUPPRESSION ANNONCE: ${apiUrl}`);
+
+  fetch(apiUrl, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  })
+    .then(response => {
+      console.log('🔥 RÉPONSE REÇUE:', response.status);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('🔥 DATA REÇUE:', data);
+      alert('✅ Annonce supprimée !');
+
+      // Recharger la page pour voir le changement
+      loadMyAds();
+      showNotification('Annonce supprimée avec succès', 'success');
+    })
+    .catch(error => {
+      console.error('❌ ERREUR suppression annonce:', error);
+      alert('❌ Erreur: ' + error.message);
+      showNotification('Erreur lors de la suppression', 'error');
+    });
 }
 
 async function renewAd(adId) {
