@@ -246,11 +246,25 @@ const deletePrivatePhotoRequest = async (req, res) => {
 
     console.log(`🗑️ Tentative suppression demande ${requestId} par ${userId}`);
 
+    // Vérifier d'abord que la demande existe, peu importe le requester
+    const anyRequest = await PrivatePhotoRequest.findById(requestId);
+    console.log('🔍 Demande trouvée (any):', anyRequest ? 'OUI' : 'NON');
+    if (anyRequest) {
+      console.log('🔍 Détails demande:', {
+        id: anyRequest._id,
+        requester: anyRequest.requester,
+        target: anyRequest.target,
+        status: anyRequest.status,
+      });
+    }
+
     // Trouver la demande et vérifier que l'utilisateur en est le propriétaire (requester)
     const request = await PrivatePhotoRequest.findOne({
       _id: requestId,
       requester: userId, // Seul celui qui a fait la demande peut la supprimer
     });
+
+    console.log('🔍 Demande trouvée (user specific):', request ? 'OUI' : 'NON');
 
     if (!request) {
       console.log('❌ Demande non trouvée ou accès refusé');
@@ -264,7 +278,8 @@ const deletePrivatePhotoRequest = async (req, res) => {
     }
 
     // Supprimer définitivement de MongoDB
-    await PrivatePhotoRequest.findByIdAndDelete(requestId);
+    const deleteResult = await PrivatePhotoRequest.findByIdAndDelete(requestId);
+    console.log('🗑️ Résultat suppression:', deleteResult ? 'SUCCÈS' : 'ÉCHEC');
 
     console.log(
       `✅ Demande de photo privée ${requestId} supprimée définitivement`
