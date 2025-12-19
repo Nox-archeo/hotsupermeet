@@ -304,6 +304,7 @@ app.get('/:page', (req, res) => {
     'legal',
     'terms',
     'mentions',
+    'cookies',
     'test-hero',
   ];
 
