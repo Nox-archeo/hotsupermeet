@@ -10,6 +10,7 @@ class MessagesManager {
     this.isPolling = false;
     this.currentChatUser = null; // Utilisateur actuel dans le chat ouvert
     this.socket = null; // Socket.io connection
+    this.lastUnreadResponses = 0; // Pour tracking des notifications
     this.init();
   }
 
@@ -1194,9 +1195,17 @@ class MessagesManager {
     const pendingRequests = this.chatRequests.filter(
       req => req.status === 'pending'
     ).length;
+    
+    // CORRECTION: Compter les réponses aux annonces avec des messages non lus
     const unreadResponses = this.adResponses.filter(
-      resp => resp.status === 'unread'
+      resp => resp.unreadCount > 0
     ).length;
+    
+    // Compter le total des messages non lus dans les réponses aux annonces
+    const totalUnreadAdMessages = this.adResponses.reduce((total, resp) => {
+      return total + (resp.unreadCount || 0);
+    }, 0);
+    
     const pendingTonightRequests = this.tonightRequests.filter(
       req => req.status === 'pending'
     ).length;
@@ -1280,11 +1289,19 @@ class MessagesManager {
         responsesBadge.textContent = unreadResponses;
         responsesBadge.style.display = 'inline';
         responsesBadge.classList.add('active');
+        
+        // Afficher notification toast si c'est la première fois qu'on détecte des messages non lus
+        if (this.lastUnreadResponses !== unreadResponses && unreadResponses > this.lastUnreadResponses) {
+          this.showResponseNotification(unreadResponses, totalUnreadAdMessages);
+        }
       } else {
         responsesBadge.style.display = 'none';
         responsesBadge.classList.remove('active');
       }
     }
+    
+    // Sauvegarder le nombre actuel pour la prochaine vérification
+    this.lastUnreadResponses = unreadResponses;
 
     // Badge des demandes Ce Soir
     const tonightBadge = document.getElementById('tonightBadge');
@@ -2761,6 +2778,156 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Charger les messages de la conversation d'annonce
     this.loadAdConversationMessages(adId, otherUserId);
+    
+    // Marquer la conversation comme lue et mettre à jour les badges
+    this.markAdConversationAsRead(conversationId);
+  };
+
+  // Marquer une conversation d'annonce comme lue
+  window.messagesManager.markAdConversationAsRead = function (conversationId) {
+    // Trouver la conversation dans this.adResponses et réinitialiser unreadCount
+    const conversationIndex = this.adResponses.findIndex(
+      resp => resp.id === conversationId
+    );
+    
+    if (conversationIndex !== -1) {
+      this.adResponses[conversationIndex].unreadCount = 0;
+      
+      // Mettre à jour les badges immédiatement
+      this.updateNotificationBadges();
+      
+      console.log('📖 Conversation d\'annonce marquée comme lue:', conversationId);
+    }
+  };
+
+  // Afficher notification pour nouvelles réponses aux annonces
+  window.messagesManager.showResponseNotification = function (unreadResponses, totalMessages) {
+    // Créer le toast de notification
+    const toast = document.createElement('div');
+    toast.className = 'response-notification-toast';
+    toast.innerHTML = `
+      <div class="toast-content">
+        <div class="toast-icon">📧</div>
+        <div class="toast-text">
+          <strong>Nouvelles réponses à vos annonces !</strong>
+          <span>${totalMessages} nouveau${totalMessages > 1 ? 'x' : ''} message${totalMessages > 1 ? 's' : ''} dans ${unreadResponses} conversation${unreadResponses > 1 ? 's' : ''}</span>
+        </div>
+        <button class="toast-close" onclick="this.parentElement.parentElement.remove()">×</button>
+      </div>
+    `;
+    
+    // Ajouter les styles CSS inline si pas encore définis
+    if (!document.querySelector('#response-notification-styles')) {
+      const styles = document.createElement('style');
+      styles.id = 'response-notification-styles';
+      styles.textContent = \`
+        .response-notification-toast {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: linear-gradient(135deg, #4CAF50, #45a049);
+          color: white;
+          border-radius: 10px;
+          box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+          z-index: 10000;
+          animation: slideInRight 0.5s ease-out;
+          min-width: 350px;
+          max-width: 450px;
+        }
+        
+        .toast-content {
+          display: flex;
+          align-items: center;
+          padding: 1rem;
+          gap: 0.75rem;
+        }
+        
+        .toast-icon {
+          font-size: 1.5rem;
+          flex-shrink: 0;
+        }
+        
+        .toast-text {
+          flex-grow: 1;
+          line-height: 1.4;
+        }
+        
+        .toast-text strong {
+          display: block;
+          margin-bottom: 0.25rem;
+          font-weight: 600;
+        }
+        
+        .toast-text span {
+          font-size: 0.9rem;
+          opacity: 0.9;
+        }
+        
+        .toast-close {
+          background: none;
+          border: none;
+          color: white;
+          font-size: 1.5rem;
+          cursor: pointer;
+          padding: 0.25rem;
+          border-radius: 50%;
+          width: 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background 0.3s ease;
+        }
+        
+        .toast-close:hover {
+          background: rgba(255,255,255,0.2);
+        }
+        
+        @keyframes slideInRight {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes slideOutRight {
+          from {
+            transform: translateX(0);
+            opacity: 1;
+          }
+          to {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+        }
+        
+        @media (max-width: 768px) {
+          .response-notification-toast {
+            top: 10px;
+            right: 10px;
+            left: 10px;
+            min-width: auto;
+            max-width: none;
+          }
+        }
+      \`;
+      document.head.appendChild(styles);
+    }
+    
+    // Ajouter au DOM
+    document.body.appendChild(toast);
+    
+    // Auto-suppression après 5 secondes
+    setTimeout(() => {
+      if (toast.parentElement) {
+        toast.style.animation = 'slideOutRight 0.3s ease-out forwards';
+        setTimeout(() => toast.remove(), 300);
+      }
+    }, 5000);
   };
 
   window.messagesManager.showAdChatModal = function (
