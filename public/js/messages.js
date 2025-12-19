@@ -3139,7 +3139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('✅ Demande supprimée !');
 
         // Recharger les demandes de photos
-        window.messagesManager.loadPrivatePhotosData();
+        window.messagesManager.loadPhotoRequests();
       })
       .catch(error => {
         console.error('❌ ERREUR:', error);
