@@ -233,10 +233,61 @@ const checkPrivatePhotoAccess = async (req, res) => {
   }
 };
 
+// Supprimer une demande de photo privée
+const deletePrivatePhotoRequest = async (req, res) => {
+  console.log('🗑️ DELETE PHOTO REQUEST: Fonction appelée avec:', {
+    params: req.params,
+    userId: req.user?._id,
+  });
+
+  try {
+    const { requestId } = req.params;
+    const userId = req.user._id;
+
+    console.log(`🗑️ Tentative suppression demande ${requestId} par ${userId}`);
+
+    // Trouver la demande et vérifier que l'utilisateur en est le propriétaire (requester)
+    const request = await PrivatePhotoRequest.findOne({
+      _id: requestId,
+      requester: userId, // Seul celui qui a fait la demande peut la supprimer
+    });
+
+    if (!request) {
+      console.log('❌ Demande non trouvée ou accès refusé');
+      return res.status(404).json({
+        success: false,
+        error: {
+          message:
+            "Demande non trouvée ou vous n'avez pas l'autorisation de la supprimer",
+        },
+      });
+    }
+
+    // Supprimer définitivement de MongoDB
+    await PrivatePhotoRequest.findByIdAndDelete(requestId);
+
+    console.log(
+      `✅ Demande de photo privée ${requestId} supprimée définitivement`
+    );
+
+    res.json({
+      success: true,
+      message: 'Demande supprimée définitivement',
+    });
+  } catch (error) {
+    console.error('❌ Erreur suppression demande photo:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur serveur lors de la suppression' },
+    });
+  }
+};
+
 module.exports = {
   sendPrivatePhotoRequest,
   respondToPrivatePhotoRequest,
   getReceivedPrivatePhotoRequests,
   getSentPrivatePhotoRequests,
   checkPrivatePhotoAccess,
+  deletePrivatePhotoRequest,
 };

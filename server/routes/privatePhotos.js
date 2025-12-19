@@ -11,6 +11,7 @@ try {
     getReceivedPrivatePhotoRequests,
     getSentPrivatePhotoRequests,
     checkPrivatePhotoAccess,
+    deletePrivatePhotoRequest,
   } = require('../controllers/privatePhotoController');
 
   console.log('✅ PRIVATE PHOTOS: Controller chargé avec succès');
@@ -36,6 +37,10 @@ try {
     '🔗 PRIVATE PHOTOS: Montage route GET /check-access/:targetUserId'
   );
   router.get('/check-access/:targetUserId', auth, checkPrivatePhotoAccess);
+
+  // Supprimer une demande de photo privée
+  console.log('🔗 PRIVATE PHOTOS: Montage route DELETE /delete/:requestId');
+  router.delete('/delete/:requestId', auth, deletePrivatePhotoRequest);
 
   console.log('✅ PRIVATE PHOTOS: Toutes les routes montées avec succès');
 } catch (error) {
