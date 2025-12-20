@@ -496,7 +496,7 @@
           });
 
           const script = document.createElement('script');
-          script.src = `https://www.paypal.com/sdk/js?client-id=${config.clientId}&vault=true&intent=subscription&locale=fr_FR&currency=EUR&enable-funding=venmo,card&disable-card=&components=buttons&debug=false`;
+          script.src = `https://www.paypal.com/sdk/js?client-id=${config.clientId}&vault=true&intent=subscription&locale=fr_FR&currency=EUR`;
           script.onload = () => {
             console.log('✅ PayPal SDK chargé avec succès');
             initializePayPal(config);
@@ -523,22 +523,46 @@
 
         console.log('✅ PayPal SDK disponible, création des boutons...');
 
-        // ⭐ EMPÊCHER LE POPUP DE FALLBACK NOIR
-        window.addEventListener('message', function (event) {
-          if (
-            event.origin === 'https://www.paypal.com' &&
-            event.data &&
-            typeof event.data === 'string'
-          ) {
-            try {
-              const data = JSON.parse(event.data);
-              if (data.type === 'ppxo_fallback' || data.action === 'checkout') {
-                event.stopPropagation();
-                return false;
+        // 🚫 KILLER DE POPUP NOIR - Observer qui supprime automatiquement
+        const observer = new MutationObserver(function (mutations) {
+          mutations.forEach(function (mutation) {
+            mutation.addedNodes.forEach(function (node) {
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                // Chercher les divs avec position fixed et background noir
+                if (
+                  node.style &&
+                  node.style.position === 'fixed' &&
+                  (node.style.backgroundColor?.includes('rgb(0, 0, 0)') ||
+                    node.style.background?.includes('rgba(0, 0, 0'))
+                ) {
+                  console.log('🚫 POPUP NOIR DÉTECTÉ ET SUPPRIMÉ:', node);
+                  node.remove();
+                }
+                // Chercher dans les enfants aussi
+                const blackPopups =
+                  node.querySelectorAll &&
+                  node.querySelectorAll(
+                    'div[style*="position: fixed"][style*="background"]'
+                  );
+                if (blackPopups) {
+                  blackPopups.forEach(popup => {
+                    if (
+                      popup.style.backgroundColor?.includes('rgb(0, 0, 0)') ||
+                      popup.style.background?.includes('rgba(0, 0, 0')
+                    ) {
+                      console.log(
+                        '🚫 POPUP NOIR ENFANT DÉTECTÉ ET SUPPRIMÉ:',
+                        popup
+                      );
+                      popup.remove();
+                    }
+                  });
+                }
               }
-            } catch (e) {}
-          }
+            });
+          });
         });
+        observer.observe(document.body, { childList: true, subtree: true });
 
         paypal
           .Buttons({
