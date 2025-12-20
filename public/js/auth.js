@@ -272,7 +272,12 @@ class AuthPage {
         localStorage.setItem('hotmeet_token', result.token);
         this.showSuccess('Connexion réussie !');
         setTimeout(() => {
-          window.location.href = '/profile';
+          // Utiliser la redirection auth-guard si disponible, sinon profil par défaut
+          if (window.handlePostLoginRedirect) {
+            window.handlePostLoginRedirect();
+          } else {
+            window.location.href = '/profile';
+          }
         }, 1000);
       } else {
         this.showError(result.error.message || 'Erreur de connexion');
@@ -337,7 +342,12 @@ class AuthPage {
         );
 
         setTimeout(() => {
-          window.location.href = '/profile';
+          // Utiliser la redirection auth-guard si disponible, sinon profil par défaut
+          if (window.handlePostLoginRedirect) {
+            window.handlePostLoginRedirect();
+          } else {
+            window.location.href = '/profile';
+          }
         }, 1500);
       } else {
         this.showError(result.error.message || 'Erreur d\\' + 'inscription');
