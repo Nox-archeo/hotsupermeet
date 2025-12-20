@@ -2709,16 +2709,38 @@ h4 {
     box-sizing: border-box !important;
   }
   
+  /* FORCER EMPILAGE VERTICAL - OVERRIDE LE INLINE STYLE */
+  .photo-management-grid {
+    display: block !important;
+    grid-template-columns: none !important;
+    gap: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
   .photo-section {
     width: 100% !important;
     max-width: 100% !important;
     margin-bottom: 1.5rem !important;
+    display: block !important;
+  }
+  
+  /* Photos publiques EN HAUT */
+  .photo-section:first-child {
+    margin-bottom: 2rem !important;
+  }
+  
+  /* Photos privées EN BAS */
+  .photo-section:last-child {
+    margin-bottom: 0 !important;
   }
   
   .photo-section h4 {
     font-size: 1.1rem !important;
     margin-bottom: 1rem !important;
     text-align: center !important;
+    font-weight: bold !important;
+    color: #2c3e50 !important;
   }
   
   .photo-upload-area {
