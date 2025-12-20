@@ -102,13 +102,18 @@ console.log(
   new Date().toISOString()
 );
 
-// Middleware de sécurité avec CSP personnalisée pour Cloudinary
+// Middleware de sécurité avec CSP personnalisée pour Cloudinary et PayPal
 app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'"], // Autoriser scripts inline
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'", // Autoriser scripts inline
+          'https://www.paypal.com', // PayPal SDK
+          'https://js.stripe.com', // Au cas où pour Stripe
+        ],
         'script-src-attr': ["'unsafe-inline'"], // Autoriser onclick inline
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: [
@@ -118,10 +123,17 @@ app.use(
           'https://*.cloudinary.com', // Toutes les sous-domaines Cloudinary
         ],
         fontSrc: ["'self'"],
-        connectSrc: ["'self'"],
+        connectSrc: [
+          "'self'",
+          'https://api.paypal.com', // API PayPal
+          'https://www.paypal.com', // PayPal SDK
+        ],
+        frameSrc: [
+          "'self'",
+          'https://www.paypal.com', // PayPal checkout iframe
+        ],
         objectSrc: ["'none'"],
         mediaSrc: ["'self'"],
-        frameSrc: ["'none'"],
       },
     },
   })
