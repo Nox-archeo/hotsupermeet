@@ -2702,11 +2702,6 @@ h4 {
 
 /* Responsive pour la grille des photos sur mobile */
 @media (max-width: 768px) {
-  .photo-management-grid {
-    grid-template-columns: 1fr !important;
-    gap: 1.5rem !important;
-  }
-  
   .photo-management-section {
     padding: 1rem !important;
     margin-top: 1.5rem !important;
