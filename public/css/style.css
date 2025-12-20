@@ -2717,83 +2717,52 @@ h4 {
   margin-top: 1rem;
 }
 
-/* Responsive pour la grille des photos sur mobile */
+/* MOBILE SIMPLE - EMPILAGE VERTICAL PHOTOS */
 @media (max-width: 768px) {
+  /* Section entière */
   .photo-management-section {
+    width: 100% !important;
     padding: 1rem !important;
     margin: 1rem 0 !important;
-    width: 100vw !important;
-    max-width: calc(100vw - 2rem) !important;
-    box-sizing: border-box !important;
-    overflow-x: visible !important;
-    position: relative !important;
-    left: 0 !important;
-    right: 0 !important;
-  }
-  
-  /* CONTENEUR PARENT - FORCER 100% WIDTH */
-  body, html {
-    overflow-x: hidden !important;
-  }
-  
-  .container, .main-content {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 0 1rem !important;
     box-sizing: border-box !important;
   }
   
-  /* EMPILAGE VERTICAL MOBILE - FLEX COLUMN BRUTAL */
+  /* Grid devient vertical */  
   .photo-management-grid {
-    display: flex !important;
-    flex-direction: column !important;
+    display: block !important;
     width: 100% !important;
-    gap: 0 !important;
-    grid-template-columns: none !important;
-    grid: none !important;
   }
   
+  /* Chaque section photo */
   .photo-section {
     width: 100% !important;
-    max-width: 100% !important;
-    margin-bottom: 2rem !important;
     display: block !important;
-    flex: none !important;
-    order: initial !important;
-  }
-  
-  /* Photos publiques EN HAUT - ORDER 1 */
-  .photo-section:first-child {
-    order: 1 !important;
     margin-bottom: 3rem !important;
-    border-bottom: 3px solid #3498db !important;
-    padding-bottom: 2rem !important;
-    background: #f0f8ff !important;
-    border-radius: 8px !important;
-    padding: 1.5rem !important;
+    box-sizing: border-box !important;
   }
   
-  /* Photos privées EN BAS - ORDER 2 */  
+  /* Photos publiques EN HAUT */
+  .photo-section:first-child {
+    margin-bottom: 3rem !important;
+  }
+  
+  /* Photos privées EN BAS */
   .photo-section:last-child {
-    order: 2 !important;
-    margin-bottom: 0 !important;
-    margin-top: 0 !important;
-    background: #fff5f5 !important;
-    border: 2px solid #e74c3c !important;
-    border-radius: 8px !important;
-    padding: 1.5rem !important;
+    margin-bottom: 1rem !important;
   }
   
-  .photo-section h4 {
-    font-size: 1.2rem !important;
-    margin-bottom: 1rem !important;
-    text-align: center !important;
-    font-weight: bold !important;
-    color: #2c3e50 !important;
-    background: #f8f9fa !important;
-    padding: 0.5rem !important;
-    border-radius: 5px !important;
+  /* Upload area pleine largeur */
+  .photo-upload-area {
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
+  
+  /* Boutons pleine largeur */
+  .photo-upload-area button {
+    width: 100% !important;
+    display: block !important;
+  }
+}
   
   .photo-upload-area {
     padding: 1rem !important;
