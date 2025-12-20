@@ -406,15 +406,22 @@
         setTimeout(loadPayPalSDK, 100);
       }
 
-      // Charger PayPal SDK dynamiquement
+      // 🚀 VRAI SYSTÈME PAYPAL FONCTIONNEL
       async function loadPayPalSDK() {
         try {
           const configResponse = await fetch('/api/payments/config');
           const config = await configResponse.json();
 
+          if (!config.success) {
+            throw new Error('Impossible de charger la configuration PayPal');
+          }
+
           const script = document.createElement('script');
-          script.src = `https://www.paypal.com/sdk/js?client-id=${config.clientId}&vault=true&intent=subscription&locale=fr_FR&currency=CHF`;
-          script.onload = () => initializePayPal(config.planId);
+          script.src = `https://www.paypal.com/sdk/js?client-id=${config.clientId}&vault=true&intent=subscription&locale=fr_FR&currency=EUR`;
+          script.onload = () => initializePayPal(config);
+          script.onerror = () => {
+            showNotification('Erreur chargement PayPal SDK', 'error');
+          };
           document.head.appendChild(script);
         } catch (error) {
           console.error('Erreur chargement PayPal SDK:', error);
@@ -422,8 +429,8 @@
         }
       }
 
-      // Initialiser les boutons PayPal
-      function initializePayPal(planId) {
+      // 🚀 INITIALISER LE VRAI BOUTON PAYPAL
+      function initializePayPal(config) {
         if (!window.paypal) {
           console.error('PayPal SDK non chargé');
           return;
@@ -433,26 +440,76 @@
           .Buttons({
             style: {
               shape: 'rect',
-              color: 'blue',
+              color: 'gold',
               layout: 'vertical',
               label: 'subscribe',
             },
             createSubscription: function (data, actions) {
               return actions.subscription.create({
-                plan_id: planId,
-                custom_id: currentUser._id,
+                plan_id: config.planMonthlyId, // 🎯 Plan mensuel correct
+                custom_id: currentUser._id, // ID utilisateur pour tracking
+                application_context: {
+                  return_url: config.returnUrl,
+                  cancel_url: config.cancelUrl,
+                  brand_name: 'HotSuperMeet',
+                  shipping_preference: 'NO_SHIPPING',
+                },
               });
             },
-            onApprove: function (data, actions) {
-              showNotification('Redirection vers la confirmation...', 'info');
-              window.location.href = `/api/payments/confirm?subscription_id=${data.subscriptionID}`;
+            onApprove: async function (data, actions) {
+              try {
+                showNotification(
+                  'Paiement approuvé! Activation en cours...',
+                  'success'
+                );
+
+                // 🚀 APPELER API POUR ACTIVER PREMIUM
+                const response = await fetch('/api/payments/activate-premium', {
+                  method: 'POST',
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    subscriptionId: data.subscriptionID,
+                    planId: config.planMonthlyId,
+                  }),
+                });
+
+                if (response.ok) {
+                  const result = await response.json();
+                  showNotification(
+                    '🎉 Premium activé! Redirection...',
+                    'success'
+                  );
+
+                  // Redirection vers page de remerciement
+                  setTimeout(() => {
+                    window.location.href = config.returnUrl;
+                  }, 2000);
+                } else {
+                  throw new Error('Erreur activation premium');
+                }
+              } catch (error) {
+                console.error('Erreur activation premium:', error);
+                showNotification(
+                  "Paiement réussi mais erreur d'activation. Contactez le support.",
+                  'warning'
+                );
+              }
             },
             onCancel: function (data) {
               showNotification('Paiement annulé', 'warning');
+              setTimeout(() => {
+                window.location.href = config.cancelUrl;
+              }, 1000);
             },
             onError: function (err) {
               console.error('Erreur PayPal:', err);
-              showNotification('Erreur lors du paiement', 'error');
+              showNotification(
+                'Erreur lors du paiement. Veuillez réessayer.',
+                'error'
+              );
             },
           })
           .render('#paypal-button-container');

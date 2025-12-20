@@ -15,6 +15,9 @@ const subscriptionValidation = [
 router.post('/subscribe', auth, (req, res, next) => {
   paymentController.createSubscription(req, res).catch(next);
 });
+router.post('/activate-premium', auth, (req, res, next) => {
+  paymentController.activatePremium(req, res).catch(next);
+});
 router.get('/status', auth, (req, res, next) => {
   paymentController.getSubscriptionStatus(req, res).catch(next);
 });
@@ -30,8 +33,11 @@ router.get('/config', (req, res) => {
   res.json({
     success: true,
     clientId: process.env.PAYPAL_CLIENT_ID,
-    planId: process.env.PAYPAL_PLAN_ID,
+    planMonthlyId: process.env.PAYPAL_PLAN_MONTHLY_ID,
+    planYearlyId: process.env.PAYPAL_PLAN_YEARLY_ID,
     environment: process.env.PAYPAL_MODE || 'sandbox',
+    returnUrl: 'https://www.hotsupermeet.com/merci-abonnement',
+    cancelUrl: 'https://www.hotsupermeet.com/abonnement-annule',
   });
 });
 
@@ -40,6 +46,12 @@ router.get('/confirm', (req, res, next) => {
   paymentController.confirmSubscription(req, res).catch(next);
 });
 router.post('/webhook', (req, res, next) => {
+  paymentController.handleWebhook(req, res).catch(next);
+});
+
+// Route webhook PayPal selon vos variables d'environnement
+// URL: https://www.hotsupermeet.com/api/paypal-webhook
+router.post('/paypal-webhook', (req, res, next) => {
   paymentController.handleWebhook(req, res).catch(next);
 });
 

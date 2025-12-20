@@ -352,6 +352,97 @@ const getPricingInfo = async (req, res) => {
   }
 };
 
+// 🚀 ACTIVER LE PREMIUM APRÈS PAIEMENT PAYPAL
+const activatePremium = async (req, res) => {
+  try {
+    const { subscriptionId, planId } = req.body;
+    const userId = req.user._id;
+
+    if (!subscriptionId || !planId) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_DATA',
+          message: "ID d'abonnement et plan requis",
+        },
+      });
+    }
+
+    // Vérifier l'abonnement auprès de PayPal
+    try {
+      const subscriptionDetails =
+        await PayPalService.getSubscriptionDetails(subscriptionId);
+
+      if (subscriptionDetails.status !== 'ACTIVE') {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'SUBSCRIPTION_NOT_ACTIVE',
+            message: 'Abonnement non actif chez PayPal',
+          },
+        });
+      }
+
+      // Mettre à jour l'utilisateur avec le statut premium
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          error: {
+            code: 'USER_NOT_FOUND',
+            message: 'Utilisateur non trouvé',
+          },
+        });
+      }
+
+      // Calculer la date d'expiration (30 jours pour mensuel)
+      const expirationDate = new Date();
+      expirationDate.setMonth(expirationDate.getMonth() + 1);
+
+      // Activer le premium
+      user.premium.isPremium = true;
+      user.premium.expiration = expirationDate;
+      user.premium.paypalSubscriptionId = subscriptionId;
+      user.premium.planId = planId;
+      user.premium.activatedAt = new Date();
+
+      await user.save();
+
+      console.log(
+        `✅ Premium activé pour utilisateur ${userId}: ${subscriptionId}`
+      );
+
+      res.json({
+        success: true,
+        message: 'Premium activé avec succès !',
+        premium: {
+          isPremium: true,
+          expiration: expirationDate,
+          subscriptionId: subscriptionId,
+        },
+      });
+    } catch (paypalError) {
+      console.error('Erreur vérification PayPal:', paypalError);
+      return res.status(500).json({
+        success: false,
+        error: {
+          code: 'PAYPAL_VERIFICATION_ERROR',
+          message: "Impossible de vérifier l'abonnement PayPal",
+        },
+      });
+    }
+  } catch (error) {
+    console.error('Erreur activation premium:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'ACTIVATION_ERROR',
+        message: "Erreur lors de l'activation premium",
+      },
+    });
+  }
+};
+
 module.exports = {
   createSubscription,
   confirmSubscription,
@@ -359,4 +450,5 @@ module.exports = {
   getSubscriptionStatus,
   handleWebhook,
   getPricingInfo,
+  activatePremium, // ✅ Nouvelle méthode
 };
