@@ -2693,6 +2693,23 @@ h4 {
 /* ===== GESTION PHOTOS - DESKTOP ET MOBILE ===== */
 
 /* CSS Desktop pour photo management */
+.photo-management-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.photo-management-title {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .photo-management-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -2704,11 +2721,25 @@ h4 {
 @media (max-width: 768px) {
   .photo-management-section {
     padding: 1rem !important;
-    margin-top: 1.5rem !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
+    margin: 1rem 0 !important;
+    width: 100vw !important;
+    max-width: calc(100vw - 2rem) !important;
+    box-sizing: border-box !important;
+    overflow-x: visible !important;
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+  
+  /* CONTENEUR PARENT - FORCER 100% WIDTH */
+  body, html {
+    overflow-x: hidden !important;
+  }
+  
+  .container, .main-content {
     width: 100% !important;
     max-width: 100% !important;
+    padding: 0 1rem !important;
     box-sizing: border-box !important;
   }
   
