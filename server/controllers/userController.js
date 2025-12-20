@@ -17,6 +17,29 @@ const getUsers = async (req, res) => {
       sortBy = 'lastActive',
     } = req.query;
 
+    // Vérifier le statut premium de l'utilisateur connecté (si connecté)
+    let isPremium = false;
+    let isFemaleFree = false;
+
+    // Si l'utilisateur est connecté, vérifier son statut premium
+    if (req.headers.authorization) {
+      try {
+        const { checkPremiumStatus } = require('../middleware/premium');
+        const token = req.headers.authorization.replace('Bearer ', '');
+        const jwt = require('jsonwebtoken');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const premiumStatus = await checkPremiumStatus(decoded.userId);
+        isPremium = premiumStatus.hasFullAccess;
+      } catch (error) {
+        // Si erreur de token, continuer en mode non-premium
+        console.log('Token invalide ou expiré, mode non-premium');
+      }
+    }
+
+    // Appliquer les limites selon le statut premium
+    const maxLimit = isPremium ? 100 : 20; // Non-premium limité à 20 profils par page
+    const actualLimit = Math.min(parseInt(limit), maxLimit);
+
     // Construire la requête de filtrage
     const query = { 'security.isBlocked': false };
 
@@ -70,8 +93,8 @@ const getUsers = async (req, res) => {
         sortOption = { 'stats.lastActive': -1 };
     }
 
-    // Pagination
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    // Pagination avec limite premium appliquée
+    const skip = (parseInt(page) - 1) * actualLimit;
 
     // Récupérer les utilisateurs avec les champs nécessaires seulement
     const users = await User.find(query)
@@ -80,7 +103,7 @@ const getUsers = async (req, res) => {
       )
       .sort(sortOption)
       .skip(skip)
-      .limit(parseInt(limit))
+      .limit(actualLimit)
       .lean();
 
     // Compter le total pour la pagination
@@ -107,9 +130,14 @@ const getUsers = async (req, res) => {
       users: formattedUsers,
       pagination: {
         page: parseInt(page),
-        limit: parseInt(limit),
+        limit: actualLimit,
         total,
-        pages: Math.ceil(total / parseInt(limit)),
+        pages: Math.ceil(total / actualLimit),
+      },
+      premium: {
+        isPremium,
+        limitApplied: !isPremium ? actualLimit : null,
+        upgradeRequired: !isPremium && total > actualLimit * parseInt(page),
       },
     });
   } catch (error) {
