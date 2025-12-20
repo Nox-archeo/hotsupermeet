@@ -2700,3 +2700,86 @@ h4 {
 }
 
 /* ===== TOUTES LES REGLES PHOTO SUPPRIMEES - MAINTENANT DANS PAGES.CSS UNIQUEMENT ===== */
+
+/* 🔒 Écran de blocage Premium */
+.premium-blocker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 15px;
+  color: white;
+  margin: 2rem 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.premium-blocker .premium-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.9;
+}
+
+.premium-blocker h3 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.premium-blocker > p {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.premium-benefits {
+  background: rgba(255,255,255,0.1);
+  padding: 1.5rem;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(10px);
+}
+
+.premium-benefits h4 {
+  margin-bottom: 1rem;
+  color: #FFD700;
+  font-size: 1.2rem;
+}
+
+.premium-benefits ul {
+  list-style: none;
+  text-align: left;
+}
+
+.premium-benefits li {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.btn-premium {
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  color: white;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 50px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-premium:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  color: white;
+  text-decoration: none;
+}
+
+.btn-premium:active {
+  transform: translateY(0);
+}
