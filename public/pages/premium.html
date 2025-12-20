@@ -496,7 +496,7 @@
           });
 
           const script = document.createElement('script');
-          script.src = `https://www.paypal.com/sdk/js?client-id=${config.clientId}&vault=true&intent=subscription&locale=fr_FR&currency=EUR&commit=true&components=buttons&disable-funding=credit`;
+          script.src = `https://www.paypal.com/sdk/js?client-id=${config.clientId}&vault=true&intent=subscription&locale=fr_FR&currency=EUR`;
           script.onload = () => {
             console.log('✅ PayPal SDK chargé avec succès');
             initializePayPal(config);
@@ -523,15 +523,31 @@
 
         console.log('✅ PayPal SDK disponible, création des boutons...');
 
-        // 🚫 BLOQUER LA FENÊTRE NOIRE VIDE (window.open bloqué)
+        // 🎯 UTILISER LE POPUP NOIR POUR PAYPAL !
         const originalWindowOpen = window.open;
+        let paypalUrl = null;
+
         window.open = function (url, name, features) {
-          // Si c'est un popup vide ou bloqué, on l'ignore
-          if (!url || url === '' || url === 'about:blank') {
-            console.log('🚫 POPUP VIDE BLOQUÉ:', url);
-            return null;
+          console.log('🔍 window.open appelé:', { url, name, features });
+
+          // Si c'est PayPal, on sauvegarde l'URL
+          if (url && url.includes('paypal.com')) {
+            paypalUrl = url;
+            console.log('💾 URL PayPal sauvegardée:', paypalUrl);
           }
-          // Sinon on laisse PayPal faire son travail
+
+          // Si c'est un popup vide ET qu'on a une URL PayPal, on redirige !
+          if ((!url || url === '' || url === 'about:blank') && paypalUrl) {
+            console.log('🎯 REDIRECTION du popup noir vers PayPal !');
+            return originalWindowOpen.call(
+              window,
+              paypalUrl,
+              name || '_blank',
+              features
+            );
+          }
+
+          // Sinon comportement normal
           return originalWindowOpen.call(window, url, name, features);
         };
 
@@ -571,11 +587,6 @@
                   cancel_url: config.cancelUrl,
                   brand_name: 'HotSuperMeet',
                   shipping_preference: 'NO_SHIPPING',
-                  user_action: 'SUBSCRIBE_NOW',
-                  payment_method: {
-                    payer_selected: 'PAYPAL',
-                    payee_preferred: 'IMMEDIATE_PAYMENT_REQUIRED',
-                  },
                 },
               });
             },
