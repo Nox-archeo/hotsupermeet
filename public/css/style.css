@@ -2690,7 +2690,15 @@ h4 {
   }
 }
 
-/* ===== FIX MOBILE POUR SECTION GESTION PHOTOS UNIQUEMENT ===== */
+/* ===== GESTION PHOTOS - DESKTOP ET MOBILE ===== */
+
+/* CSS Desktop pour photo management */
+.photo-management-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
 
 /* Responsive pour la grille des photos sur mobile */
 @media (max-width: 768px) {
@@ -2709,38 +2717,41 @@ h4 {
     box-sizing: border-box !important;
   }
   
-  /* FORCER EMPILAGE VERTICAL - OVERRIDE LE INLINE STYLE */
+  /* EMPILAGE VERTICAL MOBILE - Photos publiques EN HAUT, privées EN BAS */
   .photo-management-grid {
     display: block !important;
-    grid-template-columns: none !important;
-    gap: 0 !important;
     width: 100% !important;
-    box-sizing: border-box !important;
   }
   
   .photo-section {
     width: 100% !important;
     max-width: 100% !important;
-    margin-bottom: 1.5rem !important;
+    margin-bottom: 2rem !important;
     display: block !important;
   }
   
   /* Photos publiques EN HAUT */
   .photo-section:first-child {
-    margin-bottom: 2rem !important;
+    margin-bottom: 2.5rem !important;
+    border-bottom: 2px solid #eee !important;
+    padding-bottom: 1.5rem !important;
   }
   
-  /* Photos privées EN BAS */
+  /* Photos privées EN BAS */  
   .photo-section:last-child {
     margin-bottom: 0 !important;
+    margin-top: 1rem !important;
   }
   
   .photo-section h4 {
-    font-size: 1.1rem !important;
+    font-size: 1.2rem !important;
     margin-bottom: 1rem !important;
     text-align: center !important;
     font-weight: bold !important;
     color: #2c3e50 !important;
+    background: #f8f9fa !important;
+    padding: 0.5rem !important;
+    border-radius: 5px !important;
   }
   
   .photo-upload-area {
