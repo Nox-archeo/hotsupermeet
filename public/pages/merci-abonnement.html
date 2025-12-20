@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Merci ! | HotSuperMeet Premium</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/pages.css" />
+    <style>
+      .success-hero {
+        background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+        color: white;
+        padding: 100px 0;
+        text-align: center;
+      }
+      .success-hero h1 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+      }
+      .success-icon {
+        font-size: 5rem;
+        margin-bottom: 2rem;
+      }
+      .success-card {
+        background: white;
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        max-width: 600px;
+        margin: -50px auto 50px;
+        position: relative;
+        z-index: 10;
+      }
+      .benefits-list {
+        list-style: none;
+        padding: 0;
+        margin: 30px 0;
+        text-align: left;
+      }
+      .benefits-list li {
+        padding: 10px 0;
+        color: #333;
+        position: relative;
+        padding-left: 30px;
+      }
+      .benefits-list li:before {
+        content: '✅';
+        position: absolute;
+        left: 0;
+      }
+      .cta-button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 40px;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin: 10px;
+        transition: all 0.3s ease;
+      }
+      .cta-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        color: white;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="success-hero">
+      <div class="container">
+        <div class="success-icon">🎉</div>
+        <h1>Félicitations !</h1>
+        <p>Votre abonnement HotSuperMeet Premium a été activé avec succès</p>
+      </div>
+    </div>
+
+    <main class="container">
+      <div class="success-card">
+        <h2>Bienvenue dans HotSuperMeet Premium !</h2>
+        <p>
+          Votre paiement a été traité et votre accès premium est maintenant
+          actif.
+        </p>
+
+        <h3>Vous avez maintenant accès à :</h3>
+        <ul class="benefits-list">
+          <li>Accès complet à l'annuaire des membres</li>
+          <li>Messagerie illimitée</li>
+          <li>Consultation et création d'annonces</li>
+          <li>Cam-to-Cam avec choix du genre</li>
+          <li>Support prioritaire</li>
+          <li>Toutes les fonctionnalités premium</li>
+        </ul>
+
+        <div style="margin-top: 30px">
+          <a href="/pages/directory.html" class="cta-button">
+            👥 Découvrir l'annuaire
+          </a>
+          <a href="/pages/messages.html" class="cta-button">
+            💬 Mes messages
+          </a>
+          <a href="/pages/ads.html" class="cta-button"> 📢 Les annonces </a>
+        </div>
+
+        <p style="color: #666; margin-top: 30px; font-size: 0.9rem">
+          Votre abonnement sera renouvelé automatiquement chaque mois. Vous
+          pouvez l'annuler à tout moment depuis votre profil.
+        </p>
+      </div>
+    </main>
+
+    <script src="/js/app.js"></script>
+    <script>
+      // Rafraîchir le statut premium dans l'app
+      setTimeout(() => {
+        if (typeof refreshUserStatus === 'function') {
+          refreshUserStatus();
+        }
+      }, 1000);
+    </script>
+  </body>
+</html>

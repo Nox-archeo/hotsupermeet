@@ -649,6 +649,12 @@ app.use('/api/subscriptions', require('./server/routes/subscriptions'));
 app.use('/api/cam', require('./server/routes/cam')); // ✅ ROUTE CAM MANQUANTE !
 app.use('/api/privatePhotos', require('./server/routes/privatePhotos')); // ✅ ROUTE PRIVATE PHOTOS MANQUANTE !
 
+// 🚀 Route webhook PayPal spécifique (URL dans vos variables d'environnement)
+app.post('/api/paypal-webhook', (req, res, next) => {
+  const paymentController = require('./server/controllers/paymentController');
+  paymentController.handleWebhook(req, res).catch(next);
+});
+
 // Initialiser Socket.io dans les contrôleurs
 const messageController = require('./server/controllers/messageController');
 messageController.setSocketIO(io);
