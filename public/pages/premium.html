@@ -456,17 +456,44 @@
       // 🚀 VRAI SYSTÈME PAYPAL FONCTIONNEL
       async function loadPayPalSDK() {
         try {
+          console.log('🔄 Chargement configuration PayPal...');
           const configResponse = await fetch('/api/payments/config');
           const config = await configResponse.json();
+
+          console.log('📋 Configuration PayPal reçue:', config);
 
           if (!config.success) {
             throw new Error('Impossible de charger la configuration PayPal');
           }
 
+          // ✅ VÉRIFICATION DES PARAMÈTRES CRITIQUES
+          if (!config.clientId) {
+            throw new Error(
+              '❌ PAYPAL_CLIENT_ID manquant dans la configuration'
+            );
+          }
+          if (!config.planMonthlyId) {
+            throw new Error(
+              '❌ PAYPAL_PLAN_MONTHLY_ID manquant dans la configuration'
+            );
+          }
+
+          console.log('✅ Configuration PayPal validée:', {
+            clientId: config.clientId,
+            planMonthlyId: config.planMonthlyId,
+            environment: config.environment,
+            returnUrl: config.returnUrl,
+            cancelUrl: config.cancelUrl,
+          });
+
           const script = document.createElement('script');
           script.src = `https://www.paypal.com/sdk/js?client-id=${config.clientId}&vault=true&intent=subscription&locale=fr_FR&currency=EUR`;
-          script.onload = () => initializePayPal(config);
+          script.onload = () => {
+            console.log('✅ PayPal SDK chargé avec succès');
+            initializePayPal(config);
+          };
           script.onerror = () => {
+            console.error('❌ Erreur chargement PayPal SDK');
             showNotification('Erreur chargement PayPal SDK', 'error');
           };
           document.head.appendChild(script);
@@ -478,10 +505,14 @@
 
       // 🚀 INITIALISER LE VRAI BOUTON PAYPAL
       function initializePayPal(config) {
+        console.log('🔄 Initialisation PayPal avec config:', config);
+
         if (!window.paypal) {
-          console.error('PayPal SDK non chargé');
+          console.error('❌ PayPal SDK non chargé');
           return;
         }
+
+        console.log('✅ PayPal SDK disponible, création des boutons...');
 
         paypal
           .Buttons({
@@ -492,6 +523,11 @@
               label: 'subscribe',
             },
             createSubscription: function (data, actions) {
+              console.log('🚀 createSubscription appelé avec:', {
+                data,
+                currentUser,
+              });
+
               // 🔒 VÉRIFICATION UTILISATEUR CONNECTÉ
               if (!currentUser || !currentUser.id) {
                 console.error('❌ Utilisateur non connecté pour PayPal');
@@ -499,6 +535,12 @@
                   'Utilisateur non connecté - veuillez vous reconnecter'
                 );
               }
+
+              console.log(
+                '✅ Création subscription PayPal pour utilisateur:',
+                currentUser.id
+              );
+              console.log('📋 Plan ID utilisé:', config.planMonthlyId);
 
               return actions.subscription.create({
                 plan_id: config.planMonthlyId, // 🎯 Plan mensuel correct
@@ -513,10 +555,17 @@
             },
             onApprove: async function (data, actions) {
               try {
+                console.log('🎉 PayPal onApprove déclenché:', data);
+
                 showNotification(
                   'Paiement approuvé! Activation en cours...',
                   'success'
                 );
+
+                console.log('🚀 Appel API activation premium avec:', {
+                  subscriptionId: data.subscriptionID,
+                  planId: config.planMonthlyId,
+                });
 
                 // 🚀 APPELER API POUR ACTIVER PREMIUM
                 const response = await fetch('/api/payments/activate-premium', {
@@ -531,8 +580,11 @@
                   }),
                 });
 
+                console.log('📋 Réponse API activation:', response.status);
+
                 if (response.ok) {
                   const result = await response.json();
+                  console.log('✅ Premium activé:', result);
                   showNotification(
                     '🎉 Premium activé! Redirection...',
                     'success'
@@ -543,6 +595,8 @@
                     window.location.href = config.returnUrl;
                   }, 2000);
                 } else {
+                  const errorData = await response.json();
+                  console.error('❌ Erreur API activation:', errorData);
                   throw new Error('Erreur activation premium');
                 }
               } catch (error) {
@@ -554,20 +608,31 @@
               }
             },
             onCancel: function (data) {
+              console.log('❌ PayPal onCancel:', data);
               showNotification('Paiement annulé', 'warning');
               setTimeout(() => {
                 window.location.href = config.cancelUrl;
               }, 1000);
             },
             onError: function (err) {
-              console.error('Erreur PayPal:', err);
+              console.error('❌ PayPal onError:', err);
               showNotification(
                 'Erreur lors du paiement. Veuillez réessayer.',
                 'error'
               );
             },
           })
-          .render('#paypal-button-container');
+          .render('#paypal-button-container')
+          .then(() => {
+            console.log('✅ Boutons PayPal rendus avec succès');
+          })
+          .catch(err => {
+            console.error('❌ Erreur rendu boutons PayPal:', err);
+            showNotification(
+              'Erreur chargement PayPal. Vérifiez votre connexion.',
+              'error'
+            );
+          });
       }
 
       // Activer l'accès gratuit pour les femmes
