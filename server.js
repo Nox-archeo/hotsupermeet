@@ -646,6 +646,8 @@ app.use('/api/payments', require('./server/routes/payments'));
 app.use('/api/tonight', require('./server/routes/tonight'));
 app.use('/api/uploads', require('./server/routes/uploads'));
 app.use('/api/subscriptions', require('./server/routes/subscriptions'));
+app.use('/api/cam', require('./server/routes/cam')); // ✅ ROUTE CAM MANQUANTE !
+app.use('/api/privatePhotos', require('./server/routes/privatePhotos')); // ✅ ROUTE PRIVATE PHOTOS MANQUANTE !
 
 // Initialiser Socket.io dans les contrôleurs
 const messageController = require('./server/controllers/messageController');
