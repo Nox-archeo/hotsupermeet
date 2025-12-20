@@ -462,74 +462,22 @@
         }
       }
 
-      // 🚀 VRAI SYSTÈME PAYPAL FONCTIONNEL
+      // 🚀 SYSTÈME PAYPAL AVEC INTERCEPTION POPUP
       async function loadPayPalSDK() {
         try {
-          // 🎯 ANTI-POPUP - Bloquer le popup noir PayPal AVANT de charger le SDK
-          const style = document.createElement('style');
-          style.textContent = `
-            /* Bloquer le popup noir PayPal */
-            [data-paypal-popup="true"], 
-            .paypal-checkout-sandbox[data-paypal-popup],
-            iframe[name*="__paypal_checkout_sandbox_"],
-            div[data-reactroot] iframe[name*="paypal"],
-            .popup_open_error_iframe_fallback,
-            div[style*="z-index: 2147483647"] {
-              display: none !important;
-              visibility: hidden !important;
-              width: 0 !important;
-              height: 0 !important;
-              position: absolute !important;
-              left: -9999px !important;
-              top: -9999px !important;
-              z-index: -1 !important;
-              opacity: 0 !important;
+          // 🎯 INTERCEPTER window.open pour rediriger vers PayPal inline
+          const originalWindowOpen = window.open;
+          window.open = function (url, name, specs) {
+            console.log('🔄 Interception popup PayPal:', url);
+            // Si c'est PayPal, rediriger directement
+            if (url && url.includes('paypal.com')) {
+              console.log('🎯 Redirection PayPal vers:', url);
+              window.location.href = url;
+              return null;
             }
-
-            /* S'assurer que les boutons PayPal restent visibles */
-            .paypal-buttons-container,
-            .paypal-button,
-            [data-funding-source="paypal"] {
-              display: block !important;
-              visibility: visible !important;
-              position: relative !important;
-              z-index: 1 !important;
-            }
-          `;
-          document.head.appendChild(style);
-
-          // Observer pour bloquer tout nouveau popup en temps réel
-          const observer = new MutationObserver(mutations => {
-            mutations.forEach(mutation => {
-              mutation.addedNodes.forEach(node => {
-                if (node.nodeType === 1) {
-                  // Element node
-                  // Bloquer les iframes PayPal popup
-                  if (
-                    node.name &&
-                    node.name.includes('__paypal_checkout_sandbox_')
-                  ) {
-                    console.log('🚫 Popup PayPal bloqué:', node.name);
-                    node.style.display = 'none';
-                  }
-                  // Bloquer les divs avec popup PayPal
-                  if (node.dataset && node.dataset.paypalPopup) {
-                    console.log('🚫 Popup PayPal data-popup bloqué');
-                    node.style.display = 'none';
-                  }
-                  // Bloquer par classe CSS
-                  if (
-                    node.className &&
-                    node.className.includes('popup_open_error_iframe_fallback')
-                  ) {
-                    console.log('🚫 Popup noir bloqué par classe');
-                    node.style.display = 'none';
-                  }
-                }
-              });
-            });
-          });
-          observer.observe(document.body, { childList: true, subtree: true });
+            // Sinon, comportement normal
+            return originalWindowOpen.call(this, url, name, specs);
+          };
 
           console.log('🔄 Chargement configuration PayPal...');
           const configResponse = await fetch('/api/payments/config');
@@ -562,7 +510,7 @@
           });
 
           const script = document.createElement('script');
-          script.src = `https://www.paypal.com/sdk/js?client-id=${config.clientId}&intent=subscription&locale=fr_FR&currency=EUR&vault=false&commit=false`;
+          script.src = `https://www.paypal.com/sdk/js?client-id=${config.clientId}&intent=subscription&locale=fr_FR&currency=EUR&vault=true&commit=true`;
           script.onload = () => {
             console.log('✅ PayPal SDK chargé avec succès');
             initializePayPal(config);
@@ -632,11 +580,6 @@
                   cancel_url: config.cancelUrl,
                   brand_name: 'HotSuperMeet',
                   shipping_preference: 'NO_SHIPPING',
-                  user_action: 'CONTINUE',
-                  landing_page: 'GUEST_CHECKOUT',
-                  payment_method: {
-                    payee_preferred: 'UNRESTRICTED',
-                  },
                 },
               });
             },
