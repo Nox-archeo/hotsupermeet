@@ -1784,3 +1784,47 @@ textarea:focus {
     max-width: 85%;
   }
 }
+
+/* ===== FIX MOBILE PHOTO MANAGEMENT - FINAL ===== */
+
+/* MOBILE - EMPILAGE VERTICAL PHOTOS PUBLIQUES/PRIVÉES */
+@media (max-width: 768px) {
+  /* FORCER LE CONTENEUR PRINCIPAL */
+  .photo-management-section .photo-management-grid {
+    display: block !important;
+    grid-template-columns: none !important;
+    grid: none !important;
+    flex-direction: column !important;
+  }
+
+  /* FORCER CHAQUE SECTION INDIVIDUELLEMENT */
+  .photo-management-section .photo-section {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 3rem !important;
+    display: block !important;
+    float: none !important;
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+
+  /* FORCER LA PREMIÈRE SECTION (PHOTOS PUBLIQUES) */
+  .photo-management-section .photo-section:first-child {
+    margin-bottom: 3rem !important;
+    order: 1 !important;
+  }
+
+  /* FORCER LA DEUXIÈME SECTION (PHOTOS PRIVÉES) */
+  .photo-management-section .photo-section:last-child {
+    margin-bottom: 0 !important;
+    order: 2 !important;
+    clear: both !important;
+  }
+
+  /* FORCER TOUS LES ÉLÉMENTS ENFANTS */
+  .photo-management-section * {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
