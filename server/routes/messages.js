@@ -49,58 +49,86 @@ const paginationValidation = [
     .withMessage('La limite doit être comprise entre 1 et 100'),
 ];
 
-// Routes protégées
-// Routes protégées avec limite premium
+// ⛔ ROUTES STRICTEMENT PREMIUM - MESSAGERIE 100% BLOQUÉE POUR NON-PREMIUM
+// Routes protégées avec PREMIUM OBLIGATOIRE
 router.post(
   '/',
   auth,
   updateLastActivity,
-  premiumLimited(3),
+  premiumOnly, // ⛔ PREMIUM REQUIS - PAS DE QUOTAS
   sendMessageValidation,
   sendMessage
-); // POST /api/messages (3 messages/jour pour non-premium)
-router.get('/', auth, updateLastActivity, getMessages); // GET /api/messages?page=1&limit=20 (libre avec limites intégrées)
-router.get('/stats', auth, updateLastActivity, getMessageStats); // GET /api/messages/stats
-router.get('/conversation/:userId', auth, updateLastActivity, getConversation); // GET /api/messages/conversation/:userId?page=1&limit=50
-router.patch('/:messageId/read', auth, updateLastActivity, markAsRead); // PATCH /api/messages/:messageId/read
-router.delete('/:messageId', auth, updateLastActivity, deleteMessage); // DELETE /api/messages/:messageId
+); // POST /api/messages - PREMIUM REQUIS
+router.get('/', auth, updateLastActivity, premiumOnly, getMessages); // GET /api/messages - PREMIUM REQUIS
+router.get('/stats', auth, updateLastActivity, premiumOnly, getMessageStats); // GET /api/messages/stats - PREMIUM REQUIS
+router.get(
+  '/conversation/:userId',
+  auth,
+  updateLastActivity,
+  premiumOnly,
+  getConversation
+); // GET /api/messages/conversation/:userId - PREMIUM REQUIS
+router.patch(
+  '/:messageId/read',
+  auth,
+  updateLastActivity,
+  premiumOnly,
+  markAsRead
+); // PATCH /api/messages/:messageId/read - PREMIUM REQUIS
+router.delete(
+  '/:messageId',
+  auth,
+  updateLastActivity,
+  premiumOnly,
+  deleteMessage
+); // DELETE /api/messages/:messageId - PREMIUM REQUIS
 
-// Routes pour les demandes de chat
-router.get('/requests', auth, updateLastActivity, getPendingChatRequests); // GET /api/messages/requests
+// ⛔ Routes pour les demandes de chat - PREMIUM REQUIS
+router.get(
+  '/requests',
+  auth,
+  updateLastActivity,
+  premiumOnly,
+  getPendingChatRequests
+); // GET /api/messages/requests - PREMIUM REQUIS
 router.post(
   '/requests/handle',
   auth,
   updateLastActivity,
+  premiumOnly, // ⛔ PREMIUM REQUIS
   [
     body('messageId').isMongoId().withMessage('ID de message invalide'),
     body('action').isIn(['approve', 'reject']).withMessage('Action invalide'),
   ],
   handleChatRequest
-); // POST /api/messages/requests/handle
+); // POST /api/messages/requests/handle - PREMIUM REQUIS
 
-// Récupérer les conversations approuvées
+// ⛔ Récupérer les conversations approuvées - PREMIUM REQUIS
 router.get(
   '/conversations',
   auth,
   updateLastActivity,
+  premiumOnly, // ⛔ PREMIUM REQUIS
   getApprovedConversations
-); // GET /api/messages/conversations - FIXED 2025-11-20
+); // GET /api/messages/conversations - PREMIUM REQUIS
 
-// Récupérer les messages d'une conversation spécifique
+// ⛔ Récupérer les messages d'une conversation spécifique - PREMIUM REQUIS
 router.get(
   '/conversations/:otherUserId',
   auth,
   updateLastActivity,
+  premiumOnly, // ⛔ PREMIUM REQUIS
   getConversationMessages
-); // GET /api/messages/conversations/:otherUserId
+); // GET /api/messages/conversations/:otherUserId - PREMIUM REQUIS
 
-// Marquer une conversation comme lue
+// ⛔ Marquer une conversation comme lue - PREMIUM REQUIS
 router.post(
   '/mark-conversation-read',
   auth,
   updateLastActivity,
+  premiumOnly, // ⛔ PREMIUM REQUIS
   [body('otherUserId').isMongoId().withMessage('ID utilisateur invalide')],
   markConversationAsRead
-); // POST /api/messages/mark-conversation-read
+); // POST /api/messages/mark-conversation-read - PREMIUM REQUIS
 
 module.exports = router;

@@ -108,10 +108,10 @@ const searchValidation = [
     .withMessage('La limite doit être comprise entre 1 et 100'),
 ];
 
-// Routes publiques - annuaire visible par tous avec limitations pour non-premium
-router.get('/', getUsers); // GET /api/users?ageMin=25&ageMax=40&sexe=femme&page=1&limit=20
-router.get('/stats', getDirectoryStats); // GET /api/users/stats
-router.get('/:id', getUserProfile); // GET /api/users/:id
+// ⛔ ROUTES STRICTEMENT PREMIUM - ANNUAIRE BLOQUÉ POUR NON-PREMIUM
+router.get('/', premiumOnly, getUsers); // GET /api/users - PREMIUM REQUIS
+router.get('/stats', premiumOnly, getDirectoryStats); // GET /api/users/stats - PREMIUM REQUIS
+router.get('/:id', premiumOnly, getUserProfile); // GET /api/users/:id - PREMIUM REQUIS
 
 // Routes protégées
 router.put(

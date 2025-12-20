@@ -202,8 +202,32 @@ class DirectoryPage {
       params.append('limit', this.limit);
       params.append('sortBy', this.sortBy);
 
-      const response = await fetch(`/api/users?${params}`);
+      // 🔐 Ajouter le token d'authentification si disponible
+      const headers = {};
+      const token = localStorage.getItem('token');
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`/api/users?${params}`, { headers });
       const result = await response.json();
+
+      // ⚠️ GESTION REDIRECTION PREMIUM AUTOMATIQUE
+      if (!response.ok) {
+        if (result.error === 'premium_required') {
+          // 🚀 REDIRECTION AUTOMATIQUE VERS PAGE PAYPAL
+          console.log('🔒 Accès premium requis - Redirection PayPal');
+          window.location.href = result.redirectTo || '/pages/premium.html';
+          return;
+        }
+        if (result.error === 'invalid_token') {
+          // 🚀 REDIRECTION VERS CONNEXION
+          console.log('🔒 Token invalide - Redirection connexion');
+          window.location.href = result.redirectTo || '/pages/auth.html';
+          return;
+        }
+        throw new Error(result.message || 'Erreur lors du chargement');
+      }
 
       if (result.success) {
         this.displayUsers(result.users);

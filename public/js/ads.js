@@ -624,7 +624,33 @@ async function loadAds() {
 
     console.log('🌐 URL API:', url);
 
-    const response = await fetch(url);
+    // 🔐 Ajouter le token d'authentification si disponible
+    const headers = {};
+    const token = localStorage.getItem('hotmeet_token');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(url, { headers });
+
+    // ⚠️ GESTION REDIRECTION PREMIUM AUTOMATIQUE
+    if (!response.ok) {
+      const errorData = await response.json();
+      if (errorData.error === 'premium_required') {
+        // 🚀 REDIRECTION AUTOMATIQUE VERS PAGE PAYPAL
+        console.log('🔒 Annonces premium requises - Redirection PayPal');
+        window.location.href = errorData.redirectTo || '/pages/premium.html';
+        return;
+      }
+      if (errorData.error === 'invalid_token') {
+        // 🚀 REDIRECTION VERS CONNEXION
+        console.log('🔒 Token invalide - Redirection connexion');
+        window.location.href = errorData.redirectTo || '/pages/auth.html';
+        return;
+      }
+      throw new Error(errorData.message || 'Erreur lors du chargement');
+    }
+
     const result = await response.json();
 
     console.log('📥 RÉPONSE API:', result);

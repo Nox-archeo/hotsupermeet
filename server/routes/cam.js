@@ -4,22 +4,24 @@ const camController = require('../controllers/camController');
 const { auth } = require('../middleware/auth');
 const { premiumOnly, premiumLimited } = require('../middleware/premium');
 
-// Routes protégées avec limitation premium
-router.get('/stats', auth, camController.getCamStats);
+// 🟢 Routes cam libres (mode aléatoire)
+router.get('/stats', auth, camController.getCamStats); // Libre
+router.post('/mark-offline', auth, camController.markUserOffline); // Libre
+router.post('/cleanup', auth, camController.cleanupInactiveUsers); // Libre
+
+// ⚠️ Routes cam avec choix de genre - STRICTEMENT PREMIUM
 router.get(
   '/compatible-users',
   auth,
-  premiumLimited(20),
+  premiumOnly, // 🔒 PREMIUM REQUIS pour filtrer par genre
   camController.getCompatibleUsers
-); // 20 utilisateurs max pour non-premium
-router.post('/mark-online', auth, premiumOnly, camController.markUserOnline); // PREMIUM SEULEMENT
-router.post('/mark-offline', auth, camController.markUserOffline);
+);
+router.post('/mark-online', auth, premiumOnly, camController.markUserOnline); // 🔒 PREMIUM REQUIS
 router.get(
   '/user/:userId',
   auth,
-  premiumLimited(5),
+  premiumOnly, // 🔒 PREMIUM REQUIS pour choisir utilisateur spécifique
   camController.getUserForCam
-); // 5 profils/jour pour non-premium
-router.post('/cleanup', auth, camController.cleanupInactiveUsers);
+);
 
 module.exports = router;
