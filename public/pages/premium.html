@@ -271,14 +271,30 @@
       // Charger les données utilisateur
       async function loadUserData() {
         try {
+          const token = localStorage.getItem('hotmeet_token');
+          if (!token) {
+            console.log('❌ Pas de token - redirection vers auth');
+            window.location.href = '/pages/auth.html';
+            return;
+          }
+
           const response = await fetch('/api/auth/profile', {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
+              Authorization: `Bearer ${token}`,
             },
           });
 
           if (response.ok) {
             currentUser = await response.json();
+            console.log('✅ Utilisateur chargé:', currentUser);
+          } else {
+            console.error('❌ Erreur chargement profil:', response.status);
+            if (response.status === 401) {
+              // Token invalide ou expiré
+              localStorage.removeItem('hotmeet_token');
+              localStorage.removeItem('hotmeet_user');
+              window.location.href = '/pages/auth.html';
+            }
           }
         } catch (error) {
           console.error('Erreur chargement profil:', error);
@@ -288,9 +304,12 @@
       // Charger le statut d'abonnement
       async function loadSubscriptionStatus() {
         try {
+          const token = localStorage.getItem('hotmeet_token');
+          if (!token) return;
+
           const response = await fetch('/api/payments/status', {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
+              Authorization: `Bearer ${token}`,
             },
           });
 
@@ -403,7 +422,27 @@
             `;
 
         // Charger PayPal SDK dynamiquement après création du container
-        setTimeout(loadPayPalSDK, 100);
+        if (currentUser && currentUser._id) {
+          setTimeout(loadPayPalSDK, 100);
+        } else {
+          console.log('⏳ En attente du chargement utilisateur pour PayPal');
+          // Réessayer après un délai
+          setTimeout(() => {
+            if (currentUser && currentUser._id) {
+              loadPayPalSDK();
+            } else {
+              console.error(
+                '❌ Impossible de charger PayPal: utilisateur non connecté'
+              );
+              document.getElementById('paypal-button-container').innerHTML = `
+                <p style="color: #ff6b6b; text-align: center; padding: 20px;">
+                  ❌ Erreur: Vous devez être connecté pour accéder aux paiements
+                  <br><a href="/pages/auth.html" style="color: #007cba;">Se connecter</a>
+                </p>
+              `;
+            }
+          }, 1000);
+        }
       }
 
       // 🚀 VRAI SYSTÈME PAYPAL FONCTIONNEL
@@ -445,6 +484,14 @@
               label: 'subscribe',
             },
             createSubscription: function (data, actions) {
+              // 🔒 VÉRIFICATION UTILISATEUR CONNECTÉ
+              if (!currentUser || !currentUser._id) {
+                console.error('❌ Utilisateur non connecté pour PayPal');
+                throw new Error(
+                  'Utilisateur non connecté - veuillez vous reconnecter'
+                );
+              }
+
               return actions.subscription.create({
                 plan_id: config.planMonthlyId, // 🎯 Plan mensuel correct
                 custom_id: currentUser._id, // ID utilisateur pour tracking
@@ -467,7 +514,7 @@
                 const response = await fetch('/api/payments/activate-premium', {
                   method: 'POST',
                   headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    Authorization: `Bearer ${localStorage.getItem('hotmeet_token')}`,
                     'Content-Type': 'application/json',
                   },
                   body: JSON.stringify({
