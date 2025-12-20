@@ -59,15 +59,9 @@ router.post(
   sendMessageValidation,
   sendMessage
 ); // POST /api/messages (3 messages/jour pour non-premium)
-router.get('/', auth, updateLastActivity, premiumLimited(10), getMessages); // GET /api/messages?page=1&limit=20 (10 conversations pour non-premium)
+router.get('/', auth, updateLastActivity, getMessages); // GET /api/messages?page=1&limit=20 (libre avec limites intégrées)
 router.get('/stats', auth, updateLastActivity, getMessageStats); // GET /api/messages/stats
-router.get(
-  '/conversation/:userId',
-  auth,
-  updateLastActivity,
-  premiumOnly,
-  getConversation
-); // GET /api/messages/conversation/:userId?page=1&limit=50 (PREMIUM ONLY)
+router.get('/conversation/:userId', auth, updateLastActivity, getConversation); // GET /api/messages/conversation/:userId?page=1&limit=50
 router.patch('/:messageId/read', auth, updateLastActivity, markAsRead); // PATCH /api/messages/:messageId/read
 router.delete('/:messageId', auth, updateLastActivity, deleteMessage); // DELETE /api/messages/:messageId
 

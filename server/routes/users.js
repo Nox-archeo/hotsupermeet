@@ -108,10 +108,10 @@ const searchValidation = [
     .withMessage('La limite doit être comprise entre 1 et 100'),
 ];
 
-// Routes publiques avec limitations premium
-router.get('/', premiumLimited(50), getUsers); // GET /api/users?ageMin=25&ageMax=40&sexe=femme&page=1&limit=20 (50 profils max pour non-premium)
+// Routes publiques - annuaire visible par tous avec limitations pour non-premium
+router.get('/', getUsers); // GET /api/users?ageMin=25&ageMax=40&sexe=femme&page=1&limit=20
 router.get('/stats', getDirectoryStats); // GET /api/users/stats
-router.get('/:id', premiumLimited(10), getUserProfile); // GET /api/users/:id (10 profils/jour pour non-premium)
+router.get('/:id', getUserProfile); // GET /api/users/:id
 
 // Routes protégées
 router.put(

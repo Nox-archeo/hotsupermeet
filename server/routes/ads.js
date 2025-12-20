@@ -4,8 +4,8 @@ const adController = require('../controllers/adController');
 const { auth } = require('../middleware/auth'); // ← IMPORT CORRECT !
 const { premiumOnly, premiumLimited } = require('../middleware/premium');
 
-// Route publique - Récupérer toutes les annonces avec filtres (limitée pour non-premium)
-router.get('/', premiumLimited(20), adController.getAds); // 20 annonces max pour non-premium
+// Route publique - Récupérer toutes les annonces avec filtres (libre avec limitations)
+router.get('/', adController.getAds); // Consultation libre avec limites intégrées
 
 // Route publique - Récupérer une annonce par ID
 router.get('/:id', adController.getAdById);
