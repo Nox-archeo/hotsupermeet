@@ -189,6 +189,10 @@ class HotMeetApp {
     const navMenu = document.getElementById('navMenu');
 
     if (this.currentUser && navActions && navMenu) {
+      // Debug : vérifier l'URL de la photo
+      console.log('Photo utilisateur:', this.currentUser.profile.photos?.[0]);
+      console.log('Nom utilisateur:', this.currentUser.profile.nom);
+
       // Remplacer les boutons de connexion par le profil utilisateur (sur desktop)
       navActions.innerHTML = `
                 <div class="user-menu">
@@ -224,30 +228,6 @@ class HotMeetApp {
 
       // Réinitialiser le menu mobile
       this.setupMobileMenu();
-
-      // Ajouter le menu utilisateur au menu hamburger (pour mobile)
-      const userMenuMobile = `
-        <div class="user-menu-mobile">
-          <div class="user-info">
-            <div class="user-avatar">
-              <img src="${this.currentUser.profile.photos?.[0] || '/images/avatar-placeholder.png'}" alt="${this.currentUser.profile.nom}">
-            </div>
-            <span class="user-name">${this.currentUser.profile.nom}</span>
-          </div>
-          <a href="/profile" class="nav-link">📋 Mon Profil</a>
-          <a href="/messages" class="nav-link">💬 Messages</a>
-          <a href="/premium" class="nav-link ${this.currentUser.premium.isPremium ? 'premium-active' : ''}">⭐ ${this.currentUser.premium.isPremium ? 'Premium Actif' : 'Devenir Premium'}</a>
-          <button class="nav-link logout-btn-mobile">🚪 Déconnexion</button>
-        </div>
-      `;
-
-      // Ajouter le menu utilisateur à la fin du menu hamburger
-      navMenu.insertAdjacentHTML('beforeend', userMenuMobile);
-
-      // Ajouter l'écouteur pour la déconnexion mobile
-      document
-        .querySelector('.logout-btn-mobile')
-        ?.addEventListener('click', () => this.logout());
     }
   }
 
