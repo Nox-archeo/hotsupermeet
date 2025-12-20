@@ -496,7 +496,7 @@
           });
 
           const script = document.createElement('script');
-          script.src = `https://www.paypal.com/sdk/js?client-id=${config.clientId}&vault=true&intent=subscription&locale=fr_FR&currency=EUR`;
+          script.src = `https://www.paypal.com/sdk/js?client-id=${config.clientId}&vault=true&intent=subscription&locale=fr_FR&currency=EUR&commit=false`;
           script.onload = () => {
             console.log('✅ PayPal SDK chargé avec succès');
             initializePayPal(config);
@@ -523,49 +523,19 @@
 
         console.log('✅ PayPal SDK disponible, création des boutons...');
 
-        // 🚫 KILLER DE POPUP NOIR - Observer qui supprime automatiquement
-        const observer = new MutationObserver(function (mutations) {
-          mutations.forEach(function (mutation) {
-            mutation.addedNodes.forEach(function (node) {
-              if (node.nodeType === Node.ELEMENT_NODE) {
-                // Chercher les divs avec position fixed et background noir
-                if (
-                  node.style &&
-                  node.style.position === 'fixed' &&
-                  (node.style.backgroundColor?.includes('rgb(0, 0, 0)') ||
-                    node.style.background?.includes('rgba(0, 0, 0'))
-                ) {
-                  console.log('🚫 POPUP NOIR DÉTECTÉ ET SUPPRIMÉ:', node);
-                  node.remove();
-                }
-                // Chercher dans les enfants aussi
-                const blackPopups =
-                  node.querySelectorAll &&
-                  node.querySelectorAll(
-                    'div[style*="position: fixed"][style*="background"]'
-                  );
-                if (blackPopups) {
-                  blackPopups.forEach(popup => {
-                    if (
-                      popup.style.backgroundColor?.includes('rgb(0, 0, 0)') ||
-                      popup.style.background?.includes('rgba(0, 0, 0')
-                    ) {
-                      console.log(
-                        '🚫 POPUP NOIR ENFANT DÉTECTÉ ET SUPPRIMÉ:',
-                        popup
-                      );
-                      popup.remove();
-                    }
-                  });
-                }
-              }
-            });
-          });
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
-
         paypal
           .Buttons({
+            // ⭐ CONFIGURATION POUR ÉVITER TOUS LES POPUPS
+            env: config.environment === 'sandbox' ? 'sandbox' : 'production',
+            client: {
+              sandbox: config.clientId,
+              production: config.clientId,
+            },
+            // 🚫 DÉSACTIVER TOUS LES POPUPS
+            commit: false,
+            payment: {
+              flow: 'subscription',
+            },
             style: {
               shape: 'rect',
               color: 'gold',
