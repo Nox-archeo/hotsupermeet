@@ -8,8 +8,10 @@ const {
   getDirectoryStats,
   deleteAccount,
   deleteTestUsers, // Nouveau: fonction temporaire admin
+  activateFemaleFree, // Nouveau: activation gratuite femmes
 } = require('../controllers/userController');
 const { auth, updateLastActivity } = require('../middleware/auth');
+const { premiumOnly, premiumLimited } = require('../middleware/premium');
 
 const router = express.Router();
 
@@ -106,10 +108,10 @@ const searchValidation = [
     .withMessage('La limite doit être comprise entre 1 et 100'),
 ];
 
-// Routes publiques
-router.get('/', getUsers); // GET /api/users?ageMin=25&ageMax=40&sexe=femme&page=1&limit=20
+// Routes publiques avec limitations premium
+router.get('/', premiumLimited(50), getUsers); // GET /api/users?ageMin=25&ageMax=40&sexe=femme&page=1&limit=20 (50 profils max pour non-premium)
 router.get('/stats', getDirectoryStats); // GET /api/users/stats
-router.get('/:id', getUserProfile); // GET /api/users/:id
+router.get('/:id', premiumLimited(10), getUserProfile); // GET /api/users/:id (10 profils/jour pour non-premium)
 
 // Routes protégées
 router.put(
@@ -119,7 +121,14 @@ router.put(
   updateProfileValidation,
   updateUserProfile
 ); // PUT /api/users/profile
-router.post('/search', auth, updateLastActivity, searchValidation, searchUsers); // POST /api/users/search
+router.post(
+  '/search',
+  auth,
+  updateLastActivity,
+  premiumOnly,
+  searchValidation,
+  searchUsers
+); // POST /api/users/search (PREMIUM SEULEMENT)
 
 // Route de suppression de compte
 router.delete(
@@ -135,5 +144,13 @@ router.delete(
 
 // ROUTE TEMPORAIRE ADMIN: Supprimer les utilisateurs de test
 router.delete('/admin/delete-test-users', deleteTestUsers); // DELETE /api/users/admin/delete-test-users
+
+// Route pour activer l'accès gratuit femmes
+router.post(
+  '/activate-female-free',
+  auth,
+  updateLastActivity,
+  activateFemaleFree
+); // POST /api/users/activate-female-free
 
 module.exports = router;

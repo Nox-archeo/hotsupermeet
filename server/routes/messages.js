@@ -14,6 +14,7 @@ const {
   markConversationAsRead,
 } = require('../controllers/messageController');
 const { auth, updateLastActivity } = require('../middleware/auth');
+const { premiumOnly, premiumLimited } = require('../middleware/premium');
 
 const router = express.Router();
 
@@ -49,10 +50,24 @@ const paginationValidation = [
 ];
 
 // Routes protégées
-router.post('/', auth, updateLastActivity, sendMessageValidation, sendMessage); // POST /api/messages
-router.get('/', auth, updateLastActivity, getMessages); // GET /api/messages?page=1&limit=20
+// Routes protégées avec limite premium
+router.post(
+  '/',
+  auth,
+  updateLastActivity,
+  premiumLimited(3),
+  sendMessageValidation,
+  sendMessage
+); // POST /api/messages (3 messages/jour pour non-premium)
+router.get('/', auth, updateLastActivity, premiumLimited(10), getMessages); // GET /api/messages?page=1&limit=20 (10 conversations pour non-premium)
 router.get('/stats', auth, updateLastActivity, getMessageStats); // GET /api/messages/stats
-router.get('/conversation/:userId', auth, updateLastActivity, getConversation); // GET /api/messages/conversation/:userId?page=1&limit=50
+router.get(
+  '/conversation/:userId',
+  auth,
+  updateLastActivity,
+  premiumOnly,
+  getConversation
+); // GET /api/messages/conversation/:userId?page=1&limit=50 (PREMIUM ONLY)
 router.patch('/:messageId/read', auth, updateLastActivity, markAsRead); // PATCH /api/messages/:messageId/read
 router.delete('/:messageId', auth, updateLastActivity, deleteMessage); // DELETE /api/messages/:messageId
 

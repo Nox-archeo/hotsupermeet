@@ -337,37 +337,183 @@ class PayPalService {
 
   // Gérer l'activation d'un abonnement
   async handleSubscriptionActivated(resource) {
-    // Implémentation à compléter avec la logique métier
-    console.log('Abonnement activé:', resource.id);
-    return { processed: true, action: 'subscription_activated' };
+    try {
+      const userId = resource.custom_id;
+      if (!userId) {
+        console.warn(
+          "Pas d'ID utilisateur dans l'abonnement activé:",
+          resource.id
+        );
+        return { processed: false, message: 'ID utilisateur manquant' };
+      }
+
+      const User = require('../models/User');
+      const user = await User.findById(userId);
+
+      if (!user) {
+        console.warn('Utilisateur non trouvé:', userId);
+        return { processed: false, message: 'Utilisateur non trouvé' };
+      }
+
+      // Activer le premium pour 30 jours
+      const expirationDate = new Date();
+      expirationDate.setMonth(expirationDate.getMonth() + 1);
+
+      user.premium.isPremium = true;
+      user.premium.expiration = expirationDate;
+      user.premium.paypalSubscriptionId = resource.id;
+
+      await user.save();
+
+      console.log(
+        `✅ Premium activé pour utilisateur ${userId}, expire: ${expirationDate}`
+      );
+      return { processed: true, action: 'subscription_activated', userId };
+    } catch (error) {
+      console.error('Erreur activation abonnement:', error);
+      return { processed: false, message: error.message };
+    }
   }
 
   // Gérer l'annulation d'un abonnement
   async handleSubscriptionCancelled(resource) {
-    // Implémentation à compléter avec la logique métier
-    console.log('Abonnement annulé:', resource.id);
-    return { processed: true, action: 'subscription_cancelled' };
+    try {
+      const subscriptionId = resource.id;
+      const User = require('../models/User');
+
+      const user = await User.findOne({
+        'premium.paypalSubscriptionId': subscriptionId,
+      });
+
+      if (!user) {
+        console.warn('Utilisateur non trouvé pour abonnement:', subscriptionId);
+        return { processed: false, message: 'Utilisateur non trouvé' };
+      }
+
+      // Désactiver le premium mais garder jusqu'à expiration naturelle
+      // (PayPal permet généralement de finir la période payée)
+      user.premium.paypalSubscriptionId = null;
+
+      await user.save();
+
+      console.log(`❌ Abonnement annulé pour utilisateur ${user._id}`);
+      return {
+        processed: true,
+        action: 'subscription_cancelled',
+        userId: user._id,
+      };
+    } catch (error) {
+      console.error('Erreur annulation abonnement:', error);
+      return { processed: false, message: error.message };
+    }
   }
 
   // Gérer la suspension d'un abonnement
   async handleSubscriptionSuspended(resource) {
-    // Implémentation à compléter avec la logique métier
-    console.log('Abonnement suspendu:', resource.id);
-    return { processed: true, action: 'subscription_suspended' };
+    try {
+      const subscriptionId = resource.id;
+      const User = require('../models/User');
+
+      const user = await User.findOne({
+        'premium.paypalSubscriptionId': subscriptionId,
+      });
+
+      if (!user) {
+        console.warn(
+          'Utilisateur non trouvé pour abonnement suspendu:',
+          subscriptionId
+        );
+        return { processed: false, message: 'Utilisateur non trouvé' };
+      }
+
+      // Suspendre le premium immédiatement
+      user.premium.isPremium = false;
+      user.premium.expiration = new Date(); // Expire maintenant
+
+      await user.save();
+
+      console.log(`⏸️ Premium suspendu pour utilisateur ${user._id}`);
+      return {
+        processed: true,
+        action: 'subscription_suspended',
+        userId: user._id,
+      };
+    } catch (error) {
+      console.error('Erreur suspension abonnement:', error);
+      return { processed: false, message: error.message };
+    }
   }
 
   // Gérer un paiement échoué
   async handlePaymentFailed(resource) {
-    // Implémentation à compléter avec la logique métier
-    console.log('Paiement échoué pour abonnement:', resource.id);
-    return { processed: true, action: 'payment_failed' };
+    try {
+      const subscriptionId = resource.billing_agreement_id || resource.id;
+      const User = require('../models/User');
+
+      const user = await User.findOne({
+        'premium.paypalSubscriptionId': subscriptionId,
+      });
+
+      if (!user) {
+        console.warn(
+          'Utilisateur non trouvé pour paiement échoué:',
+          subscriptionId
+        );
+        return { processed: false, message: 'Utilisateur non trouvé' };
+      }
+
+      console.log(
+        `💸 Paiement échoué pour utilisateur ${user._id} - PayPal gèrera les reprises`
+      );
+
+      // Note: On ne désactive PAS le premium immédiatement car PayPal fait des reprises
+      // Si PayPal suspend l'abonnement après plusieurs échecs, on recevra un autre webhook
+
+      return { processed: true, action: 'payment_failed', userId: user._id };
+    } catch (error) {
+      console.error('Erreur paiement échoué:', error);
+      return { processed: false, message: error.message };
+    }
   }
 
   // Gérer un paiement réussi
   async handlePaymentSucceeded(resource) {
-    // Implémentation à compléter avec la logique métier
-    console.log('Paiement réussi pour abonnement:', resource.id);
-    return { processed: true, action: 'payment_succeeded' };
+    try {
+      const subscriptionId = resource.billing_agreement_id || resource.id;
+      const User = require('../models/User');
+
+      const user = await User.findOne({
+        'premium.paypalSubscriptionId': subscriptionId,
+      });
+
+      if (!user) {
+        console.warn(
+          'Utilisateur non trouvé pour paiement réussi:',
+          subscriptionId
+        );
+        return { processed: false, message: 'Utilisateur non trouvé' };
+      }
+
+      // Renouveler/activer le premium pour 30 jours de plus
+      const currentExpiration = user.premium.expiration || new Date();
+      const newExpiration = new Date(
+        Math.max(currentExpiration.getTime(), Date.now())
+      );
+      newExpiration.setMonth(newExpiration.getMonth() + 1);
+
+      user.premium.isPremium = true;
+      user.premium.expiration = newExpiration;
+
+      await user.save();
+
+      console.log(
+        `💰 Paiement réussi - Premium renouvelé pour utilisateur ${user._id} jusqu'au ${newExpiration}`
+      );
+      return { processed: true, action: 'payment_succeeded', userId: user._id };
+    } catch (error) {
+      console.error('Erreur paiement réussi:', error);
+      return { processed: false, message: error.message };
+    }
   }
 }
 

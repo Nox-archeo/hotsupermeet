@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HotSuperMeet Premium | Upgrade Your Experience</title>
+    <meta
+      name="description"
+      content="Upgradez votre expérience HotMeet avec notre abonnement premium. Accès illimité, messagerie prioritaire et bien plus."
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/pages.css" />
+    <link rel="stylesheet" href="/css/responsive.css" />
+    <style>
+      .premium-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 0;
+        text-align: center;
+      }
+      .premium-hero h1 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+      }
+      .premium-hero p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto 2rem;
+      }
+      .pricing-card {
+        background: white;
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        max-width: 500px;
+        margin: -50px auto 0;
+        position: relative;
+        z-index: 10;
+      }
+      .price {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #667eea;
+        margin: 20px 0;
+      }
+      .price small {
+        font-size: 1rem;
+        color: #666;
+        font-weight: 400;
+      }
+      .features-list {
+        list-style: none;
+        padding: 0;
+        margin: 30px 0;
+      }
+      .features-list li {
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+        color: #333;
+        position: relative;
+        padding-left: 30px;
+      }
+      .features-list li:before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: #4caf50;
+        font-weight: bold;
+      }
+      .subscribe-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 40px;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin: 20px 0;
+      }
+      .subscribe-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+      }
+      .subscribe-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .status-badge {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin: 10px 0;
+      }
+      .status-active {
+        background: #4caf50;
+        color: white;
+      }
+      .status-expired {
+        background: #ff6b6b;
+        color: white;
+      }
+      .female-free-notice {
+        background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+        color: #333;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+        text-align: center;
+      }
+      .current-subscription {
+        background: #f8f9fa;
+        border: 2px solid #4caf50;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+      }
+      .cancel-btn {
+        background: #ff6b6b;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+      @media (max-width: 768px) {
+        .premium-hero h1 {
+          font-size: 2rem;
+        }
+        .pricing-card {
+          margin: -30px 20px 0;
+          padding: 30px 20px;
+        }
+        .price {
+          font-size: 2.5rem;
+        }
+      }
+      .loading-spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #ffffff;
+        border-top: 2px solid transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 10px;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .paypal-container {
+        margin: 20px 0;
+        min-height: 50px;
+      }
+      #paypal-button-container {
+        max-width: 400px;
+        margin: 0 auto;
+      }
+      .female-premium-info {
+        background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+        text-align: center;
+        color: #333;
+      }
+      .female-premium-info h3 {
+        color: #d63384;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-brand">
+          <a href="/" class="logo">HotMeet</a>
+        </div>
+
+        <div class="nav-menu" id="navMenu">
+          <a href="/profile" class="nav-link">Profil</a>
+          <a href="/directory" class="nav-link">Annuaire</a>
+          <a href="/ads" class="nav-link">Annonces</a>
+          <a href="/messages" class="nav-link">Messages</a>
+          <a href="/cam" class="nav-link">Cam</a>
+          <button id="logoutBtn" class="nav-link logout-btn">
+            Déconnexion
+          </button>
+        </div>
+
+        <div class="nav-toggle" id="navToggle">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="premium-hero">
+      <div class="container">
+        <h1>🔥 HotSuperMeet Premium</h1>
+        <p>
+          Débloquez toutes les fonctionnalités et vivez l'expérience complète de
+          HotMeet
+        </p>
+      </div>
+    </section>
+
+    <!-- Pricing Card -->
+    <div class="container">
+      <div class="pricing-card" id="pricingCard">
+        <!-- Contenu dynamique chargé par JavaScript -->
+      </div>
+    </div>
+
+    <!-- Female Free Info (si applicable) -->
+    <div class="container" id="femaleInfo" style="display: none">
+      <div class="female-premium-info">
+        <h3>🎉 Femmes Premium Gratuit !</h3>
+        <p>
+          En tant que femme sur HotMeet, vous bénéficiez automatiquement de
+          toutes les fonctionnalités premium gratuitement.
+        </p>
+        <button id="activateFemaleFree" class="subscribe-btn">
+          Activer mon accès gratuit
+        </button>
+      </div>
+    </div>
+
+    <script src="/js/premium-manager.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+      let currentUser = null;
+      let subscriptionStatus = null;
+
+      // Charger les données au démarrage
+      document.addEventListener('DOMContentLoaded', async () => {
+        await loadUserData();
+        await loadSubscriptionStatus();
+        await loadPricingInfo();
+        renderPricingCard();
+
+        // Vérifier les paramètres d'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success') === 'true') {
+          showNotification('Abonnement activé avec succès !', 'success');
+        } else if (urlParams.get('success') === 'false') {
+          showNotification(
+            "Erreur lors de l'activation de l'abonnement",
+            'error'
+          );
+        }
+      });
+
+      // Charger les données utilisateur
+      async function loadUserData() {
+        try {
+          const response = await fetch('/api/auth/profile', {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+          });
+
+          if (response.ok) {
+            currentUser = await response.json();
+          }
+        } catch (error) {
+          console.error('Erreur chargement profil:', error);
+        }
+      }
+
+      // Charger le statut d'abonnement
+      async function loadSubscriptionStatus() {
+        try {
+          const response = await fetch('/api/payments/status', {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            subscriptionStatus = data.subscription;
+          }
+        } catch (error) {
+          console.error('Erreur chargement statut:', error);
+        }
+      }
+
+      // Charger les informations de prix
+      async function loadPricingInfo() {
+        try {
+          const response = await fetch('/api/payments/pricing');
+          if (response.ok) {
+            const data = await response.json();
+            window.pricingInfo = data.pricing;
+          }
+        } catch (error) {
+          console.error('Erreur chargement prix:', error);
+        }
+      }
+
+      // Render de la carte de prix
+      function renderPricingCard() {
+        const pricingCard = document.getElementById('pricingCard');
+        const femaleInfo = document.getElementById('femaleInfo');
+
+        // Vérifier si femme pour accès gratuit
+        const isFemale =
+          currentUser &&
+          currentUser.profile &&
+          currentUser.profile.sexe === 'femme';
+
+        if (isFemale && !subscriptionStatus?.isPremium) {
+          femaleInfo.style.display = 'block';
+
+          const activateBtn = document.getElementById('activateFemaleFree');
+          activateBtn.addEventListener('click', activateFemaleFree);
+        }
+
+        // Contenu de la carte
+        if (subscriptionStatus?.isPremium) {
+          renderActiveSubscription(pricingCard);
+        } else {
+          renderSubscriptionOffer(pricingCard);
+        }
+      }
+
+      // Render abonnement actif
+      function renderActiveSubscription(container) {
+        const expiration = new Date(subscriptionStatus.expiration);
+        const isExpired = expiration < new Date();
+
+        container.innerHTML = `
+                <div class="current-subscription">
+                    <h2>🔥 Premium Actif</h2>
+                    <div class="status-badge ${isExpired ? 'status-expired' : 'status-active'}">
+                        ${isExpired ? 'Expiré' : 'Actif'}
+                    </div>
+                    <p><strong>Expiration:</strong> ${expiration.toLocaleDateString('fr-FR')}</p>
+                    ${
+                      subscriptionStatus.nextBillingDate
+                        ? `<p><strong>Prochaine facturation:</strong> ${new Date(subscriptionStatus.nextBillingDate).toLocaleDateString('fr-FR')}</p>`
+                        : ''
+                    }
+                    ${
+                      subscriptionStatus.isFemaleFree
+                        ? '<p><strong>Type:</strong> Accès gratuit femme 💝</p>'
+                        : '<button class="cancel-btn" onclick="cancelSubscription()">Annuler l\'abonnement</button>'
+                    }
+                </div>
+                <ul class="features-list">
+                    <li>Accès illimité aux profils</li>
+                    <li>Messagerie prioritaire</li>
+                    <li>Visibilité accrue</li>
+                    <li>Statut premium visible</li>
+                    <li>Support prioritaire</li>
+                </ul>
+            `;
+      }
+
+      // Render offre d'abonnement
+      function renderSubscriptionOffer(container) {
+        const pricing = window.pricingInfo || {
+          monthlyPrice: 5.75,
+          currency: 'CHF',
+        };
+
+        container.innerHTML = `
+                <h2>Devenez Premium</h2>
+                <div class="price">
+                    ${pricing.monthlyPrice} <small>${pricing.currency}/mois</small>
+                </div>
+                <ul class="features-list">
+                    <li>Accès illimité aux profils</li>
+                    <li>Messagerie prioritaire</li>
+                    <li>Visibilité accrue</li>
+                    <li>Statut premium visible</li>
+                    <li>Support prioritaire</li>
+                </ul>
+                <div class="paypal-container">
+                    <div id="paypal-button-container"></div>
+                </div>
+                <p style="font-size: 0.9rem; color: #666; margin-top: 20px;">
+                    Abonnement mensuel renouvelable. Annulation possible à tout moment.
+                </p>
+            `;
+
+        // Charger PayPal SDK dynamiquement après création du container
+        setTimeout(loadPayPalSDK, 100);
+      }
+
+      // Charger PayPal SDK dynamiquement
+      async function loadPayPalSDK() {
+        try {
+          const configResponse = await fetch('/api/payments/config');
+          const config = await configResponse.json();
+
+          const script = document.createElement('script');
+          script.src = `https://www.paypal.com/sdk/js?client-id=${config.clientId}&vault=true&intent=subscription&locale=fr_FR&currency=CHF`;
+          script.onload = () => initializePayPal(config.planId);
+          document.head.appendChild(script);
+        } catch (error) {
+          console.error('Erreur chargement PayPal SDK:', error);
+          showNotification('Erreur chargement PayPal', 'error');
+        }
+      }
+
+      // Initialiser les boutons PayPal
+      function initializePayPal(planId) {
+        if (!window.paypal) {
+          console.error('PayPal SDK non chargé');
+          return;
+        }
+
+        paypal
+          .Buttons({
+            style: {
+              shape: 'rect',
+              color: 'blue',
+              layout: 'vertical',
+              label: 'subscribe',
+            },
+            createSubscription: function (data, actions) {
+              return actions.subscription.create({
+                plan_id: planId,
+                custom_id: currentUser._id,
+              });
+            },
+            onApprove: function (data, actions) {
+              showNotification('Redirection vers la confirmation...', 'info');
+              window.location.href = `/api/payments/confirm?subscription_id=${data.subscriptionID}`;
+            },
+            onCancel: function (data) {
+              showNotification('Paiement annulé', 'warning');
+            },
+            onError: function (err) {
+              console.error('Erreur PayPal:', err);
+              showNotification('Erreur lors du paiement', 'error');
+            },
+          })
+          .render('#paypal-button-container');
+      }
+
+      // Activer l'accès gratuit pour les femmes
+      async function activateFemaleFree() {
+        try {
+          const button = document.getElementById('activateFemaleFree');
+          button.disabled = true;
+          button.innerHTML =
+            '<span class="loading-spinner"></span> Activation...';
+
+          const response = await fetch('/api/users/activate-female-free', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (response.ok) {
+            showNotification('Accès premium gratuit activé !', 'success');
+            setTimeout(() => location.reload(), 1500);
+          } else {
+            const error = await response.json();
+            showNotification(
+              error.error?.message || "Erreur lors de l'activation",
+              'error'
+            );
+          }
+        } catch (error) {
+          console.error('Erreur activation femme gratuite:', error);
+          showNotification("Erreur lors de l'activation", 'error');
+        } finally {
+          const button = document.getElementById('activateFemaleFree');
+          button.disabled = false;
+          button.innerHTML = 'Activer mon accès gratuit';
+        }
+      }
+
+      // Annuler l'abonnement
+      async function cancelSubscription() {
+        if (
+          !confirm(
+            'Êtes-vous sûr de vouloir annuler votre abonnement premium ?'
+          )
+        ) {
+          return;
+        }
+
+        try {
+          const response = await fetch('/api/payments/cancel', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+          });
+
+          if (response.ok) {
+            showNotification('Abonnement annulé avec succès', 'success');
+            setTimeout(() => location.reload(), 1500);
+          } else {
+            const error = await response.json();
+            showNotification(
+              error.error?.message || "Erreur lors de l'annulation",
+              'error'
+            );
+          }
+        } catch (error) {
+          console.error('Erreur annulation:', error);
+          showNotification("Erreur lors de l'annulation", 'error');
+        }
+      }
+
+      // Système de notifications
+      function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 5px;
+                color: white;
+                font-weight: 500;
+                z-index: 10000;
+                opacity: 0;
+                transform: translateX(100%);
+                transition: all 0.3s ease;
+            `;
+
+        const colors = {
+          success: '#4CAF50',
+          error: '#ff6b6b',
+          warning: '#ff9800',
+          info: '#2196F3',
+        };
+
+        notification.style.backgroundColor = colors[type] || colors.info;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+          notification.style.opacity = '1';
+          notification.style.transform = 'translateX(0)';
+        }, 100);
+
+        setTimeout(() => {
+          notification.style.opacity = '0';
+          notification.style.transform = 'translateX(100%)';
+          setTimeout(() => notification.remove(), 300);
+        }, 4000);
+      }
+
+      // Navigation
+      document.addEventListener('DOMContentLoaded', () => {
+        // Menu mobile
+        const navToggle = document.getElementById('navToggle');
+        const navMenu = document.getElementById('navMenu');
+
+        if (navToggle) {
+          navToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+          });
+        }
+
+        // Logout
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+          logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = '/auth.html';
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

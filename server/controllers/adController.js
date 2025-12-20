@@ -9,6 +9,18 @@ const createAd = async (req, res) => {
     console.log('🔥 DONNÉES REÇUES:', req.body);
     console.log('🔥 USER:', req.user);
 
+    // Vérifier le statut premium (middleware premium.js a déjà vérifié)
+    if (!req.isPremium && !req.isFemaleFree) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'PREMIUM_REQUIRED',
+          message: 'Un abonnement premium est requis pour créer des annonces',
+          isPremiumRequired: true,
+        },
+      });
+    }
+
     const {
       category,
       type,
@@ -142,9 +154,13 @@ const getAds = async (req, res) => {
     console.log('🚀🚀🚀 API GETADS APPELÉE 🚀🚀🚀');
     console.log('🔍 API getAds - Paramètres reçus:', req.query);
 
+    // Vérifier les limites premium (appliquées par le middleware premiumLimited)
+    const hasFullAccess = req.hasFullAccess || false;
+    const defaultLimit = hasFullAccess ? 100 : req.basicLimit || 20;
+
     const {
       page = 1,
-      limit = 20,
+      limit = defaultLimit,
       category, // Changé de 'type' à 'category' pour correspondre au frontend
       country, // Ajouté
       region, // Ajouté
@@ -156,6 +172,11 @@ const getAds = async (req, res) => {
       premiumOnly,
       search,
     } = req.query;
+
+    // Appliquer la limite pour les non-premium
+    const actualLimit = hasFullAccess
+      ? Math.min(parseInt(limit), 100)
+      : Math.min(parseInt(limit), req.basicLimit || 20);
 
     // Construire les filtres
     const filters = { status: 'active' };
@@ -186,12 +207,12 @@ const getAds = async (req, res) => {
     console.log('📋 FILTRES APPLIQUÉS:', JSON.stringify(filters, null, 2));
 
     // UTILISER DIRECTEMENT find() COMME L'ANNUAIRE
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const skip = (parseInt(page) - 1) * actualLimit;
 
     const ads = await Ad.find(filters)
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(parseInt(limit))
+      .limit(actualLimit)
       .lean();
 
     const total = await Ad.countDocuments(filters);
@@ -215,9 +236,14 @@ const getAds = async (req, res) => {
       data: ads,
       pagination: {
         page: parseInt(page),
-        limit: parseInt(limit),
+        limit: actualLimit,
         total,
-        pages: Math.ceil(total / limit),
+        pages: Math.ceil(total / actualLimit),
+      },
+      premium: {
+        hasFullAccess,
+        limitApplied: !hasFullAccess ? actualLimit : null,
+        upgradeRequired: !hasFullAccess && total > actualLimit,
       },
     });
   } catch (error) {
