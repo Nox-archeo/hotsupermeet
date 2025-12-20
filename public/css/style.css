@@ -2690,31 +2690,4 @@ h4 {
   }
 }
 
-/* ===== GESTION PHOTOS - SIMPLE ET EFFICACE ===== */
-
-/* Desktop */
-.photo-management-section {
-  margin-top: 2rem;
-  padding: 1.5rem;
-  background: #f8f9fa;
-  border-radius: 10px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.photo-management-title {
-  color: #2c3e50;
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.photo-management-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  margin-top: 1rem;
-}
-
-/* SUPPRIMÉ - Toutes les règles photo-management sont maintenant dans pages.css uniquement */
+/* ===== TOUTES LES REGLES PHOTO SUPPRIMEES - MAINTENANT DANS PAGES.CSS UNIQUEMENT ===== */
