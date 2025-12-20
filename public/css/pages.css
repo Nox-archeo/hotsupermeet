@@ -1923,4 +1923,17 @@ textarea:focus {
     width: 100% !important;
     margin-bottom: 2rem !important;
   }
+
+  /* ULTRA BACKUP - ID SELECTOR (spécificité maximale) */
+  #photoManagementGrid {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  #photoManagementGrid .photo-section {
+    width: 100% !important;
+    margin-bottom: 2rem !important;
+    display: block !important;
+  }
 }

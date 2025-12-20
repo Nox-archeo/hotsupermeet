@@ -9,28 +9,34 @@ console.log('🚨 NOUVELLE VERSION CHARGÉE ! Fonctionnalités photo activées.'
 function forceMobilePhotoLayout() {
   // Si on est sur mobile (width <= 768px)
   if (window.innerWidth <= 768) {
-    const photoGrid = document.querySelector('.photo-management-grid');
+    // CIBLER PAR ID D'ABORD (spécificité max), puis par classe en backup
+    const photoGrid =
+      document.getElementById('photoManagementGrid') ||
+      document.querySelector('.photo-management-grid');
     if (photoGrid) {
-      // FORCER LE FLEXBOX VERTICAL
-      photoGrid.style.display = 'flex';
-      photoGrid.style.flexDirection = 'column';
-      photoGrid.style.width = '100%';
-      photoGrid.style.gridTemplateColumns = 'none';
-      photoGrid.style.grid = 'none';
+      // FORCER LE FLEXBOX VERTICAL AVEC STYLE DIRECT
+      photoGrid.style.setProperty('display', 'flex', 'important');
+      photoGrid.style.setProperty('flex-direction', 'column', 'important');
+      photoGrid.style.setProperty('width', '100%', 'important');
+      photoGrid.style.setProperty('grid-template-columns', 'none', 'important');
+      photoGrid.style.setProperty('grid', 'none', 'important');
 
-      // FORCER CHAQUE SECTION PHOTO
+      // FORCER CHAQUE SECTION PHOTO AVEC SETPROPERTY
       const photoSections = photoGrid.querySelectorAll('.photo-section');
       photoSections.forEach((section, index) => {
-        section.style.width = '100%';
-        section.style.maxWidth = '100%';
-        section.style.marginBottom =
-          index === photoSections.length - 1 ? '0' : '2rem';
-        section.style.display = 'block';
-        section.style.float = 'none';
-        section.style.position = 'relative';
-        section.style.left = '0';
-        section.style.right = '0';
-        section.style.clear = 'both';
+        section.style.setProperty('width', '100%', 'important');
+        section.style.setProperty('max-width', '100%', 'important');
+        section.style.setProperty(
+          'margin-bottom',
+          index === photoSections.length - 1 ? '0' : '2rem',
+          'important'
+        );
+        section.style.setProperty('display', 'block', 'important');
+        section.style.setProperty('float', 'none', 'important');
+        section.style.setProperty('position', 'relative', 'important');
+        section.style.setProperty('left', '0', 'important');
+        section.style.setProperty('right', '0', 'important');
+        section.style.setProperty('clear', 'both', 'important');
       });
 
       console.log(
