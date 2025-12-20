@@ -2712,10 +2712,14 @@ h4 {
     box-sizing: border-box !important;
   }
   
-  /* EMPILAGE VERTICAL MOBILE - Photos publiques EN HAUT, privées EN BAS */
+  /* EMPILAGE VERTICAL MOBILE - FLEX COLUMN BRUTAL */
   .photo-management-grid {
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
     width: 100% !important;
+    gap: 0 !important;
+    grid-template-columns: none !important;
+    grid: none !important;
   }
   
   .photo-section {
@@ -2723,19 +2727,30 @@ h4 {
     max-width: 100% !important;
     margin-bottom: 2rem !important;
     display: block !important;
+    flex: none !important;
+    order: initial !important;
   }
   
-  /* Photos publiques EN HAUT */
+  /* Photos publiques EN HAUT - ORDER 1 */
   .photo-section:first-child {
-    margin-bottom: 2.5rem !important;
-    border-bottom: 2px solid #eee !important;
-    padding-bottom: 1.5rem !important;
+    order: 1 !important;
+    margin-bottom: 3rem !important;
+    border-bottom: 3px solid #3498db !important;
+    padding-bottom: 2rem !important;
+    background: #f0f8ff !important;
+    border-radius: 8px !important;
+    padding: 1.5rem !important;
   }
   
-  /* Photos privées EN BAS */  
+  /* Photos privées EN BAS - ORDER 2 */  
   .photo-section:last-child {
+    order: 2 !important;
     margin-bottom: 0 !important;
-    margin-top: 1rem !important;
+    margin-top: 0 !important;
+    background: #fff5f5 !important;
+    border: 2px solid #e74c3c !important;
+    border-radius: 8px !important;
+    padding: 1.5rem !important;
   }
   
   .photo-section h4 {
