@@ -9,10 +9,11 @@ console.log('🚨 NOUVELLE VERSION CHARGÉE ! Fonctionnalités photo activées.'
 function forceMobilePhotoLayout() {
   // Si on est sur mobile (width <= 768px)
   if (window.innerWidth <= 768) {
-    // CIBLER PAR ID D'ABORD (spécificité max), puis par classe en backup
+    // CIBLER PAR ID D'ABORD (spécificité max), puis par classe en backup (profile-clean.html et profile.html)
     const photoGrid =
       document.getElementById('photoManagementGrid') ||
-      document.querySelector('.photo-management-grid');
+      document.querySelector('.photo-management-grid') ||
+      document.querySelector('.photos-grid');
     if (photoGrid) {
       // FORCER LE FLEXBOX VERTICAL AVEC STYLE DIRECT
       photoGrid.style.setProperty('display', 'flex', 'important');
