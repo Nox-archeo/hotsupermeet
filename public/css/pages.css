@@ -1785,46 +1785,117 @@ textarea:focus {
   }
 }
 
-/* ===== FIX MOBILE PHOTO MANAGEMENT - FINAL ===== */
+/* ===== FIX MOBILE PHOTO MANAGEMENT - ULTIMATE FORCE ===== */
 
-/* MOBILE - EMPILAGE VERTICAL PHOTOS PUBLIQUES/PRIVÉES */
+/* ULTIMATE SOLUTION - MAXIMALE SPÉCIFICITÉ CONTRE STYLES INLINE */
 @media (max-width: 768px) {
-  /* FORCER LE CONTENEUR PRINCIPAL */
-  .photo-management-section .photo-management-grid {
-    display: block !important;
+  /* ULTRA HIGH SPECIFICITY - Détruit les styles inline */
+  body
+    .pages-container
+    .container
+    .profile-management
+    .photo-management-section
+    .photo-management-grid {
+    display: flex !important;
+    flex-direction: column !important;
     grid-template-columns: none !important;
     grid: none !important;
-    flex-direction: column !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
-  /* FORCER CHAQUE SECTION INDIVIDUELLEMENT */
-  .photo-management-section .photo-section {
+  /* ULTRA HIGH SPECIFICITY pour chaque section photo */
+  body
+    .pages-container
+    .container
+    .profile-management
+    .photo-management-section
+    .photo-management-grid
+    .photo-section {
     width: 100% !important;
     max-width: 100% !important;
-    margin-bottom: 3rem !important;
+    margin-bottom: 2rem !important;
     display: block !important;
     float: none !important;
     position: relative !important;
     left: 0 !important;
     right: 0 !important;
-  }
-
-  /* FORCER LA PREMIÈRE SECTION (PHOTOS PUBLIQUES) */
-  .photo-management-section .photo-section:first-child {
-    margin-bottom: 3rem !important;
-    order: 1 !important;
-  }
-
-  /* FORCER LA DEUXIÈME SECTION (PHOTOS PRIVÉES) */
-  .photo-management-section .photo-section:last-child {
-    margin-bottom: 0 !important;
-    order: 2 !important;
     clear: both !important;
+    order: unset !important;
   }
 
-  /* FORCER TOUS LES ÉLÉMENTS ENFANTS */
-  .photo-management-section * {
+  /* PREMIÈRE SECTION - Photos publiques */
+  body
+    .pages-container
+    .container
+    .profile-management
+    .photo-management-section
+    .photo-management-grid
+    .photo-section:first-child {
+    margin-bottom: 2rem !important;
+  }
+
+  /* DEUXIÈME SECTION - Photos privées */
+  body
+    .pages-container
+    .container
+    .profile-management
+    .photo-management-section
+    .photo-management-grid
+    .photo-section:last-child {
+    margin-bottom: 0 !important;
+    margin-top: 1rem !important;
+  }
+
+  /* FORCER tous les contenus photo */
+  body
+    .pages-container
+    .container
+    .profile-management
+    .photo-management-section
+    .photo-management-grid
+    .photo-section
+    .photo-upload-area {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 0 1rem 0 !important;
+    display: block !important;
+  }
+
+  body
+    .pages-container
+    .container
+    .profile-management
+    .photo-management-section
+    .photo-management-grid
+    .photo-section
+    .photo-grid {
+    width: 100% !important;
+    max-width: 100% !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 0.75rem !important;
+  }
+
+  /* FORCER TOUS LES ÉLÉMENTS SANS EXCEPTION */
+  body
+    .pages-container
+    .container
+    .profile-management
+    .photo-management-section
+    * {
     max-width: 100% !important;
     box-sizing: border-box !important;
+    overflow: visible !important;
+  }
+
+  /* BACKUP METHOD - Si le CSS haute spécificité ne suffit pas */
+  div[class*='photo-management-grid'] {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  div[class*='photo-section'] {
+    width: 100% !important;
+    margin-bottom: 2rem !important;
   }
 }

@@ -5,6 +5,53 @@ console.log(
 );
 console.log('🚨 NOUVELLE VERSION CHARGÉE ! Fonctionnalités photo activées.');
 
+// ===== MOBILE FIX BRUTAL POUR PHOTOS =====
+function forceMobilePhotoLayout() {
+  // Si on est sur mobile (width <= 768px)
+  if (window.innerWidth <= 768) {
+    const photoGrid = document.querySelector('.photo-management-grid');
+    if (photoGrid) {
+      // FORCER LE FLEXBOX VERTICAL
+      photoGrid.style.display = 'flex';
+      photoGrid.style.flexDirection = 'column';
+      photoGrid.style.width = '100%';
+      photoGrid.style.gridTemplateColumns = 'none';
+      photoGrid.style.grid = 'none';
+
+      // FORCER CHAQUE SECTION PHOTO
+      const photoSections = photoGrid.querySelectorAll('.photo-section');
+      photoSections.forEach((section, index) => {
+        section.style.width = '100%';
+        section.style.maxWidth = '100%';
+        section.style.marginBottom =
+          index === photoSections.length - 1 ? '0' : '2rem';
+        section.style.display = 'block';
+        section.style.float = 'none';
+        section.style.position = 'relative';
+        section.style.left = '0';
+        section.style.right = '0';
+        section.style.clear = 'both';
+      });
+
+      console.log(
+        '📱 MOBILE PHOTO LAYOUT FORCÉ !',
+        photoSections.length,
+        'sections trouvées'
+      );
+    }
+  }
+}
+
+// Exécuter au chargement de la page
+document.addEventListener('DOMContentLoaded', function () {
+  forceMobilePhotoLayout();
+});
+
+// Exécuter au redimensionnement
+window.addEventListener('resize', function () {
+  forceMobilePhotoLayout();
+});
+
 // Variable globale pour conserver la région à restaurer
 window.regionToRestore = null;
 
