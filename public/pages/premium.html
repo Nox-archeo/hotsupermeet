@@ -285,8 +285,16 @@
           });
 
           if (response.ok) {
-            currentUser = await response.json();
-            console.log('✅ Utilisateur chargé:', currentUser);
+            const data = await response.json();
+            console.log('✅ Réponse API complète:', data);
+
+            if (data.success && data.user) {
+              currentUser = data.user;
+              console.log('✅ Utilisateur chargé:', currentUser);
+            } else {
+              console.error('❌ Format réponse API incorrect:', data);
+              currentUser = null;
+            }
           } else {
             console.error('❌ Erreur chargement profil:', response.status);
             if (response.status === 401) {
@@ -422,13 +430,13 @@
             `;
 
         // Charger PayPal SDK dynamiquement après création du container
-        if (currentUser && currentUser._id) {
+        if (currentUser && currentUser.id) {
           setTimeout(loadPayPalSDK, 100);
         } else {
           console.log('⏳ En attente du chargement utilisateur pour PayPal');
           // Réessayer après un délai
           setTimeout(() => {
-            if (currentUser && currentUser._id) {
+            if (currentUser && currentUser.id) {
               loadPayPalSDK();
             } else {
               console.error(
@@ -485,7 +493,7 @@
             },
             createSubscription: function (data, actions) {
               // 🔒 VÉRIFICATION UTILISATEUR CONNECTÉ
-              if (!currentUser || !currentUser._id) {
+              if (!currentUser || !currentUser.id) {
                 console.error('❌ Utilisateur non connecté pour PayPal');
                 throw new Error(
                   'Utilisateur non connecté - veuillez vous reconnecter'
@@ -494,7 +502,7 @@
 
               return actions.subscription.create({
                 plan_id: config.planMonthlyId, // 🎯 Plan mensuel correct
-                custom_id: currentUser._id, // ID utilisateur pour tracking
+                custom_id: currentUser.id, // ID utilisateur pour tracking
                 application_context: {
                   return_url: config.returnUrl,
                   cancel_url: config.cancelUrl,
