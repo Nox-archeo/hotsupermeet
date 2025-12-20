@@ -496,7 +496,7 @@
           });
 
           const script = document.createElement('script');
-          script.src = `https://www.paypal.com/sdk/js?client-id=${config.clientId}&vault=true&intent=subscription&locale=fr_FR&currency=EUR`;
+          script.src = `https://www.paypal.com/sdk/js?client-id=${config.clientId}&vault=true&intent=subscription&locale=fr_FR&currency=EUR&commit=true&components=buttons&disable-funding=credit`;
           script.onload = () => {
             console.log('✅ PayPal SDK chargé avec succès');
             initializePayPal(config);
@@ -571,6 +571,11 @@
                   cancel_url: config.cancelUrl,
                   brand_name: 'HotSuperMeet',
                   shipping_preference: 'NO_SHIPPING',
+                  user_action: 'SUBSCRIBE_NOW',
+                  payment_method: {
+                    payer_selected: 'PAYPAL',
+                    payee_preferred: 'IMMEDIATE_PAYMENT_REQUIRED',
+                  },
                 },
               });
             },
