@@ -1,16 +1,13 @@
 const User = require('../models/User');
 
-// Middleware pour vérifier le statut premium
+// Middleware pour vérifier le statut premium - STRICTEMENT PREMIUM
 const premiumOnly = async (req, res, next) => {
   try {
     if (!req.user) {
       return res.status(401).json({
-        success: false,
-        error: {
-          code: 'UNAUTHORIZED',
-          message: 'Authentification requise',
-          isPremiumRequired: true,
-        },
+        error: 'invalid_token',
+        message: 'Authentification requise pour accéder à cette fonctionnalité',
+        redirectTo: '/pages/auth.html',
       });
     }
 
@@ -19,12 +16,9 @@ const premiumOnly = async (req, res, next) => {
 
     if (!user) {
       return res.status(404).json({
-        success: false,
-        error: {
-          code: 'USER_NOT_FOUND',
-          message: 'Utilisateur non trouvé',
-          isPremiumRequired: true,
-        },
+        error: 'user_not_found',
+        message: 'Utilisateur non trouvé',
+        redirectTo: '/pages/auth.html',
       });
     }
 
@@ -34,17 +28,13 @@ const premiumOnly = async (req, res, next) => {
     const isFemaleFree =
       user.premium.isFemaleFree && user.profile.sexe === 'femme';
 
+    // ⛔ ACCÈS STRICTEMENT PREMIUM - REDIRECTION OBLIGATOIRE
     if (!isPremiumActive && !isFemaleFree) {
       return res.status(403).json({
-        success: false,
-        error: {
-          code: 'PREMIUM_REQUIRED',
-          message:
-            'Abonnement premium requis pour accéder à cette fonctionnalité',
-          isPremiumRequired: true,
-          subscriptionExpired:
-            user.premium.expiration && user.premium.expiration < new Date(),
-        },
+        error: 'premium_required',
+        message:
+          'Abonnement premium requis pour accéder à cette fonctionnalité',
+        redirectTo: '/pages/premium.html',
       });
     }
 
@@ -56,11 +46,9 @@ const premiumOnly = async (req, res, next) => {
   } catch (error) {
     console.error('Erreur vérification premium:', error);
     res.status(500).json({
-      success: false,
-      error: {
-        code: 'PREMIUM_CHECK_ERROR',
-        message: 'Erreur lors de la vérification du statut premium',
-      },
+      error: 'premium_check_error',
+      message: 'Erreur lors de la vérification du statut premium',
+      redirectTo: '/pages/premium.html',
     });
   }
 };

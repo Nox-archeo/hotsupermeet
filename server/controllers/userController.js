@@ -1,9 +1,42 @@
 const User = require('../models/User');
 const { validationResult } = require('express-validator');
 
-// Récupérer la liste des utilisateurs avec filtres
+// Récupérer la liste des utilisateurs avec filtres - STRICTEMENT PREMIUM
 const getUsers = async (req, res) => {
   try {
+    // ⛔ ACCÈS STRICTEMENT PREMIUM - PAS DE CONSULTATION GRATUITE
+    // L'utilisateur doit être connecté ET premium pour voir l'annuaire
+    if (!req.headers.authorization) {
+      return res.status(401).json({
+        error: 'premium_required',
+        message: "Connexion requise pour accéder à l'annuaire",
+        redirectTo: '/pages/premium.html',
+      });
+    }
+
+    try {
+      const { checkPremiumStatus } = require('../middleware/premium');
+      const token = req.headers.authorization.replace('Bearer ', '');
+      const jwt = require('jsonwebtoken');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const premiumStatus = await checkPremiumStatus(decoded.userId);
+
+      // ⛔ SI PAS PREMIUM → REDIRECTION OBLIGATOIRE
+      if (!premiumStatus.hasFullAccess) {
+        return res.status(403).json({
+          error: 'premium_required',
+          message: "Abonnement premium requis pour accéder à l'annuaire",
+          redirectTo: '/pages/premium.html',
+        });
+      }
+    } catch (error) {
+      return res.status(401).json({
+        error: 'invalid_token',
+        message: 'Token invalide, connexion requise',
+        redirectTo: '/pages/auth.html',
+      });
+    }
+
     const {
       ageMin,
       ageMax,
@@ -17,28 +50,8 @@ const getUsers = async (req, res) => {
       sortBy = 'lastActive',
     } = req.query;
 
-    // Vérifier le statut premium de l'utilisateur connecté (si connecté)
-    let isPremium = false;
-    let isFemaleFree = false;
-
-    // Si l'utilisateur est connecté, vérifier son statut premium
-    if (req.headers.authorization) {
-      try {
-        const { checkPremiumStatus } = require('../middleware/premium');
-        const token = req.headers.authorization.replace('Bearer ', '');
-        const jwt = require('jsonwebtoken');
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const premiumStatus = await checkPremiumStatus(decoded.userId);
-        isPremium = premiumStatus.hasFullAccess;
-      } catch (error) {
-        // Si erreur de token, continuer en mode non-premium
-        console.log('Token invalide ou expiré, mode non-premium');
-      }
-    }
-
-    // Appliquer les limites selon le statut premium
-    const maxLimit = isPremium ? 100 : 20; // Non-premium limité à 20 profils par page
-    const actualLimit = Math.min(parseInt(limit), maxLimit);
+    // Premium validé - accès complet sans limitations
+    const actualLimit = Math.min(parseInt(limit), 100);
 
     // Construire la requête de filtrage
     const query = { 'security.isBlocked': false };

@@ -349,6 +349,24 @@ class MessagesManager {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      // ⚠️ GESTION REDIRECTION PREMIUM AUTOMATIQUE
+      if (!requestsResponse.ok) {
+        const errorData = await requestsResponse.json();
+        if (errorData.error === 'premium_required') {
+          // 🚀 REDIRECTION AUTOMATIQUE VERS PAGE PAYPAL
+          console.log('🔒 Messagerie premium requise - Redirection PayPal');
+          window.location.href = errorData.redirectTo || '/pages/premium.html';
+          return;
+        }
+        if (errorData.error === 'invalid_token') {
+          // 🚀 REDIRECTION VERS CONNEXION
+          console.log('🔒 Token invalide - Redirection connexion');
+          window.location.href = errorData.redirectTo || '/pages/auth.html';
+          return;
+        }
+        throw new Error(errorData.message || 'Erreur lors du chargement');
+      }
+
       if (requestsResponse.ok) {
         const requestsData = await requestsResponse.json();
         console.log(
