@@ -25,6 +25,16 @@ router.get('/pricing', (req, res, next) => {
   paymentController.getPricingInfo(req, res).catch(next);
 });
 
+// Route pour la configuration PayPal (client ID et plan ID)
+router.get('/config', (req, res) => {
+  res.json({
+    success: true,
+    clientId: process.env.PAYPAL_CLIENT_ID,
+    planId: process.env.PAYPAL_PLAN_ID,
+    environment: process.env.PAYPAL_MODE || 'sandbox',
+  });
+});
+
 // Routes publiques pour les callbacks PayPal
 router.get('/confirm', (req, res, next) => {
   paymentController.confirmSubscription(req, res).catch(next);

@@ -587,6 +587,72 @@ const deleteTestUsers = async (req, res) => {
   }
 };
 
+// Activer l'accès premium gratuit pour les femmes
+const activateFemaleFree = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'USER_NOT_FOUND',
+          message: 'Utilisateur non trouvé',
+        },
+      });
+    }
+
+    // Vérifier que l'utilisateur est bien une femme
+    if (user.profile.sexe !== 'femme') {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'NOT_FEMALE',
+          message: 'Cette fonctionnalité est réservée aux femmes',
+        },
+      });
+    }
+
+    // Vérifier si déjà activé
+    if (user.premium.isFemaleFree) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'ALREADY_ACTIVATED',
+          message: 'Accès premium gratuit déjà activé',
+        },
+      });
+    }
+
+    // Activer l'accès gratuit
+    user.premium.isFemaleFree = true;
+    user.premium.isPremium = true;
+    user.premium.expiration = new Date(2030, 11, 31); // Expiration très lointaine
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Accès premium gratuit activé avec succès !',
+      premium: {
+        isPremium: true,
+        isFemaleFree: true,
+        expiration: user.premium.expiration,
+      },
+    });
+  } catch (error) {
+    console.error('Erreur activation femme gratuite:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'ACTIVATION_ERROR',
+        message: "Erreur lors de l'activation de l'accès gratuit",
+      },
+    });
+  }
+};
+
 module.exports = {
   getUsers,
   getUserProfile,
@@ -595,4 +661,5 @@ module.exports = {
   getDirectoryStats,
   deleteAccount,
   deleteTestUsers, // Nouveau: fonction temporaire admin
+  activateFemaleFree, // Nouveau: activation gratuite femmes
 };
