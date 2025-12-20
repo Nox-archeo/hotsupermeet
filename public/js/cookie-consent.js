@@ -85,10 +85,17 @@
 
   // Créer le bandeau de cookies
   function createCookieBanner() {
+    console.log('🍪 DEBUG MOBILE: Tentative création banner cookies');
+    console.log('🍪 Âge vérifié:', isAgeVerified());
+    console.log('🍪 Consentement existant:', hasCookieConsent());
+
     // Vérifier si l'âge est vérifié ET si pas encore de consentement cookies
     if (!isAgeVerified() || hasCookieConsent()) {
+      console.log('🍪 Banner non affiché - conditions non remplies');
       return;
     }
+
+    console.log('🍪 MOBILE: Création du banner cookies');
 
     // Créer le bandeau
     const banner = document.createElement('div');
@@ -177,6 +184,10 @@
         cursor: pointer;
         transition: all 0.3s ease;
         font-size: 0.9rem;
+        /* Mobile Touch Optimization */
+        min-height: 44px;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
       }
 
       .btn-cookie-accept {
@@ -250,17 +261,29 @@
     const refuseBtn = banner.querySelector('#refuseCookies');
     const settingsBtn = banner.querySelector('#cookieSettings');
 
-    acceptBtn.addEventListener('click', function () {
+    // Support mobile avec touch events
+    function addTouchSupport(element, callback) {
+      element.addEventListener('click', callback);
+      element.addEventListener('touchend', function (e) {
+        e.preventDefault();
+        callback();
+      });
+    }
+
+    addTouchSupport(acceptBtn, function () {
+      console.log('🍪 Cookies acceptés (mobile-ready)');
       setCookieConsent(COOKIE_TYPES.ALL);
       removeBanner();
     });
 
-    refuseBtn.addEventListener('click', function () {
+    addTouchSupport(refuseBtn, function () {
+      console.log('🍪 Cookies refusés (mobile-ready)');
       setCookieConsent(COOKIE_TYPES.ESSENTIAL);
       removeBanner();
     });
 
-    settingsBtn.addEventListener('click', function () {
+    addTouchSupport(settingsBtn, function () {
+      console.log('🍪 Paramètres cookies ouverts (mobile-ready)');
       showCookieSettings();
     });
 
@@ -549,6 +572,12 @@
 
   // Fonction publique pour afficher les paramètres cookies
   window.showCookieSettings = showCookieSettings;
+
+  // Fonction publique pour déclencher la vérification cookies après âge confirmé
+  window.triggerCookieCheck = function () {
+    console.log('🍪 MOBILE: Trigger manuel de vérification cookies');
+    setTimeout(createCookieBanner, 200);
+  };
 
   // Démarrer quand le DOM est prêt
   if (document.readyState === 'loading') {

@@ -168,11 +168,21 @@
     // Empêcher le scroll du body
     document.body.style.overflow = 'hidden';
 
+    // Support mobile avec touch events
+    function addMobileTouchSupport(element, callback) {
+      element.addEventListener('click', callback);
+      element.addEventListener('touchend', function (e) {
+        e.preventDefault();
+        callback();
+      });
+    }
+
     // Event listeners
     const confirmBtn = modal.querySelector('#confirmAgeBtn');
     const exitBtn = modal.querySelector('#exitSiteBtn');
 
-    confirmBtn.addEventListener('click', function () {
+    addMobileTouchSupport(confirmBtn, function () {
+      console.log('🔞 MOBILE: Âge confirmé');
       // Marquer comme vérifié
       setAgeVerified();
 
@@ -183,10 +193,18 @@
       // Rétablir le scroll
       document.body.style.overflow = '';
 
-      console.log('✅ Âge vérifié et mémorisé');
+      console.log('✅ Âge vérifié et mémorisé - triggering cookie check');
+
+      // Force trigger cookie banner après 500ms
+      setTimeout(() => {
+        if (window.triggerCookieCheck) {
+          window.triggerCookieCheck();
+        }
+      }, 500);
     });
 
-    exitBtn.addEventListener('click', function () {
+    addMobileTouchSupport(exitBtn, function () {
+      console.log('🔞 MOBILE: Sortie du site');
       // Rediriger vers Google
       window.location.href = 'https://www.google.com';
     });
