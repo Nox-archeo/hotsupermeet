@@ -14,6 +14,13 @@ router.get('/:id', adController.getAdById); // Public avec gestion premium dans 
 // Route protégée - Créer une nouvelle annonce (premium requis)
 router.post('/', auth, premiumOnly, adController.createAd); // Création = premium obligatoire
 
-console.log('✅ Routes GET + POST configurées avec controller');
+// ✅ ROUTES MANQUANTES RESTAURÉES - Gestion des annonces utilisateur
+router.get('/user/my-ads', auth, adController.getUserAds); // Mes annonces
+router.put('/:id', auth, adController.updateAd); // Modifier annonce
+router.delete('/:id', auth, adController.deleteAd); // Supprimer annonce
+router.post('/:id/respond', auth, adController.respondToAd); // Répondre à annonce
+router.get('/:id/responses', auth, adController.getAdResponses); // Voir réponses
+
+console.log('✅ Routes complètes configurées avec controller');
 
 module.exports = router;
