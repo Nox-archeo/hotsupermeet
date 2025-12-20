@@ -4,15 +4,15 @@ const adController = require('../controllers/adController');
 const { auth } = require('../middleware/auth'); // ← IMPORT CORRECT !
 const { premiumOnly, premiumLimited } = require('../middleware/premium');
 
-// ⛔ ROUTES STRICTEMENT PREMIUM - ANNONCES 100% BLOQUÉES POUR NON-PREMIUM
-// Route PREMIUM - Récupérer toutes les annonces avec filtres
-router.get('/', premiumOnly, adController.getAds); // ⛔ PREMIUM REQUIS POUR VOIR LES ANNONCES
+// Routes avec auth normale (gestion premium dans controllers)
+// Route pour récupérer toutes les annonces avec filtres
+router.get('/', adController.getAds); // Public avec gestion premium dans controller
 
-// Route PREMIUM - Récupérer une annonce par ID
-router.get('/:id', premiumOnly, adController.getAdById); // ⛔ PREMIUM REQUIS POUR VOIR UNE ANNONCE
+// Route pour récupérer une annonce par ID
+router.get('/:id', adController.getAdById); // Public avec gestion premium dans controller
 
-// Route protégée PREMIUM - Créer une nouvelle annonce
-router.post('/', auth, premiumOnly, adController.createAd); // ⛔ PREMIUM REQUIS POUR CRÉER
+// Route protégée - Créer une nouvelle annonce (premium requis)
+router.post('/', auth, premiumOnly, adController.createAd); // Création = premium obligatoire
 
 console.log('✅ Routes GET + POST configurées avec controller');
 

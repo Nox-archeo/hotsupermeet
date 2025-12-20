@@ -212,21 +212,10 @@ class DirectoryPage {
       const response = await fetch(`/api/users?${params}`, { headers });
       const result = await response.json();
 
-      // ⚠️ GESTION REDIRECTION PREMIUM AUTOMATIQUE
-      if (!response.ok) {
-        if (result.error === 'premium_required') {
-          // 🚀 REDIRECTION AUTOMATIQUE VERS PAGE PAYPAL
-          console.log('🔒 Accès premium requis - Redirection PayPal');
-          window.location.href = result.redirectTo || '/pages/premium.html';
-          return;
-        }
-        if (result.error === 'invalid_token') {
-          // 🚀 REDIRECTION VERS CONNEXION
-          console.log('🔒 Token invalide - Redirection connexion');
-          window.location.href = result.redirectTo || '/pages/auth.html';
-          return;
-        }
-        throw new Error(result.message || 'Erreur lors du chargement');
+      // 🔒 GESTION ÉCRAN PREMIUM (au lieu de redirection forcée)
+      if (result.premiumRequired) {
+        this.showPremiumBlocker(result.message);
+        return;
       }
 
       if (result.success) {
@@ -240,6 +229,30 @@ class DirectoryPage {
       console.error('Erreur:', error);
       this.showError('Erreur de connexion');
     }
+  }
+
+  // 🔒 Nouvel écran de blocage premium avec bouton PayPal
+  showPremiumBlocker(message) {
+    const grid = document.getElementById('profilesGrid');
+    grid.innerHTML = `
+      <div class="premium-blocker">
+        <div class="premium-icon">🔒</div>
+        <h3>Fonctionnalité Premium</h3>
+        <p>${message}</p>
+        <div class="premium-benefits">
+          <h4>Avec l'abonnement Premium :</h4>
+          <ul>
+            <li>✅ Accès complet à l'annuaire</li>
+            <li>✅ Messagerie illimitée</li>
+            <li>✅ Voir toutes les annonces</li>
+            <li>✅ Cam avec choix du genre</li>
+          </ul>
+        </div>
+        <button class="btn-premium" onclick="window.location.href='/pages/premium.html'">
+          🚀 S'abonner maintenant
+        </button>
+      </div>
+    `;
   }
 
   displayUsers(users) {
