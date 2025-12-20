@@ -1334,8 +1334,8 @@ async function deleteAd(adId) {
     return;
   }
 
-  // SOLUTION DIRECTE - MÊME LOGIQUE QUE LES CONVERSATIONS
-  let apiUrl = `/api/ads/conversations/${adId}`;
+  // ✅ CORRECTION URL - Route de suppression d'annonce correcte
+  let apiUrl = `/api/ads/${adId}`;
 
   console.log(`🔥 SUPPRESSION ANNONCE: ${apiUrl}`);
 
