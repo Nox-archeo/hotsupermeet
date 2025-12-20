@@ -782,6 +782,15 @@ h4 {
   flex-direction: column;
   cursor: pointer;
   gap: 4px;
+  /* Mobile Touch Optimization */
+  padding: 8px;
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  justify-content: center;
+  align-items: center;
 }
 
 .mobile-menu-toggle span {

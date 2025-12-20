@@ -53,9 +53,18 @@ class HotMeetApp {
     console.log('Setup mobile menu:', { mobileToggle, navMenu });
 
     if (mobileToggle && navMenu) {
-      mobileToggle.addEventListener('click', e => {
+      // Support mobile avec touch events
+      function addTouchSupport(element, callback) {
+        element.addEventListener('click', callback);
+        element.addEventListener('touchend', function (e) {
+          e.preventDefault();
+          callback(e);
+        });
+      }
+
+      addTouchSupport(mobileToggle, e => {
         e.stopPropagation();
-        console.log('Mobile menu toggle clicked');
+        console.log('Mobile menu toggle clicked (mobile-ready)');
         navMenu.classList.toggle('active');
         mobileToggle.classList.toggle('active');
         document.body.classList.toggle('menu-open');

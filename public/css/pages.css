@@ -193,6 +193,11 @@
   text-decoration: none;
   display: inline-block;
   text-align: center;
+  /* Mobile Touch Optimization */
+  min-height: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
 .btn-primary {
