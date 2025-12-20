@@ -2262,55 +2262,6 @@ h4 {
   animation: slideInUp 0.4s ease-out;
 }
 
-/* ===== STYLES SPÉCIFIQUES POUR LA PAGE PROFIL ===== */
-
-/* Styles de base pour le profil */
-.profile-management {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-.profile-card {
-  background: var(--bg-white);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-  margin-bottom: 2rem;
-}
-
-.profile-header {
-  display: flex;
-  align-items: center;
-  padding: 2rem;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  color: white;
-  gap: 2rem;
-}
-
-.profile-avatar {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.profile-avatar img {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-}
-
-.avatar-actions {
-  position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.avatar-actions .btn-secondary {
-  padding: 0.5rem 1rem;
-  font-size: 0.8rem;
   white-space: nowrap;
 }
 
@@ -2736,5 +2687,53 @@ h4 {
   
   .notice-content h3 {
     font-size: 1.2rem;
+  }
+}
+
+/* ===== FIX MOBILE POUR SECTION GESTION PHOTOS UNIQUEMENT ===== */
+
+/* Responsive pour la grille des photos sur mobile */
+@media (max-width: 768px) {
+  .photo-management-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  .photo-management-section {
+    padding: 1rem !important;
+    margin-top: 1.5rem !important;
+  }
+  
+  .photo-section {
+    width: 100%;
+  }
+  
+  .photo-upload-area {
+    padding: 0.75rem !important;
+  }
+  
+  .photo-preview {
+    max-width: 100% !important;
+  }
+  
+  .photo-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .photo-management-section {
+    padding: 0.75rem !important;
+    margin-top: 1rem !important;
+  }
+  
+  .photo-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .photo-upload-area {
+    padding: 0.5rem !important;
+    font-size: 0.9rem;
   }
 }
