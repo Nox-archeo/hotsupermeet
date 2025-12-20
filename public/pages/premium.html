@@ -496,7 +496,7 @@
           });
 
           const script = document.createElement('script');
-          script.src = `https://www.paypal.com/sdk/js?client-id=${config.clientId}&vault=true&intent=subscription&locale=fr_FR&currency=EUR&commit=false`;
+          script.src = `https://www.paypal.com/sdk/js?client-id=${config.clientId}&vault=true&intent=subscription&locale=fr_FR&currency=EUR`;
           script.onload = () => {
             console.log('✅ PayPal SDK chargé avec succès');
             initializePayPal(config);
@@ -523,19 +523,20 @@
 
         console.log('✅ PayPal SDK disponible, création des boutons...');
 
+        // 🚫 BLOQUER LA FENÊTRE NOIRE VIDE (window.open bloqué)
+        const originalWindowOpen = window.open;
+        window.open = function (url, name, features) {
+          // Si c'est un popup vide ou bloqué, on l'ignore
+          if (!url || url === '' || url === 'about:blank') {
+            console.log('🚫 POPUP VIDE BLOQUÉ:', url);
+            return null;
+          }
+          // Sinon on laisse PayPal faire son travail
+          return originalWindowOpen.call(window, url, name, features);
+        };
+
         paypal
           .Buttons({
-            // ⭐ CONFIGURATION POUR ÉVITER TOUS LES POPUPS
-            env: config.environment === 'sandbox' ? 'sandbox' : 'production',
-            client: {
-              sandbox: config.clientId,
-              production: config.clientId,
-            },
-            // 🚫 DÉSACTIVER TOUS LES POPUPS
-            commit: false,
-            payment: {
-              flow: 'subscription',
-            },
             style: {
               shape: 'rect',
               color: 'gold',
