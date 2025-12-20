@@ -1,5 +1,28 @@
 // HotMeet - JavaScript pour la page d'authentification
 
+// 🔧 FONCTION UTILITAIRE: Nettoyage tokens JWT corrompus
+function cleanCorruptedTokens() {
+  try {
+    const token = localStorage.getItem('hotmeet_token');
+    if (token) {
+      // Vérifier si le token a un format JWT valide (3 parties séparées par des points)
+      const tokenParts = token.split('.');
+      if (tokenParts.length !== 3) {
+        console.log('🧹 Token JWT malformé détecté - Nettoyage...');
+        localStorage.removeItem('hotmeet_token');
+        localStorage.removeItem('hotmeet_user');
+        return true; // Token nettoyé
+      }
+    }
+    return false; // Pas de nettoyage nécessaire
+  } catch (error) {
+    console.log('🧹 Erreur lors du nettoyage des tokens - Nettoyage forcé');
+    localStorage.removeItem('hotmeet_token');
+    localStorage.removeItem('hotmeet_user');
+    return true;
+  }
+}
+
 class AuthPage {
   constructor() {
     this.currentTab = 'login';
@@ -7,6 +30,9 @@ class AuthPage {
   }
 
   init() {
+    // 🧹 Nettoyer les tokens corrompus au chargement
+    cleanCorruptedTokens();
+
     this.setupTabSwitching();
     this.setupLoginForm();
     this.setupRegisterForm();
