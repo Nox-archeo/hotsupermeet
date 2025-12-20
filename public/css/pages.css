@@ -1936,4 +1936,19 @@ textarea:focus {
     margin-bottom: 2rem !important;
     display: block !important;
   }
+
+  /* RÈGLES POUR PROFILE-CLEAN.HTML avec classe photos-grid */
+  .photos-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    grid-template-columns: none !important;
+    grid: none !important;
+  }
+
+  .photos-grid .photo-section {
+    width: 100% !important;
+    margin-bottom: 2rem !important;
+    display: block !important;
+  }
 }
