@@ -170,6 +170,15 @@
         max-width: 400px;
         margin: 0 auto;
       }
+
+      /* ⭐ MASQUER SEULEMENT LE POPUP DE FALLBACK NOIR */
+      div[style*='position: fixed'][style*='background-color: rgba(0, 0, 0'],
+      div[style*='position: fixed'][style*='background: rgba(0, 0, 0'],
+      iframe[title*='PayPal'][style*='position: fixed'][style*='background'] {
+        display: none !important;
+        visibility: hidden !important;
+      }
+
       .female-premium-info {
         background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
         padding: 20px;
@@ -487,7 +496,7 @@
           });
 
           const script = document.createElement('script');
-          script.src = `https://www.paypal.com/sdk/js?client-id=${config.clientId}&vault=true&intent=subscription&locale=fr_FR&currency=EUR`;
+          script.src = `https://www.paypal.com/sdk/js?client-id=${config.clientId}&vault=true&intent=subscription&locale=fr_FR&currency=EUR&enable-funding=venmo,card&disable-card=&components=buttons&debug=false`;
           script.onload = () => {
             console.log('✅ PayPal SDK chargé avec succès');
             initializePayPal(config);
@@ -513,6 +522,23 @@
         }
 
         console.log('✅ PayPal SDK disponible, création des boutons...');
+
+        // ⭐ EMPÊCHER LE POPUP DE FALLBACK NOIR
+        window.addEventListener('message', function (event) {
+          if (
+            event.origin === 'https://www.paypal.com' &&
+            event.data &&
+            typeof event.data === 'string'
+          ) {
+            try {
+              const data = JSON.parse(event.data);
+              if (data.type === 'ppxo_fallback' || data.action === 'checkout') {
+                event.stopPropagation();
+                return false;
+              }
+            } catch (e) {}
+          }
+        });
 
         paypal
           .Buttons({
