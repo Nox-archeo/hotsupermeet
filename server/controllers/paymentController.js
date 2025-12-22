@@ -41,12 +41,19 @@ const createSubscription = async (req, res) => {
       });
     }
 
-    // Déterminer le plan ID selon le type
-    const planType = req.body.planType || 'monthly';
-    const planId =
-      planType === 'annual'
-        ? process.env.PAYPAL_PLAN_YEARLY_ID
-        : process.env.PAYPAL_PLAN_MONTHLY_ID;
+    // Utiliser le plan mensuel (le seul disponible)
+    const planId = process.env.PAYPAL_PLAN_MONTHLY_ID;
+
+    if (!planId) {
+      return res.status(500).json({
+        success: false,
+        error: {
+          code: 'MISSING_PLAN_ID',
+          message:
+            "PAYPAL_PLAN_MONTHLY_ID manquant dans les variables d'environnement",
+        },
+      });
+    }
 
     // Créer l'abonnement PayPal
     const subscription = await PayPalService.createSubscription(
