@@ -110,12 +110,15 @@ class PayPalService {
   }
 
   // Créer un abonnement pour un utilisateur
-  async createSubscription(userId, returnUrl, cancelUrl) {
+  async createSubscription(userId, returnUrl, cancelUrl, planId = null) {
     try {
       await this.ensureToken();
 
       const subscriptionData = {
-        plan_id: process.env.PAYPAL_PLAN_ID,
+        plan_id:
+          planId ||
+          process.env.PAYPAL_PLAN_MONTHLY_ID ||
+          process.env.PAYPAL_PLAN_ID,
         subscriber: {
           name: {
             given_name: 'Utilisateur',
