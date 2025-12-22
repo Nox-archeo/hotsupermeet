@@ -50,6 +50,9 @@ class CamToCamSystem {
       // Détecter le pays de l'utilisateur en arrière-plan
       this.detectUserCountry();
 
+      // 🔒 Vérifier le premium et forcer "tous" si non-premium
+      await this.checkPremiumAndSetGenderFilter();
+
       // Demander permissions caméra et afficher immédiatement
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
@@ -71,6 +74,43 @@ class CamToCamSystem {
       // Si pas de permissions, afficher demande d'autorisation
       // document.getElementById('permissionRequest').classList.remove('hidden'); // REMOVED - direct to search
       document.getElementById('searchSection').classList.remove('hidden');
+    }
+  }
+
+  async checkPremiumAndSetGenderFilter() {
+    try {
+      const response = await fetch('/api/payments/status', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const isPremium = data.subscription?.isPremium || false;
+
+        if (!isPremium) {
+          // Forcer le filtre sur "tous" pour les non-premium
+          const genderSelect = document.getElementById('chatGender');
+          if (genderSelect) {
+            genderSelect.value = 'all';
+            // Désactiver visuellement les autres options
+            Array.from(genderSelect.options).forEach(option => {
+              if (option.value !== 'all') {
+                option.textContent = option.textContent + ' 🔒';
+              }
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Erreur vérification premium initial:', error);
+      // En cas d'erreur, forcer "tous" par sécurité
+      const genderSelect = document.getElementById('chatGender');
+      if (genderSelect) {
+        genderSelect.value = 'all';
+      }
     }
   }
 
@@ -282,9 +322,10 @@ class CamToCamSystem {
     });
 
     // 🔄 REDÉMARRAGE AUTOMATIQUE DÉSACTIVÉ (causait des bugs d'état UI)
-    // document.getElementById('chatGender').addEventListener('change', e => {
-    //   this.handleGenderChange(e.target.value);
-    // });
+    // 🔒 GESTION PREMIUM pour filtres genre
+    document.getElementById('chatGender').addEventListener('change', e => {
+      this.handleGenderFilterChange(e.target.value);
+    });
 
     // Gestion des événements tactiles pour les sélecteurs
     const selectElements = document.querySelectorAll('select');
@@ -342,6 +383,126 @@ class CamToCamSystem {
   //     this.addMessage('system', '🔄 Veuillez arrêter la recherche pour changer de critères');
   //   }
   // }
+
+  // 🔒 GESTION FILTRE GENRE AVEC PREMIUM
+  async handleGenderFilterChange(newGender) {
+    console.log('🔄 Changement filtre genre détecté:', newGender);
+
+    // Si sélection "tous", toujours autoriser
+    if (newGender === 'all') {
+      console.log('✅ Filtre "tous" - autorisé pour tous');
+      return;
+    }
+
+    // Vérifier le statut premium
+    try {
+      const response = await fetch('/api/payments/status', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const isPremium = data.subscription?.isPremium || false;
+
+        if (!isPremium) {
+          // Non-premium essaie de filtrer par genre - BLOQUER
+          console.log('🚫 Non-premium essaie de filtrer par genre:', newGender);
+
+          // Remettre sur "tous"
+          document.getElementById('chatGender').value = 'all';
+
+          // Afficher popup premium
+          this.showPremiumRequiredPopup();
+          return;
+        }
+
+        console.log('✅ Premium confirmé - filtre autorisé:', newGender);
+      } else {
+        console.error('🚫 Erreur vérification premium');
+        // En cas d'erreur, bloquer par sécurité
+        document.getElementById('chatGender').value = 'all';
+        this.showPremiumRequiredPopup();
+      }
+    } catch (error) {
+      console.error('🚫 Erreur vérification premium:', error);
+      // En cas d'erreur, bloquer par sécurité
+      document.getElementById('chatGender').value = 'all';
+      this.showPremiumRequiredPopup();
+    }
+  }
+
+  showPremiumRequiredPopup() {
+    // Créer et afficher popup premium
+    const popup = document.createElement('div');
+    popup.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      color: white;
+      font-family: Arial, sans-serif;
+    `;
+
+    popup.innerHTML = `
+      <div style="
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem;
+        border-radius: 15px;
+        text-align: center;
+        max-width: 400px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      ">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+        <h2 style="margin: 0 0 1rem 0; color: white;">Filtre Genre Premium</h2>
+        <p style="margin: 0 0 2rem 0; color: rgba(255,255,255,0.9); line-height: 1.5;">
+          Pour filtrer par genre spécifique (homme, femme, autre), 
+          vous devez avoir un abonnement premium.
+        </p>
+        <div>
+          <button onclick="window.location.href='/pages/premium.html'" style="
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+          ">S'abonner Premium</button>
+          <button onclick="this.parentElement.parentElement.parentElement.remove()" style="
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+          ">Continuer avec "Tous"</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(popup);
+
+    // Auto-suppression après 10 secondes
+    setTimeout(() => {
+      if (popup.parentNode) {
+        popup.remove();
+      }
+    }, 10000);
+  }
 
   getLanguageName(language) {
     const languages = {

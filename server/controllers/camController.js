@@ -65,8 +65,29 @@ class CamController {
       const { gender, country, ageMin, ageMax } = req.query;
       const userId = req.user.id;
 
+      // 🔒 VÉRIFICATION PREMIUM POUR FILTRES GENRE
+      const requestedGender = gender || 'all';
+      const isPremium = req.isPremium || false;
+
+      // Si non-premium et essaie de filtrer par genre spécifique, bloquer
+      if (
+        !isPremium &&
+        requestedGender !== 'all' &&
+        requestedGender !== 'tous'
+      ) {
+        return res.status(403).json({
+          success: false,
+          error: {
+            code: 'PREMIUM_REQUIRED_FOR_GENDER_FILTER',
+            message:
+              'Abonnement premium requis pour filtrer par genre spécifique',
+            isPremiumRequired: true,
+          },
+        });
+      }
+
       const criteria = {
-        gender: gender || 'tous',
+        gender: requestedGender === 'tous' ? 'all' : requestedGender,
         country: country || 'tous',
         ageMin: parseInt(ageMin) || 18,
         ageMax: parseInt(ageMax) || 100,
