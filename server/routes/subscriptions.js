@@ -1,7 +1,7 @@
 const express = require('express');
 const {
   getSubscriptionInfo,
-  activateFemaleFreeSubscription,
+  // activateFemaleFreeSubscription supprimé - plus d'accès gratuit femmes
   checkPremiumAccess,
   getSubscriptionStats,
   requirePremium,
@@ -12,12 +12,8 @@ const router = express.Router();
 
 // Routes protégées
 router.get('/info', auth, updateLastActivity, getSubscriptionInfo);
-router.post(
-  '/activate-free',
-  auth,
-  updateLastActivity,
-  activateFemaleFreeSubscription
-);
+// ROUTE SUPPRIMÉE - Plus d'accès gratuit pour les femmes
+// router.post('/activate-free', auth, updateLastActivity, activateFemaleFreeSubscription);
 router.get(
   '/check-access/:feature',
   auth,

@@ -8,7 +8,7 @@ const {
   getDirectoryStats,
   deleteAccount,
   deleteTestUsers, // Nouveau: fonction temporaire admin
-  activateFemaleFree, // Nouveau: activation gratuite femmes
+  // activateFemaleFree supprimé - plus d'accès gratuit femmes
 } = require('../controllers/userController');
 const { auth, updateLastActivity } = require('../middleware/auth');
 const { premiumOnly, premiumLimited } = require('../middleware/premium');

@@ -10,12 +10,13 @@ const createAd = async (req, res) => {
     console.log('🔥 USER:', req.user);
 
     // Vérifier le statut premium (middleware premium.js a déjà vérifié)
-    if (!req.isPremium && !req.isFemaleFree) {
+    if (!req.isPremium) {
       return res.status(403).json({
         success: false,
         error: {
           code: 'PREMIUM_REQUIRED',
-          message: 'Un abonnement premium est requis pour créer des annonces',
+          message:
+            'Un abonnement premium payant est requis pour créer des annonces',
           isPremiumRequired: true,
         },
       });
