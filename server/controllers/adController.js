@@ -240,11 +240,6 @@ const getAds = async (req, res) => {
         total,
         pages: Math.ceil(total / actualLimit),
       },
-      premium: {
-        hasFullAccess,
-        limitApplied: !hasFullAccess ? actualLimit : null,
-        upgradeRequired: !hasFullAccess && total > actualLimit,
-      },
     });
   } catch (error) {
     console.error('Erreur récupération annonces:', error);
@@ -281,7 +276,7 @@ const getAdById = async (req, res) => {
 
     res.json({
       success: true,
-      ad,
+      data: ad, // ✅ Utiliser 'data' pour cohérence avec les autres routes
     });
   } catch (error) {
     console.error('Erreur récupération annonce:', error);
