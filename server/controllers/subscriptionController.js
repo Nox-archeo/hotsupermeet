@@ -19,7 +19,6 @@ const getSubscriptionInfo = async (req, res) => {
     const subscriptionInfo = {
       isPremium: user.premium.isPremium,
       expiration: user.premium.expiration,
-      isFemaleFree: user.premium.isFemaleFree,
       features: {
         unlimitedMessaging: user.premium.isPremium,
         adsAccess: user.premium.isPremium,
@@ -50,62 +49,7 @@ const getSubscriptionInfo = async (req, res) => {
   }
 };
 
-// Activer l'abonnement gratuit pour les femmes
-const activateFemaleFreeSubscription = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id);
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: {
-          code: 'USER_NOT_FOUND',
-          message: 'Utilisateur non trouvé',
-        },
-      });
-    }
-
-    // Vérifier l'éligibilité
-    if (user.profile.sexe !== 'femme') {
-      return res.status(403).json({
-        success: false,
-        error: {
-          code: 'NOT_ELIGIBLE',
-          message: 'Cette fonctionnalité est réservée aux femmes',
-        },
-      });
-    }
-
-    // Activer l'abonnement gratuit
-    user.premium.isPremium = true;
-    user.premium.isFemaleFree = true;
-    user.premium.expiration = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 an
-
-    await user.save();
-
-    res.json({
-      success: true,
-      message: 'Abonnement gratuit activé avec succès',
-      subscription: {
-        isPremium: true,
-        expiration: user.premium.expiration,
-        isFemaleFree: true,
-      },
-    });
-  } catch (error) {
-    console.error(
-      'Erreur lors de l\\' + 'activation de l\\' + 'abonnement gratuit:',
-      error
-    );
-    res.status(500).json({
-      success: false,
-      error: {
-        code: 'SUBSCRIPTION_ERROR',
-        message: 'Erreur lors de l\\' + 'activation de l\\' + 'abonnement',
-      },
-    });
-  }
-};
+// FONCTION SUPPRIMÉE - Plus d'accès gratuit pour les femmes
 
 // Vérifier si un utilisateur a accès à une fonctionnalité premium
 const checkPremiumAccess = async (req, res) => {
@@ -257,7 +201,7 @@ const requirePremium = feature => {
 
 module.exports = {
   getSubscriptionInfo,
-  activateFemaleFreeSubscription,
+  // activateFemaleFreeSubscription supprimé - plus d'accès gratuit femmes
   checkPremiumAccess,
   getSubscriptionStats,
   requirePremium,

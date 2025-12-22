@@ -1,9 +1,4 @@
-const User = require('../models/User');
 
-// Middleware pour vérifier le statut premium - STRICTEMENT PREMIUM
-const premiumOnly = async (req, res, next) => {
-  try {
-    if (!req.user) {
       return res.status(401).json({
         error: 'invalid_token',
         message: 'Authentification requise pour accéder à cette fonctionnalité',
@@ -22,25 +17,22 @@ const premiumOnly = async (req, res, next) => {
       });
     }
 
-    // Vérifier si l'utilisateur est premium ou femme gratuite
+    // Vérifier si l'utilisateur est premium (PAYANT SEULEMENT)
     const isPremiumActive =
       user.premium.isPremium && user.premium.expiration > new Date();
-    const isFemaleFree =
-      user.premium.isFemaleFree && user.profile.sexe === 'femme';
 
-    // ⛔ ACCÈS STRICTEMENT PREMIUM - REDIRECTION OBLIGATOIRE
-    if (!isPremiumActive && !isFemaleFree) {
+    // ⛔ ACCÈS STRICTEMENT PREMIUM PAYANT - REDIRECTION OBLIGATOIRE
+    if (!isPremiumActive) {
       return res.status(403).json({
         error: 'premium_required',
         message:
-          'Abonnement premium requis pour accéder à cette fonctionnalité',
+          'Abonnement premium payant requis pour accéder à cette fonctionnalité',
         redirectTo: '/pages/premium.html',
       });
     }
 
     // Ajouter le statut premium à req pour utilisation dans les controllers
     req.isPremium = isPremiumActive;
-    req.isFemaleFree = isFemaleFree;
 
     next();
   } catch (error) {
@@ -80,16 +72,13 @@ const premiumLimited = (basicLimit = 10) => {
         });
       }
 
-      // Vérifier le statut premium
+      // Vérifier le statut premium (PAYANT SEULEMENT)
       const isPremiumActive =
         user.premium.isPremium && user.premium.expiration > new Date();
-      const isFemaleFree =
-        user.premium.isFemaleFree && user.profile.sexe === 'femme';
-      const hasFullAccess = isPremiumActive || isFemaleFree;
+      const hasFullAccess = isPremiumActive;
 
       // Ajouter les infos à req
       req.isPremium = isPremiumActive;
-      req.isFemaleFree = isFemaleFree;
       req.hasFullAccess = hasFullAccess;
       req.basicLimit = basicLimit;
 
@@ -140,33 +129,35 @@ const femaleOnly = async (req, res, next) => {
       success: false,
       error: {
         code: 'GENDER_CHECK_ERROR',
-        message: 'Erreur lors de la vérification du genre',
+        message: 'Erreur const User = require('../models/User');
+
+// Middleware pour vérifier le statut premium - STRICTEMENT PREMIUM
+const premiumOnly = async (req, res, next) => {
+  try {
+    if (!req.user) {lors de la vérification du genre',
       },
     });
   }
 };
 
-// Utilitaire pour vérifier le statut premium d'un utilisateur
+// Utilitaire pour vérifier le statut premium d'un utilisateur (PAYANT SEULEMENT)
 const checkPremiumStatus = async userId => {
   try {
     const user = await User.findById(userId).select('premium profile');
-    if (!user) return { isPremium: false, isFemaleFree: false };
+    if (!user) return { isPremium: false };
 
     const isPremiumActive =
       user.premium.isPremium && user.premium.expiration > new Date();
-    const isFemaleFree =
-      user.premium.isFemaleFree && user.profile.sexe === 'femme';
 
     return {
       isPremium: isPremiumActive,
-      isFemaleFree,
-      hasFullAccess: isPremiumActive || isFemaleFree,
+      hasFullAccess: isPremiumActive,
       expiration: user.premium.expiration,
       subscriptionId: user.premium.paypalSubscriptionId,
     };
   } catch (error) {
     console.error('Erreur vérification statut premium:', error);
-    return { isPremium: false, isFemaleFree: false };
+    return { isPremium: false };
   }
 };
 

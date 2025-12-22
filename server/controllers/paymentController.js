@@ -241,7 +241,6 @@ const getSubscriptionStatus = async (req, res) => {
         paypalSubscriptionId: user.premium.paypalSubscriptionId,
         paypalStatus: subscriptionDetails?.status,
         nextBillingDate: subscriptionDetails?.billing_info?.next_billing_time,
-        isFemaleFree: user.premium.isFemaleFree,
       },
     });
   } catch (error) {

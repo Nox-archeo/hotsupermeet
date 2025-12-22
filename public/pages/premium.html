@@ -240,9 +240,10 @@
           En tant que femme sur HotMeet, vous bénéficiez automatiquement de
           toutes les fonctionnalités premium gratuitement.
         </p>
-        <button id="activateFemaleFree" class="subscribe-btn">
-          Activer mon accès gratuit
-        </button>
+        <!-- BOUTON SUPPRIMÉ - Plus d'accès gratuit pour les femmes -->
+        <p style="text-align: center; color: #666; margin-top: 20px">
+          L'accès premium est maintenant payant pour tous les utilisateurs.
+        </p>
       </div>
     </div>
 
@@ -359,9 +360,7 @@
 
         if (isFemale && !subscriptionStatus?.isPremium) {
           femaleInfo.style.display = 'block';
-
-          const activateBtn = document.getElementById('activateFemaleFree');
-          activateBtn.addEventListener('click', activateFemaleFree);
+          // Plus d'activation gratuite - redirection vers abonnement payant
         }
 
         // Contenu de la carte
@@ -389,11 +388,7 @@
                         ? `<p><strong>Prochaine facturation:</strong> ${new Date(subscriptionStatus.nextBillingDate).toLocaleDateString('fr-FR')}</p>`
                         : ''
                     }
-                    ${
-                      subscriptionStatus.isFemaleFree
-                        ? '<p><strong>Type:</strong> Accès gratuit femme 💝</p>'
-                        : '<button class="cancel-btn" onclick="cancelSubscription()">Annuler l\'abonnement</button>'
-                    }
+                    <button class="cancel-btn" onclick="cancelSubscription()">Annuler l'abonnement</button>
                 </div>
                 <ul class="features-list">
                     <li>Accès illimité aux profils</li>
