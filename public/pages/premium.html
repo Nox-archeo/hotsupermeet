@@ -490,7 +490,7 @@
           });
 
           const script = document.createElement('script');
-          script.src = `https://www.paypal.com/sdk/js?client-id=${config.clientId}&intent=subscription&locale=fr_FR&currency=EUR&vault=true&commit=true`;
+          script.src = `https://www.paypal.com/sdk/js?client-id=${config.clientId}&intent=capture&locale=fr_FR&currency=EUR&vault=false&commit=true`;
           script.onload = () => {
             console.log('✅ PayPal SDK chargé avec succès');
             initializePayPal(config);
