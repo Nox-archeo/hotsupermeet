@@ -548,6 +548,15 @@
               return actions.subscription.create({
                 plan_id: config.planMonthlyId,
                 custom_id: currentUser.id,
+                application_context: {
+                  user_action: 'SUBSCRIBE_NOW',
+                  payment_method: {
+                    payer_selected: 'PAYPAL',
+                    payee_preferred: 'IMMEDIATE_PAYMENT_REQUIRED',
+                  },
+                  return_url: `${window.location.origin}/pages/premium.html?success=true&subscriptionId={subscription_id}`,
+                  cancel_url: `${window.location.origin}/pages/premium.html?success=false`,
+                },
               });
             },
             onApprove: async function (data, actions) {
