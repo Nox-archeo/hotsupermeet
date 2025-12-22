@@ -4,23 +4,25 @@ const adController = require('../controllers/adController');
 const { auth } = require('../middleware/auth'); // ← IMPORT CORRECT !
 const { premiumOnly, premiumLimited } = require('../middleware/premium');
 
-// Routes avec auth normale (gestion premium dans controllers)
+// Routes STRICTEMENT PREMIUM - Toutes les annonces nécessitent premium
 // Route pour récupérer toutes les annonces avec filtres
-router.get('/', adController.getAds); // Public avec gestion premium dans controller
+router.get('/', auth, premiumOnly, adController.getAds); // PREMIUM OBLIGATOIRE
 
 // Route pour récupérer une annonce par ID
-router.get('/:id', adController.getAdById); // Public avec gestion premium dans controller
+router.get('/:id', auth, premiumOnly, adController.getAdById); // PREMIUM OBLIGATOIRE
 
 // Route protégée - Créer une nouvelle annonce (premium requis)
 router.post('/', auth, premiumOnly, adController.createAd); // Création = premium obligatoire
 
 // ✅ ROUTES MANQUANTES RESTAURÉES - Gestion des annonces utilisateur
-router.get('/user/my-ads', auth, adController.getUserAds); // Mes annonces
-router.put('/:id', auth, adController.updateAd); // Modifier annonce
-router.delete('/:id', auth, adController.deleteAd); // Supprimer annonce
-router.post('/:id/respond', auth, adController.respondToAd); // Répondre à annonce
-router.get('/:id/responses', auth, adController.getAdResponses); // Voir réponses
+router.get('/user/my-ads', auth, premiumOnly, adController.getUserAds); // PREMIUM OBLIGATOIRE
+router.put('/:id', auth, premiumOnly, adController.updateAd); // PREMIUM OBLIGATOIRE
+router.delete('/:id', auth, premiumOnly, adController.deleteAd); // PREMIUM OBLIGATOIRE
+router.post('/:id/respond', auth, premiumOnly, adController.respondToAd); // PREMIUM OBLIGATOIRE
+router.get('/:id/responses', auth, premiumOnly, adController.getAdResponses); // PREMIUM OBLIGATOIRE
 
-console.log('✅ Routes complètes configurées avec controller');
+console.log(
+  '✅ Routes PREMIUM STRICTES configurées - toutes les annonces nécessitent premium'
+);
 
 module.exports = router;
