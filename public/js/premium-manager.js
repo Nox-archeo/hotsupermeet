@@ -39,15 +39,10 @@ class PremiumManager {
 
   // Vérifier si l'utilisateur a accès premium
   isPremium() {
-    return (
-      this.userPremiumStatus?.isPremium || this.userPremiumStatus?.isFemaleFree
-    );
+    return this.userPremiumStatus?.isPremium;
   }
 
-  // Vérifier si l'utilisateur est une femme avec accès gratuit
-  isFemaleFree() {
-    return this.userPremiumStatus?.isFemaleFree;
-  }
+  // isFemaleFree supprimé - plus d'accès gratuit femmes
 
   // Obtenir le statut d'expiration
   getExpirationStatus() {
@@ -351,11 +346,10 @@ class PremiumManager {
 
     if (this.isPremium()) {
       const expiration = this.getExpirationStatus();
-      const isFemaleFree = this.isFemaleFree();
 
       statusElement.innerHTML = `
         <span class="premium-active">
-          👑 Premium ${isFemaleFree ? '(Gratuit)' : ''}
+          👑 Premium
           ${expiration?.daysLeft > 0 ? `(${expiration.daysLeft}j)` : ''}
         </span>
       `;
@@ -373,7 +367,7 @@ class PremiumManager {
   showExpirationWarning() {
     const expiration = this.getExpirationStatus();
 
-    if (expiration?.isExpiringSoon && !this.isFemaleFree()) {
+    if (expiration?.isExpiringSoon) {
       const notification = document.createElement('div');
       notification.className = 'expiration-warning';
       notification.innerHTML = `

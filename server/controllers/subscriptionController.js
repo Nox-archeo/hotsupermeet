@@ -94,7 +94,7 @@ const checkPremiumAccess = async (req, res) => {
       hasAccess,
       feature,
       isPremium: user.premium.isPremium,
-      isFemaleFree: user.premium.isFemaleFree,
+      // isFemaleFree supprimé - plus d'accès gratuit
     });
   } catch (error) {
     console.error(
@@ -118,10 +118,8 @@ const getSubscriptionStats = async (req, res) => {
     const premiumUsers = await User.countDocuments({
       'premium.isPremium': true,
     });
-    const femaleFreeUsers = await User.countDocuments({
-      'premium.isFemaleFree': true,
-    });
-    const paidPremiumUsers = premiumUsers - femaleFreeUsers;
+    // femaleFreeUsers supprimé - plus d'accès gratuit
+    const paidPremiumUsers = premiumUsers; // Maintenant tous premium sont payants
 
     // Répartition par sexe des utilisateurs premium
     const premiumBySex = await User.aggregate([
