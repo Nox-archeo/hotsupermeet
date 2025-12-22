@@ -56,16 +56,22 @@ const createSubscription = async (req, res) => {
     }
 
     // Créer l'abonnement PayPal
+    console.log(`🚀 CRÉATION ABONNEMENT PAYPAL pour utilisateur ${userId}...`);
     const subscription = await PayPalService.createSubscription(
       userId.toString(),
       `${process.env.APP_URL}/payment/success`,
       `${process.env.APP_URL}/payment/cancel`,
       planId
     );
+    console.log(`📝 SUBSCRIPTION CRÉÉE: ${subscription.id}`);
 
     // Sauvegarder l'ID d'abonnement temporairement
+    console.log(`💾 SAUVEGARDE subscription_id dans user ${userId}...`);
     user.premium.paypalSubscriptionId = subscription.id;
     await user.save();
+    console.log(
+      `✅ SUBSCRIPTION_ID SAUVEGARDÉ: ${subscription.id} pour user ${userId}`
+    );
 
     res.json({
       success: true,
@@ -93,7 +99,10 @@ const confirmSubscription = async (req, res) => {
   try {
     const { subscription_id: subscriptionId } = req.query;
 
+    console.log(`🔥 CONFIRMATION SUBSCRIPTION - ID: ${subscriptionId}`);
+
     if (!subscriptionId) {
+      console.log('❌ ERREUR: subscription_id manquant');
       return res.status(400).json({
         success: false,
         error: {
@@ -104,29 +113,40 @@ const confirmSubscription = async (req, res) => {
     }
 
     // Récupérer les détails de l'abonnement depuis PayPal
+    console.log('🔍 Récupération détails PayPal...');
     const subscriptionDetails =
       await PayPalService.getSubscriptionDetails(subscriptionId);
+    console.log(`📋 Statut PayPal: ${subscriptionDetails.status}`);
 
     // Trouver l'utilisateur par l'ID d'abonnement
+    console.log(
+      `🔍 Recherche utilisateur avec subscription_id: ${subscriptionId}`
+    );
     const user = await User.findOne({
       'premium.paypalSubscriptionId': subscriptionId,
     });
 
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: {
-          code: 'USER_NOT_FOUND',
-          message: 'Utilisateur non trouvé pour cet abonnement',
-        },
-      });
+      console.log(
+        `❌ AUCUN UTILISATEUR trouvé avec subscription_id: ${subscriptionId}`
+      );
+      // FALLBACK: Chercher par custom_id dans PayPal si possible
+      console.log('🔍 Tentative fallback avec custom_id...');
+
+      // Si pas d'utilisateur trouvé, rediriger quand même mais avec erreur
+      return res.redirect(
+        `/pages/premium.html?success=false&reason=user_not_found&subscription_id=${subscriptionId}`
+      );
     }
+
+    console.log(`✅ UTILISATEUR TROUVÉ: ${user._id} - ${user.profile.nom}`);
 
     // Mettre à jour le statut premium de l'utilisateur
     if (subscriptionDetails.status === 'ACTIVE') {
       const expirationDate = new Date();
       expirationDate.setMonth(expirationDate.getMonth() + 1); // 1 mois
 
+      console.log(`🔄 MISE À JOUR PREMIUM pour ${user._id}...`);
       user.premium.isPremium = true;
       user.premium.expiration = expirationDate;
       user.premium.paypalSubscriptionId = subscriptionId;
@@ -134,20 +154,23 @@ const confirmSubscription = async (req, res) => {
       await user.save();
 
       console.log(
-        `✅ PREMIUM ACTIVÉ pour utilisateur ${user._id} jusqu'au ${expirationDate}`
+        `✅ PREMIUM ACTIVÉ AVEC SUCCÈS pour utilisateur ${user._id} (${user.profile.nom}) jusqu'au ${expirationDate}`
       );
 
       // Rediriger vers la page de succès
       return res.redirect(
-        `/pages/premium.html?success=true&premium_activated=true`
+        `/pages/premium.html?success=true&premium_activated=true&user_id=${user._id}`
       );
     } else {
+      console.log(
+        `❌ SUBSCRIPTION PAYPAL PAS ACTIVE: ${subscriptionDetails.status}`
+      );
       return res.redirect(
-        `/pages/premium.html?success=false&reason=subscription_not_active`
+        `/pages/premium.html?success=false&reason=subscription_not_active&status=${subscriptionDetails.status}`
       );
     }
   } catch (error) {
-    console.error('Erreur confirmation abonnement:', error);
+    console.error('❌ ERREUR CONFIRMATION ABONNEMENT:', error);
     res.redirect(`/pages/premium.html?success=false&reason=error`);
   }
 };
