@@ -484,12 +484,17 @@
           const data = await response.json();
           console.log('📋 Réponse serveur:', data);
 
-          if (response.ok && data.success && data.approvalUrl) {
+          if (
+            response.ok &&
+            data.success &&
+            data.subscription &&
+            data.subscription.approvalUrl
+          ) {
             showNotification('Redirection vers PayPal...', 'info');
 
             // 🚀 REDIRECTION VERS PAYPAL - PAS DE POPUP !
-            console.log('🔄 Redirection vers:', data.approvalUrl);
-            window.location.href = data.approvalUrl;
+            console.log('🔄 Redirection vers:', data.subscription.approvalUrl);
+            window.location.href = data.subscription.approvalUrl;
           } else {
             throw new Error(
               data.error?.message || 'Erreur création abonnement'
