@@ -133,18 +133,22 @@ const confirmSubscription = async (req, res) => {
 
       await user.save();
 
+      console.log(
+        `✅ PREMIUM ACTIVÉ pour utilisateur ${user._id} jusqu'au ${expirationDate}`
+      );
+
       // Rediriger vers la page de succès
-      return res.redirect(`${process.env.CLIENT_URL}/premium?success=true`);
+      return res.redirect(
+        `/pages/premium.html?success=true&premium_activated=true`
+      );
     } else {
       return res.redirect(
-        `${process.env.CLIENT_URL}/premium?success=false&reason=subscription_not_active`
+        `/pages/premium.html?success=false&reason=subscription_not_active`
       );
     }
   } catch (error) {
     console.error('Erreur confirmation abonnement:', error);
-    res.redirect(
-      `${process.env.CLIENT_URL}/premium?success=false&reason=error`
-    );
+    res.redirect(`/pages/premium.html?success=false&reason=error`);
   }
 };
 

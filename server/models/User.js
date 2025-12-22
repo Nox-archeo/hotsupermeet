@@ -59,7 +59,7 @@ const userSchema = new mongoose.Schema(
       isPremium: { type: Boolean, default: false },
       expiration: { type: Date },
       paypalSubscriptionId: { type: String },
-      isFemaleFree: { type: Boolean, default: false },
+      // isFemaleFree supprimé - système 100% payant
     },
     preferences: {
       ageMin: { type: Number, min: 18, max: 100, default: 18 },
