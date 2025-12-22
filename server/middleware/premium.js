@@ -1,4 +1,9 @@
+const User = require('../models/User');
 
+// Middleware pour vérifier le statut premium - STRICTEMENT PREMIUM
+const premiumOnly = async (req, res, next) => {
+  try {
+    if (!req.user) {
       return res.status(401).json({
         error: 'invalid_token',
         message: 'Authentification requise pour accéder à cette fonctionnalité',
@@ -129,12 +134,7 @@ const femaleOnly = async (req, res, next) => {
       success: false,
       error: {
         code: 'GENDER_CHECK_ERROR',
-        message: 'Erreur const User = require('../models/User');
-
-// Middleware pour vérifier le statut premium - STRICTEMENT PREMIUM
-const premiumOnly = async (req, res, next) => {
-  try {
-    if (!req.user) {lors de la vérification du genre',
+        message: 'Erreur lors de la vérification du genre',
       },
     });
   }
