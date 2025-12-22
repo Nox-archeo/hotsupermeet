@@ -41,11 +41,19 @@ const createSubscription = async (req, res) => {
       });
     }
 
+    // Déterminer le plan ID selon le type
+    const planType = req.body.planType || 'monthly';
+    const planId =
+      planType === 'annual'
+        ? process.env.PAYPAL_PLAN_YEARLY_ID
+        : process.env.PAYPAL_PLAN_MONTHLY_ID;
+
     // Créer l'abonnement PayPal
     const subscription = await PayPalService.createSubscription(
       userId.toString(),
       `${process.env.APP_URL}/payment/success`,
-      `${process.env.APP_URL}/payment/cancel`
+      `${process.env.APP_URL}/payment/cancel`,
+      planId
     );
 
     // Sauvegarder l'ID d'abonnement temporairement
