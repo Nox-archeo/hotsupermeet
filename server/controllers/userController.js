@@ -17,30 +17,7 @@ const getUsers = async (req, res) => {
       sortBy = 'lastActive',
     } = req.query;
 
-    // Vérifier si utilisateur premium (pour affichage conditionnel)
-    let isPremium = false;
-    if (req.user) {
-      try {
-        const { checkPremiumStatus } = require('../middleware/premium');
-        const premiumStatus = await checkPremiumStatus(req.user._id);
-        isPremium = premiumStatus.hasFullAccess;
-      } catch (error) {
-        console.log('Erreur vérification premium:', error);
-      }
-    }
-
-    // Si pas premium, renvoyer message de blocage avec bouton PayPal
-    if (!isPremium) {
-      return res.json({
-        success: false,
-        premiumRequired: true,
-        message: "Abonnement premium requis pour accéder à l'annuaire",
-        users: [],
-        pagination: { total: 0, page: 1, limit: 20, pages: 0 },
-      });
-    }
-
-    // Premium validé - accès complet
+    // PREMIUM VALIDÉ par middleware - accès complet garanti
     const actualLimit = Math.min(parseInt(limit), 100);
 
     // Construire la requête de filtrage
