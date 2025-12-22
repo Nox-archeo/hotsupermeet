@@ -171,13 +171,7 @@
         margin: 0 auto;
       }
 
-      /* ⭐ MASQUER SEULEMENT LE POPUP DE FALLBACK NOIR */
-      div[style*='position: fixed'][style*='background-color: rgba(0, 0, 0'],
-      div[style*='position: fixed'][style*='background: rgba(0, 0, 0'],
-      iframe[title*='PayPal'][style*='position: fixed'][style*='background'] {
-        display: none !important;
-        visibility: hidden !important;
-      }
+      /* PayPal laissé intact - pas de CSS masquant */
 
       .female-premium-info {
         background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
@@ -462,23 +456,9 @@
         }
       }
 
-      // 🚀 SYSTÈME PAYPAL AVEC INTERCEPTION POPUP
+      // 🚀 PAYPAL OFFICIEL SIMPLE - SANS HACK
       async function loadPayPalSDK() {
         try {
-          // 🎯 INTERCEPTER window.open pour rediriger vers PayPal inline
-          const originalWindowOpen = window.open;
-          window.open = function (url, name, specs) {
-            console.log('🔄 Interception popup PayPal:', url);
-            // Si c'est PayPal, rediriger directement
-            if (url && url.includes('paypal.com')) {
-              console.log('🎯 Redirection PayPal vers:', url);
-              window.location.href = url;
-              return null;
-            }
-            // Sinon, comportement normal
-            return originalWindowOpen.call(this, url, name, specs);
-          };
-
           console.log('🔄 Chargement configuration PayPal...');
           const configResponse = await fetch('/api/payments/config');
           const config = await configResponse.json();
@@ -539,18 +519,11 @@
 
         paypal
           .Buttons({
-            // 🎯 FORCER MODE INLINE - PAS DE POPUP DU TOUT !
-            env: config.environment === 'sandbox' ? 'sandbox' : 'production',
             style: {
               shape: 'rect',
               color: 'gold',
               layout: 'vertical',
               label: 'subscribe',
-            },
-            // ⭐ CONFIGURATION POUR ÉVITER TOUS LES POPUPS
-            onInit: function (data, actions) {
-              // Désactiver tous les popups dès l'initialisation
-              console.log('🚫 Désactivation des popups PayPal');
             },
             createSubscription: function (data, actions) {
               console.log('🚀 createSubscription appelé avec:', {
@@ -573,14 +546,8 @@
               console.log('📋 Plan ID utilisé:', config.planMonthlyId);
 
               return actions.subscription.create({
-                plan_id: config.planMonthlyId, // 🎯 Plan mensuel correct
-                custom_id: currentUser.id, // ID utilisateur pour tracking
-                application_context: {
-                  return_url: config.returnUrl,
-                  cancel_url: config.cancelUrl,
-                  brand_name: 'HotSuperMeet',
-                  shipping_preference: 'NO_SHIPPING',
-                },
+                plan_id: config.planMonthlyId,
+                custom_id: currentUser.id,
               });
             },
             onApprove: async function (data, actions) {
