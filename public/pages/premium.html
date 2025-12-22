@@ -525,8 +525,8 @@
               layout: 'vertical',
               label: 'subscribe',
             },
-            createSubscription: function (data, actions) {
-              console.log('🚀 createSubscription appelé avec:', {
+            createOrder: function (data, actions) {
+              console.log('🚀 createOrder appelé avec:', {
                 data,
                 currentUser,
               });
@@ -540,85 +540,38 @@
               }
 
               console.log(
-                '✅ Création subscription PayPal pour utilisateur:',
+                '✅ Création order PayPal pour utilisateur:',
                 currentUser.id
               );
-              console.log('📋 Plan ID utilisé:', config.planMonthlyId);
 
-              return actions.subscription.create({
-                plan_id: config.planMonthlyId,
-                custom_id: currentUser.id,
-                application_context: {
-                  user_action: 'SUBSCRIBE_NOW',
-                  payment_method: {
-                    payer_selected: 'PAYPAL',
-                    payee_preferred: 'IMMEDIATE_PAYMENT_REQUIRED',
+              return actions.order.create({
+                purchase_units: [
+                  {
+                    amount: {
+                      value: window.pricingInfo?.monthlyPrice || '5.75',
+                      currency_code: window.pricingInfo?.currency || 'EUR',
+                    },
+                    custom_id: currentUser.id,
                   },
-                  return_url: `${window.location.origin}/pages/premium.html?success=true&subscriptionId={subscription_id}`,
+                ],
+                application_context: {
+                  brand_name: 'HotSuperMeet',
+                  landing_page: 'LOGIN',
+                  user_action: 'PAY_NOW',
+                  return_url: `${window.location.origin}/pages/premium.html?success=true`,
                   cancel_url: `${window.location.origin}/pages/premium.html?success=false`,
                 },
               });
             },
-            onApprove: async function (data, actions) {
-              try {
-                console.log('🎉 PayPal onApprove déclenché:', data);
-
-                showNotification(
-                  'Paiement approuvé! Activation en cours...',
-                  'success'
-                );
-
-                console.log('🚀 Appel API activation premium avec:', {
-                  subscriptionId: data.subscriptionID,
-                  planId: config.planMonthlyId,
-                });
-
-                // 🚀 APPELER API POUR ACTIVER PREMIUM
-                const response = await fetch('/api/payments/activate-premium', {
-                  method: 'POST',
-                  headers: {
-                    Authorization: `Bearer ${localStorage.getItem('hotmeet_token')}`,
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({
-                    subscriptionId: data.subscriptionID,
-                    planId: config.planMonthlyId,
-                  }),
-                });
-
-                console.log('📋 Réponse API activation:', response.status);
-
-                if (response.ok) {
-                  const result = await response.json();
-                  console.log('✅ Premium activé:', result);
-                  showNotification(
-                    '🎉 Premium activé! Redirection...',
-                    'success'
-                  );
-
-                  // Redirection vers page de remerciement
-                  setTimeout(() => {
-                    window.location.href = config.returnUrl;
-                  }, 2000);
-                } else {
-                  const errorData = await response.json();
-                  console.error('❌ Erreur API activation:', errorData);
-                  throw new Error('Erreur activation premium');
-                }
-              } catch (error) {
-                console.error('Erreur activation premium:', error);
-                showNotification(
-                  "Paiement réussi mais erreur d'activation. Contactez le support.",
-                  'warning'
-                );
-              }
+            onApprove: function (data, actions) {
+              console.log('🎉 PayPal onApprove (redirect):', data);
+              // Redirect immédiat vers page succès avec orderID
+              window.location.href = `${window.location.origin}/pages/premium.html?success=true&orderId=${data.orderID}`;
             },
             onCancel: function (data) {
-              console.log('❌ PayPal onCancel:', data);
-              showNotification('Paiement annulé', 'warning');
-              setTimeout(() => {
-                window.location.href = config.cancelUrl;
-              }, 1000);
+              console.log('❌ PayPal onCancel (redirect):', data);
+              // Redirect vers page annulation
+              window.location.href = `${window.location.origin}/pages/premium.html?success=false`;
             },
             onError: function (err) {
               console.error('❌ PayPal onError:', err);
