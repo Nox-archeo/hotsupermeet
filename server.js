@@ -661,9 +661,48 @@ app.use('/api/subscriptions', require('./server/routes/subscriptions'));
 app.use('/api/cam', require('./server/routes/cam')); // ✅ ROUTE CAM MANQUANTE !
 app.use('/api/privatePhotos', require('./server/routes/privatePhotos')); // ✅ ROUTE PRIVATE PHOTOS MANQUANTE !
 
+// 🚀 Routes PayPal directes (URLs de retour)
+const paymentController = require('./server/controllers/paymentController');
+app.get('/payment/success', (req, res, next) => {
+  paymentController.confirmSubscription(req, res).catch(next);
+});
+app.get('/payment/cancel', (req, res) => {
+  res.redirect('/pages/premium.html?cancelled=true');
+});
+
+// 🧪 ROUTE TEST PREMIUM STATUS - URGENT !
+app.get(
+  '/api/test-premium',
+  require('./server/middleware/auth').auth,
+  async (req, res) => {
+    try {
+      const User = require('./server/models/User');
+      const user = await User.findById(req.user._id);
+
+      const premiumCheck = {
+        userId: req.user._id,
+        isPremium: user.premium.isPremium,
+        expiration: user.premium.expiration,
+        isExpired: user.premium.expiration < new Date(),
+        subscriptionId: user.premium.paypalSubscriptionId,
+        debugInfo: {
+          now: new Date(),
+          expirationDate: user.premium.expiration,
+          timeDiff: user.premium.expiration
+            ? user.premium.expiration.getTime() - Date.now()
+            : null,
+        },
+      };
+
+      res.json({ success: true, premium: premiumCheck });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
+
 // 🚀 Route webhook PayPal spécifique (URL dans vos variables d'environnement)
 app.post('/api/paypal-webhook', (req, res, next) => {
-  const paymentController = require('./server/controllers/paymentController');
   paymentController.handleWebhook(req, res).catch(next);
 });
 
