@@ -12,14 +12,19 @@ const subscriptionValidation = [
 ];
 
 // Routes protégées par authentification
-router.post('/subscribe', auth, (req, res, next) => {
+router.post('/subscribe', auth, subscriptionValidation, (req, res, next) => {
   paymentController.createSubscription(req, res).catch(next);
 });
 
 // Route pour redirect checkout (alias de subscribe)
-router.post('/create-subscription-redirect', auth, (req, res, next) => {
-  paymentController.createSubscription(req, res).catch(next);
-});
+router.post(
+  '/create-subscription-redirect',
+  auth,
+  subscriptionValidation,
+  (req, res, next) => {
+    paymentController.createSubscription(req, res).catch(next);
+  }
+);
 
 router.post('/activate-premium', auth, (req, res, next) => {
   paymentController.activatePremium(req, res).catch(next);

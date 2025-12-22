@@ -474,9 +474,7 @@
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                userId: currentUser.id,
-                returnUrl: `${window.location.origin}/pages/premium.html?success=true`,
-                cancelUrl: `${window.location.origin}/pages/premium.html?success=false`,
+                planType: 'monthly',
               }),
             }
           );
