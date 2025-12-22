@@ -9,18 +9,7 @@ const createAd = async (req, res) => {
     console.log('🔥 DONNÉES REÇUES:', req.body);
     console.log('🔥 USER:', req.user);
 
-    // Vérifier le statut premium (middleware premium.js a déjà vérifié)
-    if (!req.isPremium) {
-      return res.status(403).json({
-        success: false,
-        error: {
-          code: 'PREMIUM_REQUIRED',
-          message:
-            'Un abonnement premium payant est requis pour créer des annonces',
-          isPremiumRequired: true,
-        },
-      });
-    }
+    // PREMIUM DÉJÀ VÉRIFIÉ par middleware premiumOnly sur la route
 
     const {
       category,

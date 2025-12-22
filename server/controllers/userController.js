@@ -115,9 +115,9 @@ const getUsers = async (req, res) => {
         pages: Math.ceil(total / actualLimit),
       },
       premium: {
-        isPremium,
-        limitApplied: !isPremium ? actualLimit : null,
-        upgradeRequired: !isPremium && total > actualLimit * parseInt(page),
+        isPremium: true, // Garantie par middleware premiumOnly
+        limitApplied: null, // Pas de limite pour premium
+        upgradeRequired: false, // Déjà premium
       },
     });
   } catch (error) {
