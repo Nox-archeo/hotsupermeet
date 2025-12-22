@@ -173,18 +173,7 @@
 
       /* PayPal laissé intact - pas de CSS masquant */
 
-      .female-premium-info {
-        background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-        padding: 20px;
-        border-radius: 10px;
-        margin: 20px 0;
-        text-align: center;
-        color: #333;
-      }
-      .female-premium-info h3 {
-        color: #d63384;
-        margin-bottom: 10px;
-      }
+      /* Section femmes premium supprimée */
     </style>
   </head>
   <body>
@@ -232,20 +221,7 @@
       </div>
     </div>
 
-    <!-- Female Free Info (si applicable) -->
-    <div class="container" id="femaleInfo" style="display: none">
-      <div class="female-premium-info">
-        <h3>🎉 Femmes Premium Gratuit !</h3>
-        <p>
-          En tant que femme sur HotMeet, vous bénéficiez automatiquement de
-          toutes les fonctionnalités premium gratuitement.
-        </p>
-        <!-- BOUTON SUPPRIMÉ - Plus d'accès gratuit pour les femmes -->
-        <p style="text-align: center; color: #666; margin-top: 20px">
-          L'accès premium est maintenant payant pour tous les utilisateurs.
-        </p>
-      </div>
-    </div>
+    <!-- Section supprimée: Plus d'accès gratuit pour les femmes -->
 
     <script src="/js/premium-manager.js"></script>
     <script src="/js/auth.js"></script>
@@ -350,18 +326,7 @@
       // Render de la carte de prix
       function renderPricingCard() {
         const pricingCard = document.getElementById('pricingCard');
-        const femaleInfo = document.getElementById('femaleInfo');
-
-        // Vérifier si femme pour accès gratuit
-        const isFemale =
-          currentUser &&
-          currentUser.profile &&
-          currentUser.profile.sexe === 'femme';
-
-        if (isFemale && !subscriptionStatus?.isPremium) {
-          femaleInfo.style.display = 'block';
-          // Plus d'activation gratuite - redirection vers abonnement payant
-        }
+        // Section femmes gratuites supprimée - plus d'accès gratuit
 
         // Contenu de la carte
         if (subscriptionStatus?.isPremium) {
