@@ -692,5 +692,5 @@ module.exports = {
   getDirectoryStats,
   deleteAccount,
   deleteTestUsers, // Nouveau: fonction temporaire admin
-  activateFemaleFree, // Nouveau: activation gratuite femmes
+  // activateFemaleFree supprimé - plus d'accès gratuit femmes
 };

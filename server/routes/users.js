@@ -8,7 +8,6 @@ const {
   getDirectoryStats,
   deleteAccount,
   deleteTestUsers, // Nouveau: fonction temporaire admin
-  // activateFemaleFree supprimé - plus d'accès gratuit femmes
 } = require('../controllers/userController');
 const { auth, updateLastActivity } = require('../middleware/auth');
 const { premiumOnly, premiumLimited } = require('../middleware/premium');
@@ -145,12 +144,7 @@ router.delete(
 // ROUTE TEMPORAIRE ADMIN: Supprimer les utilisateurs de test
 router.delete('/admin/delete-test-users', deleteTestUsers); // DELETE /api/users/admin/delete-test-users
 
-// Route pour activer l'accès gratuit femmes
-router.post(
-  '/activate-female-free',
-  auth,
-  updateLastActivity,
-  activateFemaleFree
-); // POST /api/users/activate-female-free
+// ROUTE SUPPRIMÉE - Plus d'accès gratuit pour les femmes
+// router.post('/activate-female-free', auth, updateLastActivity, activateFemaleFree);
 
 module.exports = router;
