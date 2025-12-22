@@ -701,6 +701,37 @@ app.get(
   }
 );
 
+// 🔥 ROUTE FORCE PREMIUM ACTIVATION - URGENT DEBUG !
+app.post(
+  '/api/force-premium-check',
+  require('./server/middleware/auth').auth,
+  async (req, res) => {
+    try {
+      const User = require('./server/models/User');
+      const user = await User.findById(req.user._id);
+
+      const isPremiumActive =
+        user.premium.isPremium && user.premium.expiration > new Date();
+
+      res.json({
+        success: true,
+        forceCheck: {
+          userId: req.user._id,
+          premium: {
+            isPremium: user.premium.isPremium,
+            expiration: user.premium.expiration,
+            subscriptionId: user.premium.paypalSubscriptionId,
+          },
+          middleware_result: isPremiumActive,
+          can_access_features: isPremiumActive,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
+
 // 🚀 Route webhook PayPal spécifique (URL dans vos variables d'environnement)
 app.post('/api/paypal-webhook', (req, res, next) => {
   paymentController.handleWebhook(req, res).catch(next);
