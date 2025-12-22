@@ -732,7 +732,55 @@ app.post(
   }
 );
 
-// 🚀 Route webhook PayPal spécifique (URL dans vos variables d'environnement)
+// � ROUTE FORCE PREMIUM SI PAYÉ MAIS PAS ACTIVÉ - EMERGENCY FIX!
+app.post(
+  '/api/force-activate-premium',
+  require('./server/middleware/auth').auth,
+  async (req, res) => {
+    try {
+      const User = require('./server/models/User');
+      const user = await User.findById(req.user._id);
+
+      // Si l'utilisateur a un subscription ID mais pas de premium -> forcer l'activation
+      if (user.premium.paypalSubscriptionId && !user.premium.isPremium) {
+        const expirationDate = new Date();
+        expirationDate.setMonth(expirationDate.getMonth() + 1);
+
+        user.premium.isPremium = true;
+        user.premium.expiration = expirationDate;
+        await user.save();
+
+        console.log(
+          `🔥 PREMIUM FORCÉ pour utilisateur ${user._id} avec subscription ${user.premium.paypalSubscriptionId}`
+        );
+
+        res.json({
+          success: true,
+          message: 'Premium activé de force',
+          premium: {
+            isPremium: true,
+            expiration: expirationDate,
+            subscriptionId: user.premium.paypalSubscriptionId,
+          },
+        });
+      } else {
+        res.json({
+          success: false,
+          message: 'Utilisateur déjà premium ou pas de subscription PayPal',
+          current: {
+            isPremium: user.premium.isPremium,
+            expiration: user.premium.expiration,
+            subscriptionId: user.premium.paypalSubscriptionId,
+          },
+        });
+      }
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
+
+// �🚀 Route webhook PayPal spécifique (URL dans vos variables d'environnement)
 app.post('/api/paypal-webhook', (req, res, next) => {
   paymentController.handleWebhook(req, res).catch(next);
 });
