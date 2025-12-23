@@ -44,15 +44,33 @@
     <!-- Google Translate -->
     <script type="text/javascript">
       function googleTranslateElementInit() {
-        new google.translate.TranslateElement(
-          {
-            pageLanguage: 'fr',
-            includedLanguages: 'en,de,it,es,nl,pt',
-            layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-            autoDisplay: false,
-          },
-          'google_translate_element'
-        );
+        try {
+          console.log('Initialisation Google Translate...');
+
+          // Vérifier que l'élément existe
+          var element = document.getElementById('google_translate_element');
+          if (!element) {
+            console.error('Élément google_translate_element non trouvé');
+            return;
+          }
+
+          new google.translate.TranslateElement(
+            {
+              pageLanguage: 'fr',
+              includedLanguages: 'en,de,it,es,nl,pt',
+              layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+              autoDisplay: false,
+            },
+            'google_translate_element'
+          );
+
+          console.log('Google Translate initialisé avec succès');
+        } catch (error) {
+          console.error(
+            "Erreur lors de l'initialisation Google Translate:",
+            error
+          );
+        }
       }
 
       // Fonction pour changer la langue
@@ -73,20 +91,54 @@
             selectField.value = lang;
             selectField.dispatchEvent(new Event('change'));
             console.log('Traduction activée:', lang);
-          } else if (attempts < 10) {
-            // Réessayer toutes les 500ms pendant 5 secondes max
+          } else if (attempts < 20) {
+            // Réessayer toutes les 500ms pendant 10 secondes max
+            console.log(
+              'Tentative',
+              attempts + 1,
+              'pour trouver le sélecteur Google Translate...'
+            );
             setTimeout(() => tryTranslate(attempts + 1), 500);
           } else {
-            console.log('Google Translate non disponible');
+            console.error('Google Translate non disponible après 10 secondes');
+            // Essayons une méthode alternative
+            tryAlternativeTranslate(lang);
           }
         }
 
         tryTranslate();
       }
+
+      // Méthode alternative pour déclencher la traduction
+      function tryAlternativeTranslate(lang) {
+        console.log('Tentative méthode alternative pour traduction...');
+
+        // Chercher tous les éléments possibles
+        var frames = document.getElementsByTagName('iframe');
+        for (var i = 0; i < frames.length; i++) {
+          try {
+            var frame = frames[i];
+            if (frame.className && frame.className.indexOf('goog-te') !== -1) {
+              console.log('Frame Google Translate trouvée:', frame);
+            }
+          } catch (e) {
+            // Ignorer les erreurs de cross-origin
+          }
+        }
+
+        var selects = document.querySelectorAll('select[class*="goog"]');
+        console.log('Sélecteurs trouvés:', selects.length);
+
+        if (selects.length > 0) {
+          selects[0].value = lang;
+          selects[0].dispatchEvent(new Event('change'));
+          console.log('Traduction alternative activée:', lang);
+        }
+      }
     </script>
     <script
       type="text/javascript"
-      src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+      src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
     ></script>
 
     <style>
@@ -166,10 +218,30 @@
         box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
       }
 
-      /* Cacher le widget Google Translate par défaut */
+      /* Google Translate styling - temporairement visible pour debug */
       #google_translate_element {
-        display: none;
+        display: inline-block !important;
+        vertical-align: middle;
       }
+
+      /* Masquer le texte "Powered by" */
+      .goog-te-gadget {
+        font-size: 0;
+      }
+
+      .goog-te-gadget > span {
+        display: none !important;
+      }
+
+      .goog-te-combo {
+        font-size: 14px !important;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background: white;
+        color: black;
+      }
+
       .goog-te-banner-frame.skiptranslate {
         display: none !important;
       }
@@ -227,7 +299,8 @@
         </div>
 
         <div class="nav-actions">
-          <div id="google_translate_element" style="display: none"></div>
+          <!-- Google Translate Element - temporairement visible pour debug -->
+          <div id="google_translate_element" style="margin-right: 10px"></div>
           <button class="btn-secondary" id="loginBtn">Connexion</button>
           <button class="btn-primary" id="registerBtn">Inscription</button>
           <div class="mobile-menu-toggle" id="mobileMenuToggle">
