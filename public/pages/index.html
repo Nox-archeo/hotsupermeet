@@ -55,28 +55,33 @@
         );
       }
 
-      // Fonction pour changer la langue manuellement
+      // Fonction pour changer la langue
       function translateTo(lang) {
-        if (!lang) return;
-
-        console.log('Tentative de traduction vers:', lang);
-
-        var selectField = document.querySelector('select.goog-te-combo');
-        if (selectField) {
-          selectField.value = lang;
-          selectField.dispatchEvent(new Event('change'));
-          console.log('Traduction activée:', lang);
-        } else {
-          // Retry si pas encore chargé
-          setTimeout(function () {
-            var retrySelect = document.querySelector('select.goog-te-combo');
-            if (retrySelect) {
-              retrySelect.value = lang;
-              retrySelect.dispatchEvent(new Event('change'));
-              console.log('Traduction activée (retry):', lang);
-            }
-          }, 1500);
+        if (!lang || lang === '') {
+          // Remettre en français
+          window.location.reload();
+          return;
         }
+
+        console.log('Traduction vers:', lang);
+
+        // Attendre que Google Translate soit chargé
+        function tryTranslate(attempts = 0) {
+          var selectField = document.querySelector('select.goog-te-combo');
+
+          if (selectField) {
+            selectField.value = lang;
+            selectField.dispatchEvent(new Event('change'));
+            console.log('Traduction activée:', lang);
+          } else if (attempts < 10) {
+            // Réessayer toutes les 500ms pendant 5 secondes max
+            setTimeout(() => tryTranslate(attempts + 1), 500);
+          } else {
+            console.log('Google Translate non disponible');
+          }
+        }
+
+        tryTranslate();
       }
     </script>
     <script
@@ -221,21 +226,6 @@
         </div>
 
         <div class="nav-actions">
-          <div class="language-selector">
-            <select
-              class="language-dropdown"
-              onchange="translateTo(this.value)"
-            >
-              <option value="">🌍 Langue</option>
-              <option value="fr">🇫🇷 Français</option>
-              <option value="en">🇬🇧 English</option>
-              <option value="de">🇩🇪 Deutsch</option>
-              <option value="it">🇮🇹 Italiano</option>
-              <option value="es">🇪🇸 Español</option>
-              <option value="nl">🇳🇱 Nederlands</option>
-              <option value="pt">🇵🇹 Português</option>
-            </select>
-          </div>
           <div id="google_translate_element" style="display: none"></div>
           <button class="btn-secondary" id="loginBtn">Connexion</button>
           <button class="btn-primary" id="registerBtn">Inscription</button>
