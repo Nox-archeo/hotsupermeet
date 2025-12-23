@@ -84,10 +84,10 @@
     />
     <link rel="stylesheet" href="/css/responsive.css?v=2" />
 
-    <!-- Google Analytics & Search Console -->
+    <!-- Google Analytics 4 -->
     <script
       async
-      src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"
+      src="https://www.googletagmanager.com/gtag/js?id=G-4NMZV0B2Q1"
     ></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -95,7 +95,22 @@
         dataLayer.push(arguments);
       }
       gtag('js', new Date());
-      gtag('config', 'G-XXXXXXXXXX'); // Remplacez par votre ID Google Analytics
+
+      gtag('config', 'G-4NMZV0B2Q1', {
+        page_title: 'HotMeet - Site de Rencontre Adulte',
+        page_location: window.location.href,
+        send_page_view: true,
+        anonymize_ip: true, // Conformité RGPD
+        allow_enhanced_conversions: false,
+      });
+
+      // Événements personnalisés pour site de rencontres
+      window.addEventListener('load', function () {
+        gtag('event', 'page_view', {
+          page_title: document.title,
+          page_location: window.location.href,
+        });
+      });
     </script>
 
     <!-- Google Search Console Verification -->
@@ -726,6 +741,86 @@
 
     <!-- JavaScript principal -->
     <script src="/js/app.js"></script>
+
+    <!-- Google Analytics Events pour site de rencontres -->
+    <script>
+      // Tracking des interactions importantes
+      document.addEventListener('DOMContentLoaded', function () {
+        // Track clics sur boutons principaux
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const premiumBtn = document.querySelector('[href*="premium"]');
+
+        if (loginBtn) {
+          loginBtn.addEventListener('click', function () {
+            gtag('event', 'click', {
+              event_category: 'engagement',
+              event_label: 'login_button',
+              value: 1,
+            });
+          });
+        }
+
+        if (registerBtn) {
+          registerBtn.addEventListener('click', function () {
+            gtag('event', 'click', {
+              event_category: 'conversion',
+              event_label: 'register_button',
+              value: 5,
+            });
+          });
+        }
+
+        if (premiumBtn) {
+          premiumBtn.addEventListener('click', function () {
+            gtag('event', 'click', {
+              event_category: 'monetization',
+              event_label: 'premium_interest',
+              value: 10,
+            });
+          });
+        }
+
+        // Track temps sur page (engagement)
+        let startTime = Date.now();
+        window.addEventListener('beforeunload', function () {
+          let timeSpent = Math.round((Date.now() - startTime) / 1000);
+          gtag('event', 'timing_complete', {
+            name: 'page_time',
+            value: timeSpent,
+          });
+        });
+
+        // Track scroll depth (engagement)
+        let maxScroll = 0;
+        window.addEventListener('scroll', function () {
+          let scrollPercent = Math.round(
+            (window.scrollY /
+              (document.body.scrollHeight - window.innerHeight)) *
+              100
+          );
+          if (scrollPercent > maxScroll) {
+            maxScroll = scrollPercent;
+            if (scrollPercent >= 25 && scrollPercent < 50) {
+              gtag('event', 'scroll', {
+                event_category: 'engagement',
+                event_label: '25_percent',
+              });
+            } else if (scrollPercent >= 50 && scrollPercent < 75) {
+              gtag('event', 'scroll', {
+                event_category: 'engagement',
+                event_label: '50_percent',
+              });
+            } else if (scrollPercent >= 75) {
+              gtag('event', 'scroll', {
+                event_category: 'engagement',
+                event_label: '75_percent',
+              });
+            }
+          }
+        });
+      });
+    </script>
     <!-- Script de notifications globales -->
     <script src="/js/global-notifications.js"></script>
   </body>
