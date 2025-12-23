@@ -47,32 +47,45 @@ async function checkPremiumStatus() {
 
 function setupPremiumRedirects(btnCreate, btnView, btnMyAds) {
   console.log('🚫 Configuration des redirections premium pour les annonces');
-  
+  console.log('🔍 Boutons reçus:', { btnCreate, btnView, btnMyAds });
+
   // Intercepter le clic sur "Créer une annonce"
   if (btnCreate) {
-    btnCreate.addEventListener('click', (e) => {
+    console.log('🔗 Ajout listener pour btn-create-ad');
+    btnCreate.addEventListener('click', e => {
       e.preventDefault();
+      e.stopPropagation();
       console.log('🔒 Redirection premium: Créer annonce');
       window.location.href = '/premium';
     });
+  } else {
+    console.log('❌ Bouton créer non trouvé');
   }
 
-  // Intercepter le clic sur "Voir les annonces"  
+  // Intercepter le clic sur "Voir les annonces"
   if (btnView) {
-    btnView.addEventListener('click', (e) => {
+    console.log('🔗 Ajout listener pour btn-view-ads');
+    btnView.addEventListener('click', e => {
       e.preventDefault();
+      e.stopPropagation();
       console.log('🔒 Redirection premium: Voir annonces');
       window.location.href = '/premium';
     });
+  } else {
+    console.log('❌ Bouton voir non trouvé');
   }
 
   // Intercepter le clic sur "Mes annonces"
   if (btnMyAds) {
-    btnMyAds.addEventListener('click', (e) => {
+    console.log('🔗 Ajout listener pour btn-my-ads');
+    btnMyAds.addEventListener('click', e => {
       e.preventDefault();
+      e.stopPropagation();
       console.log('🔒 Redirection premium: Mes annonces');
       window.location.href = '/premium';
     });
+  } else {
+    console.log('❌ Bouton mes annonces non trouvé');
   }
 }
 
@@ -1566,7 +1579,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   // 🔒 VÉRIFICATION PREMIUM POUR CONTRÔLE D'ACCÈS
   console.log('🔄 Vérification du statut premium pour les annonces...');
   const isUserPremium = await checkPremiumStatus();
-  
+
   // Vérifier que les boutons existent
   const btnCreate = document.getElementById('btn-create-ad');
   const btnView = document.getElementById('btn-view-ads');
@@ -1583,8 +1596,6 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 
   console.log('✅ Utilisateur premium confirmé - Accès normal aux annonces');
-    return;
-  }
 
   // Event listeners pour la navigation - BOUTONS
   btnCreate.addEventListener('click', function () {
