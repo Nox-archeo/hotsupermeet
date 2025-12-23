@@ -46,7 +46,7 @@ router.get('/config', (req, res) => {
     clientId: process.env.PAYPAL_CLIENT_ID,
     planMonthlyId: process.env.PAYPAL_PLAN_MONTHLY_ID,
     planYearlyId: process.env.PAYPAL_PLAN_YEARLY_ID,
-    environment: process.env.PAYPAL_MODE || 'sandbox',
+    environment: process.env.PAYPAL_ENVIRONMENT || 'sandbox',
     returnUrl: 'https://www.hotsupermeet.com/merci-abonnement',
     cancelUrl: 'https://www.hotsupermeet.com/abonnement-annule',
   });
