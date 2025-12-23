@@ -115,6 +115,7 @@ app.use(
           'https://js.stripe.com', // Au cas où pour Stripe
           'https://translate.google.com', // Google Translate
           'https://translate.googleapis.com', // Google Translate API
+          'https://translate-pa.googleapis.com', // Google Translate API additionnelle
         ],
         'script-src-attr': ["'unsafe-inline'"], // Autoriser onclick inline
         styleSrc: [
@@ -122,12 +123,16 @@ app.use(
           "'unsafe-inline'",
           'https://fonts.googleapis.com', // Google Fonts
           'https://translate.googleapis.com', // Google Translate styles
+          'https://www.gstatic.com', // Google Static (styles Translate)
         ],
         imgSrc: [
           "'self'",
           'data:',
           'https://res.cloudinary.com', // Autoriser images Cloudinary
           'https://*.cloudinary.com', // Toutes les sous-domaines Cloudinary
+          'https://fonts.gstatic.com', // Google Fonts images/icônes
+          'https://www.gstatic.com', // Google Static images
+          'https://www.google.com', // Google images (cleardot.gif, etc.)
         ],
         fontSrc: [
           "'self'",
