@@ -29,7 +29,7 @@ router.post(
 router.post('/activate-premium', auth, (req, res, next) => {
   paymentController.activatePremium(req, res).catch(next);
 });
-router.get('/status', auth, (req, res, next) => {
+router.get('/status', require('../middleware/auth').auth, (req, res, next) => {
   paymentController.getSubscriptionStatus(req, res).catch(next);
 });
 router.post('/cancel', auth, (req, res, next) => {
