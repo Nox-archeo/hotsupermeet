@@ -396,6 +396,10 @@
                 <p style="font-size: 0.9rem; color: #666; margin-top: 20px;">
                     Abonnement mensuel renouvelable. Annulation possible à tout moment.
                 </p>
+                <p style="text-align:center;font-size:14px;margin-top:15px;">
+                    <a href="/pages/cgv.html">CGV</a> –
+                    <a href="/pages/resiliation.html">Comment résilier mon abonnement ?</a>
+                </p>
             `;
 
         // Charger PayPal SDK dynamiquement après création du container
@@ -516,24 +520,9 @@
 
       // Annuler l'abonnement
       async function cancelSubscription() {
-        if (
-          !confirm(
-            'Êtes-vous sûr de vouloir annuler votre abonnement premium ?'
-          )
-        ) {
-          return;
-        }
-
-        try {
-          const response = await fetch('/api/payments/cancel', {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-          });
-
-          if (response.ok) {
-            showNotification('Abonnement annulé avec succès', 'success');
+        // Rediriger vers la page de résiliation
+        window.location.href = '/pages/resiliation.html';
+      }
             setTimeout(() => location.reload(), 1500);
           } else {
             const error = await response.json();
