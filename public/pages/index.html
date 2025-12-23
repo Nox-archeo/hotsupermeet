@@ -287,9 +287,38 @@
         vertical-align: middle;
       }
 
+      /* 💀 SUPPRIMER COMPLÈTEMENT LA BARRE GOOGLE TRANSLATE DE MERDE */
+      .goog-te-banner-frame,
+      .goog-te-banner-frame.skiptranslate,
+      #goog-gt-tt,
+      .goog-te-balloon-frame,
+      .goog-te-spinner-pos {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      /* Empêcher le décalage du body */
+      body {
+        top: 0px !important;
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+        position: static !important;
+      }
+
+      /* Masquer le widget par défaut */
+      #google_translate_element {
+        display: none !important;
+      }
+
       /* Masquer le texte "Powered by" */
       .goog-te-gadget {
-        font-size: 0;
+        font-size: 0 !important;
+        color: transparent !important;
       }
 
       .goog-te-gadget > span {
@@ -303,13 +332,6 @@
         border-radius: 4px;
         background: white;
         color: black;
-      }
-
-      .goog-te-banner-frame.skiptranslate {
-        display: none !important;
-      }
-      body {
-        top: 0px !important;
       }
     </style>
 
@@ -391,8 +413,11 @@
         </div>
 
         <div class="nav-actions">
-          <!-- Google Translate Element - temporairement visible pour debug -->
-          <div id="google_translate_element" style="margin-right: 10px"></div>
+          <!-- Google Translate Element - CACHÉ pour éviter la barre qui cache tout -->
+          <div
+            id="google_translate_element"
+            style="display: none !important; visibility: hidden !important"
+          ></div>
           <button class="btn-secondary" id="loginBtn">Connexion</button>
           <button class="btn-primary" id="registerBtn">Inscription</button>
           <div class="mobile-menu-toggle" id="mobileMenuToggle">
