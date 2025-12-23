@@ -57,10 +57,25 @@
 
       // Fonction pour changer la langue manuellement
       function translateTo(lang) {
+        if (!lang) return;
+
+        console.log('Tentative de traduction vers:', lang);
+
         var selectField = document.querySelector('select.goog-te-combo');
         if (selectField) {
           selectField.value = lang;
           selectField.dispatchEvent(new Event('change'));
+          console.log('Traduction activée:', lang);
+        } else {
+          // Retry si pas encore chargé
+          setTimeout(function () {
+            var retrySelect = document.querySelector('select.goog-te-combo');
+            if (retrySelect) {
+              retrySelect.value = lang;
+              retrySelect.dispatchEvent(new Event('change'));
+              console.log('Traduction activée (retry):', lang);
+            }
+          }, 1500);
         }
       }
     </script>
@@ -70,6 +85,37 @@
     ></script>
 
     <style>
+      /* Sélecteur de langue dans navigation */
+      .language-selector-nav {
+        margin-left: 20px;
+        display: inline-block;
+      }
+
+      .language-selector-nav .language-dropdown {
+        background: #34495e;
+        color: white;
+        border: 1px solid #555;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        cursor: pointer;
+        outline: none;
+        transition: all 0.3s ease;
+        min-width: 60px;
+      }
+
+      .language-selector-nav .language-dropdown:hover {
+        background: #2c3e50;
+        border-color: #3498db;
+      }
+
+      /* Responsive - cacher sur mobile pour économiser l'espace */
+      @media (max-width: 768px) {
+        .language-selector-nav {
+          display: none;
+        }
+      }
+
       /* Sélecteur de langue personnalisé */
       .language-selector {
         margin-right: 15px;
@@ -137,6 +183,23 @@
             ></a
           >
           <a href="/profile" class="nav-link">Mon Profil</a>
+
+          <!-- Sélecteur de langue TOUJOURS visible -->
+          <div class="language-selector-nav">
+            <select
+              class="language-dropdown"
+              onchange="translateTo(this.value)"
+            >
+              <option value="">🌍</option>
+              <option value="fr">🇫🇷 FR</option>
+              <option value="en">🇬🇧 EN</option>
+              <option value="de">🇩🇪 DE</option>
+              <option value="it">🇮🇹 IT</option>
+              <option value="es">🇪🇸 ES</option>
+              <option value="nl">🇳🇱 NL</option>
+              <option value="pt">🇵🇹 PT</option>
+            </select>
+          </div>
         </div>
 
         <div class="nav-actions">
