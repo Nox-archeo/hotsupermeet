@@ -9,21 +9,23 @@ class DirectoryPage {
   }
 
   async init() {
-    // 🔒 VÉRIFICATION PREMIUM OBLIGATOIRE POUR L'ANNUAIRE
-    console.log('🔄 Vérification du statut premium...');
+    // Toujours charger l'interface de l'annuaire
+    this.setupEventListeners();
+    this.setupLocationFilters();
 
+    // Vérifier si l'utilisateur est premium pour charger les profils
+    console.log('🔄 Vérification du statut premium...');
     const isUserPremium = await this.checkPremiumStatus();
+
     if (!isUserPremium) {
       console.log(
-        '❌ Utilisateur non premium - Affichage du message premium requis'
+        '❌ Utilisateur non premium - Affichage message premium dans la zone profils'
       );
-      this.showPremiumRequired();
+      this.showPremiumMessageInProfilesArea();
       return;
     }
 
-    console.log("✅ Utilisateur premium confirmé - Chargement de l'annuaire");
-    this.setupEventListeners();
-    this.setupLocationFilters();
+    console.log('✅ Utilisateur premium confirmé - Chargement des profils');
     this.loadUsers();
   }
 
@@ -66,110 +68,117 @@ class DirectoryPage {
     }
   }
 
-  // 🚫 AFFICHAGE MESSAGE PREMIUM REQUIS
-  showPremiumRequired() {
-    const container =
-      document.querySelector('.directory-container') ||
-      document.querySelector('.main-content') ||
-      document.body;
+  // 🚫 AFFICHAGE MESSAGE PREMIUM DANS LA ZONE PROFILS
+  showPremiumMessageInProfilesArea() {
+    const profilesGrid =
+      document.querySelector('.profiles-grid') ||
+      document.querySelector('.directory-results');
 
-    if (container) {
-      container.innerHTML = `
-        <div class="premium-required-message">
+    if (profilesGrid) {
+      profilesGrid.innerHTML = `
+        <div class="premium-upgrade-card">
           <div class="premium-icon">👑</div>
-          <h2>Accès Premium Requis</h2>
-          <p>L'annuaire des membres est réservé aux abonnés premium.</p>
-          <p>Découvrez tous les profils de notre communauté et bénéficiez d'un accès illimité.</p>
-          <div class="premium-actions">
-            <a href="/premium.html" class="btn btn-premium">
-              ✨ Devenir Premium
-            </a>
-            <a href="/" class="btn btn-secondary">
-              🏠 Retour à l'accueil
-            </a>
-          </div>
+          <h3>Devenez Premium</h3>
+          <div class="premium-price">5.75 CHF/mois</div>
+          <ul class="premium-features">
+            <li>✅ Accès illimité aux profils</li>
+            <li>✅ Messagerie prioritaire</li>
+            <li>✅ Visibilité accrue</li>
+            <li>✅ Statut premium visible</li>
+            <li>✅ Support prioritaire</li>
+          </ul>
+          <a href="/premium.html" class="btn btn-premium-upgrade">
+            🚀 S'abonner maintenant
+          </a>
+          <p class="premium-info">
+            Vous serez redirigé vers PayPal pour finaliser l'abonnement<br>
+            <small>Abonnement mensuel renouvelable. Annulation possible à tout moment.</small>
+          </p>
         </div>
       `;
     }
 
-    // Ajouter les styles CSS pour le message premium
-    this.addPremiumStyles();
+    // Ajouter les styles pour l'encart premium
+    this.addPremiumUpgradeStyles();
   }
 
-  // 🎨 STYLES CSS POUR LE MESSAGE PREMIUM
-  addPremiumStyles() {
-    if (document.getElementById('premium-required-styles')) {
-      return; // Styles déjà ajoutés
+  // 🎨 STYLES POUR L'ENCART PREMIUM
+  addPremiumUpgradeStyles() {
+    if (document.getElementById('premium-upgrade-styles')) {
+      return;
     }
 
     const styles = document.createElement('style');
-    styles.id = 'premium-required-styles';
+    styles.id = 'premium-upgrade-styles';
     styles.innerHTML = `
-      .premium-required-message {
+      .premium-upgrade-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 20px;
         text-align: center;
-        padding: 60px 20px;
-        max-width: 600px;
-        margin: 50px auto;
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        max-width: 500px;
+        margin: 40px auto;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
       }
-      .premium-icon {
-        font-size: 4rem;
+      .premium-upgrade-card .premium-icon {
+        font-size: 3rem;
         margin-bottom: 20px;
         display: block;
       }
-      .premium-required-message h2 {
-        color: #667eea;
-        margin-bottom: 20px;
+      .premium-upgrade-card h3 {
         font-size: 2rem;
+        margin-bottom: 10px;
         font-weight: 600;
       }
-      .premium-required-message p {
-        color: #666;
-        margin-bottom: 15px;
+      .premium-price {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 25px;
+        color: #ffd700;
+      }
+      .premium-features {
+        list-style: none;
+        padding: 0;
+        margin: 25px 0;
+        text-align: left;
+        max-width: 300px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .premium-features li {
+        padding: 8px 0;
         font-size: 1.1rem;
-        line-height: 1.6;
+        opacity: 0.95;
       }
-      .premium-actions {
-        margin-top: 30px;
-        display: flex;
-        gap: 15px;
-        justify-content: center;
-        flex-wrap: wrap;
-      }
-      .btn-premium {
-        background: linear-gradient(45deg, #667eea, #764ba2);
-        color: white !important;
-        padding: 15px 30px;
-        border-radius: 25px;
+      .btn-premium-upgrade {
+        background: white;
+        color: #667eea !important;
+        padding: 15px 35px;
+        border-radius: 30px;
         text-decoration: none;
-        font-weight: 600;
-        transition: all 0.3s ease;
+        font-weight: 700;
+        font-size: 1.1rem;
         display: inline-block;
-      }
-      .btn-premium:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        text-decoration: none;
-        color: white !important;
-      }
-      .btn-secondary {
-        background: #f8f9fa;
-        color: #6c757d !important;
-        padding: 15px 30px;
-        border-radius: 25px;
-        text-decoration: none;
-        font-weight: 600;
-        border: 2px solid #dee2e6;
+        margin: 25px 0 20px 0;
         transition: all 0.3s ease;
-        display: inline-block;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
       }
-      .btn-secondary:hover {
-        background: #e9ecef;
-        color: #495057 !important;
+      .btn-premium-upgrade:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
         text-decoration: none;
-        transform: translateY(-1px);
+        color: #5a67d8 !important;
+      }
+      .premium-info {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        margin-top: 20px;
+        line-height: 1.4;
+      }
+      .premium-info small {
+        font-size: 0.85rem;
+        opacity: 0.8;
       }
     `;
     document.head.appendChild(styles);
