@@ -45,109 +45,35 @@ async function checkPremiumStatus() {
   }
 }
 
-function blockNonPremiumAdCreation() {
-  // Masquer les formulaires de création
-  const createForm = document.getElementById('create-ad-form');
-  const adActions = document.querySelector('.ad-actions');
-  const mainContent = document.querySelector('.main-content');
-
-  if (createForm) createForm.style.display = 'none';
-  if (adActions) adActions.style.display = 'none';
-
-  // Afficher le message premium
-  const container = mainContent || document.body;
-  const premiumMessage = document.createElement('div');
-  premiumMessage.innerHTML = `
-    <div class="premium-required-ads">
-      <div class="premium-icon">👑</div>
-      <h2>Accès Premium Requis</h2>
-      <p>La création d'annonces est réservée aux membres premium.</p>
-      <p>Publiez vos annonces et accédez à toutes les fonctionnalités.</p>
-      <div class="premium-actions">
-        <button onclick="window.location.href='/premium'" class="btn btn-premium">
-          ✨ Devenir Premium
-        </button>
-        <button onclick="window.location.href='/'" class="btn btn-secondary">
-          🏠 Retour à l'accueil
-        </button>
-      </div>
-    </div>
-  `;
-
-  // Styles pour le message premium
-  const styles = document.createElement('style');
-  styles.innerHTML = `
-    .premium-required-ads {
-      text-align: center;
-      padding: 60px 20px;
-      max-width: 600px;
-      margin: 50px auto;
-      background: white;
-      border-radius: 15px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    }
-    .premium-required-ads .premium-icon {
-      font-size: 4rem;
-      margin-bottom: 20px;
-      display: block;
-    }
-    .premium-required-ads h2 {
-      color: #667eea;
-      margin-bottom: 20px;
-      font-size: 2rem;
-      font-weight: 600;
-    }
-    .premium-required-ads p {
-      color: #666;
-      margin-bottom: 15px;
-      font-size: 1.1rem;
-      line-height: 1.6;
-    }
-    .premium-actions {
-      margin-top: 30px;
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .btn-premium {
-      background: linear-gradient(45deg, #667eea, #764ba2);
-      color: white !important;
-      padding: 15px 30px;
-      border-radius: 25px;
-      text-decoration: none;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .btn-premium:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-    }
-    .btn-secondary {
-      background: #f8f9fa;
-      color: #6c757d !important;
-      padding: 15px 30px;
-      border-radius: 25px;
-      text-decoration: none;
-      font-weight: 600;
-      border: 2px solid #dee2e6;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .btn-secondary:hover {
-      background: #e9ecef;
-      color: #495057 !important;
-    }
-  `;
-
-  if (!document.getElementById('premium-ads-styles')) {
-    styles.id = 'premium-ads-styles';
-    document.head.appendChild(styles);
+function setupPremiumRedirects(btnCreate, btnView, btnMyAds) {
+  console.log('🚫 Configuration des redirections premium pour les annonces');
+  
+  // Intercepter le clic sur "Créer une annonce"
+  if (btnCreate) {
+    btnCreate.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('🔒 Redirection premium: Créer annonce');
+      window.location.href = '/premium';
+    });
   }
 
-  container.appendChild(premiumMessage);
+  // Intercepter le clic sur "Voir les annonces"  
+  if (btnView) {
+    btnView.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('🔒 Redirection premium: Voir annonces');
+      window.location.href = '/premium';
+    });
+  }
+
+  // Intercepter le clic sur "Mes annonces"
+  if (btnMyAds) {
+    btnMyAds.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('🔒 Redirection premium: Mes annonces');
+      window.location.href = '/premium';
+    });
+  }
 }
 
 // =================================
@@ -1637,18 +1563,10 @@ function showNotification(message, type = 'info') {
 document.addEventListener('DOMContentLoaded', async function () {
   console.log('🔥 DOMContentLoaded - Initialisation des annonces...');
 
-  // 🔒 VÉRIFICATION PREMIUM OBLIGATOIRE POUR LES ANNONCES
+  // 🔒 VÉRIFICATION PREMIUM POUR CONTRÔLE D'ACCÈS
   console.log('🔄 Vérification du statut premium pour les annonces...');
   const isUserPremium = await checkPremiumStatus();
-
-  if (!isUserPremium) {
-    console.log('❌ Utilisateur non premium - Blocage création annonces');
-    blockNonPremiumAdCreation();
-    return;
-  }
-
-  console.log('✅ Utilisateur premium confirmé - Accès aux annonces autorisé');
-
+  
   // Vérifier que les boutons existent
   const btnCreate = document.getElementById('btn-create-ad');
   const btnView = document.getElementById('btn-view-ads');
@@ -1657,8 +1575,14 @@ document.addEventListener('DOMContentLoaded', async function () {
   console.log('🔍 Bouton Voir:', btnView);
   console.log('🔍 Bouton Mes Annonces:', btnMyAds);
 
-  if (!btnCreate || !btnView || !btnMyAds) {
-    console.error('❌ ERREUR: Boutons introuvables !');
+  // Si l'utilisateur n'est pas premium, intercepter les clics
+  if (!isUserPremium) {
+    console.log('❌ Utilisateur non premium - Redirection sur clics');
+    setupPremiumRedirects(btnCreate, btnView, btnMyAds);
+    return;
+  }
+
+  console.log('✅ Utilisateur premium confirmé - Accès normal aux annonces');
     return;
   }
 
