@@ -44,7 +44,7 @@ router.get('/diagnostic/env', (req, res) => {
 });
 
 // 🧪 ROUTE DE DIAGNOSTIC - Test Synchronisation PayPal ↔ Base
-router.get('/diagnostic/user-paypal-sync/:userId', auth, async (req, res) => {
+router.get('/diagnostic/user-paypal-sync/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
 
