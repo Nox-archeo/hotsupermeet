@@ -108,7 +108,7 @@ const searchValidation = [
 ];
 
 // Routes publiques avec auth optionnelle (gestion premium dans controller)
-router.get('/', auth, updateLastActivity, premiumOnly, getUsers); // GET /api/users - PREMIUM REQUIS
+router.get('/', require('../middleware/auth').auth, premiumOnly, getUsers); // GET /api/users - PREMIUM REQUIS
 router.get('/stats', getDirectoryStats); // GET /api/users/stats
 router.get('/:id', getUserProfile); // GET /api/users/:id
 
