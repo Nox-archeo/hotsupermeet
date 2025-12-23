@@ -81,7 +81,7 @@ class CamToCamSystem {
     try {
       const response = await fetch('/api/payments/status', {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('hotmeet_token')}`,
           'Content-Type': 'application/json',
         },
       });
@@ -398,7 +398,7 @@ class CamToCamSystem {
     try {
       const response = await fetch('/api/payments/status', {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('hotmeet_token')}`,
           'Content-Type': 'application/json',
         },
       });

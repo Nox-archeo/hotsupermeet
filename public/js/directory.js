@@ -380,7 +380,7 @@ class DirectoryPage {
 
       // 🔐 Ajouter le token d'authentification si disponible
       const headers = {};
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('hotmeet_token');
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
