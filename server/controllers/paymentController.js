@@ -159,9 +159,9 @@ const confirmSubscription = async (req, res) => {
         `✅ PREMIUM ACTIVÉ AVEC SUCCÈS pour utilisateur ${user._id} (${user.profile.nom}) jusqu'au ${expirationDate}`
       );
 
-      // Rediriger vers la page de succès
+      // Rediriger vers la page de succès avec instructions pour rafraîchir le token
       return res.redirect(
-        `/pages/premium.html?success=true&premium_activated=true&user_id=${user._id}`
+        `/pages/premium.html?success=true&premium_activated=true&user_id=${user._id}&refresh_token=true`
       );
     } else {
       console.log(
