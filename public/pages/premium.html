@@ -523,19 +523,6 @@
         // Rediriger vers la page de résiliation
         window.location.href = '/pages/resiliation.html';
       }
-            setTimeout(() => location.reload(), 1500);
-          } else {
-            const error = await response.json();
-            showNotification(
-              error.error?.message || "Erreur lors de l'annulation",
-              'error'
-            );
-          }
-        } catch (error) {
-          console.error('Erreur annulation:', error);
-          showNotification("Erreur lors de l'annulation", 'error');
-        }
-      }
 
       // Système de notifications
       function showNotification(message, type = 'info') {
