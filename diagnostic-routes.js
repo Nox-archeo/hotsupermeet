@@ -10,14 +10,7 @@ router.get('/diagnostic/env', (req, res) => {
     PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID ? 'SET' : 'MISSING',
     PAYPAL_SECRET: process.env.PAYPAL_SECRET ? 'SET' : 'MISSING',
     PAYPAL_PLAN_MONTHLY_ID: process.env.PAYPAL_PLAN_MONTHLY_ID,
-    PAYPAL_MODE: process.env.PAYPAL_MODE,
-    PREMIUM_PRICE: process.env.PREMIUM_PRICE,
-  };
-
-  const missing = [];
-  const present = [];
-
-  Object.keys(requiredVars).forEach(key => {
+    PAYPAL_ENVIRONMENT: process.env.PAYPAL_ENVIRONMENT, // Corrigé !
     if (requiredVars[key] && requiredVars[key] !== 'MISSING') {
       present.push(key);
     } else {
