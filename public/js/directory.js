@@ -87,7 +87,7 @@ class DirectoryPage {
             <li>✅ Statut premium visible</li>
             <li>✅ Support prioritaire</li>
           </ul>
-          <button id="directory-subscribe-btn" class="btn btn-premium-upgrade">
+          <button class="btn btn-premium-upgrade" onclick="window.location.href='/premium'">
             🚀 S'abonner maintenant
           </button>
           <p class="premium-info">
@@ -100,64 +100,6 @@ class DirectoryPage {
 
     // Ajouter les styles pour l'encart premium
     this.addPremiumUpgradeStyles();
-
-    // Attacher la fonction de souscription
-    this.setupDirectSubscription();
-  }
-
-  // 💳 FONCTION SOUSCRIPTION DIRECTE DEPUIS L'ANNUAIRE
-  setupDirectSubscription() {
-    const subscribeBtn = document.getElementById('directory-subscribe-btn');
-    if (subscribeBtn) {
-      subscribeBtn.addEventListener('click', async () => {
-        try {
-          subscribeBtn.disabled = true;
-          subscribeBtn.innerHTML = '⏳ Préparation...';
-
-          const token = localStorage.getItem('hotmeet_token');
-          if (!token) {
-            window.location.href = '/auth';
-            return;
-          }
-
-          console.log('🚀 Création abonnement depuis annuaire...');
-
-          const response = await fetch(
-            '/api/payments/create-subscription-redirect',
-            {
-              method: 'POST',
-              headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
-            }
-          );
-
-          if (!response.ok) {
-            throw new Error(`Erreur HTTP: ${response.status}`);
-          }
-
-          const data = await response.json();
-
-          if (data.success && data.approvalUrl) {
-            console.log(
-              '✅ Redirection PayPal depuis annuaire:',
-              data.approvalUrl
-            );
-            window.location.href = data.approvalUrl;
-          } else {
-            throw new Error(data.message || 'Erreur création abonnement');
-          }
-        } catch (error) {
-          console.error('❌ Erreur souscription depuis annuaire:', error);
-          subscribeBtn.disabled = false;
-          subscribeBtn.innerHTML = "🚀 S'abonner maintenant";
-          alert(
-            "Erreur lors de la création de l'abonnement. Veuillez réessayer."
-          );
-        }
-      });
-    }
   }
 
   // 🎨 STYLES POUR L'ENCART PREMIUM
