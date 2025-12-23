@@ -1370,7 +1370,7 @@ async function handleDeleteAccount() {
       '• Supprimera définitivement votre profil\n' +
       '• Effacera toutes vos photos\n' +
       '• Supprimera tous vos messages\n' +
-      '• Annulera vos abonnements\n' +
+      "• 🚨 N'ANNULE PAS votre abonnement PayPal (vous devez l'annuler séparément sur PayPal)\n" +
       '• EST IRRÉVERSIBLE\n\n' +
       'Tapez "OUI" pour confirmer'
   );
