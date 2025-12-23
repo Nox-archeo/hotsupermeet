@@ -116,6 +116,7 @@ app.use(
           'https://translate.google.com', // Google Translate
           'https://translate.googleapis.com', // Google Translate API
           'https://translate-pa.googleapis.com', // Google Translate API additionnelle
+          'https://www.googletagmanager.com', // Google Analytics
         ],
         'script-src-attr': ["'unsafe-inline'"], // Autoriser onclick inline
         styleSrc: [
