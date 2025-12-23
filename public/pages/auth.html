@@ -492,5 +492,23 @@
         }
       }
     </style>
+
+    <!-- Scripts -->
+    <script src="/js/app.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+      // Menu mobile
+      document.addEventListener('DOMContentLoaded', function () {
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const navMenu = document.getElementById('navMenu');
+
+        if (mobileMenuToggle && navMenu) {
+          mobileMenuToggle.addEventListener('click', function () {
+            navMenu.classList.toggle('active');
+            this.classList.toggle('active');
+          });
+        }
+      });
+    </script>
   </body>
 </html>

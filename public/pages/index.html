@@ -109,8 +109,26 @@
         border-color: #3498db;
       }
 
-      /* Responsive - cacher sur mobile pour économiser l'espace */
+      /* Responsive - améliorer pour mobile */
       @media (max-width: 768px) {
+        .language-selector-nav {
+          position: absolute;
+          right: 120px;
+          top: 50%;
+          transform: translateY(-50%);
+          margin-left: 0;
+          z-index: 999;
+        }
+
+        .language-selector-nav .language-dropdown {
+          padding: 4px 6px;
+          font-size: 11px;
+          min-width: 45px;
+          background: rgba(52, 73, 94, 0.9);
+        }
+      }
+
+      @media (max-width: 480px) {
         .language-selector-nav {
           display: none;
         }
