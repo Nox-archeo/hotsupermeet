@@ -673,6 +673,42 @@ app.get('/payment/cancel', (req, res) => {
   res.redirect('/pages/premium.html?cancelled=true');
 });
 
+// 🧪 ROUTE TEST PREMIUM STATUS - SANS AUTH !
+app.get('/api/test-premium-simple/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const User = require('./server/models/User');
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'Utilisateur non trouvé',
+      });
+    }
+
+    const premiumCheck = {
+      userId: user._id,
+      nom: user.profile.nom,
+      isPremium: user.premium.isPremium,
+      expiration: user.premium.expiration,
+      isExpired: user.premium.expiration < new Date(),
+      subscriptionId: user.premium.paypalSubscriptionId,
+      debugInfo: {
+        now: new Date(),
+        expirationDate: user.premium.expiration,
+        timeDiff: user.premium.expiration
+          ? user.premium.expiration.getTime() - Date.now()
+          : null,
+      },
+    };
+
+    res.json({ success: true, premium: premiumCheck });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // 🧪 ROUTE TEST PREMIUM STATUS - URGENT !
 app.get(
   '/api/test-premium',
