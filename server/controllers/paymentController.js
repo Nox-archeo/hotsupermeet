@@ -100,6 +100,8 @@ const confirmSubscription = async (req, res) => {
     const { subscription_id: subscriptionId } = req.query;
 
     console.log(`🔥 CONFIRMATION SUBSCRIPTION - ID: ${subscriptionId}`);
+    console.log(`🔥 QUERY PARAMS COMPLETS:`, req.query);
+    console.log(`🔥 URL COMPLÈTE:`, req.url);
 
     if (!subscriptionId) {
       console.log('❌ ERREUR: subscription_id manquant');
