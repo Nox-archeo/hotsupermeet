@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# Pages importantes pour SEO
+Allow: /pages/
+Allow: /css/
+Allow: /js/
+Allow: /images/
+
+# Bloquer les dossiers techniques
+Disallow: /server/
+Disallow: /uploads/
+Disallow: /node_modules/
+Disallow: /*.env
+Disallow: /package.json
+Disallow: /README.md
+
+# Sitemap
+Sitemap: https://www.hotsupermeet.com/sitemap.xml
+
+# Crawl-delay pour éviter la surcharge
+Crawl-delay: 1
