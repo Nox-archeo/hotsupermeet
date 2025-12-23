@@ -102,7 +102,7 @@ console.log(
   new Date().toISOString()
 );
 
-// Middleware de sécurité avec CSP personnalisée pour Cloudinary et PayPal
+// Middleware de sécurité avec CSP personnalisée pour Cloudinary, PayPal et Google Translate
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -113,20 +113,31 @@ app.use(
           "'unsafe-inline'", // Autoriser scripts inline
           'https://www.paypal.com', // PayPal SDK
           'https://js.stripe.com', // Au cas où pour Stripe
+          'https://translate.google.com', // Google Translate
+          'https://translate.googleapis.com', // Google Translate API
         ],
         'script-src-attr': ["'unsafe-inline'"], // Autoriser onclick inline
-        styleSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          'https://fonts.googleapis.com', // Google Fonts
+          'https://translate.googleapis.com', // Google Translate styles
+        ],
         imgSrc: [
           "'self'",
           'data:',
           'https://res.cloudinary.com', // Autoriser images Cloudinary
           'https://*.cloudinary.com', // Toutes les sous-domaines Cloudinary
         ],
-        fontSrc: ["'self'"],
+        fontSrc: [
+          "'self'",
+          'https://fonts.gstatic.com', // Google Fonts
+        ],
         connectSrc: [
           "'self'",
           'https://api.paypal.com', // API PayPal
           'https://www.paypal.com', // PayPal SDK
+          'https://translate.googleapis.com', // Google Translate API
         ],
         frameSrc: [
           "'self'",
