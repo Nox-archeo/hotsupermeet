@@ -21,6 +21,12 @@ class DirectoryPage {
       console.log(
         '❌ Utilisateur non premium - Affichage message premium dans la zone profils'
       );
+      // Changer le message de chargement pour les non-premium
+      const resultsCount = document.getElementById('resultsCount');
+      if (resultsCount) {
+        resultsCount.textContent =
+          '👑 Abonnement Premium requis pour voir les profils';
+      }
       this.showPremiumMessageInProfilesArea();
       return;
     }
