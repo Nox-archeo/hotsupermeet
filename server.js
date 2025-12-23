@@ -156,13 +156,31 @@ app.use(
 );
 app.use(compression());
 
-// Rate limiting
-const limiter = rateLimit({
+// Rate limiting avec différents niveaux de protection
+const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 1000,
   message: 'Trop de requêtes depuis cette IP, veuillez réessayer plus tard.',
+  standardHeaders: true,
+  legacyHeaders: false,
 });
-app.use(limiter);
+
+// Rate limiting strict pour authentification (anti-bruteforce)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Seulement 5 tentatives de login par IP/15min
+  message: 'Trop de tentatives de connexion. Réessayez dans 15 minutes.',
+  skipSuccessfulRequests: true,
+});
+
+// Rate limiting pour upload (anti-spam de fichiers)
+const uploadLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10, // 10 uploads max par minute
+  message: "Trop d'uploads. Attendez 1 minute.",
+});
+
+app.use(generalLimiter);
 
 // Middleware CORS
 app.use(
@@ -172,9 +190,45 @@ app.use(
   })
 );
 
-// Middleware pour parser le JSON
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+// Middleware pour parser le JSON avec sécurité renforcée
+app.use(
+  express.json({
+    limit: '10mb',
+    verify: (req, res, buf) => {
+      // Vérification de base contre JSON malformé
+      try {
+        JSON.parse(buf);
+      } catch (e) {
+        throw new Error('Invalid JSON');
+      }
+    },
+  })
+);
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Protection contre les injections NoSQL basique
+app.use((req, res, next) => {
+  // Filtrer les caractères dangereux dans les paramètres
+  const filterPayload = obj => {
+    if (obj && typeof obj === 'object') {
+      for (let key in obj) {
+        if (typeof obj[key] === 'string') {
+          // Supprimer les caractères potentiellement dangereux
+          obj[key] = obj[key].replace(/[<>'"$]/g, '');
+        } else if (typeof obj[key] === 'object') {
+          filterPayload(obj[key]);
+        }
+      }
+    }
+  };
+
+  // Appliquer le filtre aux données entrantes
+  if (req.body) filterPayload(req.body);
+  if (req.query) filterPayload(req.query);
+  if (req.params) filterPayload(req.params);
+
+  next();
+});
 
 // Middleware pour l'upload de fichiers - CORRECTION POUR RENDER
 app.use(
@@ -665,14 +719,14 @@ app.delete(
   }
 );
 
-// Charger les routes API (elles gèrent elles-mêmes les erreurs MongoDB)
-app.use('/api/auth', require('./server/routes/auth'));
+// Charger les routes API avec protections de sécurité renforcées
+app.use('/api/auth', authLimiter, require('./server/routes/auth')); // Protection anti-bruteforce
 app.use('/api/users', require('./server/routes/users'));
 app.use('/api/ads', require('./server/routes/ads')); // ← ROUTE ADS AVEC CONTROLLER !
 app.use('/api/messages', require('./server/routes/messages'));
 app.use('/api/payments', require('./server/routes/payments'));
 app.use('/api/tonight', require('./server/routes/tonight'));
-app.use('/api/uploads', require('./server/routes/uploads'));
+app.use('/api/uploads', uploadLimiter, require('./server/routes/uploads')); // Protection anti-spam upload
 app.use('/api/subscriptions', require('./server/routes/subscriptions'));
 app.use('/api/cam', require('./server/routes/cam')); // ✅ ROUTE CAM MANQUANTE !
 app.use('/api/privatePhotos', require('./server/routes/privatePhotos')); // ✅ ROUTE PRIVATE PHOTOS MANQUANTE !
@@ -2157,6 +2211,46 @@ io.on('connection', socket => {
 });
 
 // 🎯 MATCHING SIMPLE - PAS D'AUTOMATION
+
+// Gestionnaire global d'erreurs de sécurité
+app.use((err, req, res, next) => {
+  console.error('🚨 ERREUR SÉCURITÉ:', {
+    error: err.message,
+    ip: req.ip,
+    url: req.url,
+    method: req.method,
+    userAgent: req.get('User-Agent'),
+    timestamp: new Date().toISOString(),
+  });
+
+  // Ne pas révéler les détails d'erreur en production
+  if (process.env.NODE_ENV === 'production') {
+    res.status(500).json({
+      success: false,
+      error: 'Erreur serveur interne',
+    });
+  } else {
+    res.status(500).json({
+      success: false,
+      error: err.message,
+    });
+  }
+});
+
+// Middleware pour les routes non trouvées (404)
+app.use((req, res) => {
+  console.log('🚨 TENTATIVE ACCÈS ROUTE INEXISTANTE:', {
+    ip: req.ip,
+    url: req.url,
+    method: req.method,
+    userAgent: req.get('User-Agent'),
+  });
+
+  res.status(404).json({
+    success: false,
+    error: 'Route non trouvée',
+  });
+});
 
 // Démarrer le serveur
 server.listen(PORT, '0.0.0.0', () => {
