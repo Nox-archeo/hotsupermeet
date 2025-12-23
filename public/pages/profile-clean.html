@@ -323,6 +323,25 @@
                   </div>
                 </div>
 
+                <!-- Bouton déconnexion mobile -->
+                <div
+                  class="mobile-logout-section"
+                  style="margin: 1.5rem 0; text-align: center; display: none"
+                >
+                  <button
+                    id="mobileLogoutBtn"
+                    class="btn-secondary"
+                    style="
+                      width: 100%;
+                      background: #dc3545;
+                      border-color: #dc3545;
+                      color: white;
+                    "
+                  >
+                    🚪 Se déconnecter
+                  </button>
+                </div>
+
                 <div class="profile-form">
                   <form id="profileForm">
                     <div class="form-grid">
@@ -893,7 +912,30 @@
         .profile-stats {
           justify-content: center;
         }
+
+        /* Afficher le bouton déconnexion seulement sur mobile */
+        .mobile-logout-section {
+          display: block !important;
+        }
       }
     </style>
+
+    <script>
+      // JavaScript pour le bouton déconnexion mobile
+      document.addEventListener('DOMContentLoaded', function () {
+        const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+
+        if (mobileLogoutBtn) {
+          mobileLogoutBtn.addEventListener('click', function () {
+            if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+              // Supprimer le token
+              localStorage.removeItem('hotmeet_token');
+              // Rediriger vers la page d'accueil
+              window.location.href = '/';
+            }
+          });
+        }
+      });
+    </script>
   </body>
 </html>
