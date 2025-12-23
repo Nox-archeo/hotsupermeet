@@ -304,7 +304,7 @@ class AuthPage {
           } else {
             window.location.href = '/profile';
           }
-        }, 1000);
+        }, 500); // Réduit de 1000ms à 500ms
       } else {
         this.showError(result.error.message || 'Erreur de connexion');
       }

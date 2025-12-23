@@ -118,9 +118,10 @@
     if (redirectUrl) {
       console.log('🔄 Redirection post-connexion vers:', redirectUrl);
       localStorage.removeItem('hotmeet_redirect_after_login');
-      setTimeout(() => {
-        window.location.href = redirectUrl;
-      }, 1000);
+      window.location.href = redirectUrl; // Redirection immédiate, pas de setTimeout
+    } else {
+      // Pas de page sauvegardée, aller au profil
+      window.location.href = '/profile';
     }
   }
 
