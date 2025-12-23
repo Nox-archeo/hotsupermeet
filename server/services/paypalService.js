@@ -4,7 +4,7 @@ class PayPalService {
   constructor() {
     this.clientId = process.env.PAYPAL_CLIENT_ID;
     this.secret = process.env.PAYPAL_SECRET;
-    this.environment = process.env.PAYPAL_ENVIRONMENT || 'sandbox';
+    this.environment = process.env.PAYPAL_ENVIRONMENT;
     this.baseUrl =
       this.environment === 'live'
         ? 'https://api.paypal.com'
