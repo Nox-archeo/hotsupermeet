@@ -242,7 +242,7 @@ class ImageUpload {
 
   // Obtenir le token JWT
   getToken() {
-    return localStorage.getItem('token');
+    return localStorage.getItem('hotmeet_token');
   }
 
   // Afficher un message

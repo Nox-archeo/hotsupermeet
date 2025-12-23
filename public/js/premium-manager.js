@@ -19,7 +19,7 @@ class PremiumManager {
   // Charger le statut premium de l'utilisateur
   async loadPremiumStatus() {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('hotmeet_token');
       if (!token) return;
 
       const response = await fetch('/api/payments/status', {
