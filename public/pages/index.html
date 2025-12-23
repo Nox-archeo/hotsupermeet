@@ -54,6 +54,15 @@
           'google_translate_element'
         );
       }
+
+      // Fonction pour changer la langue manuellement
+      function translateTo(lang) {
+        var selectField = document.querySelector('select.goog-te-combo');
+        if (selectField) {
+          selectField.value = lang;
+          selectField.dispatchEvent(new Event('change'));
+        }
+      }
     </script>
     <script
       type="text/javascript"
@@ -61,34 +70,41 @@
     ></script>
 
     <style>
-      .google-translate {
-        margin-right: 10px;
+      /* Sélecteur de langue personnalisé */
+      .language-selector {
+        margin-right: 15px;
+        position: relative;
+        display: inline-block;
       }
-      .google-translate select {
+      .language-dropdown {
         background: #2c3e50;
         color: white;
         border: 1px solid #555;
-        padding: 5px;
-        border-radius: 4px;
-        font-size: 12px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        cursor: pointer;
+        outline: none;
+        transition: all 0.3s ease;
       }
-      .goog-te-combo {
-        background: #2c3e50 !important;
-        color: white !important;
-        border: 1px solid #555 !important;
-        padding: 5px !important;
-        border-radius: 4px !important;
-        font-size: 12px !important;
+      .language-dropdown:hover {
+        background: #34495e;
+        border-color: #7f8c8d;
       }
-      .goog-te-gadget {
-        font-family: inherit !important;
+      .language-dropdown:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
       }
-      .goog-te-gadget-simple {
-        background-color: #2c3e50 !important;
-        border: 1px solid #555 !important;
-        font-size: 12px !important;
-        border-radius: 4px !important;
-        padding: 2px !important;
+
+      /* Cacher le widget Google Translate par défaut */
+      #google_translate_element {
+        display: none;
+      }
+      .goog-te-banner-frame.skiptranslate {
+        display: none !important;
+      }
+      body {
+        top: 0px !important;
       }
     </style>
   </head>
@@ -124,7 +140,22 @@
         </div>
 
         <div class="nav-actions">
-          <div id="google_translate_element" class="google-translate"></div>
+          <div class="language-selector">
+            <select
+              class="language-dropdown"
+              onchange="translateTo(this.value)"
+            >
+              <option value="">🌍 Langue</option>
+              <option value="fr">🇫🇷 Français</option>
+              <option value="en">🇬🇧 English</option>
+              <option value="de">🇩🇪 Deutsch</option>
+              <option value="it">🇮🇹 Italiano</option>
+              <option value="es">🇪🇸 Español</option>
+              <option value="nl">🇳🇱 Nederlands</option>
+              <option value="pt">🇵🇹 Português</option>
+            </select>
+          </div>
+          <div id="google_translate_element" style="display: none"></div>
           <button class="btn-secondary" id="loginBtn">Connexion</button>
           <button class="btn-primary" id="registerBtn">Inscription</button>
           <div class="mobile-menu-toggle" id="mobileMenuToggle">
