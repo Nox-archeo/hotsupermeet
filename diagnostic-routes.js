@@ -147,4 +147,40 @@ router.get('/diagnostic/premium-access/:userId', async (req, res) => {
   }
 });
 
+// 🧪 ROUTE DE DIAGNOSTIC - Lister utilisateurs pour trouver votre ID
+router.get('/diagnostic/find-user/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
+    const user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+      return res.json({
+        success: false,
+        message: 'Utilisateur non trouvé',
+        email: email,
+      });
+    }
+
+    res.json({
+      success: true,
+      user: {
+        id: user._id,
+        email: user.email,
+        username: user.username,
+        premium: {
+          isPremium: user.premium.isPremium,
+          expiration: user.premium.expiration,
+          subscriptionId: user.premium.paypalSubscriptionId,
+        },
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
 module.exports = router;
