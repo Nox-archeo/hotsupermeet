@@ -661,6 +661,9 @@ app.use('/api/subscriptions', require('./server/routes/subscriptions'));
 app.use('/api/cam', require('./server/routes/cam')); // ✅ ROUTE CAM MANQUANTE !
 app.use('/api/privatePhotos', require('./server/routes/privatePhotos')); // ✅ ROUTE PRIVATE PHOTOS MANQUANTE !
 
+// 🧪 ROUTES DE DIAGNOSTIC SYSTÈME
+app.use('/api', require('./diagnostic-routes'));
+
 // 🚀 Routes PayPal directes (URLs de retour)
 const paymentController = require('./server/controllers/paymentController');
 app.get('/payment/success', (req, res, next) => {
