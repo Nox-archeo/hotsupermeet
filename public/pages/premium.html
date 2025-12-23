@@ -592,6 +592,34 @@
 
       // Navigation
       document.addEventListener('DOMContentLoaded', () => {
+        // 🔧 PRÉVENTION CORRUPTION JWT APRÈS PAIEMENT PAYPAL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (
+          urlParams.get('refresh_token') === 'true' &&
+          urlParams.get('success') === 'true'
+        ) {
+          console.log('🔧 Rafraîchissement token JWT post-paiement...');
+
+          // Nettoyer localStorage corrompu
+          const currentToken = localStorage.getItem('hotmeet_token');
+          if (!currentToken || currentToken.split('.').length !== 3) {
+            console.log('🧹 Token JWT corrompu détecté - nettoyage...');
+            localStorage.removeItem('hotmeet_token');
+            localStorage.removeItem('hotmeet_user');
+
+            showNotification(
+              'Token de session mis à jour. Veuillez vous reconnecter.',
+              'warning'
+            );
+
+            setTimeout(() => {
+              window.location.href =
+                '/auth?message=reconnect_after_payment&premium_activated=true';
+            }, 3000);
+            return;
+          }
+        }
+
         // Menu mobile
         const navToggle = document.getElementById('navToggle');
         const navMenu = document.getElementById('navMenu');
