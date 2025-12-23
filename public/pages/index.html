@@ -40,6 +40,57 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/css/responsive.css?v=2" />
+
+    <!-- Google Translate -->
+    <script type="text/javascript">
+      function googleTranslateElementInit() {
+        new google.translate.TranslateElement(
+          {
+            pageLanguage: 'fr',
+            includedLanguages: 'en,de,it,es,nl,pt',
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+            autoDisplay: false,
+          },
+          'google_translate_element'
+        );
+      }
+    </script>
+    <script
+      type="text/javascript"
+      src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+    ></script>
+
+    <style>
+      .google-translate {
+        margin-right: 10px;
+      }
+      .google-translate select {
+        background: #2c3e50;
+        color: white;
+        border: 1px solid #555;
+        padding: 5px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+      .goog-te-combo {
+        background: #2c3e50 !important;
+        color: white !important;
+        border: 1px solid #555 !important;
+        padding: 5px !important;
+        border-radius: 4px !important;
+        font-size: 12px !important;
+      }
+      .goog-te-gadget {
+        font-family: inherit !important;
+      }
+      .goog-te-gadget-simple {
+        background-color: #2c3e50 !important;
+        border: 1px solid #555 !important;
+        font-size: 12px !important;
+        border-radius: 4px !important;
+        padding: 2px !important;
+      }
+    </style>
   </head>
   <body>
     <!-- Header -->
@@ -73,6 +124,7 @@
         </div>
 
         <div class="nav-actions">
+          <div id="google_translate_element" class="google-translate"></div>
           <button class="btn-secondary" id="loginBtn">Connexion</button>
           <button class="btn-primary" id="registerBtn">Inscription</button>
           <div class="mobile-menu-toggle" id="mobileMenuToggle">
