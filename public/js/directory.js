@@ -8,10 +8,171 @@ class DirectoryPage {
     this.init();
   }
 
-  init() {
+  async init() {
+    // 🔒 VÉRIFICATION PREMIUM OBLIGATOIRE POUR L'ANNUAIRE
+    console.log('🔄 Vérification du statut premium...');
+
+    const isUserPremium = await this.checkPremiumStatus();
+    if (!isUserPremium) {
+      console.log(
+        '❌ Utilisateur non premium - Affichage du message premium requis'
+      );
+      this.showPremiumRequired();
+      return;
+    }
+
+    console.log("✅ Utilisateur premium confirmé - Chargement de l'annuaire");
     this.setupEventListeners();
     this.setupLocationFilters();
     this.loadUsers();
+  }
+
+  // 🔒 VÉRIFICATION STATUT PREMIUM
+  async checkPremiumStatus() {
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+      if (!token) {
+        console.log('❌ Aucun token trouvé');
+        return false;
+      }
+
+      console.log('📡 Vérification du statut premium via API...');
+      const response = await fetch('/api/payments/status', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        console.log('❌ Réponse API non valide:', response.status);
+        return false;
+      }
+
+      const data = await response.json();
+      const isPremium =
+        data.success && data.subscription && data.subscription.isPremium;
+
+      console.log('📊 Résultat vérification premium:', {
+        success: data.success,
+        isPremium: isPremium,
+        expiration: data.subscription?.expiration,
+      });
+
+      return isPremium;
+    } catch (error) {
+      console.error('❌ Erreur vérification premium:', error);
+      return false;
+    }
+  }
+
+  // 🚫 AFFICHAGE MESSAGE PREMIUM REQUIS
+  showPremiumRequired() {
+    const container =
+      document.querySelector('.directory-container') ||
+      document.querySelector('.main-content') ||
+      document.body;
+
+    if (container) {
+      container.innerHTML = `
+        <div class="premium-required-message">
+          <div class="premium-icon">👑</div>
+          <h2>Accès Premium Requis</h2>
+          <p>L'annuaire des membres est réservé aux abonnés premium.</p>
+          <p>Découvrez tous les profils de notre communauté et bénéficiez d'un accès illimité.</p>
+          <div class="premium-actions">
+            <a href="/premium.html" class="btn btn-premium">
+              ✨ Devenir Premium
+            </a>
+            <a href="/" class="btn btn-secondary">
+              🏠 Retour à l'accueil
+            </a>
+          </div>
+        </div>
+      `;
+    }
+
+    // Ajouter les styles CSS pour le message premium
+    this.addPremiumStyles();
+  }
+
+  // 🎨 STYLES CSS POUR LE MESSAGE PREMIUM
+  addPremiumStyles() {
+    if (document.getElementById('premium-required-styles')) {
+      return; // Styles déjà ajoutés
+    }
+
+    const styles = document.createElement('style');
+    styles.id = 'premium-required-styles';
+    styles.innerHTML = `
+      .premium-required-message {
+        text-align: center;
+        padding: 60px 20px;
+        max-width: 600px;
+        margin: 50px auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      }
+      .premium-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        display: block;
+      }
+      .premium-required-message h2 {
+        color: #667eea;
+        margin-bottom: 20px;
+        font-size: 2rem;
+        font-weight: 600;
+      }
+      .premium-required-message p {
+        color: #666;
+        margin-bottom: 15px;
+        font-size: 1.1rem;
+        line-height: 1.6;
+      }
+      .premium-actions {
+        margin-top: 30px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .btn-premium {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white !important;
+        padding: 15px 30px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-block;
+      }
+      .btn-premium:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        text-decoration: none;
+        color: white !important;
+      }
+      .btn-secondary {
+        background: #f8f9fa;
+        color: #6c757d !important;
+        padding: 15px 30px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        border: 2px solid #dee2e6;
+        transition: all 0.3s ease;
+        display: inline-block;
+      }
+      .btn-secondary:hover {
+        background: #e9ecef;
+        color: #495057 !important;
+        text-decoration: none;
+        transform: translateY(-1px);
+      }
+    `;
+    document.head.appendChild(styles);
   }
 
   setupEventListeners() {
@@ -572,7 +733,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     console.log('✅ Sélecteurs trouvés, initialisation DirectoryPage');
-    window.directoryPage = new DirectoryPage();
+
+    // Lancer l'initialisation
+    new DirectoryPage();
   };
 
   // Démarrer l'initialisation après un court délai
