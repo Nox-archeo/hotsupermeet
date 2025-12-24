@@ -2,6 +2,8 @@ console.log('🚨 ADS SCRIPT LOADED - DEBUG ACTIVÉ');
 
 // Variables globales
 let adPhotoFiles = [];
+let currentAdsPage = 1;
+const adsPerPage = 12;
 
 // =================================
 // VÉRIFICATION PREMIUM
@@ -702,7 +704,7 @@ async function loadAds() {
 
     console.log('📋 FILTRES:', { category, country, region, city });
 
-    let url = '/api/ads?limit=20';
+    let url = `/api/ads?limit=${adsPerPage}&page=${currentAdsPage}`;
     if (category) url += `&category=${category}`;
     if (country) url += `&country=${country}`;
     if (region) url += `&region=${region}`;
@@ -808,6 +810,11 @@ async function loadAds() {
 
         container.appendChild(adElement);
       });
+
+      // Mettre à jour la pagination si elle existe dans la réponse
+      if (result.pagination) {
+        updateAdsPagination(result.pagination);
+      }
     } else {
       console.log('❌ AUCUNE ANNONCE TROUVÉE');
       console.log('Result details:', {
@@ -869,6 +876,48 @@ function formatCountryName(countryKey) {
     luxembourg: 'Luxembourg',
   };
   return countries[countryKey] || countryKey;
+}
+
+// =================================
+// GESTION PAGINATION DES ANNONCES
+// =================================
+
+function updateAdsPagination(pagination) {
+  const paginationDiv = document.getElementById('ads-pagination');
+  if (!paginationDiv) return;
+
+  const { page, pages, total } = pagination;
+
+  if (pages <= 1) {
+    paginationDiv.innerHTML = '';
+    return;
+  }
+
+  let html = '<div class="pagination-controls">';
+
+  // Bouton précédent
+  if (page > 1) {
+    html += `<button class="pagination-btn" onclick="goToAdsPage(${page - 1})">← Précédent</button>`;
+  }
+
+  // Pages
+  for (let i = Math.max(1, page - 2); i <= Math.min(pages, page + 2); i++) {
+    html += `<button class="pagination-btn ${i === page ? 'active' : ''}" onclick="goToAdsPage(${i})">${i}</button>`;
+  }
+
+  // Bouton suivant
+  if (page < pages) {
+    html += `<button class="pagination-btn" onclick="goToAdsPage(${page + 1})">Suivant →</button>`;
+  }
+
+  html += '</div>';
+  paginationDiv.innerHTML = html;
+}
+
+function goToAdsPage(pageNumber) {
+  if (pageNumber < 1) return;
+  currentAdsPage = pageNumber;
+  loadAds();
 }
 
 // Fonction pour afficher les détails d'une annonce avec chargement des données complètes
