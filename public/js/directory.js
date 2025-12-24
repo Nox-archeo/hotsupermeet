@@ -756,8 +756,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     console.log('✅ Sélecteurs trouvés, initialisation DirectoryPage');
 
-    // Lancer l'initialisation
-    new DirectoryPage();
+    // Lancer l'initialisation avec variable globale
+    window.directoryPage = new DirectoryPage();
   };
 
   // Démarrer l'initialisation après un court délai
