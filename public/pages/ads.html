@@ -676,6 +676,10 @@
           <div id="ads-container">
             <p>Chargement des annonces...</p>
           </div>
+
+          <div class="pagination" id="ads-pagination">
+            <!-- La pagination sera générée ici -->
+          </div>
         </div>
 
         <!-- SECTION MES ANNONCES -->
@@ -754,6 +758,48 @@
         </div>
       </div>
     </footer>
+
+    <style>
+      /* Styles pagination annonces */
+      .pagination {
+        display: flex;
+        justify-content: center;
+        margin: 2rem 0;
+      }
+
+      .pagination-controls {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+
+      .pagination-btn {
+        padding: 0.5rem 1rem;
+        border: 1px solid #ddd;
+        background: white;
+        color: #333;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .pagination-btn:hover {
+        background: #f5f5f5;
+      }
+
+      .pagination-btn.active {
+        background: #8a2be2;
+        color: white;
+        border-color: #8a2be2;
+      }
+
+      @media (max-width: 768px) {
+        .pagination-controls {
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+      }
+    </style>
 
     <!-- Scripts -->
     <script src="/js/app.js"></script>
