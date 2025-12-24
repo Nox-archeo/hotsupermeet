@@ -637,6 +637,13 @@ class DirectoryPage {
     paginationDiv.innerHTML = html;
   }
 
+  // Navigation vers une page spécifique
+  goToPage(pageNumber) {
+    if (pageNumber < 1) return;
+    this.currentPage = pageNumber;
+    this.loadUsers();
+  }
+
   updateResultsCount(total) {
     const resultsCount = document.getElementById('resultsCount');
     const resultsDescription = document.getElementById('resultsDescription');
