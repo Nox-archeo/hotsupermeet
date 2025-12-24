@@ -144,6 +144,7 @@ app.use(
           'https://api.paypal.com', // API PayPal
           'https://www.paypal.com', // PayPal SDK
           'https://translate.googleapis.com', // Google Translate API
+          'https://www.google-analytics.com', // Google Analytics
         ],
         frameSrc: [
           "'self'",
