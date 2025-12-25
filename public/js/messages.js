@@ -1904,7 +1904,7 @@ class MessagesManager {
     const userId = button.getAttribute('data-user-id');
     if (!userId) return;
 
-    // 💎 VÉRIFICATION PREMIUM AVANT DE VOIR UN PROFIL
+    // 💎 D'ABORD VÉRIFIER SI L'UTILISATEUR ACTUEL EST PREMIUM
     try {
       const token = localStorage.getItem('hotmeet_token');
       if (!token) {
@@ -1912,28 +1912,31 @@ class MessagesManager {
         return;
       }
 
-      // Vérifier le statut premium du profil cible et de l'utilisateur actuel
-      const response = await fetch(`/api/users/profile/${userId}/view-check`, {
+      // Vérifier d'abord notre propre statut premium
+      const statusResponse = await fetch('/api/payments/status', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (response.ok) {
-        // Autorisation OK - Rediriger vers la page de profil
-        window.location.href = `/pages/profile-view.html?userId=${userId}`;
-      } else {
-        const error = await response.json();
-        if (error.error?.code === 'PREMIUM_REQUIRED') {
-          // Non-premium essaie de voir un profil premium → Redirection
-          console.log('🔒 Premium requis pour voir ce profil - Redirection');
-          window.location.href =
-            error.error.redirectTo || '/pages/premium.html';
-        } else {
-          console.error('Erreur vérification profil:', error);
+      if (statusResponse.ok) {
+        const statusData = await statusResponse.json();
+        const isUserPremium =
+          statusData.success &&
+          statusData.subscription &&
+          statusData.subscription.isPremium;
+
+        if (!isUserPremium) {
+          // Non-premium → Redirection immédiate vers premium
+          console.log('🔒 Utilisateur non premium - Redirection vers premium');
+          window.location.href = '/pages/premium.html';
+          return;
         }
       }
+
+      // Si premium, autoriser l'accès au profil
+      window.location.href = `/pages/profile-view.html?userId=${userId}`;
     } catch (error) {
-      console.error('Erreur lors de la vérification du profil:', error);
-      // 🔒 SÉCURITÉ: En cas d'erreur de vérification, rediriger vers premium par sécurité
+      console.error('Erreur lors de la vérification premium:', error);
+      // En cas d'erreur, rediriger vers premium par sécurité
       window.location.href = '/pages/premium.html';
     }
   }
@@ -3207,7 +3210,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.messagesManager.viewAdProfile = async function (userId) {
     console.log('🔍 Voir profil utilisateur:', userId);
 
-    // 💎 VÉRIFICATION PREMIUM AVANT DE VOIR UN PROFIL
+    // 💎 D'ABORD VÉRIFIER SI L'UTILISATEUR ACTUEL EST PREMIUM
     try {
       const token = localStorage.getItem('hotmeet_token');
       if (!token) {
@@ -3215,28 +3218,31 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Vérifier le statut premium du profil cible et de l'utilisateur actuel
-      const response = await fetch(`/api/users/profile/${userId}/view-check`, {
+      // Vérifier d'abord notre propre statut premium
+      const statusResponse = await fetch('/api/payments/status', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (response.ok) {
-        // Autorisation OK - Rediriger vers la page de profil
-        window.location.href = `/pages/profile-view.html?userId=${userId}`;
-      } else {
-        const error = await response.json();
-        if (error.error?.code === 'PREMIUM_REQUIRED') {
-          // Non-premium essaie de voir un profil premium → Redirection
-          console.log('🔒 Premium requis pour voir ce profil - Redirection');
-          window.location.href =
-            error.error.redirectTo || '/pages/premium.html';
-        } else {
-          console.error('Erreur vérification profil:', error);
+      if (statusResponse.ok) {
+        const statusData = await statusResponse.json();
+        const isUserPremium =
+          statusData.success &&
+          statusData.subscription &&
+          statusData.subscription.isPremium;
+
+        if (!isUserPremium) {
+          // Non-premium → Redirection immédiate vers premium
+          console.log('🔒 Utilisateur non premium - Redirection vers premium');
+          window.location.href = '/pages/premium.html';
+          return;
         }
       }
+
+      // Si premium, autoriser l'accès au profil
+      window.location.href = `/pages/profile-view.html?userId=${userId}`;
     } catch (error) {
-      console.error('Erreur lors de la vérification du profil:', error);
-      // 🔒 SÉCURITÉ: En cas d'erreur de vérification, rediriger vers premium par sécurité
+      console.error('Erreur lors de la vérification premium:', error);
+      // En cas d'erreur, rediriger vers premium par sécurité
       window.location.href = '/pages/premium.html';
     }
   };
