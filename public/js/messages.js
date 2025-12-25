@@ -1933,8 +1933,8 @@ class MessagesManager {
       }
     } catch (error) {
       console.error('Erreur lors de la vérification du profil:', error);
-      // En cas d'erreur, autoriser l'accès (fallback)
-      window.location.href = `/profile-view?id=${userId}`;
+      // 🔒 SÉCURITÉ: En cas d'erreur de vérification, rediriger vers premium par sécurité
+      window.location.href = '/pages/premium.html';
     }
   }
 
