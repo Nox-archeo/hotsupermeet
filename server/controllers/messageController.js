@@ -37,16 +37,31 @@ const sendMessage = async (req, res) => {
 
     // Vérifier si l'utilisateur expéditeur est premium (temporairement désactivé pour les tests)
     const fromUser = await User.findById(fromUserId);
-    // TODO: Réactiver la restriction premium plus tard
-    // if (!fromUser.premium.isPremium) {
-    //   return res.status(403).json({
-    //     success: false,
-    //     error: {
-    //       code: 'PREMIUM_REQUIRED',
-    //       message: 'Vous devez être membre premium pour envoyer des messages',
-    //     },
-    //   });
-    // }
+
+    // 💎 NOUVELLE RÈGLE : Si l'expéditeur N'EST PAS premium et que le destinataire EST premium
+    // alors interdire l'envoi (sauf si c'est le premier message de demande)
+    if (!fromUser.premium.isActive && toUser.premium.isActive) {
+      // Vérifier s'il y a déjà des messages entre eux
+      const hasExistingConversation = await Message.findOne({
+        $or: [
+          { fromUserId, toUserId },
+          { fromUserId: toUserId, toUserId: fromUserId },
+        ],
+      });
+
+      // Si il y a déjà une conversation, empêcher le non-premium de répondre au premium
+      if (hasExistingConversation) {
+        return res.status(403).json({
+          success: false,
+          error: {
+            code: 'PREMIUM_REQUIRED',
+            message:
+              'Vous devez être membre premium pour répondre à un membre premium',
+            redirectTo: '/pages/premium.html',
+          },
+        });
+      }
+    }
 
     // Vérifier que l'utilisateur ne s'envoie pas un message à lui-même
     if (fromUserId.toString() === toUserId.toString()) {
@@ -544,6 +559,20 @@ const handleChatRequest = async (req, res) => {
   try {
     const { messageId, action } = req.body; // action: 'approve' ou 'reject'
     const currentUserId = req.user._id;
+
+    // 💎 VÉRIFICATION PREMIUM OBLIGATOIRE pour accepter une demande
+    const currentUser = await User.findById(currentUserId);
+    if (action === 'approve' && !currentUser.premium.isActive) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'PREMIUM_REQUIRED',
+          message:
+            'Vous devez être membre premium pour accepter des demandes de chat',
+          redirectTo: '/pages/premium.html',
+        },
+      });
+    }
 
     // Trouver le message de demande
     const message = await Message.findById(messageId);
