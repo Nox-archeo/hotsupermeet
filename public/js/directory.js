@@ -450,9 +450,6 @@ class DirectoryPage {
             <button class="btn-primary view-profile-btn" data-user-id="${user.id}">
               Voir le profil
             </button>
-            <button class="btn-secondary contact-user-btn" data-user-id="${user.id}" data-user-name="${user.profile.nom}">
-              💌 Contacter
-            </button>
           </div>
         </div>
       </div>
@@ -686,16 +683,6 @@ class DirectoryPage {
         this.handleViewProfile(userId);
       });
     });
-
-    // 💎 Boutons "Contacter" avec vérification premium
-    const contactBtns = document.querySelectorAll('.contact-user-btn');
-    contactBtns.forEach(btn => {
-      btn.addEventListener('click', e => {
-        const userId = e.target.getAttribute('data-user-id');
-        const userName = e.target.getAttribute('data-user-name');
-        this.handleContactUser(userId, userName);
-      });
-    });
   }
 
   viewProfile(userId) {
@@ -719,8 +706,8 @@ class DirectoryPage {
     window.location.href = `/pages/profile-view.html?userId=${userId}`;
   }
 
-  // 💎 GESTION CONTACT UTILISATEUR avec vérification premium
-  async handleContactUser(userId, userName) {
+  showError(message) {
+    const errorDiv = document.createElement('div');
     console.log(`🔍 Tentative de contact utilisateur: ${userName} (${userId})`);
 
     // Vérifier si l'utilisateur actuel est premium
