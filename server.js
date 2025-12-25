@@ -736,7 +736,10 @@ app.use('/api/privatePhotos', require('./server/routes/privatePhotos')); // ✅ 
 // 🧪 ROUTES DE DIAGNOSTIC SYSTÈME
 app.use('/api', require('./diagnostic-routes'));
 
-// 🚀 Routes PayPal directes (URLs de retour)
+// �️ ROUTE DEBUG PAYPAL (temporaire)
+app.use('/debug', require('./server/routes/debug-paypal'));
+
+// �🚀 Routes PayPal directes (URLs de retour)
 const paymentController = require('./server/controllers/paymentController');
 app.get('/payment/success', (req, res, next) => {
   paymentController.confirmSubscription(req, res).catch(next);
