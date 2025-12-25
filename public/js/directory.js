@@ -17,21 +17,9 @@ class DirectoryPage {
     console.log('🔄 Vérification du statut premium...');
     const isUserPremium = await this.checkPremiumStatus();
 
-    if (!isUserPremium) {
-      console.log(
-        '❌ Utilisateur non premium - Affichage message premium dans la zone profils'
-      );
-      // Changer le message de chargement pour les non-premium
-      const resultsCount = document.getElementById('resultsCount');
-      if (resultsCount) {
-        resultsCount.textContent =
-          '👑 Abonnement Premium requis pour voir les profils';
-      }
-      this.showPremiumMessageInProfilesArea();
-      return;
-    }
-
-    console.log('✅ Utilisateur premium confirmé - Chargement des profils');
+    // 📱 NOUVEAU: Permettre à tous les utilisateurs de voir l'annuaire
+    console.log("📱 Chargement de l'annuaire pour tous les utilisateurs");
+    this.isUserPremium = isUserPremium; // Stocker le statut premium
     this.loadUsers();
   }
 
@@ -462,6 +450,9 @@ class DirectoryPage {
             <button class="btn-primary view-profile-btn" data-user-id="${user.id}">
               Voir le profil
             </button>
+            <button class="btn-secondary contact-user-btn" data-user-id="${user.id}" data-user-name="${user.profile.nom}">
+              💌 Contacter
+            </button>
           </div>
         </div>
       </div>
@@ -695,10 +686,97 @@ class DirectoryPage {
         window.location.href = `/profile-view?id=${userId}`;
       });
     });
+
+    // 💎 Boutons "Contacter" avec vérification premium
+    const contactBtns = document.querySelectorAll('.contact-user-btn');
+    contactBtns.forEach(btn => {
+      btn.addEventListener('click', e => {
+        const userId = e.target.getAttribute('data-user-id');
+        const userName = e.target.getAttribute('data-user-name');
+        this.handleContactUser(userId, userName);
+      });
+    });
   }
 
   viewProfile(userId) {
     window.location.href = `/profile-view?id=${userId}`;
+  }
+
+  // 💎 GESTION CONTACT UTILISATEUR avec vérification premium
+  async handleContactUser(userId, userName) {
+    console.log(`🔍 Tentative de contact utilisateur: ${userName} (${userId})`);
+
+    // Vérifier si l'utilisateur actuel est premium
+    if (!this.isUserPremium) {
+      console.log('❌ Utilisateur non premium - Redirection vers page premium');
+      // Afficher message et redirection
+      this.showPremiumModal(userName);
+      return;
+    }
+
+    // Si premium, rediriger vers la messagerie
+    console.log('✅ Utilisateur premium - Redirection vers messagerie');
+    window.location.href = `/pages/messages.html?contact=${userId}`;
+  }
+
+  // 💎 MODAL PREMIUM pour contact
+  showPremiumModal(userName) {
+    const modal = document.createElement('div');
+    modal.className = 'premium-contact-modal';
+    modal.innerHTML = `
+      <div class="modal-overlay">
+        <div class="modal-content">
+          <div class="premium-icon">👑</div>
+          <h3>Premium Requis</h3>
+          <p>Vous devez être membre premium pour contacter <strong>${userName}</strong></p>
+          <div class="premium-price">Seulement 5.75 CHF/mois</div>
+          <ul class="premium-features-compact">
+            <li>✅ Messagerie illimitée</li>
+            <li>✅ Accès à tous les profils</li>
+            <li>✅ Visibilité prioritaire</li>
+          </ul>
+          <div class="modal-actions">
+            <button class="btn-premium-upgrade" onclick="window.location.href='/pages/premium.html'">
+              🚀 Devenir Premium
+            </button>
+            <button class="btn-cancel" onclick="this.closest('.premium-contact-modal').remove()">
+              Annuler
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    modal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    `;
+
+    // Styles pour le modal
+    const styles = `
+      .modal-overlay { background: rgba(0,0,0,0.8); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+      .modal-content { background: white; padding: 2rem; border-radius: 12px; text-align: center; max-width: 400px; margin: 1rem; }
+      .premium-icon { font-size: 3rem; margin-bottom: 1rem; }
+      .premium-price { color: #ff6b6b; font-size: 1.5rem; font-weight: bold; margin: 1rem 0; }
+      .premium-features-compact { list-style: none; padding: 0; margin: 1rem 0; }
+      .premium-features-compact li { margin: 0.5rem 0; }
+      .modal-actions { display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; }
+      .btn-premium-upgrade { background: linear-gradient(135deg, #ff6b6b, #ff8e8e); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: bold; }
+      .btn-cancel { background: #ccc; color: #333; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; }
+    `;
+
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = styles;
+    modal.appendChild(styleSheet);
+
+    document.body.appendChild(modal);
   }
 
   showError(message) {
