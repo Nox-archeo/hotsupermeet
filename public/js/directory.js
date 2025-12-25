@@ -678,12 +678,12 @@ class DirectoryPage {
 
   // CSP FIX: Attacher les event listeners après génération du HTML
   attachEventListeners() {
-    // Boutons "Voir le profil"
+    // 💎 Boutons "Voir le profil" avec vérification premium
     const viewProfileBtns = document.querySelectorAll('.view-profile-btn');
     viewProfileBtns.forEach(btn => {
       btn.addEventListener('click', e => {
         const userId = e.target.getAttribute('data-user-id');
-        window.location.href = `/profile-view?id=${userId}`;
+        this.handleViewProfile(userId);
       });
     });
 
@@ -700,6 +700,23 @@ class DirectoryPage {
 
   viewProfile(userId) {
     window.location.href = `/profile-view?id=${userId}`;
+  }
+
+  // 💎 GESTION VOIR PROFIL avec vérification premium
+  async handleViewProfile(userId) {
+    console.log(`🔍 Tentative de voir profil utilisateur: ${userId}`);
+
+    // Vérifier si l'utilisateur actuel est premium
+    if (!this.isUserPremium) {
+      console.log('❌ Utilisateur non premium - Redirection vers page premium');
+      // Redirection immédiate vers premium
+      window.location.href = '/pages/premium.html';
+      return;
+    }
+
+    // Si premium, rediriger vers le profil
+    console.log('✅ Utilisateur premium - Redirection vers profil');
+    window.location.href = `/pages/profile-view.html?userId=${userId}`;
   }
 
   // 💎 GESTION CONTACT UTILISATEUR avec vérification premium
