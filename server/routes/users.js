@@ -144,6 +144,55 @@ router.delete(
 // ROUTE TEMPORAIRE ADMIN: Supprimer les utilisateurs de test
 router.delete('/admin/delete-test-users', deleteTestUsers); // DELETE /api/users/admin/delete-test-users
 
+// 💎 ROUTE VÉRIFICATION PREMIUM pour accès profil
+router.get(
+  '/profile/:userId/view-check',
+  auth,
+  updateLastActivity,
+  async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const currentUserId = req.user._id;
+      const User = require('../models/User');
+
+      // Récupérer les infos des deux utilisateurs
+      const [currentUser, targetUser] = await Promise.all([
+        User.findById(currentUserId),
+        User.findById(userId),
+      ]);
+
+      if (!targetUser) {
+        return res.status(404).json({
+          success: false,
+          error: { message: 'Utilisateur non trouvé' },
+        });
+      }
+
+      // Si l'utilisateur actuel n'est pas premium ET que la cible EST premium
+      if (!currentUser.premium.isActive && targetUser.premium.isActive) {
+        return res.status(403).json({
+          success: false,
+          error: {
+            code: 'PREMIUM_REQUIRED',
+            message:
+              'Vous devez être membre premium pour voir ce profil premium',
+            redirectTo: '/pages/premium.html',
+          },
+        });
+      }
+
+      // Autorisation accordée
+      res.json({ success: true, canView: true });
+    } catch (error) {
+      console.error('Erreur vérification accès profil:', error);
+      res.status(500).json({
+        success: false,
+        error: { message: 'Erreur serveur' },
+      });
+    }
+  }
+); // GET /api/users/profile/:userId/view-check
+
 // ROUTE SUPPRIMÉE - Plus d'accès gratuit pour les femmes
 // router.post('/activate-female-free', auth, updateLastActivity, activateFemaleFree);
 

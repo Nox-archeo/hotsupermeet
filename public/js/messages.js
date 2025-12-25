@@ -1900,10 +1900,40 @@ class MessagesManager {
   }
 
   // Voir le profil d'un utilisateur
-  viewUserProfile(button) {
+  async viewUserProfile(button) {
     const userId = button.getAttribute('data-user-id');
-    if (userId) {
-      // Rediriger vers la page de visualisation du profil avec l'ID de l'utilisateur
+    if (!userId) return;
+
+    // 💎 VÉRIFICATION PREMIUM AVANT DE VOIR UN PROFIL
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+      if (!token) {
+        window.location.href = '/auth';
+        return;
+      }
+
+      // Vérifier le statut premium du profil cible et de l'utilisateur actuel
+      const response = await fetch(`/api/users/profile/${userId}/view-check`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.ok) {
+        // Autorisation OK - Rediriger vers la page de profil
+        window.location.href = `/pages/profile-view.html?userId=${userId}`;
+      } else {
+        const error = await response.json();
+        if (error.error?.code === 'PREMIUM_REQUIRED') {
+          // Non-premium essaie de voir un profil premium → Redirection
+          console.log('🔒 Premium requis pour voir ce profil - Redirection');
+          window.location.href =
+            error.error.redirectTo || '/pages/premium.html';
+        } else {
+          console.error('Erreur vérification profil:', error);
+        }
+      }
+    } catch (error) {
+      console.error('Erreur lors de la vérification du profil:', error);
+      // En cas d'erreur, autoriser l'accès (fallback)
       window.location.href = `/profile-view?id=${userId}`;
     }
   }
