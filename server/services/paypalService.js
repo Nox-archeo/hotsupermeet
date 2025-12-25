@@ -183,6 +183,20 @@ class PayPalService {
         'Erreur récupération abonnement PayPal:',
         error.response?.data || error.message
       );
+
+      // Gestion spécifique erreur 404 - Abonnement inexistant
+      if (error.response?.status === 404) {
+        const errorDetail = error.response.data;
+        if (errorDetail?.issue === 'INVALID_RESOURCE_ID') {
+          console.warn(
+            `🚨 PAYPAL: Abonnement ${subscriptionId} inexistant ou annulé`
+          );
+          throw new Error(
+            `Abonnement ${subscriptionId} non trouvé - possiblement annulé ou expiré`
+          );
+        }
+      }
+
       throw new Error("Échec de la récupération des détails de l'abonnement");
     }
   }
