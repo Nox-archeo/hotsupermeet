@@ -576,6 +576,15 @@ class MessagesManager {
         }
       } else {
         const error = await response.json();
+
+        // 💎 GESTION REDIRECTION PREMIUM pour acceptation
+        if (error.error?.code === 'PREMIUM_REQUIRED') {
+          console.log('🔒 Premium requis pour accepter - Redirection');
+          window.location.href =
+            error.error.redirectTo || '/pages/premium.html';
+          return;
+        }
+
         this.showNotification(
           error.error?.message || "Erreur lors de l'acceptation",
           'error'
