@@ -363,6 +363,50 @@ app.get('/health', (req, res) => {
   res.status(200).json(healthStatus);
 });
 
+// 🛡️ ROUTE ADMIN SÉCURITÉ - Voir utilisateurs suspects
+app.get('/admin/suspicious-users', (req, res) => {
+  // Vérifier mot de passe admin simple
+  const adminPass = req.query.pass;
+  if (adminPass !== 'hotmeet2024secure') {
+    return res.status(403).json({ error: 'Accès refusé' });
+  }
+
+  // En mode démo, simuler des données suspectes
+  const suspiciousUsers = [
+    {
+      _id: 'demo1',
+      email: 'brouteur1@yahoo.com',
+      pseudo: 'MoneyLover123',
+      location: 'Benin, Cotonou',
+      ip: '197.149.x.x',
+      createdAt: new Date('2025-12-25'),
+      profilePhoto: null,
+      flags: ['Pays à risque', 'Email suspect'],
+    },
+    {
+      _id: 'demo2',
+      email: 'richman@gmail.com',
+      pseudo: 'DoctorRich',
+      location: 'Algeria, Alger',
+      ip: '41.100.x.x',
+      createdAt: new Date('2025-12-24'),
+      profilePhoto: null,
+      flags: ['Pays à risque', 'Profil trop parfait'],
+    },
+  ];
+
+  res.json({
+    success: true,
+    suspiciousUsers,
+    analytics: {
+      totalBenin: 7,
+      totalAlgeria: 9,
+      totalCoteDivoire: 5,
+      totalSwitzerland: 4,
+    },
+  });
+});
+
 // Route de démonstration pour l'API
 app.get('/api/demo', (req, res) => {
   res.json({
