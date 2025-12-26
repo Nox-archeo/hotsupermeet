@@ -2786,3 +2786,32 @@ h4 {
 .btn-premium:active {
   transform: translateY(0);
 }
+
+/* Liens internes WordPress-style pour boost SEO */
+.internal-link {
+  color: var(--primary-color);
+  text-decoration: underline;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.internal-link:hover {
+  color: var(--primary-dark);
+  text-decoration: none;
+  background: rgba(138, 43, 226, 0.1);
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+/* Style spécial pour hero description links */
+.hero-description .internal-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--primary-color);
+  text-underline-offset: 3px;
+}
+
+.hero-description .internal-link:hover {
+  color: var(--primary-color);
+  background: rgba(255, 255, 255, 0.1);
+}
