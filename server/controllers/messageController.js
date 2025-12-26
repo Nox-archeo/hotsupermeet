@@ -40,7 +40,12 @@ const sendMessage = async (req, res) => {
 
     // 💎 NOUVELLE RÈGLE : Si l'expéditeur N'EST PAS premium et que le destinataire EST premium
     // alors interdire l'envoi (sauf si c'est le premier message de demande)
-    if (!fromUser.premium.isActive && toUser.premium.isActive) {
+    const fromUserPremium =
+      fromUser.premium.isPremium && fromUser.premium.expiration > new Date();
+    const toUserPremium =
+      toUser.premium.isPremium && toUser.premium.expiration > new Date();
+
+    if (!fromUserPremium && toUserPremium) {
       // Vérifier s'il y a déjà des messages entre eux
       const hasExistingConversation = await Message.findOne({
         $or: [
@@ -562,7 +567,11 @@ const handleChatRequest = async (req, res) => {
 
     // 💎 VÉRIFICATION PREMIUM OBLIGATOIRE pour accepter une demande
     const currentUser = await User.findById(currentUserId);
-    if (action === 'approve' && !currentUser.premium.isActive) {
+    const isPremiumActive =
+      currentUser.premium.isPremium &&
+      currentUser.premium.expiration > new Date();
+
+    if (action === 'approve' && !isPremiumActive) {
       return res.status(403).json({
         success: false,
         error: {
