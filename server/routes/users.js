@@ -169,7 +169,14 @@ router.get(
       }
 
       // Si l'utilisateur actuel n'est pas premium ET que la cible EST premium
-      if (!currentUser.premium.isActive && targetUser.premium.isActive) {
+      const currentUserPremium =
+        currentUser.premium.isPremium &&
+        currentUser.premium.expiration > new Date();
+      const targetUserPremium =
+        targetUser.premium.isPremium &&
+        targetUser.premium.expiration > new Date();
+
+      if (!currentUserPremium && targetUserPremium) {
         return res.status(403).json({
           success: false,
           error: {
