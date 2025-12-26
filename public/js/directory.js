@@ -651,6 +651,7 @@ class DirectoryPage {
 
     this.currentPage = pageNumber;
     this.loadUsers();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   updateResultsCount(total) {
@@ -686,12 +687,6 @@ class DirectoryPage {
       resultsDescription.textContent =
         'Aucun filtre actif - affichage de tous les profils';
     }
-  }
-
-  goToPage(page) {
-    this.currentPage = page;
-    this.loadUsers();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // CSP FIX: Attacher les event listeners après génération du HTML
