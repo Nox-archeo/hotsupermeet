@@ -8,15 +8,15 @@ class GlobalNotificationManager {
 
   // Initialisation
   init() {
-    // Ne démarrer que si l'utilisateur est connecté
-    const token = localStorage.getItem('hotmeet_token');
-    if (token) {
-      this.startGlobalPolling();
-    }
+    console.log('🔔 GlobalNotificationManager - Initialisation...');
+
+    // Vérifier immédiatement si un token existe
+    this.checkAndStart();
 
     // Écouter les changements de connexion
     window.addEventListener('storage', e => {
       if (e.key === 'hotmeet_token') {
+        console.log('🔔 Token changé:', e.newValue ? 'connecté' : 'déconnecté');
         if (e.newValue) {
           this.startGlobalPolling();
         } else {
@@ -25,13 +25,35 @@ class GlobalNotificationManager {
         }
       }
     });
+
+    // Vérifier toutes les 5 secondes si l'utilisateur s'est connecté
+    // (au cas où le token arrive après l'initialisation)
+    this.initInterval = setInterval(() => {
+      this.checkAndStart();
+    }, 5000);
+  }
+
+  // Vérifier et démarrer si nécessaire
+  checkAndStart() {
+    const token = localStorage.getItem('hotmeet_token');
+    if (token && !this.isPolling) {
+      console.log('🔔 Token détecté, démarrage notifications globales');
+      this.startGlobalPolling();
+      // Arrêter la vérification d'initialisation
+      if (this.initInterval) {
+        clearInterval(this.initInterval);
+        this.initInterval = null;
+      }
+    }
   }
 
   // Démarrer la vérification globale
   startGlobalPolling() {
     if (this.isPolling) return;
 
+    console.log('🔔 Démarrage polling notifications globales');
     this.isPolling = true;
+
     // Vérifier immédiatement
     this.checkGlobalNotifications();
 
@@ -57,6 +79,8 @@ class GlobalNotificationManager {
       this.hideBadge();
       return;
     }
+
+    console.log('🔔 Vérification notifications globales...');
 
     try {
       let totalNotifications = 0;
@@ -100,6 +124,7 @@ class GlobalNotificationManager {
       // quand les APIs seront disponibles
 
       // Mettre à jour le badge
+      console.log('🔔 Total notifications:', totalNotifications);
       this.updateBadge(totalNotifications);
     } catch (error) {
       console.error('Erreur vérification notifications globales:', error);
@@ -109,7 +134,12 @@ class GlobalNotificationManager {
   // Mettre à jour le badge de notification
   updateBadge(count) {
     const badge = document.getElementById('messageBadge');
-    if (!badge) return;
+    console.log('🔔 Mise à jour badge:', count, 'Badge element:', badge);
+
+    if (!badge) {
+      console.warn('🔔 Badge messageBadge non trouvé sur cette page');
+      return;
+    }
 
     if (count > 0) {
       badge.textContent = count;
