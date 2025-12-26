@@ -330,10 +330,22 @@ class DirectoryPage {
 
   applyFilters() {
     const formData = new FormData(document.getElementById('filtersForm'));
+
+    // 🔒 VÉRIFICATION PREMIUM pour filtre de genre
+    const sexeValue = formData.get('sexe');
+    if (sexeValue && !this.isUserPremium) {
+      this.showPremiumPopup(
+        'Le filtre de genre est réservé aux membres Premium. Passez Premium pour accéder à tous les filtres avancés !'
+      );
+      // Réinitialiser le champ genre
+      document.querySelector('select[name="sexe"]').value = '';
+      return;
+    }
+
     this.filters = {
       ageMin: formData.get('ageMin') || '',
       ageMax: formData.get('ageMax') || '',
-      sexe: formData.get('sexe') || '',
+      sexe: sexeValue || '',
       pays: formData.get('filtrePays') || '',
       region: formData.get('filtreRegion') || '',
       ville: formData.get('filtreVille') || '',
@@ -628,6 +640,15 @@ class DirectoryPage {
   // Navigation vers une page spécifique
   goToPage(pageNumber) {
     if (pageNumber < 1) return;
+
+    // 🔒 BLOQUER PAGINATION pour non-premium
+    if (pageNumber > 1 && !this.isUserPremium) {
+      this.showPremiumPopup(
+        "L'accès aux pages suivantes de l'annuaire est réservé aux membres Premium. Passez Premium pour parcourir tous les profils !"
+      );
+      return;
+    }
+
     this.currentPage = pageNumber;
     this.loadUsers();
   }
@@ -800,6 +821,76 @@ class DirectoryPage {
     resultsSection.insertBefore(errorDiv, resultsSection.firstChild);
 
     setTimeout(() => errorDiv.remove(), 5000);
+  }
+
+  // 🔒 POPUP PREMIUM pour bloquer fonctionnalités
+  showPremiumPopup(message) {
+    // Créer le popup
+    const popup = document.createElement('div');
+    popup.className = 'premium-popup-overlay';
+    popup.innerHTML = `
+      <div class="premium-popup">
+        <div class="premium-popup-icon">🔒</div>
+        <h3>Fonctionnalité Premium</h3>
+        <p>${message}</p>
+        <div class="premium-popup-buttons">
+          <button class="btn-premium-popup" onclick="window.location.href='/pages/premium.html'">Passer Premium</button>
+          <button class="btn-close-popup" onclick="this.parentElement.parentElement.parentElement.remove()">Fermer</button>
+        </div>
+      </div>
+    `;
+
+    // Ajouter styles inline
+    popup.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    `;
+
+    const popupContent = popup.querySelector('.premium-popup');
+    popupContent.style.cssText = `
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      max-width: 400px;
+      margin: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      animation: popupScale 0.3s ease-out;
+    `;
+
+    // Ajouter animation CSS
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes popupScale {
+        from { transform: scale(0.8); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+      }
+      .premium-popup-icon { font-size: 3rem; margin-bottom: 1rem; }
+      .premium-popup h3 { color: #ff6b6b; margin-bottom: 1rem; }
+      .premium-popup p { margin-bottom: 2rem; line-height: 1.5; }
+      .premium-popup-buttons { display: flex; gap: 1rem; justify-content: center; }
+      .btn-premium-popup { background: linear-gradient(135deg, #ff6b6b, #ff8e8e); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: transform 0.2s; }
+      .btn-premium-popup:hover { transform: translateY(-2px); }
+      .btn-close-popup { background: #ccc; color: #333; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; }
+    `;
+    document.head.appendChild(style);
+
+    document.body.appendChild(popup);
+
+    // Auto-fermer après 8 secondes
+    setTimeout(() => {
+      if (popup.parentElement) {
+        popup.remove();
+      }
+    }, 8000);
   }
 }
 
