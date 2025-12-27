@@ -105,11 +105,64 @@ class ProfileViewChat {
     // Profile photo
     const profilePhoto =
       profile.photos?.find(p => p.isProfile) || profile.photos?.[0];
+    const profilePhotoElement = document.getElementById('profilePhoto');
+
     if (profilePhoto) {
-      document.getElementById('profilePhoto').src = profilePhoto.path;
+      profilePhotoElement.src = profilePhoto.path;
+
+      // 🔒 GÉRER LE FLOU si la photo est marquée comme floutée
+      if (profilePhoto.isBlurred) {
+        profilePhotoElement.style.filter = 'blur(20px)';
+        profilePhotoElement.style.position = 'relative';
+
+        // Ajouter un overlay pour déflou
+        const container = profilePhotoElement.parentElement;
+        container.style.position = 'relative';
+
+        // Créer l'overlay s'il n'existe pas déjà
+        if (!container.querySelector('.unblur-overlay')) {
+          const overlay = document.createElement('div');
+          overlay.className = 'unblur-overlay';
+          overlay.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            border-radius: inherit;
+          `;
+
+          overlay.innerHTML = `
+            <div style="color: white; text-align: center;">
+              <div style="font-size: 24px; margin-bottom: 8px;">🔒</div>
+              <p style="margin: 0 0 12px; font-size: 14px;">Photo floutée</p>
+              <button class="unblur-btn" style="background: #ff6b6b; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                Demander à voir
+              </button>
+            </div>
+          `;
+
+          // Event listener pour demander déflou
+          overlay.querySelector('.unblur-btn').addEventListener('click', () => {
+            this.requestUnblurPhoto(this.userId, profilePhoto._id);
+          });
+
+          container.appendChild(overlay);
+        }
+      } else {
+        // Supprimer le flou s'il n'est plus nécessaire
+        profilePhotoElement.style.filter = '';
+        const overlay =
+          profilePhotoElement.parentElement.querySelector('.unblur-overlay');
+        if (overlay) overlay.remove();
+      }
     } else {
-      document.getElementById('profilePhoto').src =
-        '/images/default-avatar.png';
+      profilePhotoElement.src = '/images/default-avatar.png';
     }
 
     // Basic info
@@ -631,6 +684,37 @@ class ProfileViewChat {
       }
     } catch (error) {
       console.error('Erreur rechargement photos:', error);
+    }
+  }
+
+  // 🔒 Demander le déflou d'une photo de profil
+  async requestUnblurPhoto(userId, photoId) {
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+      const response = await fetch(
+        `/api/uploads/photo/${photoId}/unblur-request`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ targetUserId: userId }),
+        }
+      );
+
+      if (response.ok) {
+        this.showMessage('✅ Demande de déflou envoyée !', 'success');
+      } else {
+        const error = await response.json();
+        this.showMessage(
+          error.error?.message || 'Erreur lors de la demande',
+          'error'
+        );
+      }
+    } catch (error) {
+      console.error('Erreur demande déflou:', error);
+      this.showMessage('Erreur lors de la demande', 'error');
     }
   }
 }
