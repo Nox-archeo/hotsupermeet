@@ -111,7 +111,12 @@ class ProfileViewChat {
       profilePhotoElement.src = profilePhoto.path;
 
       // 🔒 GÉRER LE FLOU si la photo est marquée comme floutée
-      if (profilePhoto.isBlurred) {
+      const currentUserId = this.currentUser?.user?.id;
+      const isUnblurredForUser =
+        profilePhoto.unblurredFor &&
+        profilePhoto.unblurredFor.includes(currentUserId);
+
+      if (profilePhoto.isBlurred && !isUnblurredForUser) {
         profilePhotoElement.style.filter = 'blur(20px)';
         profilePhotoElement.style.position = 'relative';
 

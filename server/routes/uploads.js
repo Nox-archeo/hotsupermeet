@@ -8,6 +8,7 @@ const {
   deletePhoto,
   setProfilePhoto,
   handleUnblurRequest,
+  handleUnblurResponse,
 } = require('../controllers/uploadController');
 const { auth, updateLastActivity } = require('../middleware/auth');
 
@@ -34,6 +35,12 @@ router.post(
   auth,
   updateLastActivity,
   handleUnblurRequest
+);
+router.post(
+  '/unblur-response/:messageId',
+  auth,
+  updateLastActivity,
+  handleUnblurResponse
 );
 
 module.exports = router;

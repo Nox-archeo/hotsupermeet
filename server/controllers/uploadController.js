@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Message = require('../models/Message');
 const path = require('path');
 const fs = require('fs');
 const { auth } = require('../middleware/auth');
@@ -865,19 +866,45 @@ const handleUnblurRequest = async (req, res) => {
       });
     }
 
-    // Ici, on pourrait implémenter une logique de validation :
-    // - Vérifier si l'utilisateur a le droit de voir la photo (premium, etc.)
-    // - Envoyer une notification à l'utilisateur cible
-    // - Loguer la demande pour la modération
+    // 🔒 SYSTÈME DE DEMANDE D'APPROBATION pour déflou
+    // Au lieu de déflouter directement, on crée une demande
 
-    // Pour l'instant, on dévoile directement la photo
-    targetUser.profile.photos[photoIndex].isBlurred = false;
-    await targetUser.save();
+    // Vérifier s'il y a déjà une demande en cours
+    const existingRequest = await Message.findOne({
+      fromUserId: requestingUserId,
+      toUserId: targetUserId,
+      type: 'unblur_request',
+      'metadata.photoId': photoId,
+      'metadata.status': 'pending',
+    });
+
+    if (existingRequest) {
+      return res.json({
+        success: true,
+        message: 'Demande de défloutage déjà envoyée, en attente de réponse',
+      });
+    }
+
+    // Créer une demande de déflou comme message spécial
+    const unblurRequestMessage = new Message({
+      fromUserId: requestingUserId,
+      toUserId: targetUserId,
+      type: 'unblur_request',
+      content: `Demande de défloutage de photo de profil`,
+      metadata: {
+        photoId: photoId,
+        photoType: photo.isProfile ? 'profile' : photo.type || 'gallery',
+        status: 'pending',
+        requestedAt: new Date(),
+      },
+    });
+
+    await unblurRequestMessage.save();
 
     res.json({
       success: true,
-      message: 'Photo dévoilée avec succès',
-      photo: targetUser.profile.photos[photoIndex],
+      message: 'Demande de défloutage envoyée avec succès',
+      pending: true,
     });
   } catch (error) {
     console.error('Erreur lors de la demande de dévoilement:', error);
@@ -1055,6 +1082,112 @@ const uploadAdPhotos = async (req, res) => {
   }
 };
 
+// 🔒 Gérer la réponse à une demande de déflou (approuver/refuser)
+const handleUnblurResponse = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const { action } = req.body; // 'approve' ou 'reject'
+    const userId = req.user._id;
+
+    // Trouver la demande de déflou
+    const unblurRequest = await Message.findById(messageId);
+
+    if (!unblurRequest || unblurRequest.type !== 'unblur_request') {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'REQUEST_NOT_FOUND',
+          message: 'Demande de déflou non trouvée',
+        },
+      });
+    }
+
+    // Vérifier que c'est bien le destinataire qui répond
+    if (unblurRequest.toUserId.toString() !== userId.toString()) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: "Vous n'êtes pas autorisé à répondre à cette demande",
+        },
+      });
+    }
+
+    // Vérifier si la demande est encore en attente
+    if (unblurRequest.metadata.status !== 'pending') {
+      return res.json({
+        success: true,
+        message: 'Cette demande a déjà été traitée',
+      });
+    }
+
+    if (action === 'approve') {
+      // 🟢 APPROUVER : Déflouter la photo
+      const photoId = unblurRequest.metadata.photoId;
+      const user = await User.findById(userId);
+
+      const photoIndex = user.profile.photos.findIndex(
+        photo => photo._id.toString() === photoId
+      );
+
+      if (photoIndex !== -1) {
+        // Déflouter la photo pour ce demandeur spécifique
+        if (!user.profile.photos[photoIndex].unblurredFor) {
+          user.profile.photos[photoIndex].unblurredFor = [];
+        }
+
+        if (
+          !user.profile.photos[photoIndex].unblurredFor.includes(
+            unblurRequest.fromUserId
+          )
+        ) {
+          user.profile.photos[photoIndex].unblurredFor.push(
+            unblurRequest.fromUserId
+          );
+        }
+
+        await user.save();
+
+        // Marquer la demande comme approuvée
+        unblurRequest.metadata.status = 'approved';
+        unblurRequest.metadata.respondedAt = new Date();
+        await unblurRequest.save();
+
+        res.json({
+          success: true,
+          message: 'Demande approuvée, photo défloutée pour ce membre',
+        });
+      } else {
+        res.status(404).json({
+          success: false,
+          error: { message: 'Photo non trouvée' },
+        });
+      }
+    } else if (action === 'reject') {
+      // ❌ REFUSER : Marquer la demande comme refusée
+      unblurRequest.metadata.status = 'rejected';
+      unblurRequest.metadata.respondedAt = new Date();
+      await unblurRequest.save();
+
+      res.json({
+        success: true,
+        message: 'Demande refusée',
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        error: { message: 'Action non valide (approve/reject)' },
+      });
+    }
+  } catch (error) {
+    console.error('Erreur réponse demande déflou:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur serveur' },
+    });
+  }
+};
+
 module.exports = {
   uploadProfilePhoto,
   uploadGalleryPhoto,
@@ -1064,4 +1197,5 @@ module.exports = {
   deletePhoto,
   setProfilePhoto,
   handleUnblurRequest,
+  handleUnblurResponse,
 };
