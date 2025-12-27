@@ -3,7 +3,7 @@
   <!-- Page principale -->
   <url>
     <loc>https://www.hotsupermeet.com/</loc>
-    <lastmod>2025-12-23</lastmod>
+    <lastmod>2025-12-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -11,93 +11,93 @@
   <!-- Pages importantes -->
   <url>
     <loc>https://www.hotsupermeet.com/premium</loc>
-    <lastmod>2025-12-24</lastmod>
+    <lastmod>2025-12-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://www.hotsupermeet.com/messages</loc>
-    <lastmod>2025-12-24</lastmod>
+    <lastmod>2025-12-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://www.hotsupermeet.com/cam</loc>
-    <lastmod>2025-12-24</lastmod>
+    <lastmod>2025-12-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   
   <url>
     <loc>https://www.hotsupermeet.com/ads</loc>
-    <lastmod>2025-12-24</lastmod>
+    <lastmod>2025-12-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://www.hotsupermeet.com/directory</loc>
-    <lastmod>2025-12-24</lastmod>
+    <lastmod>2025-12-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://hotsupermeet.com/auth</loc>
-    <lastmod>2025-12-23</lastmod>
+    <loc>https://www.hotsupermeet.com/auth</loc>
+    <lastmod>2025-12-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <url>
-    <loc>https://hotsupermeet.com/tonight.html</loc>
-    <lastmod>2025-12-23</lastmod>
+    <loc>https://www.hotsupermeet.com/tonight</loc>
+    <lastmod>2025-12-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   
   <!-- Pages légales -->
   <url>
-    <loc>https://hotsupermeet.com/legal.html</loc>
-    <lastmod>2025-12-23</lastmod>
+    <loc>https://www.hotsupermeet.com/legal</loc>
+    <lastmod>2025-12-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   
   <url>
-    <loc>https://hotsupermeet.com/terms.html</loc>
-    <lastmod>2025-12-23</lastmod>
+    <loc>https://www.hotsupermeet.com/terms</loc>
+    <lastmod>2025-12-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   
   <url>
-    <loc>https://hotsupermeet.com/mentions.html</loc>
-    <lastmod>2025-12-23</lastmod>
+    <loc>https://www.hotsupermeet.com/mentions</loc>
+    <lastmod>2025-12-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   
   <url>
-    <loc>https://hotsupermeet.com/cookies.html</loc>
-    <lastmod>2025-12-23</lastmod>
+    <loc>https://www.hotsupermeet.com/cookies</loc>
+    <lastmod>2025-12-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   
   <url>
-    <loc>https://hotsupermeet.com/cgv.html</loc>
-    <lastmod>2025-12-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.3</priority>
+    <loc>https://www.hotsupermeet.com/profile</loc>
+    <lastmod>2025-12-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>https://hotsupermeet.com/resiliation.html</loc>
-    <lastmod>2025-12-23</lastmod>
+    <loc>https://www.hotsupermeet.com/reset-password</loc>
+    <lastmod>2025-12-27</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.3</priority>
+    <priority>0.4</priority>
   </url>
 </urlset>
