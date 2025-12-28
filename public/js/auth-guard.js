@@ -44,6 +44,31 @@
     return token && token.trim().length > 10;
   }
 
+  // Détecter si c'est Googlebot ou un autre crawler
+  function isCrawler() {
+    const userAgent = navigator.userAgent.toLowerCase();
+    const crawlers = [
+      'googlebot',
+      'bingbot',
+      'slurp',
+      'duckduckbot',
+      'baiduspider',
+      'yandexbot',
+      'facebookexternalhit',
+      'twitterbot',
+      'whatsapp',
+    ];
+
+    const isCrawlerUA = crawlers.some(crawler => userAgent.includes(crawler));
+
+    // Log pour debug
+    if (isCrawlerUA) {
+      console.log('🤖 CRAWLER DÉTECTÉ:', userAgent);
+    }
+
+    return isCrawlerUA;
+  }
+
   // Obtenir l'URL actuelle normalisée
   function getCurrentPath() {
     const path = window.location.pathname;
@@ -85,10 +110,18 @@
   function checkPageAccess() {
     const currentPath = getCurrentPath();
     const isAuthenticated = isUserAuthenticated();
+    const isCrawlerBot = isCrawler();
 
     console.log('🔒 AUTH GUARD - Vérification accès:');
     console.log('  📍 Page:', currentPath);
     console.log('  👤 Connecté:', isAuthenticated);
+    console.log('  🤖 Crawler:', isCrawlerBot);
+
+    // NOUVEAU: Si c'est un crawler (Googlebot, etc.), laisser passer TOUTES les pages
+    if (isCrawlerBot) {
+      console.log('✅ 🤖 CRAWLER DÉTECTÉ - Accès autorisé pour indexation');
+      return;
+    }
 
     // Si c'est une page publique, laisser passer
     if (isPublicPage(currentPath)) {
