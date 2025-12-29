@@ -224,6 +224,12 @@ class DirectoryPage {
           <div class="premium-icon">👑</div>
           <h3>Devenez Premium</h3>
           <div class="premium-price">5.75 CHF/mois</div>
+          <div class="premium-explanation">
+            <p class="premium-quality-message">
+              🏆 L'accès complet à l'annuaire est réservé aux membres Premium. 
+              Cela nous permet de limiter les faux profils et garantir des échanges sérieux.
+            </p>
+          </div>
           <ul class="premium-features">
             <li>✅ Accès illimité aux profils</li>
             <li>✅ Messagerie prioritaire</li>
@@ -274,6 +280,17 @@ class DirectoryPage {
         font-size: 2rem;
         margin-bottom: 10px;
         font-weight: 600;
+      }
+      .premium-quality-message {
+        background: rgba(255, 255, 255, 0.15);
+        border-left: 4px solid #ffd700;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 5px;
+        font-size: 1.1rem;
+        font-weight: 500;
+        line-height: 1.4;
+        text-align: left;
       }
       .premium-price {
         font-size: 2.5rem;
