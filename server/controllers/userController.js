@@ -76,15 +76,52 @@ const getUsers = async (req, res) => {
     // Pagination avec limite premium appliquée
     const skip = (parseInt(page) - 1) * actualLimit;
 
-    // Récupérer les utilisateurs avec les champs nécessaires seulement
-    const users = await User.find(query)
-      .select(
-        'profile.nom profile.age profile.sexe profile.localisation profile.photos profile.disponibilite stats.lastActive premium.isPremium'
-      )
-      .sort(sortOption)
-      .skip(skip)
-      .limit(actualLimit)
-      .lean();
+    // 👩 LOGIQUE SPÉCIALE: Garantir au moins 6 femmes sur la première page
+    let users;
+    if (parseInt(page) === 1 && !sexe) {
+      // Première page sans filtre de sexe: garantir 6 femmes minimum
+
+      // 1. Récupérer les femmes d'abord (jusqu'à 6 minimum)
+      const femmeQuery = { ...query, 'profile.sexe': 'femme' };
+      const femmes = await User.find(femmeQuery)
+        .select(
+          'profile.nom profile.age profile.sexe profile.localisation profile.photos profile.disponibilite stats.lastActive premium.isPremium'
+        )
+        .sort(sortOption)
+        .limit(Math.max(6, Math.floor(actualLimit * 0.6))) // Au moins 6, ou 60% de la limite
+        .lean();
+
+      // 2. Récupérer les hommes pour compléter
+      const hommesLimit = actualLimit - femmes.length;
+      let hommes = [];
+      if (hommesLimit > 0) {
+        const hommeQuery = { ...query, 'profile.sexe': 'homme' };
+        hommes = await User.find(hommeQuery)
+          .select(
+            'profile.nom profile.age profile.sexe profile.localisation profile.photos profile.disponibilite stats.lastActive premium.isPremium'
+          )
+          .sort(sortOption)
+          .limit(hommesLimit)
+          .lean();
+      }
+
+      // 3. Combiner et mélanger intelligemment (femmes en priorité)
+      users = [...femmes, ...hommes];
+
+      console.log(
+        `🎯 Page 1 optimisée: ${femmes.length} femmes + ${hommes.length} hommes = ${users.length} profils`
+      );
+    } else {
+      // Pages suivantes ou avec filtre: logique normale
+      users = await User.find(query)
+        .select(
+          'profile.nom profile.age profile.sexe profile.localisation profile.photos profile.disponibilite stats.lastActive premium.isPremium'
+        )
+        .sort(sortOption)
+        .skip(skip)
+        .limit(actualLimit)
+        .lean();
+    }
 
     // Compter le total pour la pagination
     const total = await User.countDocuments(query);
