@@ -49,6 +49,7 @@
     const userAgent = navigator.userAgent.toLowerCase();
     const crawlers = [
       'googlebot',
+      'google',
       'bingbot',
       'slurp',
       'duckduckbot',
@@ -57,13 +58,21 @@
       'facebookexternalhit',
       'twitterbot',
       'whatsapp',
+      'crawler',
+      'spider',
+      'bot',
     ];
 
     const isCrawlerUA = crawlers.some(crawler => userAgent.includes(crawler));
 
-    // Log pour debug
+    // Log détaillé pour debug - CRITIQUE pour comprendre pourquoi Google n'indexe pas
+    console.log('🔍 DÉTECTION CRAWLER:');
+    console.log('  User-Agent:', navigator.userAgent);
+    console.log('  User-Agent (lowercase):', userAgent);
+    console.log('  Est un crawler?', isCrawlerUA);
+
     if (isCrawlerUA) {
-      console.log('🤖 CRAWLER DÉTECTÉ:', userAgent);
+      console.log('✅ 🤖 CRAWLER CONFIRMÉ:', userAgent);
     }
 
     return isCrawlerUA;
@@ -79,6 +88,7 @@
   // Vérifier si la page actuelle est publique
   function isPublicPage(path) {
     return PUBLIC_PAGES.some(publicPage => {
+      // FIX: Utiliser === et endsWith() pour une correspondance précise
       return path === publicPage || path.endsWith(publicPage);
     });
   }
@@ -86,7 +96,9 @@
   // Vérifier si la page actuelle est protégée
   function isProtectedPage(path) {
     return PROTECTED_PAGES.some(protectedPage => {
-      return path === protectedPage || path.includes(protectedPage);
+      // FIX: Utiliser === au lieu de includes() pour éviter les faux positifs
+      // ANCIEN PROBLÈME: "/cam".includes("/ads") = false mais "/cam-admin".includes("/cam") = true
+      return path === protectedPage || path.endsWith(protectedPage);
     });
   }
 
@@ -117,10 +129,10 @@
     console.log('  👤 Connecté:', isAuthenticated);
     console.log('  🤖 Crawler:', isCrawlerBot);
 
-    // NOUVEAU: Si c'est un crawler (Googlebot, etc.), laisser passer TOUTES les pages
+    // PRIORITÉ ABSOLUE: Si c'est un crawler, laisser passer SANS CONDITIONS
     if (isCrawlerBot) {
-      console.log('✅ 🤖 CRAWLER DÉTECTÉ - Accès autorisé pour indexation');
-      return;
+      console.log('✅ 🤖 CRAWLER DÉTECTÉ - ACCÈS TOTAL AUTORISÉ (bypass auth)');
+      return; // Sortie immédiate, pas de vérifications supplémentaires
     }
 
     // Si c'est une page publique, laisser passer
@@ -131,6 +143,7 @@
 
     // Si c'est une page protégée et l'utilisateur n'est pas connecté
     if (isProtectedPage(currentPath) && !isAuthenticated) {
+      console.log('🚫 Page protégée + non connecté - REDIRECTION vers /auth');
       redirectToAuth('Page protégée - Connexion requise');
       return;
     }
@@ -138,6 +151,7 @@
     // Par défaut, si ce n'est ni public ni explicitement protégé
     // mais que l'utilisateur n'est pas connecté, on redirige quand même
     if (!isAuthenticated && currentPath !== '/' && currentPath !== '/auth') {
+      console.log('🚫 Accès restreint + non connecté - REDIRECTION vers /auth');
       redirectToAuth('Accès restreint - Connexion requise');
       return;
     }
