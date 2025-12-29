@@ -27,6 +27,11 @@ class DirectoryPage {
     console.log('🔄 Vérification du statut premium...');
     const isUserPremium = await this.checkPremiumStatus();
 
+    // 🏆 Afficher le message premium seulement pour connectés non-premium
+    if (!isUserPremium) {
+      this.showPremiumNotice();
+    }
+
     // 📱 Utilisateur connecté - Charger l'annuaire
     console.log("📱 Chargement de l'annuaire pour utilisateur connecté");
     this.isUserPremium = isUserPremium; // Stocker le statut premium
@@ -82,23 +87,10 @@ class DirectoryPage {
     if (profilesGrid) {
       profilesGrid.innerHTML = `
         <div class="login-required-card">
-          <div class="login-icon">🔐</div>
-          <h3>Connexion requise</h3>
-          <p>Pour accéder à l'annuaire et découvrir les profils, vous devez créer un compte.</p>
-          <div class="login-benefits">
-            <h4>Avec un compte gratuit :</h4>
-            <ul>
-              <li>✅ Accès à l'annuaire</li>
-              <li>✅ Création de votre profil</li>
-              <li>✅ Messages de base</li>
-            </ul>
-            <h4>Avec Premium (5.75 CHF/mois) :</h4>
-            <ul>
-              <li>👑 Messagerie illimitée</li>
-              <li>👑 Fonctionnalités avancées</li>
-              <li>👑 Visibilité accrue</li>
-            </ul>
-          </div>
+          <div class="login-icon">�</div>
+          <h3>Rejoignez la communauté</h3>
+          <p>L'accès à l'annuaire est réservé aux membres inscrits.<br>
+          Créez votre compte gratuitement pour voir les profils.</p>
           <div class="login-actions">
             <button class="btn btn-primary" onclick="window.location.href='/pages/auth.html'">
               🚀 Créer un compte
@@ -1053,6 +1045,14 @@ class DirectoryPage {
         popup.remove();
       }
     }, 8000);
+  }
+
+  // 🏆 AFFICHER LE MESSAGE PREMIUM DANS LA PAGE
+  showPremiumNotice() {
+    const premiumNotice = document.getElementById('premiumNotice');
+    if (premiumNotice) {
+      premiumNotice.style.display = 'block';
+    }
   }
 }
 
