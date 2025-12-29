@@ -48,8 +48,21 @@
   function isCrawler() {
     const userAgent = navigator.userAgent.toLowerCase();
     const crawlers = [
+      // Google bots - TOUS LES VARIANTS POSSIBLES
       'googlebot',
+      'googlebot-mobile',
+      'googlebot-image',
+      'googlebot-news',
+      'googlebot-video',
       'google',
+      'apis-google',
+      'adsbot-google',
+      'adsbot-google-mobile',
+      'mediapartners-google',
+      'google-read-aloud',
+      'google-adwords',
+      'google-structured-data',
+      // Autres bots importants
       'bingbot',
       'slurp',
       'duckduckbot',
@@ -66,17 +79,15 @@
     const isCrawlerUA = crawlers.some(crawler => userAgent.includes(crawler));
 
     // Log détaillé pour debug - CRITIQUE pour comprendre pourquoi Google n'indexe pas
-    console.log('🔍 DÉTECTION CRAWLER:');
+    console.log('🔍 DÉTECTION CRAWLER COMPLÈTE:');
     console.log('  User-Agent:', navigator.userAgent);
     console.log('  User-Agent (lowercase):', userAgent);
     console.log('  Est un crawler?', isCrawlerUA);
-
+    
     if (isCrawlerUA) {
-      console.log('✅ 🤖 CRAWLER CONFIRMÉ:', userAgent);
-    }
-
-    return isCrawlerUA;
-  }
+      console.log('✅ 🤖 CRAWLER CONFIRMÉ - ACCÈS TOTAL AUTORISÉ:', userAgent);
+    } else {
+      console.log('❌ 🚫 PAS DE CRAWLER DÉTECTÉ - Vérifications auth normales');
 
   // Obtenir l'URL actuelle normalisée
   function getCurrentPath() {
