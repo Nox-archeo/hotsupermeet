@@ -13,12 +13,22 @@ class DirectoryPage {
     this.setupEventListeners();
     this.setupLocationFilters();
 
+    // 🔒 VÉRIFICATION CONNEXION OBLIGATOIRE
+    const token = localStorage.getItem('hotmeet_token');
+    if (!token) {
+      console.log(
+        '❌ Utilisateur non connecté - Affichage message de connexion requis'
+      );
+      this.showLoginRequiredMessage();
+      return;
+    }
+
     // Vérifier si l'utilisateur est premium pour charger les profils
     console.log('🔄 Vérification du statut premium...');
     const isUserPremium = await this.checkPremiumStatus();
 
-    // 📱 NOUVEAU: Permettre à tous les utilisateurs de voir l'annuaire
-    console.log("📱 Chargement de l'annuaire pour tous les utilisateurs");
+    // 📱 Utilisateur connecté - Charger l'annuaire
+    console.log("📱 Chargement de l'annuaire pour utilisateur connecté");
     this.isUserPremium = isUserPremium; // Stocker le statut premium
     this.loadUsers();
   }
