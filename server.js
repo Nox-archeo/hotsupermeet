@@ -392,6 +392,22 @@ app.get('/:page', (req, res) => {
     'test-hero',
   ];
 
+  // 🤖 PROTECTION SERVEUR CRAWLERS - BACKUP INFAILLIBLE pour SEO
+  const userAgent = (req.get('User-Agent') || '').toLowerCase();
+  const isGoogleBot =
+    userAgent.includes('googlebot') ||
+    userAgent.includes('google') ||
+    userAgent.includes('apis-google') ||
+    userAgent.includes('adsbot-google') ||
+    userAgent.includes('mediapartners-google');
+
+  if (isGoogleBot) {
+    console.log(
+      '🤖 SERVEUR: GOOGLEBOT DÉTECTÉ - Accès direct aux pages:',
+      userAgent
+    );
+  }
+
   if (validPages.includes(page)) {
     // CSP FIX: Utiliser profile-clean.html avec JavaScript externe pour éviter CSP
     if (page === 'profile') {
@@ -747,38 +763,6 @@ app.get('/payment/success', (req, res, next) => {
 app.get('/payment/cancel', (req, res) => {
   res.redirect('/pages/premium.html?cancelled=true');
 });
-
-// 🧪 ROUTE DEBUG - ACTIVER PREMIUM POUR TEST (PROPRIETAIRE SEULEMENT)
-app.post('/api/debug/activate-premium', 
-  require('./server/middleware/auth').auth,
-  async (req, res) => {
-    try {
-      const User = require('./server/models/User');
-      const user = await User.findById(req.user._id);
-      
-      // Activer premium pour 1 mois
-      const expirationDate = new Date();
-      expirationDate.setMonth(expirationDate.getMonth() + 1);
-      
-      user.premium.isPremium = true;
-      user.premium.expiration = expirationDate;
-      await user.save();
-      
-      console.log(`🔥 DEBUG: Premium activé pour ${user.profile.nom} (${user._id})`);
-      
-      res.json({
-        success: true,
-        message: `Premium activé pour ${user.profile.nom}`,
-        premium: {
-          isPremium: true,
-          expiration: expirationDate
-        }
-      });
-    } catch (error) {
-      res.status(500).json({ success: false, error: error.message });
-    }
-  }
-);
 
 // 🧪 ROUTE TEST PREMIUM STATUS - SANS AUTH !
 app.get('/api/test-premium-simple/:userId', async (req, res) => {
