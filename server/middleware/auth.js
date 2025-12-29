@@ -4,6 +4,33 @@ const User = require('../models/User');
 // Middleware pour vérifier le token JWT
 const auth = async (req, res, next) => {
   try {
+    // 🤖 PROTECTION CRAWLERS PRIORITAIRE - Bypass auth pour SEO
+    const userAgent = (req.get('User-Agent') || '').toLowerCase();
+    const isCrawler =
+      userAgent.includes('googlebot') ||
+      userAgent.includes('googlebot-mobile') ||
+      userAgent.includes('googlebot-image') ||
+      userAgent.includes('googlebot-news') ||
+      userAgent.includes('googlebot-video') ||
+      userAgent.includes('google') ||
+      userAgent.includes('apis-google') ||
+      userAgent.includes('adsbot-google') ||
+      userAgent.includes('adsbot-google-mobile') ||
+      userAgent.includes('mediapartners-google') ||
+      userAgent.includes('google-structured-data') ||
+      userAgent.includes('bingbot') ||
+      userAgent.includes('crawler') ||
+      userAgent.includes('spider') ||
+      userAgent.includes('bot');
+
+    if (isCrawler) {
+      console.log(`✅ 🤖 MIDDLEWARE AUTH: CRAWLER BYPASS - ${userAgent}`);
+      console.log(`📍 Route: ${req.method} ${req.originalUrl}`);
+      // Créer un utilisateur fictif pour les crawlers afin d'éviter les erreurs
+      req.user = { _id: 'crawler', isBot: true };
+      return next();
+    }
+
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
     if (!token) {

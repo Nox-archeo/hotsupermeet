@@ -192,6 +192,26 @@ app.use(
   })
 );
 
+// 📊 MIDDLEWARE LOGGING GLOBAL - SURVEILLANCE USER-AGENTS
+app.use((req, res, next) => {
+  const userAgent = req.get('User-Agent') || 'Unknown';
+  const isCrawler =
+    userAgent.toLowerCase().includes('googlebot') ||
+    userAgent.toLowerCase().includes('google') ||
+    userAgent.toLowerCase().includes('bot');
+
+  // Log seulement les pages importantes ou les crawlers
+  if (isCrawler || req.path.includes('/cam') || req.path.includes('/ads')) {
+    console.log(`🌍 ${req.method} ${req.originalUrl}`);
+    console.log(`🔍 UA: ${userAgent}`);
+    console.log(`🤖 Bot: ${isCrawler ? 'OUI' : 'NON'}`);
+    console.log(`🌐 IP: ${req.ip}`);
+    console.log('---');
+  }
+
+  next();
+});
+
 // Middleware pour parser le JSON avec sécurité renforcée
 app.use(
   express.json({
@@ -372,6 +392,70 @@ app.get('/api/demo', (req, res) => {
   });
 });
 
+// 🎯 ROUTE SPÉCIFIQUE /CAM - PRIORITÉ MAXIMALE POUR SEO
+app.get('/cam', (req, res) => {
+  const userAgent = (req.get('User-Agent') || '').toLowerCase();
+  const isCrawler =
+    userAgent.includes('googlebot') ||
+    userAgent.includes('googlebot-mobile') ||
+    userAgent.includes('googlebot-image') ||
+    userAgent.includes('googlebot-news') ||
+    userAgent.includes('googlebot-video') ||
+    userAgent.includes('google') ||
+    userAgent.includes('apis-google') ||
+    userAgent.includes('adsbot-google') ||
+    userAgent.includes('adsbot-google-mobile') ||
+    userAgent.includes('mediapartners-google') ||
+    userAgent.includes('google-structured-data') ||
+    userAgent.includes('bingbot') ||
+    userAgent.includes('crawler') ||
+    userAgent.includes('spider') ||
+    userAgent.includes('bot');
+
+  console.log(`🎯 PAGE /CAM DEMANDÉE`);
+  console.log(`🔍 USER-AGENT: ${req.get('User-Agent')}`);
+  console.log(
+    `🤖 CRAWLER: ${isCrawler ? 'OUI - ACCÈS DIRECT' : 'NON - Utilisateur normal'}`
+  );
+  console.log(`🌐 IP: ${req.ip}`);
+  console.log(`📄 Serving: /public/pages/cam.html`);
+
+  // Toujours servir cam.html - protection côté client avec auth-guard.js
+  res.sendFile(__dirname + '/public/pages/cam.html');
+});
+
+// 🎯 ROUTE SPÉCIFIQUE /ADS - DISTINCTE DE /CAM POUR SEO
+app.get('/ads', (req, res) => {
+  const userAgent = (req.get('User-Agent') || '').toLowerCase();
+  const isCrawler =
+    userAgent.includes('googlebot') ||
+    userAgent.includes('googlebot-mobile') ||
+    userAgent.includes('googlebot-image') ||
+    userAgent.includes('googlebot-news') ||
+    userAgent.includes('googlebot-video') ||
+    userAgent.includes('google') ||
+    userAgent.includes('apis-google') ||
+    userAgent.includes('adsbot-google') ||
+    userAgent.includes('adsbot-google-mobile') ||
+    userAgent.includes('mediapartners-google') ||
+    userAgent.includes('google-structured-data') ||
+    userAgent.includes('bingbot') ||
+    userAgent.includes('crawler') ||
+    userAgent.includes('spider') ||
+    userAgent.includes('bot');
+
+  console.log(`📢 PAGE /ADS DEMANDÉE`);
+  console.log(`🔍 USER-AGENT: ${req.get('User-Agent')}`);
+  console.log(
+    `🤖 CRAWLER: ${isCrawler ? 'OUI - ACCÈS DIRECT' : 'NON - Utilisateur normal'}`
+  );
+  console.log(`🌐 IP: ${req.ip}`);
+  console.log(`📄 Serving: /public/pages/ads.html (DISTINCT de cam.html)`);
+
+  // Toujours servir ads.html - page distincte de cam.html
+  res.sendFile(__dirname + '/public/pages/ads.html');
+});
+
 // Route pour les autres pages
 app.get('/:page', (req, res) => {
   const page = req.params.page;
@@ -392,20 +476,34 @@ app.get('/:page', (req, res) => {
     'test-hero',
   ];
 
-  // 🤖 PROTECTION SERVEUR CRAWLERS - BACKUP INFAILLIBLE pour SEO
+  // 🤖 DÉTECTION COMPLÈTE CRAWLERS - GARANTIE 100% SEO
   const userAgent = (req.get('User-Agent') || '').toLowerCase();
-  const isGoogleBot =
+  const isCrawler =
     userAgent.includes('googlebot') ||
+    userAgent.includes('googlebot-mobile') ||
+    userAgent.includes('googlebot-image') ||
+    userAgent.includes('googlebot-news') ||
+    userAgent.includes('googlebot-video') ||
     userAgent.includes('google') ||
     userAgent.includes('apis-google') ||
     userAgent.includes('adsbot-google') ||
-    userAgent.includes('mediapartners-google');
+    userAgent.includes('adsbot-google-mobile') ||
+    userAgent.includes('mediapartners-google') ||
+    userAgent.includes('google-structured-data') ||
+    userAgent.includes('bingbot') ||
+    userAgent.includes('crawler') ||
+    userAgent.includes('spider') ||
+    userAgent.includes('bot');
 
-  if (isGoogleBot) {
-    console.log(
-      '🤖 SERVEUR: GOOGLEBOT DÉTECTÉ - Accès direct aux pages:',
-      userAgent
-    );
+  // 🚨 LOGS CRITIQUES pour debug indexation
+  console.log(`📍 PAGE DEMANDÉE: /${page}`);
+  console.log(`🔍 USER-AGENT: ${req.get('User-Agent')}`);
+  console.log(`🤖 CRAWLER DÉTECTÉ: ${isCrawler ? 'OUI' : 'NON'}`);
+  console.log(`🌐 IP: ${req.ip}`);
+
+  if (isCrawler) {
+    console.log(`✅ 🤖 SERVEUR: CRAWLER CONFIRMÉ - Accès direct à /${page}`);
+    console.log(`📄 Serving: /public/pages/${page}.html`);
   }
 
   if (validPages.includes(page)) {
@@ -416,6 +514,8 @@ app.get('/:page', (req, res) => {
       );
       res.sendFile(__dirname + '/public/pages/profile-clean.html');
     } else {
+      // 📄 GARANTIE: Chaque page a son propre fichier HTML distinct
+      console.log(`📄 Serving page distincte: ${page}.html`);
       res.sendFile(__dirname + `/public/pages/${page}.html`);
     }
   } else {
