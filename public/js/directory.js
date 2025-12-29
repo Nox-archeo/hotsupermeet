@@ -62,7 +62,147 @@ class DirectoryPage {
     }
   }
 
-  // 🚫 AFFICHAGE MESSAGE PREMIUM DANS LA ZONE PROFILS
+  // � MESSAGE POUR UTILISATEURS NON CONNECTÉS
+  showLoginRequiredMessage() {
+    const profilesGrid =
+      document.getElementById('profilesGrid') ||
+      document.querySelector('.profiles-grid') ||
+      document.querySelector('.directory-results');
+
+    if (profilesGrid) {
+      profilesGrid.innerHTML = `
+        <div class="login-required-card">
+          <div class="login-icon">🔐</div>
+          <h3>Connexion requise</h3>
+          <p>Pour accéder à l'annuaire et découvrir les profils, vous devez créer un compte.</p>
+          <div class="login-benefits">
+            <h4>Avec un compte gratuit :</h4>
+            <ul>
+              <li>✅ Accès à l'annuaire</li>
+              <li>✅ Création de votre profil</li>
+              <li>✅ Messages de base</li>
+            </ul>
+            <h4>Avec Premium (5.75 CHF/mois) :</h4>
+            <ul>
+              <li>👑 Messagerie illimitée</li>
+              <li>👑 Fonctionnalités avancées</li>
+              <li>👑 Visibilité accrue</li>
+            </ul>
+          </div>
+          <div class="login-actions">
+            <button class="btn btn-primary" onclick="window.location.href='/pages/auth.html'">
+              🚀 Créer un compte
+            </button>
+            <button class="btn btn-secondary" onclick="window.location.href='/pages/auth.html#login'">
+              Se connecter
+            </button>
+          </div>
+          <p class="login-info">
+            <small>C'est gratuit et ne prend que quelques minutes !</small>
+          </p>
+        </div>
+      `;
+    }
+
+    // Ajouter les styles pour l'encart de connexion
+    this.addLoginRequiredStyles();
+  }
+
+  // 🎨 STYLES POUR L'ENCART DE CONNEXION REQUIS
+  addLoginRequiredStyles() {
+    if (document.getElementById('login-required-styles')) {
+      return;
+    }
+
+    const styles = document.createElement('style');
+    styles.id = 'login-required-styles';
+    styles.innerHTML = `
+      .login-required-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 20px;
+        text-align: center;
+        max-width: 600px;
+        margin: 40px auto;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+      }
+      .login-required-card .login-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        display: block;
+      }
+      .login-required-card h3 {
+        font-size: 2.2rem;
+        margin-bottom: 15px;
+        font-weight: 600;
+      }
+      .login-required-card > p {
+        font-size: 1.2rem;
+        margin-bottom: 25px;
+        opacity: 0.95;
+      }
+      .login-benefits {
+        text-align: left;
+        margin: 30px 0;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .login-benefits h4 {
+        font-size: 1.1rem;
+        margin: 20px 0 10px 0;
+        font-weight: 600;
+      }
+      .login-benefits ul {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 15px 0;
+      }
+      .login-benefits li {
+        padding: 5px 0;
+        font-size: 1rem;
+        opacity: 0.95;
+      }
+      .login-actions {
+        display: flex;
+        gap: 15px;
+        margin: 30px 0 20px 0;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .login-actions .btn {
+        padding: 15px 25px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        text-decoration: none;
+        font-size: 1.1rem;
+        transition: transform 0.2s;
+      }
+      .login-actions .btn:hover {
+        transform: translateY(-2px);
+      }
+      .login-actions .btn-primary {
+        background: white;
+        color: #667eea;
+      }
+      .login-actions .btn-secondary {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.3);
+      }
+      .login-info {
+        margin-top: 15px;
+        opacity: 0.8;
+      }
+    `;
+
+    document.head.appendChild(styles);
+  }
+
+  // �🚫 AFFICHAGE MESSAGE PREMIUM DANS LA ZONE PROFILS
   showPremiumMessageInProfilesArea() {
     const profilesGrid =
       document.querySelector('.profiles-grid') ||
