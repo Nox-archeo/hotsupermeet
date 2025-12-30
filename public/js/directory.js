@@ -563,6 +563,17 @@ class DirectoryPage {
       this.loadUsers();
     });
 
+    // 🔒 FILTRE GENRE - REDIRECTION PREMIUM pour non-premium
+    document.getElementById('sexe').addEventListener('change', e => {
+      // Si utilisateur non-premium et essaie de filtrer par genre
+      if (!this.isUserPremium && e.target.value !== '') {
+        console.log('🔒 Filtre genre bloqué - Redirection premium');
+        e.target.value = ''; // Remettre à "Tous"
+        window.location.href = '/premium';
+        return;
+      }
+    });
+
     // Liaison pays-région
     document.getElementById('filtrePays').addEventListener('change', e => {
       console.log('Changement de pays:', e.target.value);
