@@ -360,12 +360,18 @@ class DirectoryPage {
             <h4>🚀 Avantages Premium :</h4>
             <ul>
               <li>✅ Accès complet à l'annuaire des membres</li>
+              <li>✅ Voir et poster des annonces coquines</li>
               <li>✅ Voir tous les profils sans limite</li>
               <li>✅ Messagerie privée illimitée</li>
               <li>✅ Recherche avancée par critères</li>
               <li>✅ Cam-to-cam prioritaire</li>
               <li>✅ Support prioritaire</li>
             </ul>
+          </div>
+          
+          <div class="premium-quality-message">
+            🛡️ <strong>Protection anti-arnaque</strong><br>
+            L'abonnement Premium permet de filtrer les arnaqueurs et faux profils. Seuls les membres sérieux investissent dans un abonnement, garantissant des rencontres authentiques.
           </div>
           
           <div class="premium-actions">
@@ -376,10 +382,7 @@ class DirectoryPage {
               📋 Voir les tarifs
             </button>
           </div>
-          
-          <p class="premium-info">
-            <small>🔥 Offre limitée : Premier mois à -50% !</small>
-          </p>
+
         </div>
       `;
     }
@@ -480,6 +483,18 @@ class DirectoryPage {
       }
       .premium-benefits li:last-child {
         border-bottom: none;
+      }
+      .premium-quality-message {
+        background: rgba(255, 255, 255, 0.15);
+        border-left: 4px solid #ffd700;
+        padding: 20px;
+        margin: 25px 0;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 500;
+        line-height: 1.6;
+        text-align: center;
+        color: rgba(255,255,255,0.95);
       }
       .premium-actions {
         display: flex;
