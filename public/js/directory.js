@@ -30,9 +30,12 @@ class DirectoryPage {
     // 🏆 Afficher le message premium seulement pour connectés non-premium
     if (!isUserPremium) {
       this.showPremiumNotice();
+      // 🔒 BLOQUER l'accès pour les non-premium
+      console.log('🔒 Utilisateur non-premium - Accès annuaire bloqué');
+      return; // SORTIE: Pas de chargement des profils pour non-premium
     }
 
-    // 📱 Utilisateur connecté - Charger l'annuaire
+    // 📱 Utilisateur connecté ET premium - Charger l'annuaire
     console.log("📱 Chargement de l'annuaire pour utilisateur connecté");
     this.isUserPremium = isUserPremium; // Stocker le statut premium
     this.loadUsers();
@@ -810,9 +813,8 @@ class DirectoryPage {
     const resultsCount = document.getElementById('resultsCount');
     const resultsDescription = document.getElementById('resultsDescription');
 
-    // 🚀 SIMPLE: Ajouter un 0 à la fin (x10)
-    const displayTotal = total * 10;
-    resultsCount.textContent = `${displayTotal} profil${displayTotal > 1 ? 's' : ''} trouvé${displayTotal > 1 ? 's' : ''}`;
+    // ✅ AFFICHAGE RÉEL: Sans fausse multiplication
+    resultsCount.textContent = `${total} profil${total > 1 ? 's' : ''} trouvé${total > 1 ? 's' : ''}`;
 
     // Mettre à jour la description avec les filtres actifs
     const activeFilters = [];
