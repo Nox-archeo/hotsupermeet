@@ -457,6 +457,40 @@ app.get('/ads', (req, res) => {
   res.sendFile(__dirname + '/public/pages/ads.html');
 });
 
+// 🎯 ROUTE SPÉCIFIQUE /DIRECTORY - GARANTIE INDEXATION GOOGLE
+app.get('/directory', (req, res) => {
+  const userAgent = (req.get('User-Agent') || '').toLowerCase();
+  const isCrawler =
+    userAgent.includes('googlebot') ||
+    userAgent.includes('googlebot-mobile') ||
+    userAgent.includes('googlebot-image') ||
+    userAgent.includes('googlebot-news') ||
+    userAgent.includes('googlebot-video') ||
+    userAgent.includes('google') ||
+    userAgent.includes('apis-google') ||
+    userAgent.includes('adsbot-google') ||
+    userAgent.includes('adsbot-google-mobile') ||
+    userAgent.includes('mediapartners-google') ||
+    userAgent.includes('google-structured-data') ||
+    userAgent.includes('bingbot') ||
+    userAgent.includes('crawler') ||
+    userAgent.includes('spider') ||
+    userAgent.includes('bot');
+
+  console.log(`📖 PAGE /DIRECTORY DEMANDÉE`);
+  console.log(`🔍 USER-AGENT: ${req.get('User-Agent')}`);
+  console.log(
+    `🤖 CRAWLER: ${isCrawler ? 'OUI - ACCÈS DIRECT GARANTI' : 'NON - Utilisateur normal'}`
+  );
+  console.log(`🌐 IP: ${req.ip}`);
+  console.log(
+    `📄 Serving: /public/pages/directory.html (INDEXATION PRIORITAIRE)`
+  );
+
+  // TOUJOURS servir directory.html pour garantir l'indexation Google
+  res.sendFile(__dirname + '/public/pages/directory.html');
+});
+
 // Route pour les autres pages
 app.get('/:page', (req, res) => {
   const page = req.params.page;

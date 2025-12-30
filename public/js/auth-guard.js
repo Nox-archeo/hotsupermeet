@@ -83,11 +83,15 @@
     console.log('  User-Agent:', navigator.userAgent);
     console.log('  User-Agent (lowercase):', userAgent);
     console.log('  Est un crawler?', isCrawlerUA);
-    
+
     if (isCrawlerUA) {
       console.log('✅ 🤖 CRAWLER CONFIRMÉ - ACCÈS TOTAL AUTORISÉ:', userAgent);
     } else {
       console.log('❌ 🚫 PAS DE CRAWLER DÉTECTÉ - Vérifications auth normales');
+    }
+
+    return isCrawlerUA;
+  }
 
   // Obtenir l'URL actuelle normalisée
   function getCurrentPath() {
