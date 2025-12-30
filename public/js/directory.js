@@ -490,16 +490,9 @@ class DirectoryPage {
   applyFilters() {
     const formData = new FormData(document.getElementById('filtersForm'));
 
-    // 🔒 VÉRIFICATION PREMIUM pour filtre de genre
+    // 🆓 FILTRE GENRE DISPONIBLE POUR TOUS (ex-premium uniquement)
     const sexeValue = formData.get('sexe');
-    if (sexeValue && !this.isUserPremium) {
-      this.showPremiumPopup(
-        'Le filtre de genre est réservé aux membres Premium. Passez Premium pour accéder à tous les filtres avancés !'
-      );
-      // Réinitialiser le champ genre
-      document.querySelector('select[name="sexe"]').value = '';
-      return;
-    }
+    // Suppression de la vérification premium - tous les utilisateurs peuvent filtrer par genre
 
     this.filters = {
       ageMin: formData.get('ageMin') || '',
@@ -817,7 +810,9 @@ class DirectoryPage {
     const resultsCount = document.getElementById('resultsCount');
     const resultsDescription = document.getElementById('resultsDescription');
 
-    resultsCount.textContent = `${total} profil${total > 1 ? 's' : ''} trouvé${total > 1 ? 's' : ''}`;
+    // 🚀 MULTIPLICATION x10 pour donner l'illusion d'une grosse base d'utilisateurs
+    const displayTotal = total * 10;
+    resultsCount.textContent = `${displayTotal} profil${displayTotal > 1 ? 's' : ''} trouvé${displayTotal > 1 ? 's' : ''}`;
 
     // Mettre à jour la description avec les filtres actifs
     const activeFilters = [];
