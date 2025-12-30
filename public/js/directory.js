@@ -29,13 +29,10 @@ class DirectoryPage {
 
     // 🏆 Afficher le message premium seulement pour connectés non-premium
     if (!isUserPremium) {
-      this.showPremiumNotice();
-      // 🔒 BLOQUER l'accès pour les non-premium
-      console.log('🔒 Utilisateur non-premium - Accès annuaire bloqué');
-      return; // SORTIE: Pas de chargement des profils pour non-premium
+      this.showPremiumNotice(); // Message d'incitation vers premium
     }
 
-    // 📱 Utilisateur connecté ET premium - Charger l'annuaire
+    // 📱 Utilisateur connecté - Charger l'annuaire (avec ou sans premium)
     console.log("📱 Chargement de l'annuaire pour utilisateur connecté");
     this.isUserPremium = isUserPremium; // Stocker le statut premium
     this.loadUsers();
