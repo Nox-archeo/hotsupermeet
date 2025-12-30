@@ -88,7 +88,11 @@ const CLIENT_URL =
 
 const io = new Server(server, {
   cors: {
-    origin: ['https://hotsupermeet.com', 'https://hotsupermeet.onrender.com'],
+    origin: [
+      'https://www.hotsupermeet.com',
+      'https://hotsupermeet.com',
+      'https://hotsupermeet.onrender.com',
+    ],
     methods: ['GET', 'POST'],
   },
 });
@@ -188,12 +192,32 @@ app.use(generalLimiter);
 // Middleware CORS
 app.use(
   cors({
-    origin: ['https://hotsupermeet.com', 'https://hotsupermeet.onrender.com'],
+    origin: [
+      'https://www.hotsupermeet.com',
+      'https://hotsupermeet.com',
+      'https://hotsupermeet.onrender.com',
+    ],
     credentials: true,
   })
 );
 
-// 📊 MIDDLEWARE LOGGING GLOBAL - SURVEILLANCE USER-AGENTS
+// � MIDDLEWARE REDIRECTION WWW - FORCER COHÉRENCE CANONIQUE SEO
+app.use((req, res, next) => {
+  // En production, rediriger non-www vers www
+  if (
+    process.env.NODE_ENV === 'production' &&
+    req.headers.host &&
+    req.headers.host.startsWith('hotsupermeet.com')
+  ) {
+    console.log(
+      `🔗 REDIRECT: ${req.headers.host}${req.url} → www.hotsupermeet.com${req.url}`
+    );
+    return res.redirect(301, `https://www.hotsupermeet.com${req.url}`);
+  }
+  next();
+});
+
+// �📊 MIDDLEWARE LOGGING GLOBAL - SURVEILLANCE USER-AGENTS
 app.use((req, res, next) => {
   const userAgent = req.get('User-Agent') || 'Unknown';
   const isCrawler =
