@@ -416,13 +416,42 @@ app.get('/cam', (req, res) => {
   console.log(`🎯 PAGE /CAM DEMANDÉE`);
   console.log(`🔍 USER-AGENT: ${req.get('User-Agent')}`);
   console.log(
-    `🤖 CRAWLER: ${isCrawler ? 'OUI - ACCÈS DIRECT' : 'NON - Utilisateur normal'}`
+    `🤖 CRAWLER: ${isCrawler ? 'OUI - ACCÈS DIRECT SEO' : 'NON - Utilisateur normal'}`
   );
   console.log(`🌐 IP: ${req.ip}`);
-  console.log(`📄 Serving: /public/pages/cam.html`);
 
-  // Toujours servir cam.html - protection côté client avec auth-guard.js
-  res.sendFile(__dirname + '/public/pages/cam.html');
+  if (isCrawler) {
+    // 🤖 VERSION SEO POUR BOTS - Générer HTML sans auth-guard.js
+    console.log(`📄 Serving: VERSION SEO (sans auth-guard.js)`);
+
+    const fs = require('fs');
+    const path = require('path');
+    const camHtml = fs.readFileSync(
+      path.join(__dirname, 'public/pages/cam.html'),
+      'utf8'
+    );
+
+    // Supprimer TOUS les scripts d'authentification pour les bots
+    const seoVersion = camHtml
+      .replace(
+        /<script src="\/js\/auth-guard\.js"><\/script>/g,
+        '<!-- Auth-guard désactivé pour SEO -->'
+      )
+      .replace(
+        /<script src="\/js\/premium-manager\.js"><\/script>/g,
+        '<!-- Premium-manager désactivé pour SEO -->'
+      )
+      .replace(
+        /<script src="\/js\/age-verification\.js"><\/script>/g,
+        '<!-- Age-verification désactivé pour SEO -->'
+      );
+
+    res.send(seoVersion);
+  } else {
+    // 👤 VERSION NORMALE POUR UTILISATEURS - avec protection auth
+    console.log(`📄 Serving: VERSION UTILISATEUR (avec protection)`);
+    res.sendFile(__dirname + '/public/pages/cam.html');
+  }
 });
 
 // 🎯 ROUTE SPÉCIFIQUE /ADS - DISTINCTE DE /CAM POUR SEO
@@ -448,13 +477,42 @@ app.get('/ads', (req, res) => {
   console.log(`📢 PAGE /ADS DEMANDÉE`);
   console.log(`🔍 USER-AGENT: ${req.get('User-Agent')}`);
   console.log(
-    `🤖 CRAWLER: ${isCrawler ? 'OUI - ACCÈS DIRECT' : 'NON - Utilisateur normal'}`
+    `🤖 CRAWLER: ${isCrawler ? 'OUI - ACCÈS DIRECT SEO' : 'NON - Utilisateur normal'}`
   );
   console.log(`🌐 IP: ${req.ip}`);
-  console.log(`📄 Serving: /public/pages/ads.html (DISTINCT de cam.html)`);
 
-  // Toujours servir ads.html - page distincte de cam.html
-  res.sendFile(__dirname + '/public/pages/ads.html');
+  if (isCrawler) {
+    // 🤖 VERSION SEO POUR BOTS - Générer HTML sans auth-guard.js
+    console.log(`📄 Serving: VERSION SEO /ADS (sans auth-guard.js)`);
+
+    const fs = require('fs');
+    const path = require('path');
+    const adsHtml = fs.readFileSync(
+      path.join(__dirname, 'public/pages/ads.html'),
+      'utf8'
+    );
+
+    // Supprimer TOUS les scripts d'authentification pour les bots
+    const seoVersion = adsHtml
+      .replace(
+        /<script src="\/js\/auth-guard\.js"><\/script>/g,
+        '<!-- Auth-guard désactivé pour SEO -->'
+      )
+      .replace(
+        /<script src="\/js\/premium-manager\.js"><\/script>/g,
+        '<!-- Premium-manager désactivé pour SEO -->'
+      )
+      .replace(
+        /<script src="\/js\/age-verification\.js"><\/script>/g,
+        '<!-- Age-verification désactivé pour SEO -->'
+      );
+
+    res.send(seoVersion);
+  } else {
+    // 👤 VERSION NORMALE POUR UTILISATEURS - avec protection auth
+    console.log(`📄 Serving: VERSION UTILISATEUR /ADS (avec protection)`);
+    res.sendFile(__dirname + '/public/pages/ads.html');
+  }
 });
 
 // 🎯 ROUTE SPÉCIFIQUE /DIRECTORY - GARANTIE INDEXATION GOOGLE
@@ -480,15 +538,42 @@ app.get('/directory', (req, res) => {
   console.log(`📖 PAGE /DIRECTORY DEMANDÉE`);
   console.log(`🔍 USER-AGENT: ${req.get('User-Agent')}`);
   console.log(
-    `🤖 CRAWLER: ${isCrawler ? 'OUI - ACCÈS DIRECT GARANTI' : 'NON - Utilisateur normal'}`
+    `🤖 CRAWLER: ${isCrawler ? 'OUI - ACCÈS DIRECT GARANTI SEO' : 'NON - Utilisateur normal'}`
   );
   console.log(`🌐 IP: ${req.ip}`);
-  console.log(
-    `📄 Serving: /public/pages/directory.html (INDEXATION PRIORITAIRE)`
-  );
 
-  // TOUJOURS servir directory.html pour garantir l'indexation Google
-  res.sendFile(__dirname + '/public/pages/directory.html');
+  if (isCrawler) {
+    // 🤖 VERSION SEO POUR BOTS - Générer HTML sans auth-guard.js
+    console.log(`📄 Serving: VERSION SEO /DIRECTORY (sans auth-guard.js)`);
+
+    const fs = require('fs');
+    const path = require('path');
+    const directoryHtml = fs.readFileSync(
+      path.join(__dirname, 'public/pages/directory.html'),
+      'utf8'
+    );
+
+    // Supprimer TOUS les scripts d'authentification pour les bots
+    const seoVersion = directoryHtml
+      .replace(
+        /<script src="\/js\/auth-guard\.js"><\/script>/g,
+        '<!-- Auth-guard désactivé pour SEO -->'
+      )
+      .replace(
+        /<script src="\/js\/premium-manager\.js"><\/script>/g,
+        '<!-- Premium-manager désactivé pour SEO -->'
+      )
+      .replace(
+        /<script src="\/js\/age-verification\.js"><\/script>/g,
+        '<!-- Age-verification désactivé pour SEO -->'
+      );
+
+    res.send(seoVersion);
+  } else {
+    // 👤 VERSION NORMALE POUR UTILISATEURS - avec protection auth
+    console.log(`📄 Serving: VERSION UTILISATEUR /DIRECTORY (avec protection)`);
+    res.sendFile(__dirname + '/public/pages/directory.html');
+  }
 });
 
 // Route pour les autres pages
