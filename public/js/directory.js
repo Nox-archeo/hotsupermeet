@@ -27,12 +27,16 @@ class DirectoryPage {
     console.log('🔄 Vérification du statut premium...');
     const isUserPremium = await this.checkPremiumStatus();
 
-    // 🏆 Afficher le message premium seulement pour connectés non-premium
+    // 🏆 Pour les non-premium: BLOQUER + message d'incitation premium
     if (!isUserPremium) {
-      this.showPremiumNotice(); // Message d'incitation vers premium
+      this.showPremiumUpgradeMessage(); // Message GROS call-to-action premium
+      console.log(
+        '🔒 Utilisateur non-premium - Annuaire bloqué, affichage message premium'
+      );
+      return; // SORTIE: Bloquer complètement l'annuaire
     }
 
-    // 📱 Utilisateur connecté - Charger l'annuaire (avec ou sans premium)
+    // 📱 Utilisateur premium uniquement - Charger l'annuaire
     console.log("📱 Chargement de l'annuaire pour utilisateur connecté");
     this.isUserPremium = isUserPremium; // Stocker le statut premium
     this.loadUsers();
@@ -332,6 +336,195 @@ class DirectoryPage {
       .premium-info small {
         font-size: 0.85rem;
         opacity: 0.8;
+      }
+    `;
+    document.head.appendChild(styles);
+  }
+
+  // 💎 MESSAGE PREMIUM UPGRADE (GROS CALL-TO-ACTION)
+  showPremiumUpgradeMessage() {
+    const profilesGrid =
+      document.getElementById('profilesGrid') ||
+      document.querySelector('.profiles-grid') ||
+      document.querySelector('.directory-results');
+
+    if (profilesGrid) {
+      profilesGrid.innerHTML = `
+        <div class="premium-upgrade-card">
+          <div class="premium-icon">💎</div>
+          <h3>Annuaire Premium Exclusif</h3>
+          <p>L'accès complet à l'annuaire des membres est réservé aux abonnés Premium.<br>
+          Débloquez tous les profils et fonctionnalités avancées !</p>
+          
+          <div class="premium-benefits">
+            <h4>🚀 Avantages Premium :</h4>
+            <ul>
+              <li>✅ Accès complet à l'annuaire des membres</li>
+              <li>✅ Voir tous les profils sans limite</li>
+              <li>✅ Messagerie privée illimitée</li>
+              <li>✅ Recherche avancée par critères</li>
+              <li>✅ Cam-to-cam prioritaire</li>
+              <li>✅ Support prioritaire</li>
+            </ul>
+          </div>
+          
+          <div class="premium-actions">
+            <button class="btn btn-premium" onclick="window.location.href='/premium'">
+              💎 Devenir Premium
+            </button>
+            <button class="btn btn-info" onclick="window.location.href='/premium'">
+              📋 Voir les tarifs
+            </button>
+          </div>
+          
+          <p class="premium-info">
+            <small>🔥 Offre limitée : Premier mois à -50% !</small>
+          </p>
+        </div>
+      `;
+    }
+
+    // Ajouter les styles pour l'encart premium
+    this.addPremiumUpgradeStyles();
+  }
+
+  // 🎨 STYLES POUR L'ENCART PREMIUM UPGRADE
+  addPremiumUpgradeStyles() {
+    if (document.getElementById('premium-upgrade-styles')) {
+      return;
+    }
+
+    const styles = document.createElement('style');
+    styles.id = 'premium-upgrade-styles';
+    styles.innerHTML = `
+      .premium-upgrade-card {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 50px;
+        border-radius: 25px;
+        text-align: center;
+        max-width: 700px;
+        margin: 50px auto;
+        box-shadow: 0 15px 40px rgba(240, 147, 251, 0.4);
+        position: relative;
+        overflow: hidden;
+      }
+      .premium-upgrade-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 10px,
+          rgba(255,255,255,0.05) 10px,
+          rgba(255,255,255,0.05) 20px
+        );
+        animation: premium-shimmer 3s linear infinite;
+      }
+      @keyframes premium-shimmer {
+        0% { transform: translateX(-100%) translateY(-100%); }
+        100% { transform: translateX(100%) translateY(100%); }
+      }
+      .premium-upgrade-card > * {
+        position: relative;
+        z-index: 2;
+      }
+      .premium-upgrade-card .premium-icon {
+        font-size: 5rem;
+        margin-bottom: 25px;
+        display: block;
+        text-shadow: 0 0 20px rgba(255,255,255,0.5);
+      }
+      .premium-upgrade-card h3 {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      }
+      .premium-upgrade-card > p {
+        font-size: 1.3rem;
+        margin-bottom: 30px;
+        opacity: 0.95;
+        line-height: 1.6;
+      }
+      .premium-benefits {
+        text-align: left;
+        margin: 35px 0;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+        background: rgba(255,255,255,0.1);
+        padding: 25px;
+        border-radius: 15px;
+      }
+      .premium-benefits h4 {
+        font-size: 1.4rem;
+        margin: 0 0 20px 0;
+        font-weight: 600;
+        text-align: center;
+      }
+      .premium-benefits ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .premium-benefits li {
+        padding: 8px 0;
+        font-size: 1.1rem;
+        opacity: 0.95;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+      }
+      .premium-benefits li:last-child {
+        border-bottom: none;
+      }
+      .premium-actions {
+        display: flex;
+        gap: 20px;
+        margin: 40px 0 25px 0;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .premium-actions .btn {
+        padding: 18px 30px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: bold;
+        text-decoration: none;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .premium-actions .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      }
+      .premium-actions .btn-premium {
+        background: linear-gradient(45deg, #FFD700, #FFA500);
+        color: #333;
+        border: 2px solid #FFD700;
+        animation: pulse-premium 2s infinite;
+      }
+      @keyframes pulse-premium {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+      }
+      .premium-actions .btn-info {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: 2px solid rgba(255,255,255,0.4);
+      }
+      .premium-info {
+        margin-top: 20px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #FFD700;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
       }
     `;
     document.head.appendChild(styles);
