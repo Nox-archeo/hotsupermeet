@@ -202,18 +202,29 @@ app.use(
 );
 
 // � MIDDLEWARE REDIRECTION WWW - FORCER COHÉRENCE CANONIQUE SEO
+// 🔗 MIDDLEWARE REDIRECTION WWW - AVEC DEBUG COMPLET HOST
 app.use((req, res, next) => {
-  // En production, rediriger non-www vers www
+  console.log('🌐 DEBUG HOST COMPLET:', {
+    host: req.headers.host,
+    'user-agent': req.get('User-Agent'),
+    url: req.url,
+    NODE_ENV: process.env.NODE_ENV,
+  });
+
+  // En production, rediriger SEULEMENT si c'est exactement "hotsupermeet.com"
   if (
     process.env.NODE_ENV === 'production' &&
-    req.headers.host &&
-    req.headers.host.startsWith('hotsupermeet.com')
+    req.headers.host === 'hotsupermeet.com'
   ) {
     console.log(
-      `🔗 REDIRECT: ${req.headers.host}${req.url} → www.hotsupermeet.com${req.url}`
+      `🔗 REDIRECT DÉCLENCHÉE: ${req.headers.host}${req.url} → www.hotsupermeet.com${req.url}`
     );
     return res.redirect(301, `https://www.hotsupermeet.com${req.url}`);
   }
+
+  console.log(
+    `✅ PASS-THROUGH: Host="${req.headers.host}" - Pas de redirection`
+  );
   next();
 });
 
