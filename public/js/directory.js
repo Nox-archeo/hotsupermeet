@@ -810,7 +810,7 @@ class DirectoryPage {
     const resultsCount = document.getElementById('resultsCount');
     const resultsDescription = document.getElementById('resultsDescription');
 
-    // 🚀 MULTIPLICATION x10 pour donner l'illusion d'une grosse base d'utilisateurs
+    // 🚀 SIMPLE: Ajouter un 0 à la fin (x10)
     const displayTotal = total * 10;
     resultsCount.textContent = `${displayTotal} profil${displayTotal > 1 ? 's' : ''} trouvé${displayTotal > 1 ? 's' : ''}`;
 
