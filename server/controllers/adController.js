@@ -2,6 +2,41 @@ const Ad = require('../models/Ad');
 const User = require('../models/User');
 const Message = require('../models/Message');
 
+// 🤖 ANNONCES PUBLIQUES pour SEO et BOTS
+const getPublicAdsForSEO = async (req, res) => {
+  try {
+    console.log('🤖 Récupération annonces publiques pour SEO');
+
+    const ads = await Ad.find({
+      status: 'active',
+    })
+      .select('title description category country region city createdAt')
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .populate('userId', 'username')
+      .lean();
+
+    const publicAds = ads.map(ad => ({
+      title: ad.title,
+      description: ad.description
+        ? ad.description.substring(0, 200) + '...'
+        : '',
+      location:
+        `${ad.city || ''} ${ad.region || ''} ${ad.country || ''}`.trim(),
+      category: ad.category,
+      createdAt: ad.createdAt,
+    }));
+
+    res.json(publicAds);
+  } catch (error) {
+    console.error('❌ Erreur récupération annonces publiques:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur serveur lors de la récupération des annonces publiques',
+    });
+  }
+};
+
 // Créer une nouvelle annonce
 const createAd = async (req, res) => {
   try {
@@ -568,6 +603,7 @@ const getAdResponses = async (req, res) => {
 };
 
 module.exports = {
+  getPublicAdsForSEO,
   createAd,
   getAds,
   getAdById,

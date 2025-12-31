@@ -5,6 +5,86 @@ let adPhotoFiles = [];
 let currentAdsPage = 1;
 const adsPerPage = 12;
 
+// 🤖 DÉTECTION BOT pour SEO
+function isBot() {
+  const userAgent = navigator.userAgent.toLowerCase();
+  const botDetected =
+    userAgent.includes('googlebot') ||
+    userAgent.includes('bingbot') ||
+    userAgent.includes('slurp') ||
+    userAgent.includes('duckduckbot') ||
+    userAgent.includes('baiduspider') ||
+    userAgent.includes('yandexbot') ||
+    userAgent.includes('facebookexternalhit') ||
+    userAgent.includes('twitterbot') ||
+    userAgent.includes('rogerbot') ||
+    userAgent.includes('linkedinbot') ||
+    userAgent.includes('embedly') ||
+    userAgent.includes('quora link preview') ||
+    userAgent.includes('showyoubot') ||
+    userAgent.includes('outbrain') ||
+    userAgent.includes('pinterest/0.') ||
+    userAgent.includes('developers.google.com/+/web/snippet') ||
+    userAgent.includes('www.google.com/webmasters/tools/richsnippets') ||
+    userAgent.includes('slackbot') ||
+    userAgent.includes('vkshare') ||
+    userAgent.includes('w3c_validator') ||
+    userAgent.includes('redditbot') ||
+    userAgent.includes('applebot') ||
+    userAgent.includes('whatsapp') ||
+    userAgent.includes('flipboard') ||
+    userAgent.includes('tumblr') ||
+    userAgent.includes('bitlybot') ||
+    userAgent.includes('skypeuripreview') ||
+    userAgent.includes('nuzzel') ||
+    userAgent.includes('discordbot') ||
+    userAgent.includes('google page speed') ||
+    userAgent.includes('qwantify');
+
+  console.log('🤖 User-Agent:', userAgent);
+  console.log('🤖 Is Bot:', botDetected);
+  return botDetected;
+}
+
+// 📄 CHARGEMENT ANNONCES PUBLIQUES pour SEO
+async function loadPublicAds() {
+  console.log('📄 Chargement annonces publiques pour indexation bot');
+  try {
+    const response = await fetch('/api/ads/public-seo');
+    if (response.ok) {
+      const ads = await response.json();
+      console.log('✅ Annonces publiques chargées:', ads.length);
+      displayPublicAdsForSEO(ads);
+    }
+  } catch (error) {
+    console.log('❌ Erreur chargement annonces publiques:', error);
+  }
+}
+
+// 🖥️ AFFICHAGE ANNONCES pour BOTS
+function displayPublicAdsForSEO(ads) {
+  const container =
+    document.querySelector('.ads-container') ||
+    document.querySelector('.ads-grid') ||
+    document.querySelector('#ads-list');
+  if (!container) return;
+
+  container.innerHTML = ads
+    .map(
+      ad => `
+    <div class="ad-card">
+      <h3>${ad.title}</h3>
+      <p>${ad.description}</p>
+      <div class="ad-meta">
+        <span class="ad-location">${ad.location}</span>
+        <span class="ad-date">${new Date(ad.createdAt).toLocaleDateString()}</span>
+      </div>
+    </div>
+  `
+    )
+    .join('');
+}
+
 // =================================
 // VÉRIFICATION PREMIUM
 // =================================
@@ -1624,6 +1704,14 @@ function showNotification(message, type = 'info') {
 
 document.addEventListener('DOMContentLoaded', async function () {
   console.log('🔥 DOMContentLoaded - Initialisation des annonces...');
+
+  // 🤖 DÉTECTION BOT GOOGLE pour indexation SEO
+  const isGoogleBot = isBot();
+  if (isGoogleBot) {
+    console.log('🤖 Bot Google détecté - Chargement annonces pour indexation');
+    loadPublicAds(); // Charger les annonces publiques pour SEO
+    return;
+  }
 
   // 🔒 VÉRIFICATION PREMIUM POUR CONTRÔLE D'ACCÈS
   console.log('🔄 Vérification du statut premium pour les annonces...');

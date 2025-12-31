@@ -4,6 +4,9 @@ const adController = require('../controllers/adController');
 const { auth } = require('../middleware/auth'); // ← IMPORT CORRECT !
 const { premiumOnly, premiumLimited } = require('../middleware/premium');
 
+// 🤖 ROUTE PUBLIQUE pour BOTS SEO - Accès libre pour indexation
+router.get('/public-seo', adController.getPublicAdsForSEO); // Pas d'auth pour les bots
+
 // Routes STRICTEMENT PREMIUM - Toutes les annonces nécessitent premium
 // Route pour récupérer toutes les annonces avec filtres
 router.get('/', auth, premiumOnly, adController.getAds); // PREMIUM OBLIGATOIRE

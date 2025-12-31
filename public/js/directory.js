@@ -13,6 +13,15 @@ class DirectoryPage {
     this.setupEventListeners();
     this.setupLocationFilters();
 
+    // 🤖 DÉTECTION BOT GOOGLE pour indexation SEO
+    const isGoogleBot = this.isGoogleBot();
+    if (isGoogleBot) {
+      console.log('🤖 Bot Google détecté - Chargement contenu pour indexation');
+      this.isUserPremium = true; // Considérer comme premium pour SEO
+      this.loadUsers();
+      return;
+    }
+
     // 🔒 VÉRIFICATION CONNEXION OBLIGATOIRE
     const token = localStorage.getItem('hotmeet_token');
     if (!token) {
@@ -40,6 +49,47 @@ class DirectoryPage {
     console.log("📱 Chargement de l'annuaire pour utilisateur connecté");
     this.isUserPremium = isUserPremium; // Stocker le statut premium
     this.loadUsers();
+  }
+
+  // 🤖 DÉTECTION BOT GOOGLE pour SEO
+  isGoogleBot() {
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isBot =
+      userAgent.includes('googlebot') ||
+      userAgent.includes('bingbot') ||
+      userAgent.includes('slurp') ||
+      userAgent.includes('duckduckbot') ||
+      userAgent.includes('baiduspider') ||
+      userAgent.includes('yandexbot') ||
+      userAgent.includes('facebookexternalhit') ||
+      userAgent.includes('twitterbot') ||
+      userAgent.includes('rogerbot') ||
+      userAgent.includes('linkedinbot') ||
+      userAgent.includes('embedly') ||
+      userAgent.includes('quora link preview') ||
+      userAgent.includes('showyoubot') ||
+      userAgent.includes('outbrain') ||
+      userAgent.includes('pinterest/0.') ||
+      userAgent.includes('developers.google.com/+/web/snippet') ||
+      userAgent.includes('www.google.com/webmasters/tools/richsnippets') ||
+      userAgent.includes('slackbot') ||
+      userAgent.includes('vkshare') ||
+      userAgent.includes('w3c_validator') ||
+      userAgent.includes('redditbot') ||
+      userAgent.includes('applebot') ||
+      userAgent.includes('whatsapp') ||
+      userAgent.includes('flipboard') ||
+      userAgent.includes('tumblr') ||
+      userAgent.includes('bitlybot') ||
+      userAgent.includes('skypeuripreview') ||
+      userAgent.includes('nuzzel') ||
+      userAgent.includes('discordbot') ||
+      userAgent.includes('google page speed') ||
+      userAgent.includes('qwantify');
+
+    console.log('🤖 User-Agent:', userAgent);
+    console.log('🤖 Is Bot:', isBot);
+    return isBot;
   }
 
   // 🔒 VÉRIFICATION STATUT PREMIUM
