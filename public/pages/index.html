@@ -107,9 +107,13 @@
     <link rel="stylesheet" href="/css/style.css?v=6" />
     <link rel="stylesheet" href="/css/animations.css" />
 
-    <!-- Fonts avec preload pour performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- OPTIMISATIONS PERFORMANCE -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://translate.googleapis.com" />
+    <link rel="preconnect" href="https://translate.google.com" />
+
+    <!-- Fonts avec display=swap pour éviter blocage -->
     <link
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap"
       rel="stylesheet"
@@ -217,9 +221,11 @@
         }
       }
     </script>
+    <!-- Google Translate - Chargement ASYNC pour éviter blocage -->
     <script
       type="text/javascript"
       src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+      async
     ></script>
 
     <style>
