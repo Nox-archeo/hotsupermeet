@@ -16,7 +16,7 @@ Disallow: /package.json
 Disallow: /README.md
 
 # Sitemap
-Sitemap: https://www.hotsupermeet.com/sitemap.xml
+Sitemap: https://hotsupermeet.com/sitemap.xml
 
 # Crawl-delay pour éviter la surcharge
 Crawl-delay: 1
