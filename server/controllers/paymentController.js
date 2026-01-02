@@ -206,9 +206,9 @@ const cancelSubscription = async (req, res) => {
     // Annuler l'abonnement chez PayPal
     await PayPalService.cancelSubscription(user.premium.paypalSubscriptionId);
 
-    // Mettre à jour le statut de l'utilisateur
-    user.premium.isPremium = false;
-    user.premium.expiration = null;
+    // ✅ CORRECTION : Garder l'accès jusqu'à expiration
+    // Ne pas toucher à isPremium et expiration - l'utilisateur garde son accès jusqu'à la date payée
+    // Supprimer seulement l'ID PayPal pour empêcher le renouvellement
     user.premium.paypalSubscriptionId = null;
 
     await user.save();
@@ -325,8 +325,13 @@ const handleWebhook = async (req, res) => {
 
           case 'BILLING.SUBSCRIPTION.CANCELLED':
           case 'BILLING.SUBSCRIPTION.SUSPENDED':
-            user.premium.isPremium = false;
-            user.premium.expiration = null;
+            // ✅ CORRECTION : Ne pas couper l'accès immédiatement
+            // L'utilisateur garde son accès jusqu'à l'expiration naturelle
+            // On supprime juste l'ID PayPal pour empêcher le renouvellement
+            user.premium.paypalSubscriptionId = null;
+            console.log(
+              `🔄 Abonnement PayPal annulé, accès maintenu jusqu'à expiration pour utilisateur ${user._id}`
+            );
             break;
 
           case 'BILLING.SUBSCRIPTION.PAYMENT.SUCCEEDED':
