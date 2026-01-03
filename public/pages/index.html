@@ -463,9 +463,14 @@
 
           <!-- Sélecteur de langue TOUJOURS visible -->
           <div class="language-selector-nav">
+            <label for="languageSelect" class="sr-only"
+              >Choisir la langue</label
+            >
             <select
+              id="languageSelect"
               class="language-dropdown"
               onchange="translateTo(this.value)"
+              aria-label="Sélection de langue"
             >
               <option value="">🌍</option>
               <option value="fr">🇫🇷 FR</option>
