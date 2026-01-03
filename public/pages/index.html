@@ -108,9 +108,24 @@
       href="/images/logo-hotmeet.png"
     />
 
-    <!-- Styles -->
-    <link rel="stylesheet" href="/css/style.css?v=6" />
-    <link rel="stylesheet" href="/css/animations.css" />
+    <!-- Styles NON-BLOQUANTS -->
+    <link
+      rel="stylesheet"
+      href="/css/style.css?v=7"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript><link rel="stylesheet" href="/css/style.css?v=7" /></noscript>
+
+    <link
+      rel="stylesheet"
+      href="/css/animations.css?v=2"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript
+      ><link rel="stylesheet" href="/css/animations.css?v=2"
+    /></noscript>
 
     <!-- OPTIMISATIONS PERFORMANCE -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -119,7 +134,7 @@
     <link rel="preconnect" href="https://translate.google.com" />
 
     <!-- Preload ressources critiques pour mobile -->
-    <link rel="preload" href="/css/style.css?v=6" as="style" />
+    <link rel="preload" href="/css/style.css?v=7" as="style" />
     <link rel="preload" href="/images/logo-hotmeet.png" as="image" />
 
     <!-- Fonts avec display=swap pour éviter blocage -->
@@ -142,6 +157,16 @@
     />
     <noscript
       ><link rel="stylesheet" href="/css/responsive.css?v=2"
+    /></noscript>
+
+    <link
+      rel="stylesheet"
+      href="/css/animations.css?v=2"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript
+      ><link rel="stylesheet" href="/css/animations.css?v=2"
     /></noscript>
 
     <!-- Google Search Console Verification -->

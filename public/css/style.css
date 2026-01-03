@@ -763,13 +763,13 @@ h4 {
 }
 
 .footer-links a {
-  color: var(--text-light);
+  color: #ffffff;
   text-decoration: none;
   transition: var(--transition);
 }
 
 .footer-links a:hover {
-  color: white;
+  color: var(--secondary-color);
 }
 
 .footer-bottom {
