@@ -23,6 +23,19 @@
   box-sizing: border-box;
 }
 
+/* Accessibilité : classe pour masquer visuellement mais garder pour lecteurs d'écran */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
 body {
   font-family: 'Inter', sans-serif;
   line-height: 1.6;
@@ -408,11 +421,13 @@ h4 {
 
 .btn-hero-primary {
   background: var(--secondary-color);
-  color: white;
+  color: #ffffff;
+  font-weight: 600;
 }
 
 .btn-hero-primary:hover {
   background: #ff5252;
+  color: #ffffff;
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
@@ -776,7 +791,8 @@ h4 {
   text-align: center;
   padding-top: 2rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--text-light);
+  color: #ffffff;
+  font-weight: 400;
 }
 
 /* Mobile Menu Toggle */
