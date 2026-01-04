@@ -624,6 +624,7 @@ app.get('/:page', (req, res) => {
     'tonight',
     'cam',
     'premium',
+    'reset-password',
     'legal',
     'terms',
     'mentions',
