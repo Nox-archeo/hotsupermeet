@@ -70,7 +70,10 @@ router.post('/forgot-password', async (req, res) => {
     }
 
     // Normaliser l'email (supprime points Gmail, etc.) COMME pour login/register
-    const normalizedEmail = email.toLowerCase().replace(/\./g, '');
+    const emailParts = email.toLowerCase().split('@');
+    const localPart = emailParts[0].replace(/\./g, ''); // Supprimer points SEULEMENT avant @
+    const domain = emailParts[1]; // Garder domaine intact
+    const normalizedEmail = `${localPart}@${domain}`;
 
     console.log('🔴 EMAIL ORIGINAL:', email);
     console.log('🔴 EMAIL NORMALISÉ:', normalizedEmail);
