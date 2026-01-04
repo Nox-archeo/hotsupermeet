@@ -89,7 +89,16 @@ router.post('/forgot-password', async (req, res) => {
     await user.save();
 
     // Envoyer email
-    await sendPasswordResetEmail(email, resetToken);
+    console.log(`🔄 Tentative d'envoi d'email à: ${email}`);
+    console.log(`🔑 Token généré: ${resetToken.substring(0, 10)}...`);
+
+    try {
+      await sendPasswordResetEmail(email, resetToken);
+      console.log(`✅ Email envoyé avec succès à: ${email}`);
+    } catch (emailError) {
+      console.error(`❌ ERREUR EMAIL pour ${email}:`, emailError);
+      // On continue quand même pour ne pas révéler si l'email existe
+    }
 
     res.json({
       message: 'Si votre email existe, vous recevrez un lien de récupération.',
