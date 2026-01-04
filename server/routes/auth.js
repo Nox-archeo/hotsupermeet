@@ -69,8 +69,12 @@ router.post('/forgot-password', async (req, res) => {
       });
     }
 
+    console.log('🔴 AVANT RECHERCHE UTILISATEUR');
+
     // Chercher l'utilisateur
     const user = await User.findOne({ email: email.toLowerCase() });
+
+    console.log('🔴 UTILISATEUR TROUVÉ:', user ? 'OUI' : 'NON');
 
     if (!user) {
       // Réponse identique pour éviter l'énumération d'emails
