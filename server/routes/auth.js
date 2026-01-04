@@ -158,10 +158,17 @@ router.post('/forgot-password', async (req, res) => {
 
 // Route reset password
 router.post('/reset-password', async (req, res) => {
+  console.log('🚨 RESET-PASSWORD: Requête reçue');
+  console.log('🚨 BODY:', JSON.stringify(req.body));
+
   try {
     const { token, newPassword } = req.body;
 
+    console.log('🚨 TOKEN:', token ? token.substring(0, 10) + '...' : 'VIDE');
+    console.log('🚨 PASSWORD:', newPassword ? 'REÇU' : 'VIDE');
+
     if (!token || !newPassword) {
+      console.log('❌ DONNÉES MANQUANTES');
       return res.status(400).json({
         message: 'Token et nouveau mot de passe requis',
         success: false,
@@ -169,11 +176,14 @@ router.post('/reset-password', async (req, res) => {
     }
 
     if (newPassword.length < 6) {
+      console.log('❌ PASSWORD TROP COURT');
       return res.status(400).json({
         message: 'Le mot de passe doit contenir au moins 6 caractères',
         success: false,
       });
     }
+
+    console.log('🔍 RECHERCHE USER...');
 
     // Chercher l'utilisateur avec le token valide
     const user = await User.findOne({
@@ -181,7 +191,19 @@ router.post('/reset-password', async (req, res) => {
       resetPasswordExpiry: { $gt: Date.now() },
     });
 
+    console.log('🚨 USER TROUVÉ:', user ? 'OUI' : 'NON');
+
     if (!user) {
+      console.log('🔍 RECHERCHE TOKEN EXPIRÉ...');
+      const expiredUser = await User.findOne({ resetPasswordToken: token });
+      if (expiredUser) {
+        console.log('❌ TOKEN EXPIRÉ pour:', expiredUser.email);
+        console.log('❌ EXPIRY:', new Date(expiredUser.resetPasswordExpiry));
+        console.log('❌ NOW:', new Date());
+      } else {
+        console.log('❌ AUCUN TOKEN TROUVÉ');
+      }
+
       return res.status(400).json({
         message: 'Token invalide ou expiré',
         success: false,
