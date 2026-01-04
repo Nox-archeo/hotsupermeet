@@ -57,8 +57,10 @@ router.post('/confirm-age', confirmAge);
 
 // Route mot de passe oublié (VRAI système avec email)
 router.post('/forgot-password', async (req, res) => {
+  console.log('🔴 DÉBUT ROUTE FORGOT-PASSWORD - APPELÉE !');
   try {
     const { email } = req.body;
+    console.log('🔴 EMAIL REÇU:', email);
 
     if (!email) {
       return res.status(400).json({
@@ -83,13 +85,18 @@ router.post('/forgot-password', async (req, res) => {
     const resetToken = crypto.randomBytes(32).toString('hex');
     const resetTokenExpiry = Date.now() + 3600000; // 1 heure
 
+    console.log(`🔥 TOKEN GÉNÉRÉ: ${resetToken.substring(0, 10)}...`);
+    console.log(`🔥 EMAIL UTILISATEUR: ${email}`);
+
     // Sauvegarder token dans l'utilisateur
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpiry = resetTokenExpiry;
     await user.save();
 
+    console.log(`🔥 TOKEN SAUVEGARDÉ EN BASE POUR: ${email}`);
+
     // Envoyer email
-    console.log(`🔄 Tentative d'envoi d'email à: ${email}`);
+    console.log(`🔄 AVANT APPEL sendPasswordResetEmail pour: ${email}`);
     console.log(`🔑 Token généré: ${resetToken.substring(0, 10)}...`);
 
     try {
