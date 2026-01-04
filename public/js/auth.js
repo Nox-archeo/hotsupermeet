@@ -268,9 +268,20 @@ class AuthPage {
   checkUrlParams() {
     const urlParams = new URLSearchParams(window.location.search);
     const registerParam = urlParams.get('register');
+    const messageParam = urlParams.get('message');
 
     if (registerParam) {
       this.switchTab('register');
+    }
+
+    // Message de confirmation après réinitialisation de mot de passe
+    if (messageParam === 'password-updated') {
+      this.showMessage(
+        '✅ Mot de passe mis à jour avec succès ! Vous pouvez maintenant vous connecter.',
+        'success'
+      );
+      // Nettoyer l'URL
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
   }
 

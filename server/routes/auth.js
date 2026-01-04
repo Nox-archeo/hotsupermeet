@@ -1,6 +1,7 @@
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const { body } = require('express-validator');
+const crypto = require('crypto');
 const {
   register,
   login,
@@ -11,6 +12,7 @@ const {
   logout,
 } = require('../controllers/authController');
 const { auth, updateLastActivity } = require('../middleware/auth');
+const { sendPasswordResetEmail } = require('../services/emailService');
 
 // IMPORTS POUR PRIVATE PHOTOS
 const PrivatePhotoRequest = require('../models/PrivatePhotoRequest');
@@ -53,18 +55,96 @@ router.post('/verify-age', ageValidation, verifyAge);
 router.get('/age-verified', checkAgeVerified);
 router.post('/confirm-age', confirmAge);
 
-// Route mot de passe oublié (évite l'erreur 404)
+// Route mot de passe oublié (VRAI système avec email)
 router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
 
-    // TODO: Implémenter la logique d'envoi d'email
-    // Pour l'instant, on retourne une réponse basique pour éviter l'erreur 404
+    if (!email) {
+      return res.status(400).json({
+        message: 'Email requis',
+        success: false,
+      });
+    }
+
+    // Chercher l'utilisateur
+    const user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+      // Réponse identique pour éviter l'énumération d'emails
+      return res.json({
+        message:
+          'Si votre email existe, vous recevrez un lien de récupération.',
+        success: true,
+      });
+    }
+
+    // Générer token sécurisé
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenExpiry = Date.now() + 3600000; // 1 heure
+
+    // Sauvegarder token dans l'utilisateur
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpiry = resetTokenExpiry;
+    await user.save();
+
+    // Envoyer email
+    await sendPasswordResetEmail(email, resetToken);
+
     res.json({
       message: 'Si votre email existe, vous recevrez un lien de récupération.',
       success: true,
     });
   } catch (error) {
+    console.error('Erreur forgot-password:', error);
+    res.status(500).json({ message: 'Erreur serveur', success: false });
+  }
+});
+
+// Route reset password
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({
+        message: 'Token et nouveau mot de passe requis',
+        success: false,
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        message: 'Le mot de passe doit contenir au moins 6 caractères',
+        success: false,
+      });
+    }
+
+    // Chercher l'utilisateur avec le token valide
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpiry: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        message: 'Token invalide ou expiré',
+        success: false,
+      });
+    }
+
+    // Mettre à jour le mot de passe
+    user.password = newPassword; // Le modèle User hash automatiquement
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpiry = undefined;
+    await user.save();
+
+    res.json({
+      message: 'Mot de passe mis à jour avec succès',
+      success: true,
+    });
+  } catch (error) {
+    console.error('Erreur reset-password:', error);
     res.status(500).json({ message: 'Erreur serveur', success: false });
   }
 });
