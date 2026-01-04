@@ -108,65 +108,18 @@
       href="/images/logo-hotmeet.png"
     />
 
-    <!-- CSS CRITIQUE INLINE pour éviter blocage mobile -->
-    <style>
-      :root {
-        --primary-color: #8a2be2;
-        --secondary-color: #ff6b6b;
-        --text-dark: #2c3e50;
-        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        --transition: all 0.3s ease;
-      }
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      body {
-        font-family: 'Inter', sans-serif;
-        line-height: 1.6;
-        color: #2c3e50;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        overflow-x: hidden;
-      }
-      .hero {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        color: white;
-        padding: 0 2rem;
-        position: relative;
-        background:
-          linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
-          url('/images/hero-custom.jpg') center/cover no-repeat;
-      }
-      .btn-hero-primary {
-        background: var(--secondary-color);
-        color: #ffffff;
-        font-weight: 700;
-        padding: 1rem 2rem;
-        border: none;
-        border-radius: 8px;
-        font-size: 1.1rem;
-        cursor: pointer;
-        transition: var(--transition);
-        text-decoration: none;
-        display: inline-block;
-      }
-    </style>
+    <!-- ROLLBACK: CSS principal bloquant (stable) -->
+    <link rel="stylesheet" href="/css/style.css?v=10" />
 
-    <!-- CSS NON-CRITIQUE (différé) -->
     <link
       rel="stylesheet"
-      href="/css/style.css?v=9"
+      href="/css/animations.css?v=3"
       media="print"
       onload="this.media='all'"
     />
-    <noscript><link rel="stylesheet" href="/css/style.css?v=9" /></noscript>
+    <noscript
+      ><link rel="stylesheet" href="/css/animations.css?v=3"
+    /></noscript>
 
     <!-- OPTIMISATIONS PERFORMANCE -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
