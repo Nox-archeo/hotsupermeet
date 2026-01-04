@@ -69,16 +69,22 @@ router.post('/forgot-password', async (req, res) => {
       });
     }
 
-    console.log('🔴 AVANT RECHERCHE UTILISATEUR');
-    console.log('🔴 EMAIL RECHERCHÉ:', email);
-    console.log('🔴 EMAIL EN MINUSCULES:', email.toLowerCase());
+    // Normaliser l'email (supprime points Gmail, etc.) COMME pour login/register
+    const normalizedEmail = email.toLowerCase().replace(/\./g, '');
 
-    // Chercher l'utilisateur
-    const user = await User.findOne({ email: email.toLowerCase() });
+    console.log('🔴 EMAIL ORIGINAL:', email);
+    console.log('🔴 EMAIL NORMALISÉ:', normalizedEmail);
+
+    // Chercher l'utilisateur avec email normalisé
+    const user = await User.findOne({
+      email: { $in: [email.toLowerCase(), normalizedEmail] },
+    });
 
     console.log('🔴 UTILISATEUR TROUVÉ:', user ? 'OUI' : 'NON');
+    if (user) {
+      console.log('🔴 EMAIL EN BASE:', user.email);
+    }
 
-    // DEBUGGING SUPPLÉMENTAIRE - Cherchons tous les emails similaires
     if (!user) {
       console.log("🔍 RECHERCHE D'EMAILS SIMILAIRES...");
       const similarUsers = await User.find(
