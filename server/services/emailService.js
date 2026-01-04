@@ -38,9 +38,22 @@ const createTransporter = () => {
 
 // Email de réinitialisation de mot de passe
 const sendPasswordResetEmail = async (email, resetToken) => {
+  console.log('📧 === DÉBUT ENVOI EMAIL RESET PASSWORD ===');
+  console.log('📧 Destinataire:', email);
+  console.log(
+    '📧 Token (premiers caractères):',
+    resetToken.substring(0, 10) + '...'
+  );
+
   try {
     const transporter = createTransporter();
+
+    if (!transporter) {
+      throw new Error('Impossible de créer le transporteur email');
+    }
+
     const resetUrl = `https://www.hotsupermeet.com/reset-password?token=${resetToken}`;
+    console.log('📧 URL de reset:', resetUrl);
 
     const mailOptions = {
       from: process.env.GMAIL_USER,
@@ -102,11 +115,25 @@ const sendPasswordResetEmail = async (email, resetToken) => {
       `,
     };
 
+    console.log("📧 Tentative d'envoi...");
     const result = await transporter.sendMail(mailOptions);
-    console.log('Email de réinitialisation envoyé à:', email);
+    console.log('✅ EMAIL ENVOYÉ AVEC SUCCÈS !');
+    console.log('📧 Résultat:', {
+      messageId: result.messageId,
+      response: result.response,
+      accepted: result.accepted,
+      rejected: result.rejected,
+    });
+    console.log('📧 === FIN ENVOI EMAIL SUCCESS ===');
+
     return result;
   } catch (error) {
-    console.error('Erreur lors de l\\' + 'envoi de l\\' + 'email:', error);
+    console.error('❌ === ERREUR ENVOI EMAIL ===');
+    console.error("❌ Type d'erreur:", error.name);
+    console.error('❌ Message:', error.message);
+    console.error('❌ Code:', error.code);
+    console.error('❌ Stack:', error.stack);
+    console.error('❌ === FIN ERREUR EMAIL ===');
     throw error;
   }
 };
