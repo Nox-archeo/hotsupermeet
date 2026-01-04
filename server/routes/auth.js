@@ -53,6 +53,22 @@ router.post('/verify-age', ageValidation, verifyAge);
 router.get('/age-verified', checkAgeVerified);
 router.post('/confirm-age', confirmAge);
 
+// Route mot de passe oublié (évite l'erreur 404)
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // TODO: Implémenter la logique d'envoi d'email
+    // Pour l'instant, on retourne une réponse basique pour éviter l'erreur 404
+    res.json({
+      message: 'Si votre email existe, vous recevrez un lien de récupération.',
+      success: true,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur serveur', success: false });
+  }
+});
+
 // Routes protégées
 router.get('/me', auth, updateLastActivity, getMe);
 router.post('/logout', auth, logout);
