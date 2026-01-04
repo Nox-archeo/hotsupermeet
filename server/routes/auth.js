@@ -70,12 +70,38 @@ router.post('/forgot-password', async (req, res) => {
     }
 
     console.log('🔴 AVANT RECHERCHE UTILISATEUR');
+    console.log('🔴 EMAIL RECHERCHÉ:', email);
+    console.log('🔴 EMAIL EN MINUSCULES:', email.toLowerCase());
 
     // Chercher l'utilisateur
     const user = await User.findOne({ email: email.toLowerCase() });
 
     console.log('🔴 UTILISATEUR TROUVÉ:', user ? 'OUI' : 'NON');
 
+    // DEBUGGING SUPPLÉMENTAIRE - Cherchons tous les emails similaires
+    if (!user) {
+      console.log("🔍 RECHERCHE D'EMAILS SIMILAIRES...");
+      const similarUsers = await User.find(
+        {
+          email: { $regex: 'seb', $options: 'i' },
+        },
+        'email profile.nom'
+      );
+
+      console.log(
+        '🔍 EMAILS TROUVÉS AVEC "seb":',
+        similarUsers.map(u => u.email)
+      );
+
+      // Cherchons aussi par regex exacte
+      const exactSearch = await User.findOne({
+        email: { $regex: '^' + email.toLowerCase() + '$', $options: 'i' },
+      });
+      console.log(
+        '🔍 RECHERCHE REGEX EXACTE:',
+        exactSearch ? 'TROUVÉ' : 'PAS TROUVÉ'
+      );
+    }
     if (!user) {
       // Réponse identique pour éviter l'énumération d'emails
       return res.json({
