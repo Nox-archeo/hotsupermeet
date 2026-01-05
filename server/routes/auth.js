@@ -184,6 +184,20 @@ router.post('/reset-password', async (req, res) => {
     }
 
     console.log('🔍 RECHERCHE USER...');
+    console.log('🕐 TIMESTAMP ACTUEL:', Date.now());
+    console.log('🕐 DATE ACTUELLE:', new Date(Date.now()));
+
+    // DÉBOGAGE COMPLET: Chercher TOUS les utilisateurs avec un resetPasswordToken
+    const usersWithTokens = await User.find(
+      { resetPasswordToken: { $exists: true, $ne: null } },
+      'email resetPasswordToken resetPasswordExpiry'
+    );
+    console.log('🔍 USERS AVEC TOKENS EN BASE:', usersWithTokens.length);
+    usersWithTokens.forEach((u, i) => {
+      console.log(
+        `🔐 USER ${i + 1}: ${u.email} - Token: ${u.resetPasswordToken ? u.resetPasswordToken.substring(0, 10) + '...' : 'NULL'} - Expiry: ${u.resetPasswordExpiry ? new Date(u.resetPasswordExpiry) : 'NULL'}`
+      );
+    });
 
     // Chercher l'utilisateur avec le token valide
     const user = await User.findOne({
@@ -198,6 +212,14 @@ router.post('/reset-password', async (req, res) => {
       const expiredUser = await User.findOne({ resetPasswordToken: token });
       if (expiredUser) {
         console.log('❌ TOKEN EXPIRÉ pour:', expiredUser.email);
+        console.log(
+          '❌ EXPIRY DATE:',
+          new Date(expiredUser.resetPasswordExpiry)
+        );
+        console.log(
+          '❌ DIFF EN MS:',
+          Date.now() - expiredUser.resetPasswordExpiry
+        );
         console.log('❌ EXPIRY:', new Date(expiredUser.resetPasswordExpiry));
         console.log('❌ NOW:', new Date());
       } else {
