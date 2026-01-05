@@ -128,8 +128,8 @@ router.post('/forgot-password', async (req, res) => {
     console.log(`🔥 EMAIL UTILISATEUR: ${email}`);
 
     // Sauvegarder token dans l'utilisateur
-    user.resetPasswordToken = resetToken;
-    user.resetPasswordExpiry = resetTokenExpiry;
+    user.security.resetPasswordToken = resetToken;
+    user.security.resetPasswordExpiry = resetTokenExpiry;
     await user.save();
 
     console.log(`🔥 TOKEN SAUVEGARDÉ EN BASE POUR: ${email}`);
@@ -189,38 +189,43 @@ router.post('/reset-password', async (req, res) => {
 
     // DÉBOGAGE COMPLET: Chercher TOUS les utilisateurs avec un resetPasswordToken
     const usersWithTokens = await User.find(
-      { resetPasswordToken: { $exists: true, $ne: null } },
-      'email resetPasswordToken resetPasswordExpiry'
+      { 'security.resetPasswordToken': { $exists: true, $ne: null } },
+      'email security.resetPasswordToken security.resetPasswordExpiry'
     );
     console.log('🔍 USERS AVEC TOKENS EN BASE:', usersWithTokens.length);
     usersWithTokens.forEach((u, i) => {
       console.log(
-        `🔐 USER ${i + 1}: ${u.email} - Token: ${u.resetPasswordToken ? u.resetPasswordToken.substring(0, 10) + '...' : 'NULL'} - Expiry: ${u.resetPasswordExpiry ? new Date(u.resetPasswordExpiry) : 'NULL'}`
+        `🔐 USER ${i + 1}: ${u.email} - Token: ${u.security?.resetPasswordToken ? u.security.resetPasswordToken.substring(0, 10) + '...' : 'NULL'} - Expiry: ${u.security?.resetPasswordExpiry ? new Date(u.security.resetPasswordExpiry) : 'NULL'}`
       );
     });
 
     // Chercher l'utilisateur avec le token valide
     const user = await User.findOne({
-      resetPasswordToken: token,
-      resetPasswordExpiry: { $gt: Date.now() },
+      'security.resetPasswordToken': token,
+      'security.resetPasswordExpiry': { $gt: Date.now() },
     });
 
     console.log('🚨 USER TROUVÉ:', user ? 'OUI' : 'NON');
 
     if (!user) {
       console.log('🔍 RECHERCHE TOKEN EXPIRÉ...');
-      const expiredUser = await User.findOne({ resetPasswordToken: token });
+      const expiredUser = await User.findOne({
+        'security.resetPasswordToken': token,
+      });
       if (expiredUser) {
         console.log('❌ TOKEN EXPIRÉ pour:', expiredUser.email);
         console.log(
           '❌ EXPIRY DATE:',
-          new Date(expiredUser.resetPasswordExpiry)
+          new Date(expiredUser.security.resetPasswordExpiry)
         );
         console.log(
           '❌ DIFF EN MS:',
-          Date.now() - expiredUser.resetPasswordExpiry
+          Date.now() - expiredUser.security.resetPasswordExpiry
         );
-        console.log('❌ EXPIRY:', new Date(expiredUser.resetPasswordExpiry));
+        console.log(
+          '❌ EXPIRY:',
+          new Date(expiredUser.security.resetPasswordExpiry)
+        );
         console.log('❌ NOW:', new Date());
       } else {
         console.log('❌ AUCUN TOKEN TROUVÉ');
@@ -234,8 +239,8 @@ router.post('/reset-password', async (req, res) => {
 
     // Mettre à jour le mot de passe
     user.password = newPassword; // Le modèle User hash automatiquement
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpiry = undefined;
+    user.security.resetPasswordToken = undefined;
+    user.security.resetPasswordExpiry = undefined;
     await user.save();
 
     res.json({
