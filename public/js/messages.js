@@ -334,29 +334,15 @@ class MessagesManager {
     });
   }
 
-  // Charger les vraies données depuis l'API - ACCÈS FREEMIUM
+  // Charger les vraies données depuis l'API
   async loadRealData() {
     try {
       const token = localStorage.getItem('hotmeet_token');
       if (!token) {
-        // 🌍 ACCÈS PUBLIC - Afficher message de connexion requis pour messagerie
-        this.showLoginRequiredForMessages();
+        // Rediriger vers la page de connexion si pas de token
+        window.location.href = '/auth';
         return;
       }
-
-      // Détecter le statut premium de l'utilisateur
-      const userStatusResponse = await fetch('/api/payments/status', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      let isUserPremium = false;
-      if (userStatusResponse.ok) {
-        const statusData = await userStatusResponse.json();
-        isUserPremium =
-          statusData.success && statusData.subscription?.isPremium;
-      }
-
-      console.log(`📊 FREEMIUM - Utilisateur premium: ${isUserPremium}`);
 
       // Récupérer les demandes de chat en attente
       const requestsResponse = await fetch('/api/messages/requests', {
@@ -1060,25 +1046,7 @@ class MessagesManager {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-
-        // 🚨 GESTION LIMITE MESSAGES NON-PREMIUM
-        if (errorData.error?.code === 'MESSAGE_LIMIT_REACHED') {
-          alert(
-            `⚠️ ${errorData.error.message}\n\nVous avez utilisé ${errorData.error.messagesUsed}/${errorData.error.messagesLimit} messages dans cette conversation.`
-          );
-
-          // Redirection automatique vers premium après 2 secondes
-          setTimeout(() => {
-            window.location.href =
-              errorData.error.redirectTo || '/pages/premium.html';
-          }, 2000);
-          return;
-        }
-
-        throw new Error(
-          errorData.error?.message || "Erreur lors de l'envoi du message"
-        );
+        throw new Error("Erreur lors de l'envoi du message");
       }
 
       const data = await response.json();
@@ -3278,82 +3246,4 @@ document.addEventListener('DOMContentLoaded', () => {
       window.location.href = '/pages/premium.html';
     }
   };
-  
-  // 🌍 Afficher message de connexion requis pour accéder à la messagerie
-  showLoginRequiredForMessages() {
-    const container = document.querySelector('.messages-container');
-    if (!container) return;
-    
-    container.innerHTML = `
-      <div class="login-required-messages">
-        <div class="login-required-card">
-          <div class="login-icon">🔐</div>
-          <h3>Connexion requise</h3>
-          <p>Vous devez être connecté pour accéder à votre messagerie et envoyer des messages.</p>
-          <div class="login-benefits">
-            <h4>Avec un compte HotMeet :</h4>
-            <ul>
-              <li>✅ Envoyez des demandes de chat</li>
-              <li>✅ Recevez et répondez aux messages</li>
-              <li>✅ 3 messages gratuits par conversation</li>
-              <li>💎 Messages illimités avec Premium</li>
-            </ul>
-          </div>
-          <div class="login-actions">
-            <button class="btn-primary" onclick="window.location.href='/pages/auth.html'">
-              Se connecter
-            </button>
-            <button class="btn-secondary" onclick="window.location.href='/pages/auth.html#inscription'">
-              S'inscrire gratuitement
-            </button>
-          </div>
-        </div>
-      </div>
-      <style>
-        .login-required-messages {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          min-height: 60vh;
-          padding: 2rem;
-        }
-        .login-required-card {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          padding: 40px;
-          border-radius: 20px;
-          text-align: center;
-          max-width: 500px;
-          box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-        }
-        .login-icon {
-          font-size: 4rem;
-          margin-bottom: 20px;
-        }
-        .login-required-card h3 {
-          font-size: 2rem;
-          margin-bottom: 15px;
-        }
-        .login-benefits {
-          text-align: left;
-          margin: 25px 0;
-        }
-        .login-benefits ul {
-          list-style: none;
-          padding: 0;
-        }
-        .login-benefits li {
-          margin: 10px 0;
-          font-size: 1.1rem;
-        }
-        .login-actions {
-          margin-top: 30px;
-        }
-        .login-actions .btn-primary,
-        .login-actions .btn-secondary {
-          margin: 0 10px 10px 0;
-        }
-      </style>
-    `;
-  }
 });
