@@ -226,13 +226,20 @@ class ProfileViewChat {
     if (galleryPhotos.length > 0) {
       galleryContainer.innerHTML = galleryPhotos
         .map(
-          photo => `
+          (photo, index) => `
         <div class="photo-item">
-          <img src="${photo.path}" alt="Photo de galerie" class="gallery-photo" style="width: 100px; height: 100px; object-fit: cover; margin: 5px; border-radius: 8px; cursor: pointer;" onclick="this.style.transform = this.style.transform ? '' : 'scale(2)'; this.style.zIndex = this.style.zIndex ? '' : '1000';" />
+          <img src="${photo.path}" 
+               alt="Photo de galerie" 
+               class="gallery-photo" 
+               data-index="${index}"
+               style="width: 100px; height: 100px; object-fit: cover; margin: 5px; border-radius: 8px; cursor: pointer;" />
         </div>
       `
         )
         .join('');
+
+      // 📸 LIGHTBOX: Ajouter event listeners pour le popup
+      this.setupPhotoLightbox(galleryPhotos);
     } else {
       galleryContainer.innerHTML =
         '<p class="no-photos">Aucune photo de galerie</p>';
@@ -722,6 +729,126 @@ class ProfileViewChat {
       this.showMessage('Erreur lors de la demande', 'error');
     }
   }
+
+  // 📸 LIGHTBOX: Système de popup pour visualiser les photos
+  setupPhotoLightbox(photos) {
+    this.currentPhotoIndex = 0;
+    this.lightboxPhotos = photos;
+
+    // Ajouter event listeners aux photos
+    document.querySelectorAll('.gallery-photo').forEach((photo, index) => {
+      photo.addEventListener('click', () => {
+        this.openLightbox(index);
+      });
+    });
+  }
+
+  openLightbox(photoIndex) {
+    this.currentPhotoIndex = photoIndex;
+
+    // Créer le lightbox
+    const lightbox = document.createElement('div');
+    lightbox.id = 'photoLightbox';
+    lightbox.className = 'photo-lightbox';
+
+    lightbox.innerHTML = `
+      <div class="lightbox-overlay"></div>
+      <div class="lightbox-content">
+        <button class="lightbox-close" title="Fermer">✕</button>
+        <button class="lightbox-prev" title="Photo précédente">‹</button>
+        <button class="lightbox-next" title="Photo suivante">›</button>
+        <div class="lightbox-image-container">
+          <img src="${this.lightboxPhotos[photoIndex].path}" alt="Photo ${photoIndex + 1}" class="lightbox-image">
+        </div>
+        <div class="lightbox-counter">${photoIndex + 1} / ${this.lightboxPhotos.length}</div>
+      </div>
+    `;
+
+    document.body.appendChild(lightbox);
+
+    // Empêcher le scroll du body
+    document.body.style.overflow = 'hidden';
+
+    // Event listeners
+    this.setupLightboxControls(lightbox);
+
+    // Animation d'ouverture
+    setTimeout(() => lightbox.classList.add('active'), 10);
+  }
+
+  setupLightboxControls(lightbox) {
+    const closeBtn = lightbox.querySelector('.lightbox-close');
+    const prevBtn = lightbox.querySelector('.lightbox-prev');
+    const nextBtn = lightbox.querySelector('.lightbox-next');
+    const overlay = lightbox.querySelector('.lightbox-overlay');
+    const image = lightbox.querySelector('.lightbox-image');
+    const counter = lightbox.querySelector('.lightbox-counter');
+
+    // Fermer
+    const closeLightbox = () => {
+      lightbox.classList.remove('active');
+      setTimeout(() => {
+        lightbox.remove();
+        document.body.style.overflow = '';
+      }, 300);
+    };
+
+    closeBtn.addEventListener('click', closeLightbox);
+    overlay.addEventListener('click', closeLightbox);
+
+    // Navigation
+    const updatePhoto = () => {
+      image.src = this.lightboxPhotos[this.currentPhotoIndex].path;
+      image.alt = `Photo ${this.currentPhotoIndex + 1}`;
+      counter.textContent = `${this.currentPhotoIndex + 1} / ${this.lightboxPhotos.length}`;
+
+      // Gérer l'état des boutons
+      prevBtn.style.opacity = this.currentPhotoIndex === 0 ? '0.5' : '1';
+      nextBtn.style.opacity =
+        this.currentPhotoIndex === this.lightboxPhotos.length - 1 ? '0.5' : '1';
+    };
+
+    prevBtn.addEventListener('click', () => {
+      if (this.currentPhotoIndex > 0) {
+        this.currentPhotoIndex--;
+        updatePhoto();
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (this.currentPhotoIndex < this.lightboxPhotos.length - 1) {
+        this.currentPhotoIndex++;
+        updatePhoto();
+      }
+    });
+
+    // Clavier
+    const handleKeydown = e => {
+      switch (e.key) {
+        case 'Escape':
+          closeLightbox();
+          break;
+        case 'ArrowLeft':
+          prevBtn.click();
+          break;
+        case 'ArrowRight':
+          nextBtn.click();
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeydown);
+
+    // Nettoyer l'event listener quand le lightbox se ferme
+    const originalRemove = lightbox.remove.bind(lightbox);
+    lightbox.remove = () => {
+      document.removeEventListener('keydown', handleKeydown);
+      originalRemove();
+    };
+
+    // État initial
+    updatePhoto();
+  }
 }
 
 // CSS Styles
@@ -804,6 +931,168 @@ style.textContent = `
     text-align: center;
     background: #f8f9fa;
     border-radius: 8px;
+  }
+
+  /* 📸 LIGHTBOX STYLES */
+  .photo-lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .photo-lightbox.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .lightbox-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    cursor: pointer;
+  }
+
+  .lightbox-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lightbox-image-container {
+    max-width: 90%;
+    max-height: 90%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lightbox-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+  }
+
+  .lightbox-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+  }
+
+  .lightbox-prev,
+  .lightbox-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    user-select: none;
+  }
+
+  .lightbox-prev {
+    left: 30px;
+  }
+
+  .lightbox-next {
+    right: 30px;
+  }
+
+  .lightbox-prev:hover,
+  .lightbox-next:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .lightbox-counter {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 16px;
+    backdrop-filter: blur(10px);
+  }
+
+  /* Mobile responsive pour lightbox */
+  @media (max-width: 768px) {
+    .lightbox-prev,
+    .lightbox-next {
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
+    }
+
+    .lightbox-prev {
+      left: 15px;
+    }
+
+    .lightbox-next {
+      right: 15px;
+    }
+
+    .lightbox-close {
+      top: 15px;
+      right: 15px;
+      width: 45px;
+      height: 45px;
+      font-size: 20px;
+    }
+
+    .lightbox-counter {
+      bottom: 20px;
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+
+    .lightbox-image-container {
+      max-width: 95%;
+      max-height: 85%;
+    }
   }
 
   /* Chat Modal Styles */
