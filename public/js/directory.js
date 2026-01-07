@@ -1115,20 +1115,12 @@ class DirectoryPage {
     window.location.href = `/profile-view?id=${userId}`;
   }
 
-  // 💎 GESTION VOIR PROFIL avec vérification premium
+  // 🌍 GESTION VOIR PROFIL - ACCÈS PUBLIC pour tous
   async handleViewProfile(userId) {
-    console.log(`🔍 Tentative de voir profil utilisateur: ${userId}`);
+    console.log(`🌍 Voir profil utilisateur (accès public): ${userId}`);
 
-    // Vérifier si l'utilisateur actuel est premium
-    if (!this.isUserPremium) {
-      console.log('❌ Utilisateur non premium - Redirection vers page premium');
-      // Redirection immédiate vers premium
-      window.location.href = '/pages/premium.html';
-      return;
-    }
-
-    // Si premium, rediriger vers le profil
-    console.log('✅ Utilisateur premium - Redirection vers profil');
+    // TOUS peuvent voir les profils complets - plus de restriction premium
+    console.log('✅ Accès public au profil - Redirection vers profil');
     window.location.href = `/pages/profile-view.html?userId=${userId}`;
   }
 
