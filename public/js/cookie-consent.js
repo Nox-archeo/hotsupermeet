@@ -253,6 +253,28 @@
     document.head.appendChild(styles);
     document.body.appendChild(banner);
 
+    // 📱 MOBILE FIX: Détecter si on est sur une page avec chat et ajuster
+    const isChatPage =
+      window.location.pathname.includes('/messages') ||
+      document.querySelector('.chat-input, .ad-chat-input');
+
+    if (isChatPage && window.innerWidth <= 768) {
+      console.log('📱 Page de chat détectée - Ajustement mobile');
+
+      // Ajouter marge supplémentaire pour les champs de chat sur mobile
+      const chatInputs = document.querySelectorAll(
+        '.chat-input, .ad-chat-input'
+      );
+      chatInputs.forEach(input => {
+        input.style.marginBottom = '140px';
+        input.style.position = 'relative';
+        input.style.zIndex = '7500'; // Entre le banner (8000) et les éléments normaux
+      });
+
+      // Réduire légèrement le z-index du banner sur les pages de chat mobile
+      banner.style.zIndex = '7000';
+    }
+
     // Empêcher le scroll du contenu derrière le bandeau
     document.body.style.paddingBottom = banner.offsetHeight + 'px';
 
@@ -290,6 +312,16 @@
     function removeBanner() {
       banner.remove();
       document.body.style.paddingBottom = '';
+
+      // 📱 MOBILE CLEANUP: Supprimer les ajustements de chat
+      const chatInputs = document.querySelectorAll(
+        '.chat-input, .ad-chat-input'
+      );
+      chatInputs.forEach(input => {
+        input.style.marginBottom = '';
+        input.style.position = '';
+        input.style.zIndex = '';
+      });
     }
   }
 
