@@ -100,40 +100,54 @@ const getUsers = async (req, res) => {
     // Pagination avec limite premium appliquée
     const skip = (parseInt(page) - 1) * actualLimit;
 
-    // 👩 LOGIQUE SPÉCIALE: Garantir au moins 6 femmes sur la première page
+    // 👩 LOGIQUE SPÉCIALE: Garantir équilibre hommes/femmes sur pages 1 et 2
     let users;
-    if (parseInt(page) === 1 && !sexe) {
-      // Première page sans filtre de sexe: garantir 6 femmes minimum
+    if ((parseInt(page) === 1 || parseInt(page) === 2) && !sexe) {
+      // Pages 1 et 2 sans filtre de sexe: garantir équilibre des genres
 
-      // 1. Récupérer les femmes d'abord (jusqu'à 6 minimum)
+      // Calculer le skip pour la page 2
+      let pageSkip = 0;
+      if (parseInt(page) === 2) {
+        pageSkip = actualLimit; // Skip la première page complète
+      }
+
+      // 1. Récupérer les femmes d'abord (environ 50% de la limite)
+      const femmesTarget = Math.floor(actualLimit * 0.5); // 50% pour femmes
       const femmeQuery = { ...query, 'profile.sexe': 'femme' };
       const femmes = await User.find(femmeQuery)
         .select(
           'profile.nom profile.age profile.sexe profile.localisation profile.photos profile.disponibilite stats.lastActive premium.isPremium'
         )
         .sort(sortOption)
-        .limit(Math.max(6, Math.floor(actualLimit * 0.6))) // Au moins 6, ou 60% de la limite
+        .skip(Math.floor(pageSkip * 0.5)) // Skip proportionnel pour les femmes
+        .limit(femmesTarget)
         .lean();
 
-      // 2. Récupérer les hommes pour compléter
-      const hommesLimit = actualLimit - femmes.length;
+      // 2. Récupérer les hommes pour compléter (environ 50% restant)
+      const hommesTarget = actualLimit - femmes.length;
       let hommes = [];
-      if (hommesLimit > 0) {
+      if (hommesTarget > 0) {
         const hommeQuery = { ...query, 'profile.sexe': 'homme' };
         hommes = await User.find(hommeQuery)
           .select(
             'profile.nom profile.age profile.sexe profile.localisation profile.photos profile.disponibilite stats.lastActive premium.isPremium'
           )
           .sort(sortOption)
-          .limit(hommesLimit)
+          .skip(Math.ceil(pageSkip * 0.5)) // Skip proportionnel pour les hommes
+          .limit(hommesTarget)
           .lean();
       }
 
-      // 3. Combiner et mélanger intelligemment (femmes en priorité)
-      users = [...femmes, ...hommes];
+      // 3. Combiner et alterner pour un équilibre visuel
+      users = [];
+      const maxLength = Math.max(femmes.length, hommes.length);
+      for (let i = 0; i < maxLength; i++) {
+        if (femmes[i]) users.push(femmes[i]);
+        if (hommes[i]) users.push(hommes[i]);
+      }
 
       console.log(
-        `🎯 Page 1 optimisée: ${femmes.length} femmes + ${hommes.length} hommes = ${users.length} profils`
+        `🎯 Page ${page} équilibrée: ${femmes.length} femmes + ${hommes.length} hommes = ${users.length} profils`
       );
     } else {
       // Pages suivantes ou avec filtre: logique normale
