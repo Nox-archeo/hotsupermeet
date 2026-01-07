@@ -1051,16 +1051,16 @@ class MessagesManager {
         // 💎 GESTION LIMITE DE MESSAGES PREMIUM
         if (errorData.error?.code === 'MESSAGE_LIMIT_REACHED') {
           const messageCount = errorData.error.messageCount || 3;
-          const limitMessage = `Vous avez atteint la limite de ${messageCount} messages. Passez premium pour continuer à discuter ! 🌟`;
+          const limitMessage = `Limite de 3 messages atteinte entre non-premium. 💡 Astuce: Écrivez à des membres premium pour des conversations illimitées !`;
 
           // Afficher message informatif
           alert(limitMessage);
 
-          // Redirection automatique après 2 secondes
+          // Redirection automatique après 3 secondes
           setTimeout(() => {
             window.location.href =
               errorData.error.redirectTo || '/pages/premium.html';
-          }, 2000);
+          }, 3000);
 
           return;
         }

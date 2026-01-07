@@ -271,7 +271,8 @@ class DirectoryPage {
           </div>
           <ul class="premium-features">
             <li>✅ Accès illimité aux profils</li>
-            <li>✅ Messagerie prioritaire</li>
+            <li>✅ Messages illimités avec tous</li>
+            <li>🌟 Non-premium peuvent vous écrire sans limite</li>
             <li>✅ Visibilité accrue</li>
             <li>✅ Statut premium visible</li>
             <li>✅ Support prioritaire</li>
@@ -405,7 +406,8 @@ class DirectoryPage {
               <li>✅ Accès complet à l'annuaire des membres</li>
               <li>✅ Voir et poster des annonces coquines</li>
               <li>✅ Voir tous les profils sans limite</li>
-              <li>✅ Messagerie privée illimitée</li>
+              <li>✅ Messages illimités avec tous</li>
+              <li>🌟 Non-premium peuvent vous écrire sans limite</li>
               <li>✅ Recherche avancée par critères</li>
               <li>✅ Cam-to-cam prioritaire</li>
               <li>✅ Support prioritaire</li>
@@ -828,7 +830,8 @@ class DirectoryPage {
           <h4>Avec l'abonnement Premium :</h4>
           <ul>
             <li>✅ Accès complet à l'annuaire</li>
-            <li>✅ Messagerie illimitée</li>
+            <li>✅ Messages illimités avec tous</li>
+            <li>🌟 Non-premium peuvent vous écrire sans limite</li>
             <li>✅ Voir toutes les annonces</li>
             <li>✅ Cam avec choix du genre</li>
           </ul>
@@ -1153,7 +1156,8 @@ class DirectoryPage {
           <p>Vous devez être membre premium pour contacter <strong>${userName}</strong></p>
           <div class="premium-price">Seulement 5.75 CHF/mois</div>
           <ul class="premium-features-compact">
-            <li>✅ Messagerie illimitée</li>
+            <li>✅ Messages illimités avec tous</li>
+            <li>🌟 Non-premium peuvent vous écrire sans limite</li>
             <li>✅ Accès à tous les profils</li>
             <li>✅ Visibilité prioritaire</li>
           </ul>

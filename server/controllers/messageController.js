@@ -138,30 +138,45 @@ const sendMessage = async (req, res) => {
 
     // 🚨 VÉRIFICATION LIMITE MESSAGES NON-PREMIUM (dans conversations approuvées)
     if (!fromUserPremium && hasApprovedMessages) {
-      // L'utilisateur non-premium essaie d'envoyer un message dans une conversation approuvée
-      // Compter ses messages précédents dans cette conversation
-      const userMessagesInConversation = existingMessages.filter(
-        msg =>
-          msg.fromUserId.toString() === fromUserId.toString() &&
-          msg.status === 'approved'
-      );
+      // Vérifier si le destinataire est premium
+      const toUser = await User.findById(toUserId);
+      const toUserPremium =
+        toUser?.premium?.isPremium && toUser.premium.expiration > new Date();
 
       console.log(
-        `🔒 NON-PREMIUM CHECK - Messages envoyés: ${userMessagesInConversation.length}/3`
+        `💎 DESTINATAIRE - ${toUser?.profile?.nom || 'Inconnu'} Premium: ${toUserPremium}`
       );
 
-      if (userMessagesInConversation.length >= 3) {
-        return res.status(403).json({
-          success: false,
-          error: {
-            code: 'MESSAGE_LIMIT_REACHED',
-            message:
-              'Limite de 3 messages atteinte. Passez premium pour des messages illimités!',
-            redirectTo: '/pages/premium.html',
-            messagesUsed: userMessagesInConversation.length,
-            messagesLimit: 3,
-          },
-        });
+      // 💰 RÈGLE PREMIUM: Non-premium + Premium = Messages illimités
+      if (toUserPremium) {
+        console.log(
+          '🌟 NON-PREMIUM AVEC PREMIUM - Messages illimités autorisés!'
+        );
+      } else {
+        // Non-premium + Non-premium = Limite 3 messages
+        const userMessagesInConversation = existingMessages.filter(
+          msg =>
+            msg.fromUserId.toString() === fromUserId.toString() &&
+            msg.status === 'approved'
+        );
+
+        console.log(
+          `🔒 NON-PREMIUM avec NON-PREMIUM - Messages envoyés: ${userMessagesInConversation.length}/3`
+        );
+
+        if (userMessagesInConversation.length >= 3) {
+          return res.status(403).json({
+            success: false,
+            error: {
+              code: 'MESSAGE_LIMIT_REACHED',
+              message:
+                'Limite de 3 messages atteinte entre non-premium. Discutez avec des premium ou passez premium pour des messages illimités!',
+              redirectTo: '/pages/premium.html',
+              messagesUsed: userMessagesInConversation.length,
+              messagesLimit: 3,
+            },
+          });
+        }
       }
     }
 

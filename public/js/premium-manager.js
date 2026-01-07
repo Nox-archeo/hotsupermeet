@@ -76,7 +76,8 @@ class PremiumManager {
             <h3>Avec Premium, vous débloquez :</h3>
             <ul>
               <li>✓ Accès illimité aux profils</li>
-              <li>✓ Messages illimités</li>
+              <li>✓ Messages illimités avec tous les membres</li>
+              <li>🌟 Non-premium peuvent vous écrire sans limite</li>
               <li>✓ Recherche avancée</li>
               <li>✓ Cam avec sélection de genre</li>
               <li>✓ Création d'annonces</li>
