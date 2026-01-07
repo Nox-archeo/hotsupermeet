@@ -1046,7 +1046,28 @@ class MessagesManager {
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors de l'envoi du message");
+        const errorData = await response.json();
+
+        // 💎 GESTION LIMITE DE MESSAGES PREMIUM
+        if (errorData.error?.code === 'MESSAGE_LIMIT_REACHED') {
+          const messageCount = errorData.error.messageCount || 3;
+          const limitMessage = `Vous avez atteint la limite de ${messageCount} messages. Passez premium pour continuer à discuter ! 🌟`;
+
+          // Afficher message informatif
+          alert(limitMessage);
+
+          // Redirection automatique après 2 secondes
+          setTimeout(() => {
+            window.location.href =
+              errorData.error.redirectTo || '/pages/premium.html';
+          }, 2000);
+
+          return;
+        }
+
+        throw new Error(
+          errorData.error?.message || "Erreur lors de l'envoi du message"
+        );
       }
 
       const data = await response.json();
