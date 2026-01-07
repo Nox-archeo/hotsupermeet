@@ -38,35 +38,14 @@ const sendMessage = async (req, res) => {
     // Vérifier si l'utilisateur expéditeur est premium (temporairement désactivé pour les tests)
     const fromUser = await User.findById(fromUserId);
 
-    // 💎 NOUVELLE RÈGLE : Si l'expéditeur N'EST PAS premium et que le destinataire EST premium
-    // alors interdire l'envoi (sauf si c'est le premier message de demande)
+    // Vérifier le statut premium de l'expéditeur pour les limites
+    const fromUser = await User.findById(fromUserId);
     const fromUserPremium =
       fromUser.premium.isPremium && fromUser.premium.expiration > new Date();
-    const toUserPremium =
-      toUser.premium.isPremium && toUser.premium.expiration > new Date();
 
-    if (!fromUserPremium && toUserPremium) {
-      // Vérifier s'il y a déjà des messages entre eux
-      const hasExistingConversation = await Message.findOne({
-        $or: [
-          { fromUserId, toUserId },
-          { fromUserId: toUserId, toUserId: fromUserId },
-        ],
-      });
-
-      // Si il y a déjà une conversation, empêcher le non-premium de répondre au premium
-      if (hasExistingConversation) {
-        return res.status(403).json({
-          success: false,
-          error: {
-            code: 'PREMIUM_REQUIRED',
-            message:
-              'Vous devez être membre premium pour répondre à un membre premium',
-            redirectTo: '/pages/premium.html',
-          },
-        });
-      }
-    }
+    console.log(
+      `📊 FREEMIUM - Expéditeur ${fromUser.profile.nom} Premium: ${fromUserPremium}`
+    );
 
     // Vérifier que l'utilisateur ne s'envoie pas un message à lui-même
     if (fromUserId.toString() === toUserId.toString()) {
@@ -156,6 +135,35 @@ const sendMessage = async (req, res) => {
       );
       isInitialRequest = false;
       messageStatus = 'approved';
+    }
+
+    // 🚨 VÉRIFICATION LIMITE MESSAGES NON-PREMIUM (dans conversations approuvées)
+    if (!fromUserPremium && hasApprovedMessages) {
+      // L'utilisateur non-premium essaie d'envoyer un message dans une conversation approuvée
+      // Compter ses messages précédents dans cette conversation
+      const userMessagesInConversation = existingMessages.filter(
+        msg =>
+          msg.fromUserId.toString() === fromUserId.toString() &&
+          msg.status === 'approved'
+      );
+
+      console.log(
+        `🔒 NON-PREMIUM CHECK - Messages envoyés: ${userMessagesInConversation.length}/3`
+      );
+
+      if (userMessagesInConversation.length >= 3) {
+        return res.status(403).json({
+          success: false,
+          error: {
+            code: 'MESSAGE_LIMIT_REACHED',
+            message:
+              'Limite de 3 messages atteinte. Passez premium pour des messages illimités!',
+            redirectTo: '/pages/premium.html',
+            messagesUsed: userMessagesInConversation.length,
+            messagesLimit: 3,
+          },
+        });
+      }
     }
 
     // Déterminer le modèle de provenance si originalPostId est fourni
@@ -559,29 +567,15 @@ const getConversation = async (req, res) => {
   }
 };
 
-// Approuver ou rejeter une demande de chat
+// Approuver ou rejeter une demande de chat - ACCÈS FREEMIUM
 const handleChatRequest = async (req, res) => {
   try {
     const { messageId, action } = req.body; // action: 'approve' ou 'reject'
     const currentUserId = req.user._id;
 
-    // 💎 VÉRIFICATION PREMIUM OBLIGATOIRE pour accepter une demande
-    const currentUser = await User.findById(currentUserId);
-    const isPremiumActive =
-      currentUser.premium.isPremium &&
-      currentUser.premium.expiration > new Date();
-
-    if (action === 'approve' && !isPremiumActive) {
-      return res.status(403).json({
-        success: false,
-        error: {
-          code: 'PREMIUM_REQUIRED',
-          message:
-            'Vous devez être membre premium pour accepter des demandes de chat',
-          redirectTo: '/pages/premium.html',
-        },
-      });
-    }
+    console.log(
+      `🌍 FREEMIUM - Utilisateur ${currentUserId} ${action} demande ${messageId}`
+    );
 
     // Trouver le message de demande
     const message = await Message.findById(messageId);
