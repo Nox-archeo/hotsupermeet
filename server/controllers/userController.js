@@ -1,7 +1,7 @@
 const User = require('../models/User');
 const { validationResult } = require('express-validator');
 
-// Récupérer la liste des utilisateurs avec filtres
+// Récupérer la liste des utilisateurs avec filtres - ACCÈS PUBLIC
 const getUsers = async (req, res) => {
   try {
     const {
@@ -17,8 +17,32 @@ const getUsers = async (req, res) => {
       sortBy = 'lastActive',
     } = req.query;
 
-    // PREMIUM VALIDÉ par middleware - accès complet garanti
-    const actualLimit = Math.min(parseInt(limit), 100);
+    // 🌍 ACCÈS PUBLIC - Vérifier si utilisateur connecté et premium
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    let isUserLoggedIn = false;
+    let isUserPremium = false;
+
+    if (token) {
+      try {
+        const jwt = require('jsonwebtoken');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.id);
+        if (user) {
+          isUserLoggedIn = true;
+          isUserPremium = user.premium?.isPremium || false;
+        }
+      } catch (error) {
+        console.log('Token invalide, accès en mode public');
+      }
+    }
+
+    // Limite basée sur le statut utilisateur
+    let actualLimit;
+    if (isUserPremium) {
+      actualLimit = Math.min(parseInt(limit), 100); // Premium: limite élevée
+    } else {
+      actualLimit = Math.min(parseInt(limit), 50); // Public/Non-premium: limite réduite
+    }
 
     // Construire la requête de filtrage
     const query = { 'security.isBlocked': false };

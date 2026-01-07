@@ -107,10 +107,10 @@ const searchValidation = [
     .withMessage('La limite doit être comprise entre 1 et 100'),
 ];
 
-// Routes publiques avec auth optionnelle (gestion premium dans controller)
-router.get('/', require('../middleware/auth').auth, getUsers); // GET /api/users - ACCESSIBLE À TOUS
+// Routes publiques - ACCÈS PUBLIC à l'annuaire
+router.get('/', getUsers); // GET /api/users - ACCÈS PUBLIC (avec limitations pour non-connectés)
 router.get('/stats', getDirectoryStats); // GET /api/users/stats
-router.get('/:id', getUserProfile); // GET /api/users/:id
+router.get('/:id', getUserProfile); // GET /api/users/:id - Profils publics
 
 // Routes protégées
 router.put(
