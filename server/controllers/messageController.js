@@ -100,9 +100,10 @@ const sendMessage = async (req, res) => {
     );
 
     if (!hasApprovedMessages && !hasPendingRequest) {
-      // Pas de conversation approuvée ET pas de demande en attente = première demande
+      // 🚀 FREEMIUM: Première demande = AUTOMATIQUEMENT APPROUVÉE
+      console.log('🚀 PREMIÈRE DEMANDE - Auto-approuvée pour freemium');
       isInitialRequest = true;
-      messageStatus = 'pending';
+      messageStatus = 'approved'; // ⚡ CHANGÉ: approved au lieu de pending
     } else if (hasPendingRequest && !hasApprovedMessages) {
       // Il y a déjà une demande en attente - on la SUPPRIME d'abord pour nettoyer
       console.log(
@@ -122,11 +123,11 @@ const sendMessage = async (req, res) => {
 
       // Puis on crée la nouvelle demande proprement
       isInitialRequest = true;
-      messageStatus = 'pending';
+      messageStatus = 'approved'; // ⚡ CHANGÉ: approved au lieu de pending
     } else if (!hasApprovedMessages) {
       // Pas de messages approuvés, mais pas de demande non plus = première demande
       isInitialRequest = true;
-      messageStatus = 'pending';
+      messageStatus = 'approved'; // ⚡ CHANGÉ: approved au lieu de pending
     } else {
       // CONVERSATION DÉJÀ APPROUVÉE: nouveaux messages automatiquement approuvés
       console.log(
