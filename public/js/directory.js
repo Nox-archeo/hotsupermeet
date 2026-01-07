@@ -22,32 +22,25 @@ class DirectoryPage {
       return;
     }
 
-    // 🔒 VÉRIFICATION CONNEXION OBLIGATOIRE
+    // 🌍 ACCÈS PUBLIC - Vérifier le statut de l'utilisateur (connecté ou non)
     const token = localStorage.getItem('hotmeet_token');
-    if (!token) {
+    let isUserPremium = false;
+
+    if (token) {
+      // Utilisateur connecté - vérifier son statut premium
       console.log(
-        '❌ Utilisateur non connecté - Affichage message de connexion requis'
+        '🔄 Utilisateur connecté - Vérification du statut premium...'
       );
-      this.showLoginRequiredMessage();
-      return;
+      isUserPremium = await this.checkPremiumStatus();
+      console.log(`👤 Utilisateur connecté - Premium: ${isUserPremium}`);
+    } else {
+      console.log("🌍 Visiteur anonyme - Accès public à l'annuaire");
     }
 
-    // Vérifier si l'utilisateur est premium pour charger les profils
-    console.log('🔄 Vérification du statut premium...');
-    const isUserPremium = await this.checkPremiumStatus();
-
-    // 🏆 Pour les non-premium: BLOQUER + message d'incitation premium
-    if (!isUserPremium) {
-      this.showPremiumUpgradeMessage(); // Message GROS call-to-action premium
-      console.log(
-        '🔒 Utilisateur non-premium - Annuaire bloqué, affichage message premium'
-      );
-      return; // SORTIE: Bloquer complètement l'annuaire
-    }
-
-    // 📱 Utilisateur premium uniquement - Charger l'annuaire
-    console.log("📱 Chargement de l'annuaire pour utilisateur connecté");
+    // 📱 Charger l'annuaire pour TOUS (connectés ou non)
+    console.log("📱 Chargement public de l'annuaire");
     this.isUserPremium = isUserPremium; // Stocker le statut premium
+    this.isLoggedIn = !!token; // Stocker le statut de connexion
     this.loadUsers();
   }
 
@@ -613,15 +606,10 @@ class DirectoryPage {
       this.loadUsers();
     });
 
-    // 🔒 FILTRE GENRE - REDIRECTION PREMIUM pour non-premium
+    // 🌍 FILTRE GENRE - ACCESSIBLE À TOUS (public et premium)
     document.getElementById('sexe').addEventListener('change', e => {
-      // Si utilisateur non-premium et essaie de filtrer par genre
-      if (!this.isUserPremium && e.target.value !== '') {
-        console.log('🔒 Filtre genre bloqué - Redirection premium');
-        e.target.value = ''; // Remettre à "Tous"
-        window.location.href = '/premium';
-        return;
-      }
+      console.log('🌍 Filtre genre accessible publiquement:', e.target.value);
+      // Plus de restrictions - tous peuvent filtrer par genre
     });
 
     // Liaison pays-région
