@@ -39,7 +39,6 @@ const sendMessage = async (req, res) => {
     const fromUser = await User.findById(fromUserId);
 
     // Vérifier le statut premium de l'expéditeur pour les limites
-    const fromUser = await User.findById(fromUserId);
     const fromUserPremium =
       fromUser.premium.isPremium && fromUser.premium.expiration > new Date();
 
