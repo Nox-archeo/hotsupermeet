@@ -1050,10 +1050,10 @@ class DirectoryPage {
   goToPage(pageNumber) {
     if (pageNumber < 1) return;
 
-    // 🔒 BLOQUER PAGINATION pour non-premium
-    if (pageNumber > 1 && !this.isUserPremium) {
+    // 🔒 FREEMIUM: Autoriser pages 1 et 2, bloquer à partir de la page 3
+    if (pageNumber > 2 && !this.isUserPremium) {
       this.showPremiumPopup(
-        "L'accès aux pages suivantes de l'annuaire est réservé aux membres Premium. Passez Premium pour parcourir tous les profils !"
+        "L'accès aux pages suivantes de l'annuaire est réservé aux membres Premium. Vous avez accès aux 2 premières pages - Passez Premium pour parcourir tous les profils !"
       );
       return;
     }
