@@ -38,35 +38,15 @@ const sendMessage = async (req, res) => {
     // Vérifier si l'utilisateur expéditeur est premium (temporairement désactivé pour les tests)
     const fromUser = await User.findById(fromUserId);
 
-    // 💎 NOUVELLE RÈGLE : Si l'expéditeur N'EST PAS premium et que le destinataire EST premium
-    // alors interdire l'envoi (sauf si c'est le premier message de demande)
+    // 🌍 NOUVELLE LOGIQUE FREEMIUM : Tous peuvent envoyer des DEMANDES DE CHAT
+    // Premium : messages illimités
+    // Non-premium : peuvent créer demandes + 3 messages max par conversation
     const fromUserPremium =
       fromUser.premium.isPremium && fromUser.premium.expiration > new Date();
-    const toUserPremium =
-      toUser.premium.isPremium && toUser.premium.expiration > new Date();
 
-    if (!fromUserPremium && toUserPremium) {
-      // Vérifier s'il y a déjà des messages entre eux
-      const hasExistingConversation = await Message.findOne({
-        $or: [
-          { fromUserId, toUserId },
-          { fromUserId: toUserId, toUserId: fromUserId },
-        ],
-      });
-
-      // Si il y a déjà une conversation, empêcher le non-premium de répondre au premium
-      if (hasExistingConversation) {
-        return res.status(403).json({
-          success: false,
-          error: {
-            code: 'PREMIUM_REQUIRED',
-            message:
-              'Vous devez être membre premium pour répondre à un membre premium',
-            redirectTo: '/pages/premium.html',
-          },
-        });
-      }
-    }
+    console.log(
+      `📊 FREEMIUM - Expéditeur ${fromUser.profile.nom} Premium: ${fromUserPremium}`
+    );
 
     // Vérifier que l'utilisateur ne s'envoie pas un message à lui-même
     if (fromUserId.toString() === toUserId.toString()) {
@@ -120,6 +100,35 @@ const sendMessage = async (req, res) => {
       '📊 STATUT CONVERSATION - hasPendingRequest:',
       hasPendingRequest
     );
+
+    // 🚨 VÉRIFICATION LIMITE MESSAGES NON-PREMIUM
+    if (!fromUserPremium && hasApprovedMessages) {
+      // L'utilisateur non-premium essaie d'envoyer un message dans une conversation approuvée
+      // Compter ses messages précédents dans cette conversation
+      const userMessagesInConversation = existingMessages.filter(
+        msg =>
+          msg.fromUserId.toString() === fromUserId.toString() &&
+          msg.status === 'approved'
+      );
+
+      console.log(
+        `🔒 NON-PREMIUM CHECK - Messages envoyés: ${userMessagesInConversation.length}/3`
+      );
+
+      if (userMessagesInConversation.length >= 3) {
+        return res.status(403).json({
+          success: false,
+          error: {
+            code: 'MESSAGE_LIMIT_REACHED',
+            message:
+              'Limite de 3 messages atteinte. Passez premium pour des messages illimités!',
+            redirectTo: '/pages/premium.html',
+            messagesUsed: userMessagesInConversation.length,
+            messagesLimit: 3,
+          },
+        });
+      }
+    }
 
     if (!hasApprovedMessages && !hasPendingRequest) {
       // Pas de conversation approuvée ET pas de demande en attente = première demande
