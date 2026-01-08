@@ -421,22 +421,25 @@ class ProfileViewChat {
         }
       }
 
-      // Check for pending chat requests
-      const requestsResponse = await fetch('/api/messages/requests', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      // Check for sent chat requests - use new endpoint
+      const sentRequestResponse = await fetch(
+        `/api/messages/sent-request-status/${this.userId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
-      if (requestsResponse.ok) {
-        const requestsData = await requestsResponse.json();
-        // Check if there's a pending request to this user
-        const pendingRequest = requestsData.requests?.find(
-          req =>
-            req.fromUserId === this.currentUser.user.id &&
-            req.toUserId === this.userId
-        );
+      if (sentRequestResponse.ok) {
+        const sentRequestData = await sentRequestResponse.json();
 
-        if (pendingRequest) {
-          this.disableChatButton('⏳ Demande en attente');
+        if (sentRequestData.hasSentRequest) {
+          if (sentRequestData.requestStatus === 'pending') {
+            this.disableChatButton('⏳ Demande en attente');
+          } else if (sentRequestData.requestStatus === 'approved') {
+            this.disableChatButton('✅ Demande acceptée');
+          } else if (sentRequestData.requestStatus === 'rejected') {
+            this.disableChatButton('❌ Demande refusée');
+          }
         }
       }
     } catch (error) {

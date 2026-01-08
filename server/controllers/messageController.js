@@ -949,6 +949,33 @@ const markConversationAsRead = async (req, res) => {
   }
 };
 
+// Vérifier si l'utilisateur a déjà envoyé une demande à un autre utilisateur
+const checkSentRequestStatus = async (req, res) => {
+  try {
+    const currentUserId = req.user._id;
+    const targetUserId = req.params.userId;
+
+    // Chercher si il y a déjà une demande envoyée (pending ou approved)
+    const existingRequest = await Message.findOne({
+      fromUserId: currentUserId,
+      toUserId: targetUserId,
+      isInitialRequest: true,
+    });
+
+    res.json({
+      success: true,
+      hasSentRequest: !!existingRequest,
+      requestStatus: existingRequest?.status || null,
+    });
+  } catch (error) {
+    console.error('Erreur vérification demande envoyée:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la vérification',
+    });
+  }
+};
+
 // Fonction pour initialiser Socket.io
 const setSocketIO = socketIO => {
   io = socketIO;
@@ -964,6 +991,7 @@ module.exports = {
   handleChatRequest,
   getPendingChatRequests,
   getApprovedConversations,
+  checkSentRequestStatus,
   getConversationMessages,
   markConversationAsRead,
   setSocketIO,
