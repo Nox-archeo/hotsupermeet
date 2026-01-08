@@ -242,6 +242,25 @@ class MessagesManager {
 
   // Configuration des écouteurs d'événements
   setupEventListeners() {
+    // Supprimer les anciens listeners s'ils existent
+    if (this.boundHandlers) {
+      document.removeEventListener('click', this.boundHandlers.clickHandler);
+      document.removeEventListener(
+        'click',
+        this.boundHandlers.conversationHandler
+      );
+      document.removeEventListener('click', this.boundHandlers.adHandler);
+      document.removeEventListener('click', this.boundHandlers.tabHandler);
+    }
+
+    // Créer les handlers liés
+    this.boundHandlers = {
+      clickHandler: this.handleDocumentClick.bind(this),
+      conversationHandler: this.handleConversationClick.bind(this),
+      adHandler: this.handleAdClick.bind(this),
+      tabHandler: this.handleTabClick.bind(this),
+    };
+
     // Navigation par onglets
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', e => {
@@ -250,88 +269,100 @@ class MessagesManager {
     });
 
     // Actions des demandes de chat
-    document.addEventListener('click', e => {
-      if (e.target.classList.contains('accept-request')) {
-        this.acceptChatRequest(e.target.closest('.request-item'));
-      } else if (e.target.classList.contains('decline-request')) {
-        this.declineChatRequest(e.target.closest('.request-item'));
-      } else if (e.target.classList.contains('accept-tonight-request')) {
-        this.acceptTonightRequest(e.target.closest('.tonight-request-item'));
-      } else if (e.target.classList.contains('decline-tonight-request')) {
-        this.declineTonightRequest(e.target.closest('.tonight-request-item'));
-      } else if (e.target.classList.contains('accept-photo-request')) {
-        console.log('🔥🔥🔥 BOUTON ACCEPTER CLIQUÉ ! 🔥🔥🔥');
-        console.log('🔥 DEBUG: Target element:', e.target);
-        console.log('🔥 DEBUG: Classes:', e.target.classList);
-        console.log('🔥 DEBUG: Dataset:', e.target.dataset);
-        const requestId = e.target.dataset.requestId;
-        console.log('🔥 DEBUG: Request ID récupéré:', requestId);
-        if (requestId) {
-          console.log('🚀 APPEL handlePhotoRequest avec ACCEPT');
-          this.handlePhotoRequest(requestId, 'accept');
-        } else {
-          console.error('❌ Pas de request ID trouvé !');
-        }
-      } else if (e.target.classList.contains('decline-photo-request')) {
-        console.log('🔥🔥🔥 BOUTON REFUSER CLIQUÉ ! 🔥🔥🔥');
-        console.log('🔥 DEBUG: Target element:', e.target);
-        console.log('🔥 DEBUG: Classes:', e.target.classList);
-        console.log('🔥 DEBUG: Dataset:', e.target.dataset);
-        const requestId = e.target.dataset.requestId;
-        console.log('🔥 DEBUG: Request ID récupéré:', requestId);
-        if (requestId) {
-          console.log('🚀 APPEL handlePhotoRequest avec REJECT');
-          this.handlePhotoRequest(requestId, 'reject');
-        } else {
-          console.error('❌ Pas de request ID trouvé !');
-        }
-      } else if (e.target.classList.contains('view-profile')) {
-        this.viewUserProfile(e.target);
-      } else if (e.target.classList.contains('close-chat')) {
-        console.log('🔍 DEBUG - Bouton close-chat cliqué !');
-        this.closeChatWindow();
-      } else if (e.target.classList.contains('send-message')) {
-        this.sendChatMessage();
-      }
-    });
+    document.addEventListener('click', this.boundHandlers.clickHandler);
+    document.addEventListener('click', this.boundHandlers.conversationHandler);
+    document.addEventListener('click', this.boundHandlers.adHandler);
+    document.addEventListener('click', this.boundHandlers.tabHandler);
+  }
 
-    // Ouvrir une conversation - Délégation d'événement
-    document.addEventListener('click', e => {
-      if (
-        e.target.classList.contains('btn-secondary') &&
-        e.target.textContent === 'Ouvrir'
-      ) {
-        const conversationItem = e.target.closest('.conversation-item');
-        if (conversationItem) {
-          console.log(
-            '🔍 DEBUG - Bouton Ouvrir cliqué, conversationItem:',
-            conversationItem
-          );
-          this.openConversation(conversationItem);
-        }
+  // Handler principal pour les clics
+  handleDocumentClick(e) {
+    if (e.target.classList.contains('accept-request')) {
+      this.acceptChatRequest(e.target.closest('.request-item'));
+    } else if (e.target.classList.contains('decline-request')) {
+      this.declineChatRequest(e.target.closest('.request-item'));
+    } else if (e.target.classList.contains('accept-tonight-request')) {
+      this.acceptTonightRequest(e.target.closest('.tonight-request-item'));
+    } else if (e.target.classList.contains('decline-tonight-request')) {
+      this.declineTonightRequest(e.target.closest('.tonight-request-item'));
+    } else if (e.target.classList.contains('accept-photo-request')) {
+      console.log('🔥🔥🔥 BOUTON ACCEPTER CLIQUÉ ! 🔥🔥🔥');
+      console.log('🔥 DEBUG: Target element:', e.target);
+      console.log('🔥 DEBUG: Classes:', e.target.classList);
+      console.log('🔥 DEBUG: Dataset:', e.target.dataset);
+      const requestId = e.target.dataset.requestId;
+      console.log('🔥 DEBUG: Request ID récupéré:', requestId);
+      if (requestId) {
+        console.log('🚀 APPEL handlePhotoRequest avec ACCEPT');
+        this.handlePhotoRequest(requestId, 'accept');
+      } else {
+        console.error('❌ Pas de request ID trouvé !');
       }
-    });
-
-    // Répondre à une annonce
-    document.addEventListener('click', e => {
-      if (e.target.textContent === 'Répondre') {
-        this.respondToAd(e.target.closest('.ad-response-item'));
+    } else if (e.target.classList.contains('decline-photo-request')) {
+      console.log('🔥🔥🔥 BOUTON REFUSER CLIQUÉ ! 🔥🔥🔥');
+      console.log('🔥 DEBUG: Target element:', e.target);
+      console.log('🔥 DEBUG: Classes:', e.target.classList);
+      console.log('🔥 DEBUG: Dataset:', e.target.dataset);
+      const requestId = e.target.dataset.requestId;
+      console.log('🔥 DEBUG: Request ID récupéré:', requestId);
+      if (requestId) {
+        console.log('🚀 APPEL handlePhotoRequest avec REJECT');
+        this.handlePhotoRequest(requestId, 'reject');
+      } else {
+        console.error('❌ Pas de request ID trouvé !');
       }
-    });
+    } else if (e.target.classList.contains('view-profile')) {
+      this.viewUserProfile(e.target);
+    } else if (e.target.classList.contains('close-chat')) {
+      console.log('🔍 DEBUG - Bouton close-chat cliqué !');
+      this.closeChatWindow();
+    } else if (e.target.classList.contains('send-message')) {
+      this.sendChatMessage();
+    }
+  }
 
-    // GESTIONNAIRE ONGLETS - RECHARGER DONNÉES QUAND ON CLIQUE SUR "ANNONCES"
-    document.addEventListener('click', e => {
-      if (
-        e.target.classList.contains('tab-btn') &&
-        e.target.getAttribute('data-tab') === 'ad-responses'
-      ) {
+  // Handler pour les conversations
+  handleConversationClick(e) {
+    if (
+      e.target.classList.contains('btn-secondary') &&
+      e.target.textContent === 'Ouvrir'
+    ) {
+      const conversationItem = e.target.closest('.conversation-item');
+      if (conversationItem) {
         console.log(
-          '🔍 DEBUG - Clic sur onglet Annonces, rechargement des données...'
+          '🔍 DEBUG - Bouton Ouvrir cliqué, conversationItem:',
+          conversationItem
         );
-        // Forcer le rechargement des réponses aux annonces
-        this.loadRealData();
+        this.openConversation(conversationItem);
       }
-    });
+    } else if (e.target.classList.contains('btn-view-profile')) {
+      // Nouveau bouton "Voir profil"
+      const userId = e.target.dataset.userId;
+      if (userId) {
+        window.location.href = `/profile-view?id=${userId}`;
+      }
+    }
+  }
+
+  // Handler pour les annonces
+  handleAdClick(e) {
+    if (e.target.textContent === 'Répondre') {
+      this.respondToAd(e.target.closest('.ad-response-item'));
+    }
+  }
+
+  // Handler pour les onglets
+  handleTabClick(e) {
+    if (
+      e.target.classList.contains('tab-btn') &&
+      e.target.getAttribute('data-tab') === 'ad-responses'
+    ) {
+      console.log(
+        '🔍 DEBUG - Clic sur onglet Annonces, rechargement des données...'
+      );
+      // Forcer le rechargement des réponses aux annonces
+      this.loadRealData();
+    }
   }
 
   // Charger les vraies données depuis l'API
@@ -1775,6 +1806,7 @@ class MessagesManager {
                 </div>
                 <div class="conversation-actions">
                     <button class="btn-secondary" onclick="messagesManager.openChat('${conversation.id}', '${conversation.otherUser.nom}', '${conversation.otherUser.photo || '/images/default-avatar.jpg'}')">Ouvrir</button>
+                    <button class="btn-view-profile" data-user-id="${conversation.otherUser.id}" title="Voir le profil">👤</button>
                     <button class="btn-danger btn-delete-conversation" onclick="messagesManager.deleteConversation('${conversation.id}', 'classique')" title="Supprimer conversation">🗑️</button>
                     ${conversation.unreadCount > 0 ? `<span class="unread-count">${conversation.unreadCount}</span>` : ''}
                 </div>
@@ -2476,6 +2508,27 @@ const messagesStyles = `
         display: flex;
         gap: 0.5rem;
     }
+
+    .btn-view-profile {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 36px;
+    }
+    
+    .btn-view-profile:hover {
+        background: #0056b3;
+        transform: scale(1.05);
+    }
     
     .ad-response-header {
         display: flex;
@@ -2797,6 +2850,13 @@ const messagesStyles = `
         .conversation-actions, .request-actions {
             margin-top: 1rem;
             justify-content: center;
+        }
+
+        .btn-view-profile {
+            padding: 6px 10px;
+            font-size: 1rem;
+            min-width: 36px;
+            height: 32px;
         }
         
         .chat-window {
