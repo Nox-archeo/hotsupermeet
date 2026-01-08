@@ -2110,11 +2110,13 @@ class MessagesManager {
               <span class="btn-icon">❌</span>
               Refuser  
             </button>
+            <button class="btn-view-profile" data-user-id="${request.requester._id}" title="Voir le profil">👤</button>
           `
               : `
             <span class="request-status status-${request.status}">
               ${request.status === 'accepted' ? '✅ Acceptée' : '❌ Refusée'}
             </span>
+            <button class="btn-view-profile" data-user-id="${request.requester._id}" title="Voir le profil">👤</button>
           `
           }
         </div>
@@ -2157,6 +2159,7 @@ class MessagesManager {
                   : '❌ Refusée'
             }
           </span>
+          <button class="btn-view-profile" data-user-id="${request.target._id}" title="Voir le profil">👤</button>
           <button class="btn-danger btn-delete-photo-request" onclick="messagesManager.deletePhotoRequest('${request._id}')" title="Supprimer demande">🗑️</button>
         </div>
       </div>
