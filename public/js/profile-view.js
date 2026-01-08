@@ -398,7 +398,9 @@ class ProfileViewChat {
   async checkExistingConversation() {
     try {
       const token = localStorage.getItem('hotmeet_token');
-      const response = await fetch(
+
+      // Check for existing conversation
+      const conversationResponse = await fetch(
         `/api/messages/conversation/${this.userId}`,
         {
           headers: {
@@ -407,13 +409,48 @@ class ProfileViewChat {
         }
       );
 
-      if (response.ok) {
-        const data = await response.json();
-        this.conversationId = data.conversationId;
-        this.messages = data.messages || [];
+      if (conversationResponse.ok) {
+        const conversationData = await conversationResponse.json();
+        this.conversationId = conversationData.conversationId;
+        this.messages = conversationData.messages || [];
+
+        // If conversation exists, disable chat request button
+        if (this.conversationId && this.messages.length > 0) {
+          this.disableChatButton('✅ Chat déjà établi');
+          return;
+        }
+      }
+
+      // Check for pending chat requests
+      const requestsResponse = await fetch('/api/messages/requests', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (requestsResponse.ok) {
+        const requestsData = await requestsResponse.json();
+        // Check if there's a pending request to this user
+        const pendingRequest = requestsData.requests?.find(
+          req =>
+            req.fromUserId === this.currentUser.user.id &&
+            req.toUserId === this.userId
+        );
+
+        if (pendingRequest) {
+          this.disableChatButton('⏳ Demande en attente');
+        }
       }
     } catch (error) {
       console.error('Error checking conversation:', error);
+    }
+  }
+
+  disableChatButton(text) {
+    const chatBtn = document.getElementById('sendMessageBtn');
+    if (chatBtn) {
+      chatBtn.disabled = true;
+      chatBtn.textContent = text;
+      chatBtn.style.opacity = '0.6';
+      chatBtn.style.cursor = 'not-allowed';
     }
   }
 
@@ -466,15 +503,10 @@ class ProfileViewChat {
   openChatModal() {
     document.getElementById('chatModal').style.display = 'flex';
     document.getElementById('chatTitle').textContent =
-      `Chat avec ${this.userProfile.profile.nom}`;
+      `Demande de chat avec ${this.userProfile.profile.nom}`;
 
-    // Load existing messages if conversation exists
-    if (this.messages.length > 0) {
-      this.displayMessages();
-    } else {
-      // Clear messages container for new conversation
-      document.getElementById('chatMessages').innerHTML = '';
-    }
+    // Clear messages container for new chat request
+    document.getElementById('chatMessages').innerHTML = '';
 
     document.getElementById('messageInput').focus();
   }
@@ -559,25 +591,18 @@ class ProfileViewChat {
       if (response.ok) {
         const data = await response.json();
 
-        // Add message to local array
-        this.messages.push({
-          _id: data.message._id,
-          fromUserId: this.currentUser.user.id,
-          toUserId: this.userId,
-          content: content,
-          createdAt: new Date().toISOString(),
-          status: 'sent',
-        });
+        // Close modal immediately after sending chat request
+        this.closeChatModal();
 
-        // Update conversation ID if new
-        if (data.message.conversationId) {
-          this.conversationId = data.message.conversationId;
-        }
+        // Show success message
+        this.showToast('🚀 Demande de chat envoyée avec succès !', 'success');
 
-        // Clear input and refresh display
-        messageInput.value = '';
-        document.getElementById('charCount').textContent = '0';
-        this.displayMessages();
+        // Disable the chat request button and change its text
+        const chatBtn = document.getElementById('sendMessageBtn');
+        chatBtn.disabled = true;
+        chatBtn.textContent = '✅ Demande envoyée';
+        chatBtn.style.opacity = '0.6';
+        chatBtn.style.cursor = 'not-allowed';
 
         // Message sent successfully - no notification needed
       } else {
