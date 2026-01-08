@@ -89,6 +89,7 @@ class ProfileViewChat {
 
       // Check if conversation already exists
       await this.checkExistingConversation();
+      await this.checkExistingPhotoRequest();
     } catch (error) {
       console.error('Error loading profile:', error);
       this.showError('Erreur lors du chargement du profil');
@@ -280,18 +281,23 @@ class ProfileViewChat {
     }
   }
 
-  displayPrivatePhotos(photos, isBlurred) {
+  displayPrivatePhotos(photos, shouldBlur) {
+    console.log('🔒 Affichage photos privées - shouldBlur:', shouldBlur);
+
     const privateContainer = document.getElementById('privatePhotos');
 
     privateContainer.innerHTML = photos
-      .map(
-        photo => `
-        <div class="photo-item private ${isBlurred ? 'blurred' : 'access-granted'}">
-          <img src="${photo.path}" alt="Photo privée" style="width: 100px; height: 100px; object-fit: cover; margin: 5px; border-radius: 8px;" />
-          ${isBlurred ? '<div class="photo-overlay">🔒</div>' : ''}
+      .map(photo => {
+        const blurStyle = shouldBlur ? 'filter: blur(20px);' : '';
+        const containerStyle = shouldBlur ? 'position: relative;' : '';
+
+        return `
+        <div class="photo-item private ${shouldBlur ? 'blurred' : 'access-granted'}" style="${containerStyle}">
+          <img src="${photo.path}" alt="Photo privée" style="width: 100px; height: 100px; object-fit: cover; margin: 5px; border-radius: 8px; ${blurStyle}" />
+          ${shouldBlur ? '<div class="photo-overlay" style="position: absolute; top: 5px; left: 5px; right: 5px; bottom: 5px; background: rgba(0,0,0,0.6); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">🔒</div>' : ''}
         </div>
-      `
-      )
+      `;
+      })
       .join('');
   }
 
@@ -320,10 +326,29 @@ class ProfileViewChat {
 
     requestButton.addEventListener('click', async () => {
       try {
+        // Vérifier d'abord s'il n'y a pas déjà une demande
+        const token = localStorage.getItem('hotmeet_token');
+        const checkResponse = await fetch('/api/auth/private-photos/sent', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (checkResponse.ok) {
+          const checkData = await checkResponse.json();
+          const existingRequest = checkData.requests?.find(
+            req => req.target._id === this.userId
+          );
+
+          if (existingRequest) {
+            this.showMessage('Une demande a déjà été envoyée', 'warning');
+            requestButton.disabled = true;
+            requestButton.textContent = '⏳ Demande déjà envoyée';
+            return;
+          }
+        }
+
         requestButton.disabled = true;
         requestButton.textContent = '📤 Envoi...';
 
-        const token = localStorage.getItem('hotmeet_token');
         const response = await fetch('/api/auth/private-photos/send-request', {
           method: 'POST',
           headers: {
@@ -341,6 +366,8 @@ class ProfileViewChat {
         if (result.success) {
           requestButton.textContent = '✅ Demande envoyée';
           requestButton.disabled = true;
+          requestButton.style.opacity = '0.6';
+          requestButton.style.cursor = 'not-allowed';
           this.showMessage('Demande envoyée avec succès !', 'success');
 
           // Notifier la page messages des nouvelles demandes
@@ -454,6 +481,43 @@ class ProfileViewChat {
       chatBtn.textContent = text;
       chatBtn.style.opacity = '0.6';
       chatBtn.style.cursor = 'not-allowed';
+    }
+  }
+
+  async checkExistingPhotoRequest() {
+    try {
+      const token = localStorage.getItem('hotmeet_token');
+
+      // Vérifier les demandes envoyées
+      const sentResponse = await fetch('/api/auth/private-photos/sent', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (sentResponse.ok) {
+        const sentData = await sentResponse.json();
+        const existingRequest = sentData.requests?.find(
+          req => req.target._id === this.userId
+        );
+
+        if (existingRequest) {
+          const requestBtn = document.getElementById('requestPrivateAccessBtn');
+          if (requestBtn) {
+            requestBtn.disabled = true;
+            requestBtn.style.opacity = '0.6';
+            requestBtn.style.cursor = 'not-allowed';
+
+            if (existingRequest.status === 'pending') {
+              requestBtn.textContent = '⏳ Demande en attente';
+            } else if (existingRequest.status === 'accepted') {
+              requestBtn.textContent = '✅ Accès accordé';
+            } else if (existingRequest.status === 'rejected') {
+              requestBtn.textContent = '❌ Demande refusée';
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Erreur vérification demandes photos:', error);
     }
   }
 
