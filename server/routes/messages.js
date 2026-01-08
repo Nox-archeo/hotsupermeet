@@ -59,6 +59,18 @@ router.delete('/:messageId', auth, updateLastActivity, deleteMessage); // DELETE
 
 // Routes pour les demandes de chat - Auth normale (gestion premium dans controllers)
 router.get('/requests', auth, updateLastActivity, getPendingChatRequests); // GET /api/messages/requests
+
+// Nouveau endpoint pour vérifier si on a envoyé une demande à un utilisateur spécifique
+router.get(
+  '/sent-request-status/:userId',
+  auth,
+  updateLastActivity,
+  (req, res) => {
+    const checkSentRequestStatus =
+      require('../controllers/messageController').checkSentRequestStatus;
+    checkSentRequestStatus(req, res);
+  }
+); // GET /api/messages/sent-request-status/:userId
 router.post(
   '/requests/handle',
   auth,
