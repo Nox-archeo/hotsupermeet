@@ -25,6 +25,9 @@ class ProfileViewChat {
 
     // Écouter les événements de défloutage
     this.setupPhotoAccessListener();
+
+    // Initialiser Socket.io pour les notifications temps réel
+    this.initSocket();
   }
 
   async checkAuthAndLoadProfile() {
@@ -253,6 +256,8 @@ class ProfileViewChat {
     const requestButton = document.getElementById('requestPrivateAccessBtn');
     const messageContainer = document.getElementById('privatePhotosMessage');
 
+    console.log('🔒 SETUP PHOTOS PRIVÉES - Nombre:', privatePhotos.length);
+
     if (privatePhotos.length === 0) {
       privateContainer.innerHTML =
         '<p class="no-photos">Aucune photo privée</p>';
@@ -262,6 +267,8 @@ class ProfileViewChat {
 
     // Vérifier si l'utilisateur a accès aux photos privées
     const hasAccess = await this.checkPrivatePhotoAccess();
+
+    console.log('🔓 SETUP PHOTOS PRIVÉES - Accès accordé:', hasAccess);
 
     if (hasAccess) {
       // L'utilisateur a accès : afficher les photos défloutées
@@ -313,7 +320,13 @@ class ProfileViewChat {
 
       if (response.ok) {
         const result = await response.json();
+        console.log('🔓 VÉRIFICATION ACCÈS - Résultat:', result);
         return result.hasAccess;
+      } else {
+        console.log(
+          '❌ VÉRIFICATION ACCÈS - Erreur response:',
+          response.status
+        );
       }
     } catch (error) {
       console.error('Erreur vérification accès photos privées:', error);
@@ -819,6 +832,30 @@ class ProfileViewChat {
     } catch (error) {
       console.error('Erreur demande déflou:', error);
       this.showMessage('Erreur lors de la demande', 'error');
+    }
+  }
+
+  // Initialiser la connexion Socket.io pour les notifications
+  initSocket() {
+    try {
+      this.socket = io();
+
+      this.socket.on('privatePhotoAccessGranted', data => {
+        console.log('🔓 Socket - Accès photo accordé reçu:', data);
+
+        // Vérifier si c'est pour l'utilisateur connecté
+        if (this.currentUser && data.requesterId === this.currentUser.user.id) {
+          console.log('✅ Socket - Événement pour cet utilisateur');
+
+          // Émettre l'événement personnalisé que le listener attend
+          const customEvent = new CustomEvent('privatePhotoAccessGranted', {
+            detail: data,
+          });
+          window.dispatchEvent(customEvent);
+        }
+      });
+    } catch (error) {
+      console.error('Erreur connexion Socket.io:', error);
     }
   }
 

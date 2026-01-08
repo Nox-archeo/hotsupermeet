@@ -128,6 +128,22 @@ const respondToPrivatePhotoRequest = async (req, res) => {
     request.respondedAt = new Date();
     await request.save();
 
+    // Si accepté, émettre événement pour notifier l'utilisateur qui a fait la demande
+    if (action === 'accept') {
+      const io = req.app.get('io');
+      if (io) {
+        console.log(
+          '🔓 ÉMISSION ÉVÉNEMENT - Accès accordé pour:',
+          request.requester
+        );
+        io.emit('privatePhotoAccessGranted', {
+          targetUserId: targetUserId,
+          requesterId: request.requester.toString(),
+          message: `${req.user.profile.nom} vous a accordé l'accès à ses photos privées`,
+        });
+      }
+    }
+
     res.json({
       success: true,
       message:
