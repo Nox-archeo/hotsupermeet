@@ -97,6 +97,9 @@ const io = new Server(server, {
   },
 });
 
+// Rendre io disponible dans les contrôleurs
+app.set('io', io);
+
 // Configuration du proxy pour Infomaniak
 app.set('trust proxy', 1);
 
