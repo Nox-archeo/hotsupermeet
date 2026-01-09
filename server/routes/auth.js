@@ -359,25 +359,13 @@ router.get('/private-photos/received', auth, async (req, res) => {
       target: userId,
       status: 'pending', // Ne montrer que les demandes en attente
     })
-      .select('_id message createdAt status') // Ne sélectionner que les champs nécessaires
+      .populate('requester', 'profile') // Récupérer les infos du demandeur
       .sort({ createdAt: -1 });
 
-    // Masquer les informations du demandeur pour la confidentialité
-    const sanitizedRequests = requests.map(request => ({
-      _id: request._id,
-      message: request.message,
-      createdAt: request.createdAt,
-      status: request.status,
-      requester: {
-        profile: {
-          nom: 'Demandeur anonyme', // Masquer l'identité
-        },
-      },
-    }));
-
+    // Maintenant on montre qui fait la demande pour que l'utilisateur puisse décider
     res.json({
       success: true,
-      requests: sanitizedRequests,
+      requests: requests,
     });
   } catch (error) {
     console.error('Erreur récupération demandes reçues:', error);

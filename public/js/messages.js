@@ -2081,15 +2081,15 @@ class MessagesManager {
         request => `
       <div class="photo-request-card" data-request-id="${request._id}">
         <div class="request-user-avatar">
-          <img src="/images/default-avatar.jpg" 
-               alt="Demandeur" 
+          <img src="${request.requester.profile.photos?.[0]?.url || '/images/default-avatar.jpg'}" 
+               alt="${request.requester.profile.nom}" 
                onerror="this.src='/images/default-avatar.jpg'"
                class="small-profile-photo"
-               style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; filter: blur(5px); opacity: 0.8;">
+               style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
         </div>
         <div class="request-content">
           <div class="request-header">
-            <h3 class="requester-name">🔒 Demandeur anonyme</h3>
+            <h3 class="requester-name">${request.requester.profile.nom}</h3>
             <span class="request-time">${this.formatTimeAgo(new Date(request.createdAt))}</span>
           </div>
           <div class="request-message">
@@ -2097,7 +2097,7 @@ class MessagesManager {
           </div>
           <div class="request-type">
             <span class="photo-icon">📸</span>
-            <span>Demande d'accès aux photos privées</span>
+            <span>${request.requester.profile.nom} souhaite voir vos photos privées</span>
           </div>
         </div>
         <div class="request-actions">
