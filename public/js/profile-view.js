@@ -294,18 +294,28 @@ class ProfileViewChat {
     const privateContainer = document.getElementById('privatePhotos');
 
     privateContainer.innerHTML = photos
-      .map(photo => {
+      .map((photo, index) => {
         const blurStyle = shouldBlur ? 'filter: blur(20px);' : '';
         const containerStyle = shouldBlur ? 'position: relative;' : '';
+        const clickableClass = shouldBlur ? '' : 'gallery-photo'; // Ajouter classe pour lightbox si pas floutées
 
         return `
         <div class="photo-item private ${shouldBlur ? 'blurred' : 'access-granted'}" style="${containerStyle}">
-          <img src="${photo.path}" alt="Photo privée" style="width: 100px; height: 100px; object-fit: cover; margin: 5px; border-radius: 8px; ${blurStyle}" />
+          <img src="${photo.path}" 
+               alt="Photo privée" 
+               class="${clickableClass}"
+               data-index="${index}"
+               style="width: 100px; height: 100px; object-fit: cover; margin: 5px; border-radius: 8px; ${blurStyle}; ${shouldBlur ? '' : 'cursor: pointer;'}" />
           ${shouldBlur ? '<div class="photo-overlay" style="position: absolute; top: 5px; left: 5px; right: 5px; bottom: 5px; background: rgba(0,0,0,0.6); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">🔒</div>' : ''}
         </div>
       `;
       })
       .join('');
+
+    // 📸 LIGHTBOX: Ajouter event listeners pour les photos privées défloutées
+    if (!shouldBlur) {
+      this.setupPhotoLightbox(photos);
+    }
   }
 
   async checkPrivatePhotoAccess() {
