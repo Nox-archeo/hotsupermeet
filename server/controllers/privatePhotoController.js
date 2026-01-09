@@ -235,10 +235,19 @@ const checkPrivatePhotoAccess = async (req, res) => {
       status: 'accepted',
     });
 
+    console.log('📸 CHECK ACCESS - Recherche:', {
+      requester: userId,
+      target: targetUserId,
+      status: 'accepted',
+      found: !!acceptedRequest,
+      acceptedRequest: acceptedRequest,
+    });
+
     res.json({
       success: true,
       hasAccess: !!acceptedRequest,
       isOwner: false,
+      reason: acceptedRequest ? 'access_granted' : 'no_access',
     });
   } catch (error) {
     console.error('Erreur vérification accès photos:', error);
