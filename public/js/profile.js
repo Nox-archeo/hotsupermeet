@@ -1885,16 +1885,13 @@ function displaySentRequests(requests) {
   container.innerHTML = requests
     .map(request => {
       const date = new Date(request.createdAt).toLocaleDateString('fr-FR');
-      // Ne pas révéler le nom tant que la demande n'est pas acceptée
-      const userName =
-        request.status === 'accepted'
-          ? request.target?.profile?.nom || 'Utilisateur'
-          : '🔒 Destinataire masqué';
+      // Toujours montrer le nom puisque c'est l'utilisateur qui a fait la demande
+      const userName = request.target?.profile?.nom || 'Utilisateur';
 
       return `
       <div class="request-item">
         <div class="request-header">
-          <span class="request-user">À ${userName}</span>
+          <span class="request-user">Vous avez demandé à voir les photos de ${userName}</span>
           <span class="request-date">${date}</span>
         </div>
         <div class="request-message">${request.message}</div>

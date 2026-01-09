@@ -2139,8 +2139,7 @@ class MessagesManager {
 
     container.innerHTML = requests
       .map(request => {
-        // Toujours afficher la photo de la personne, mais floutée si pas accepté
-        const showClearPhoto = request.status === 'accepted';
+        // Toujours afficher la photo claire de la personne à qui on a envoyé
         const photoSrc =
           request.target.profile.photos?.[0]?.url ||
           '/images/default-avatar.jpg';
@@ -2152,10 +2151,10 @@ class MessagesManager {
                alt="${request.target.profile.nom || 'Utilisateur'}" 
                onerror="this.src='/images/default-avatar.jpg'"
                class="small-profile-photo"
-               style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; ${!showClearPhoto ? 'filter: blur(8px); opacity: 0.8;' : ''}">
+               style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
           <div class="user-info">
-            <h4>${showClearPhoto ? request.target.profile.nom : '🔒 ' + (request.target.profile.nom || 'Utilisateur masqué')}</h4>
-            <p class="request-message">"${request.message || "Demande d'accès aux photos privées"}"</p>
+            <h4>${request.target.profile.nom || 'Utilisateur'}</h4>
+            <p class="request-message">Vous avez demandé à voir les photos privées de ${request.target.profile.nom || 'cette personne'}</p>
             <span class="request-time">${this.formatTimeAgo(new Date(request.createdAt))}</span>
           </div>
         </div>
@@ -2163,13 +2162,13 @@ class MessagesManager {
           <span class="request-status ${request.status}">
             ${
               request.status === 'pending'
-                ? '⏳ En attente'
+                ? '⏳ En attente de réponse'
                 : request.status === 'accepted'
-                  ? '✅ Acceptée - Photos privées accessibles'
-                  : '❌ Refusée'
+                  ? '✅ Demande acceptée - Photos accessibles'
+                  : '❌ Demande refusée'
             }
           </span>
-          ${showClearPhoto ? `<button class="btn-view-profile" data-user-id="${request.target._id}" title="Voir le profil">👤</button>` : ''}
+          <button class="btn-view-profile" data-user-id="${request.target._id}" title="Voir le profil">👤 Voir profil</button>
           <button class="btn-danger btn-delete-photo-request" onclick="messagesManager.deletePhotoRequest('${request._id}')" title="Supprimer demande">🗑️</button>
         </div>
       </div>
