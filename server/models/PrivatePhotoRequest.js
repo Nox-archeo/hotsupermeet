@@ -16,6 +16,11 @@ const privatePhotoRequestSchema = new mongoose.Schema({
     enum: ['pending', 'accepted', 'rejected'],
     default: 'pending',
   },
+  requestType: {
+    type: String,
+    enum: ['profile_photos', 'private_photos'],
+    default: 'private_photos', // Par défaut = photos privées
+  },
   message: {
     type: String,
     maxlength: 200,

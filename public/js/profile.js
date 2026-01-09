@@ -1841,7 +1841,8 @@ function displayReceivedRequests(requests) {
   container.innerHTML = requests
     .map(request => {
       const date = new Date(request.createdAt).toLocaleDateString('fr-FR');
-      const userName = request.requester?.profile?.nom || 'Utilisateur inconnu';
+      // Masquer l'identité du demandeur pour des raisons de confidentialité
+      const userName = '🔒 Demandeur anonyme';
 
       return `
       <div class="request-item">
@@ -1884,7 +1885,11 @@ function displaySentRequests(requests) {
   container.innerHTML = requests
     .map(request => {
       const date = new Date(request.createdAt).toLocaleDateString('fr-FR');
-      const userName = request.target?.profile?.nom || 'Utilisateur inconnu';
+      // Ne pas révéler le nom tant que la demande n'est pas acceptée
+      const userName =
+        request.status === 'accepted'
+          ? request.target?.profile?.nom || 'Utilisateur'
+          : '🔒 Destinataire masqué';
 
       return `
       <div class="request-item">
@@ -1940,11 +1945,11 @@ async function respondToPhotoRequest(requestId, action) {
 function getStatusText(status) {
   switch (status) {
     case 'pending':
-      return 'En attente';
+      return '⏳ En attente de réponse';
     case 'accepted':
-      return 'Acceptée';
+      return '✅ Acceptée - Photos privées accessibles';
     case 'rejected':
-      return 'Refusée';
+      return '❌ Refusée';
     default:
       return status;
   }
