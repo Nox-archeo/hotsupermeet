@@ -397,28 +397,11 @@ router.get('/private-photos/sent', auth, async (req, res) => {
       .populate('target', 'profile')
       .sort({ createdAt: -1 });
 
-    // Masquer les informations du destinataire si la demande n'est pas acceptée
-    const sanitizedRequests = requests.map(request => ({
-      _id: request._id,
-      message: request.message,
-      createdAt: request.createdAt,
-      status: request.status,
-      target: {
-        _id: request.status === 'accepted' ? request.target._id : 'masked',
-        profile: {
-          nom:
-            request.status === 'accepted'
-              ? request.target.profile.nom
-              : 'Destinataire masqué',
-          photos:
-            request.status === 'accepted' ? request.target.profile.photos : [],
-        },
-      },
-    }));
-
+    // Pour les demandes ENVOYÉES, l'utilisateur doit voir à qui il a envoyé
+    // Pas besoin de masquer puisque c'est lui qui a fait la demande
     res.json({
       success: true,
-      requests: sanitizedRequests,
+      requests: requests,
     });
   } catch (error) {
     console.error('Erreur récupération demandes envoyées:', error);
