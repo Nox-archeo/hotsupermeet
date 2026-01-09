@@ -475,11 +475,25 @@ router.get(
   '/private-photos/check-access/:targetUserId',
   auth,
   async (req, res) => {
+    console.log('📸 CHECK ACCESS AUTH.JS: Fonction appelée avec:', {
+      params: req.params,
+      userId: req.user?._id,
+    });
     try {
       const { targetUserId } = req.params;
       const userId = req.user._id;
 
+      console.log('🔍 DEBUG checkPrivatePhotoAccess AUTH.JS - Début:', {
+        requester: userId,
+        target: targetUserId,
+        requesterStr: userId.toString(),
+        targetStr: targetUserId,
+      });
+
       if (userId.toString() === targetUserId) {
+        console.log(
+          '🔍 DEBUG AUTH.JS - Utilisateur regarde ses propres photos'
+        );
         return res.json({
           success: true,
           hasAccess: true,
@@ -487,16 +501,50 @@ router.get(
         });
       }
 
+      console.log('🔍 DEBUG AUTH.JS - Recherche demande acceptée avec:', {
+        requester: userId,
+        target: targetUserId,
+        status: 'accepted',
+      });
+
       const acceptedRequest = await PrivatePhotoRequest.findOne({
         requester: userId,
         target: targetUserId,
         status: 'accepted',
       });
 
+      console.log('🔍 DEBUG AUTH.JS - Résultat recherche:', {
+        found: !!acceptedRequest,
+        acceptedRequest: acceptedRequest,
+      });
+
+      // Vérifier s'il y a des demandes dans la collection
+      const allRequests = await PrivatePhotoRequest.find({
+        requester: userId,
+        target: targetUserId,
+      });
+
+      console.log('🔍 DEBUG AUTH.JS - Toutes les demandes pour cette paire:', {
+        count: allRequests.length,
+        requests: allRequests.map(r => ({
+          id: r._id,
+          status: r.status,
+          createdAt: r.createdAt,
+        })),
+      });
+
+      const hasAccess = !!acceptedRequest;
+      const reason = acceptedRequest ? 'request_accepted' : 'no_access';
+
+      console.log('🔍 DEBUG AUTH.JS - Réponse finale:', {
+        hasAccess,
+        reason,
+      });
+
       res.json({
         success: true,
-        hasAccess: !!acceptedRequest,
-        reason: acceptedRequest ? 'request_accepted' : 'no_access',
+        hasAccess: hasAccess,
+        reason: reason,
       });
     } catch (error) {
       console.error('Erreur vérification accès photos:', error);
