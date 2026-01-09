@@ -292,10 +292,18 @@ router.post('/private-photos/send-request', auth, async (req, res) => {
       });
     }
 
-    // Vérifier si une demande existe déjà
+    // Vérifier si une demande existe déjà (AVEC CONVERSION CORRECTE)
+    const targetObjectId = new mongoose.Types.ObjectId(targetUserId);
     const existingRequest = await PrivatePhotoRequest.findOne({
       requester: requesterId,
+      target: targetObjectId,
+    });
+
+    console.log('🔍 DEBUG CRÉATION - Vérification demande existante:', {
+      requester: requesterId,
       target: targetUserId,
+      targetObjectId: targetObjectId,
+      found: !!existingRequest,
     });
 
     if (existingRequest) {
@@ -313,8 +321,15 @@ router.post('/private-photos/send-request', auth, async (req, res) => {
     // Créer la nouvelle demande
     const newRequest = new PrivatePhotoRequest({
       requester: requesterId,
-      target: targetUserId,
+      target: targetObjectId,
       message: message || 'Aimerais voir vos photos privées',
+    });
+
+    console.log('🔍 DEBUG CRÉATION - Avant sauvegarde:', {
+      requester: newRequest.requester,
+      target: newRequest.target,
+      requesterType: typeof newRequest.requester,
+      targetType: typeof newRequest.target,
     });
 
     await newRequest.save();
@@ -432,10 +447,14 @@ router.post('/private-photos/respond', auth, async (req, res) => {
     // Définir le nouveau statut
     const newStatus = action === 'accept' ? 'accepted' : 'rejected';
 
-    // Au lieu de sauvegarder, on supprime directement la demande !
-    console.log('🗑️ SERVER - Suppression de la demande après réponse');
+    // Mettre à jour le statut de la demande au lieu de la supprimer
+    request.status = newStatus;
+    request.respondedAt = new Date();
 
-    // Sauvegarder les infos importantes pour la réponse
+    console.log('💾 SERVER - Sauvegarde du statut:', newStatus);
+    await request.save();
+
+    // Préparer la réponse
     const responseData = {
       _id: request._id,
       requester: request.requester,
@@ -443,13 +462,10 @@ router.post('/private-photos/respond', auth, async (req, res) => {
       status: newStatus,
       message: request.message,
       createdAt: request.createdAt,
-      respondedAt: new Date(),
+      respondedAt: request.respondedAt,
     };
 
-    // SUPPRIMER la demande de la base de données
-    await PrivatePhotoRequest.findByIdAndRemove(requestId);
-
-    console.log('✅ DEMANDE PHOTO SUPPRIMÉE:', {
+    console.log('✅ DEMANDE PHOTO MISE À JOUR:', {
       requestId,
       action,
       status: newStatus,

@@ -1,5 +1,6 @@
 const PrivatePhotoRequest = require('../models/PrivatePhotoRequest');
 const User = require('../models/User');
+const mongoose = require('mongoose');
 
 console.log('📸 CONTROLLER PRIVATE PHOTOS: Module chargé avec succès');
 
@@ -38,9 +39,10 @@ const sendPrivatePhotoRequest = async (req, res) => {
     }
 
     // Vérifier si une demande existe déjà
+    const targetObjectId = new mongoose.Types.ObjectId(targetUserId);
     const existingRequest = await PrivatePhotoRequest.findOne({
       requester: requesterId,
-      target: targetUserId,
+      target: targetObjectId,
     });
 
     if (existingRequest) {
@@ -58,7 +60,7 @@ const sendPrivatePhotoRequest = async (req, res) => {
     // Créer la nouvelle demande
     const newRequest = new PrivatePhotoRequest({
       requester: requesterId,
-      target: targetUserId,
+      target: targetObjectId,
       message: message || 'Aimerais voir vos photos privées',
     });
 
@@ -137,7 +139,7 @@ const respondToPrivatePhotoRequest = async (req, res) => {
           request.requester
         );
         io.emit('privatePhotoAccessGranted', {
-          targetUserId: targetUserId,
+          targetUserId: userId.toString(), // ✅ CORRECTION : userId est l'utilisateur qui accepte
           requesterId: request.requester.toString(),
           message: `${req.user.profile.nom} vous a accordé l'accès à ses photos privées`,
         });
@@ -242,10 +244,13 @@ const checkPrivatePhotoAccess = async (req, res) => {
       status: 'accepted',
     });
 
+    // Convertir targetUserId en ObjectId pour la requête MongoDB
+    const targetObjectId = new mongoose.Types.ObjectId(targetUserId);
+
     // Chercher une demande acceptée
     const acceptedRequest = await PrivatePhotoRequest.findOne({
       requester: userId,
-      target: targetUserId,
+      target: targetObjectId,
       status: 'accepted',
     });
 
@@ -257,7 +262,7 @@ const checkPrivatePhotoAccess = async (req, res) => {
     // Vérifier s'il y a des demandes dans la collection
     const allRequests = await PrivatePhotoRequest.find({
       requester: userId,
-      target: targetUserId,
+      target: targetObjectId,
     });
 
     console.log('🔍 DEBUG - Toutes les demandes pour cette paire:', {
