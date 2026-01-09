@@ -2084,7 +2084,8 @@ class MessagesManager {
           <img src="/images/default-avatar.jpg" 
                alt="Demandeur" 
                onerror="this.src='/images/default-avatar.jpg'"
-               style="filter: blur(5px); opacity: 0.8;">
+               class="small-profile-photo"
+               style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; filter: blur(5px); opacity: 0.8;">
         </div>
         <div class="request-content">
           <div class="request-header">
@@ -2138,22 +2139,22 @@ class MessagesManager {
 
     container.innerHTML = requests
       .map(request => {
-        // NE PAS révéler la photo tant que la demande n'est pas acceptée
-        const showPhoto = request.status === 'accepted';
-        const photoSrc = showPhoto
-          ? request.target.profile.photos[0]?.url ||
-            '/images/default-avatar.jpg'
-          : '/images/default-avatar.jpg'; // Avatar par défaut
+        // Toujours afficher la photo de la personne, mais floutée si pas accepté
+        const showClearPhoto = request.status === 'accepted';
+        const photoSrc =
+          request.target.profile.photos?.[0]?.url ||
+          '/images/default-avatar.jpg';
 
         return `
       <div class="request-item photo-request" data-request-id="${request._id}">
         <div class="request-user">
           <img src="${photoSrc}" 
-               alt="${showPhoto ? request.target.profile.nom : 'Utilisateur'}" 
+               alt="${request.target.profile.nom || 'Utilisateur'}" 
                onerror="this.src='/images/default-avatar.jpg'"
-               style="${!showPhoto ? 'filter: blur(10px); opacity: 0.7;' : ''}">
+               class="small-profile-photo"
+               style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; ${!showClearPhoto ? 'filter: blur(8px); opacity: 0.8;' : ''}">
           <div class="user-info">
-            <h4>${showPhoto ? request.target.profile.nom : '🔒 Utilisateur masqué'}</h4>
+            <h4>${showClearPhoto ? request.target.profile.nom : '🔒 ' + (request.target.profile.nom || 'Utilisateur masqué')}</h4>
             <p class="request-message">"${request.message || "Demande d'accès aux photos privées"}"</p>
             <span class="request-time">${this.formatTimeAgo(new Date(request.createdAt))}</span>
           </div>
@@ -2168,7 +2169,7 @@ class MessagesManager {
                   : '❌ Refusée'
             }
           </span>
-          ${showPhoto ? `<button class="btn-view-profile" data-user-id="${request.target._id}" title="Voir le profil">👤</button>` : ''}
+          ${showClearPhoto ? `<button class="btn-view-profile" data-user-id="${request.target._id}" title="Voir le profil">👤</button>` : ''}
           <button class="btn-danger btn-delete-photo-request" onclick="messagesManager.deletePhotoRequest('${request._id}')" title="Supprimer demande">🗑️</button>
         </div>
       </div>
