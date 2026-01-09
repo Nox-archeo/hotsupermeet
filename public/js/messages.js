@@ -2078,22 +2078,16 @@ class MessagesManager {
 
     container.innerHTML = requests
       .map(
-        request => {
-          // Vérifier si on a accès aux photos du demandeur
-          const photoSrc = request.requester.profile.photos?.[0]?.url || '/images/default-avatar.jpg';
-          // Par défaut, flouter les photos des demandeurs (on ne les connaît pas forcément)
-          const shouldBlurPhoto = true; // À flouter par sécurité
-          
-          return `
+        request => `
       <div class="photo-request-card" data-request-id="${request._id}">
         <div class="request-user-avatar">
-          <img src="${photoSrc}" 
+          <img src="${request.requester.profile.photos?.[0]?.url || '/images/default-avatar.jpg'}" 
                alt="${request.requester.profile.nom}" 
                onerror="this.src='/images/default-avatar.jpg'"
                class="small-profile-photo"
-               style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; ${shouldBlurPhoto ? 'filter: blur(8px); opacity: 0.8;' : ''}">
+               style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
         </div>
-        <div class="request-content">`
+        <div class="request-content">
           <div class="request-header">
             <h3 class="requester-name">${request.requester.profile.nom}</h3>
             <span class="request-time">${this.formatTimeAgo(new Date(request.createdAt))}</span>
@@ -2129,8 +2123,7 @@ class MessagesManager {
           }
         </div>
       </div>
-    `;
-        }
+    `
       )
       .join('');
   }
@@ -2146,9 +2139,10 @@ class MessagesManager {
 
     container.innerHTML = requests
       .map(request => {
-        // Vérifier si la demande est acceptée pour déflouter la photo
-        const photoSrc = request.target.profile.photos?.[0]?.url || '/images/default-avatar.jpg';
-        const shouldBlurPhoto = request.status !== 'accepted'; // Flouter sauf si acceptée
+        // Photo normale du destinataire
+        const photoSrc =
+          request.target.profile.photos?.[0]?.url ||
+          '/images/default-avatar.jpg';
 
         return `
       <div class="request-item photo-request" data-request-id="${request._id}">
@@ -2157,7 +2151,7 @@ class MessagesManager {
                alt="${request.target.profile.nom || 'Utilisateur'}" 
                onerror="this.src='/images/default-avatar.jpg'"
                class="small-profile-photo"
-               style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; ${shouldBlurPhoto ? 'filter: blur(8px); opacity: 0.8;' : ''}">
+               style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
           <div class="user-info">
             <h4>${request.target.profile.nom || 'Utilisateur'}</h4>
             <p class="request-message">Vous avez demandé à voir les photos privées de ${request.target.profile.nom || 'cette personne'}</p>
