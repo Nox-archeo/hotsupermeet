@@ -219,7 +219,15 @@ const checkPrivatePhotoAccess = async (req, res) => {
     const { targetUserId } = req.params;
     const userId = req.user._id;
 
+    console.log('🔍 DEBUG checkPrivatePhotoAccess - Début:', {
+      requester: userId,
+      target: targetUserId,
+      requesterStr: userId.toString(),
+      targetStr: targetUserId,
+    });
+
     if (userId.toString() === targetUserId) {
+      console.log('🔍 DEBUG - Utilisateur regarde ses propres photos');
       // L'utilisateur peut voir ses propres photos
       return res.json({
         success: true,
@@ -228,6 +236,12 @@ const checkPrivatePhotoAccess = async (req, res) => {
       });
     }
 
+    console.log('🔍 DEBUG - Recherche demande acceptée avec:', {
+      requester: userId,
+      target: targetUserId,
+      status: 'accepted',
+    });
+
     // Chercher une demande acceptée
     const acceptedRequest = await PrivatePhotoRequest.findOne({
       requester: userId,
@@ -235,19 +249,39 @@ const checkPrivatePhotoAccess = async (req, res) => {
       status: 'accepted',
     });
 
-    console.log('📸 CHECK ACCESS - Recherche:', {
-      requester: userId,
-      target: targetUserId,
-      status: 'accepted',
+    console.log('🔍 DEBUG - Résultat recherche:', {
       found: !!acceptedRequest,
       acceptedRequest: acceptedRequest,
     });
 
+    // Vérifier s'il y a des demandes dans la collection
+    const allRequests = await PrivatePhotoRequest.find({
+      requester: userId,
+      target: targetUserId,
+    });
+
+    console.log('🔍 DEBUG - Toutes les demandes pour cette paire:', {
+      count: allRequests.length,
+      requests: allRequests.map(r => ({
+        id: r._id,
+        status: r.status,
+        createdAt: r.createdAt,
+      })),
+    });
+
+    const hasAccess = !!acceptedRequest;
+    const reason = acceptedRequest ? 'access_granted' : 'no_access';
+
+    console.log('🔍 DEBUG - Réponse finale:', {
+      hasAccess,
+      reason,
+    });
+
     res.json({
       success: true,
-      hasAccess: !!acceptedRequest,
+      hasAccess: hasAccess,
       isOwner: false,
-      reason: acceptedRequest ? 'access_granted' : 'no_access',
+      reason: reason,
     });
   } catch (error) {
     console.error('Erreur vérification accès photos:', error);
