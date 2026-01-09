@@ -2,6 +2,7 @@ const express = require('express');
 const fileUpload = require('express-fileupload');
 const { body } = require('express-validator');
 const crypto = require('crypto');
+const mongoose = require('mongoose');
 const {
   register,
   login,
@@ -497,19 +498,23 @@ router.get(
         return res.json({
           success: true,
           hasAccess: true,
+          isOwner: true,
           reason: 'own_photos',
         });
       }
 
+      // Convertir targetUserId en ObjectId pour la requête
+      const targetObjectId = new mongoose.Types.ObjectId(targetUserId);
+
       console.log('🔍 DEBUG AUTH.JS - Recherche demande acceptée avec:', {
         requester: userId,
-        target: targetUserId,
+        target: targetObjectId,
         status: 'accepted',
       });
 
       const acceptedRequest = await PrivatePhotoRequest.findOne({
         requester: userId,
-        target: targetUserId,
+        target: targetObjectId,
         status: 'accepted',
       });
 
@@ -521,7 +526,7 @@ router.get(
       // Vérifier s'il y a des demandes dans la collection
       const allRequests = await PrivatePhotoRequest.find({
         requester: userId,
-        target: targetUserId,
+        target: targetObjectId,
       });
 
       console.log('🔍 DEBUG AUTH.JS - Toutes les demandes pour cette paire:', {
@@ -534,7 +539,7 @@ router.get(
       });
 
       const hasAccess = !!acceptedRequest;
-      const reason = acceptedRequest ? 'request_accepted' : 'no_access';
+      const reason = acceptedRequest ? 'access_granted' : 'no_access';
 
       console.log('🔍 DEBUG AUTH.JS - Réponse finale:', {
         hasAccess,
@@ -544,6 +549,7 @@ router.get(
       res.json({
         success: true,
         hasAccess: hasAccess,
+        isOwner: false,
         reason: reason,
       });
     } catch (error) {
