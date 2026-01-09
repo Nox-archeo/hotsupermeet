@@ -1841,13 +1841,13 @@ function displayReceivedRequests(requests) {
   container.innerHTML = requests
     .map(request => {
       const date = new Date(request.createdAt).toLocaleDateString('fr-FR');
-      // Masquer l'identité du demandeur pour des raisons de confidentialité
-      const userName = '🔒 Demandeur anonyme';
+      // Maintenant on montre qui fait la demande
+      const userName = request.requester?.profile?.nom || 'Utilisateur';
 
       return `
       <div class="request-item">
         <div class="request-header">
-          <span class="request-user">${userName}</span>
+          <span class="request-user">${userName} souhaite voir vos photos privées</span>
           <span class="request-date">${date}</span>
         </div>
         <div class="request-message">${request.message}</div>
@@ -1862,9 +1862,18 @@ function displayReceivedRequests(requests) {
             <button class="btn-request reject" onclick="respondToPhotoRequest('${request._id}', 'reject')">
               ❌ Refuser
             </button>
+            <button class="btn-view-profile" onclick="window.open('/pages/profile-view.html?userId=${request.requester._id}', '_blank')" title="Voir le profil">
+              👤 Voir profil
+            </button>
           </div>
         `
-            : ''
+            : `
+          <div class="request-actions">
+            <button class="btn-view-profile" onclick="window.open('/pages/profile-view.html?userId=${request.requester._id}', '_blank')" title="Voir le profil">
+              👤 Voir profil
+            </button>
+          </div>
+        `
         }
       </div>
     `;
@@ -1896,6 +1905,11 @@ function displaySentRequests(requests) {
         </div>
         <div class="request-message">${request.message}</div>
         <div class="request-status ${request.status}">${getStatusText(request.status)}</div>
+        <div class="request-actions">
+          <button class="btn-view-profile" onclick="window.open('/pages/profile-view.html?userId=${request.target._id}', '_blank')" title="Voir le profil">
+            👤 Voir profil
+          </button>
+        </div>
       </div>
     `;
     })
