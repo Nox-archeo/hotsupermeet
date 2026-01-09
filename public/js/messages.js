@@ -2081,17 +2081,18 @@ class MessagesManager {
         request => `
       <div class="photo-request-card" data-request-id="${request._id}">
         <div class="request-user-avatar">
-          <img src="${request.requester.profile.photos?.find(p => p.isProfile)?.url || request.requester.profile.photos?.[0]?.url || '/images/default-avatar.jpg'}" 
-               alt="${request.requester.profile.nom}" 
-               onerror="this.src='/images/default-avatar.jpg'">
+          <img src="/images/default-avatar.jpg" 
+               alt="Demandeur" 
+               onerror="this.src='/images/default-avatar.jpg'"
+               style="filter: blur(5px); opacity: 0.8;">
         </div>
         <div class="request-content">
           <div class="request-header">
-            <h3 class="requester-name">${request.requester.profile.nom}</h3>
+            <h3 class="requester-name">🔒 Demandeur anonyme</h3>
             <span class="request-time">${this.formatTimeAgo(new Date(request.createdAt))}</span>
           </div>
           <div class="request-message">
-            <p>"${request.message || 'Aimerais voir vos photos privées'}"</p>
+            <p>"${request.message || "Demande d'accès aux photos privées"}"</p>
           </div>
           <div class="request-type">
             <span class="photo-icon">📸</span>
@@ -2136,16 +2137,24 @@ class MessagesManager {
     }
 
     container.innerHTML = requests
-      .map(
-        request => `
+      .map(request => {
+        // NE PAS révéler la photo tant que la demande n'est pas acceptée
+        const showPhoto = request.status === 'accepted';
+        const photoSrc = showPhoto
+          ? request.target.profile.photos[0]?.url ||
+            '/images/default-avatar.jpg'
+          : '/images/default-avatar.jpg'; // Avatar par défaut
+
+        return `
       <div class="request-item photo-request" data-request-id="${request._id}">
         <div class="request-user">
-          <img src="${request.target.profile.photos[0]?.url || '/images/default-avatar.jpg'}" 
-               alt="${request.target.profile.nom}" 
-               onerror="this.src='/images/default-avatar.jpg'">
+          <img src="${photoSrc}" 
+               alt="${showPhoto ? request.target.profile.nom : 'Utilisateur'}" 
+               onerror="this.src='/images/default-avatar.jpg'"
+               style="${!showPhoto ? 'filter: blur(10px); opacity: 0.7;' : ''}">
           <div class="user-info">
-            <h4>${request.target.profile.nom}</h4>
-            <p class="request-message">"${request.message || 'Aimerais voir vos photos privées'}"</p>
+            <h4>${showPhoto ? request.target.profile.nom : '🔒 Utilisateur masqué'}</h4>
+            <p class="request-message">"${request.message || "Demande d'accès aux photos privées"}"</p>
             <span class="request-time">${this.formatTimeAgo(new Date(request.createdAt))}</span>
           </div>
         </div>
@@ -2155,16 +2164,16 @@ class MessagesManager {
               request.status === 'pending'
                 ? '⏳ En attente'
                 : request.status === 'accepted'
-                  ? '✅ Acceptée'
+                  ? '✅ Acceptée - Photos privées accessibles'
                   : '❌ Refusée'
             }
           </span>
-          <button class="btn-view-profile" data-user-id="${request.target._id}" title="Voir le profil">👤</button>
+          ${showPhoto ? `<button class="btn-view-profile" data-user-id="${request.target._id}" title="Voir le profil">👤</button>` : ''}
           <button class="btn-danger btn-delete-photo-request" onclick="messagesManager.deletePhotoRequest('${request._id}')" title="Supprimer demande">🗑️</button>
         </div>
       </div>
-    `
-      )
+    `;
+      })
       .join('');
   }
 

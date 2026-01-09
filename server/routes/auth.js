@@ -359,12 +359,25 @@ router.get('/private-photos/received', auth, async (req, res) => {
       target: userId,
       status: 'pending', // Ne montrer que les demandes en attente
     })
-      .populate('requester', 'profile')
+      .select('_id message createdAt status') // Ne sélectionner que les champs nécessaires
       .sort({ createdAt: -1 });
+
+    // Masquer les informations du demandeur pour la confidentialité
+    const sanitizedRequests = requests.map(request => ({
+      _id: request._id,
+      message: request.message,
+      createdAt: request.createdAt,
+      status: request.status,
+      requester: {
+        profile: {
+          nom: 'Demandeur anonyme', // Masquer l'identité
+        },
+      },
+    }));
 
     res.json({
       success: true,
-      requests: requests,
+      requests: sanitizedRequests,
     });
   } catch (error) {
     console.error('Erreur récupération demandes reçues:', error);
@@ -384,9 +397,28 @@ router.get('/private-photos/sent', auth, async (req, res) => {
       .populate('target', 'profile')
       .sort({ createdAt: -1 });
 
+    // Masquer les informations du destinataire si la demande n'est pas acceptée
+    const sanitizedRequests = requests.map(request => ({
+      _id: request._id,
+      message: request.message,
+      createdAt: request.createdAt,
+      status: request.status,
+      target: {
+        _id: request.status === 'accepted' ? request.target._id : 'masked',
+        profile: {
+          nom:
+            request.status === 'accepted'
+              ? request.target.profile.nom
+              : 'Destinataire masqué',
+          photos:
+            request.status === 'accepted' ? request.target.profile.photos : [],
+        },
+      },
+    }));
+
     res.json({
       success: true,
-      requests: requests,
+      requests: sanitizedRequests,
     });
   } catch (error) {
     console.error('Erreur récupération demandes envoyées:', error);
