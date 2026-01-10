@@ -2840,3 +2840,30 @@ h4 {
   transform: translateY(-1px);
   box-shadow: 0 3px 10px rgba(138, 43, 226, 0.4);
 }
+
+/* Footer SEO Section - Discrète mais visible pour Google */
+.footer-seo {
+  font-size: 13px;
+  color: #666;
+  margin-top: 20px;
+  max-width: 900px;
+  line-height: 1.5;
+}
+
+.footer-seo h3 {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.footer-seo a {
+  color: #888;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-seo a:hover {
+  color: #3498db;
+  text-decoration: underline;
+}
