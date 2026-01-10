@@ -608,10 +608,19 @@ class DirectoryPage {
       this.loadUsers();
     });
 
-    // 🌍 FILTRE GENRE - ACCESSIBLE À TOUS (public et premium)
+    // 🔒 FILTRE GENRE - PREMIUM UNIQUEMENT
     document.getElementById('sexe').addEventListener('change', e => {
-      console.log('🌍 Filtre genre accessible publiquement:', e.target.value);
-      // Plus de restrictions - tous peuvent filtrer par genre
+      console.log('🔒 Tentative de filtre genre:', e.target.value);
+
+      // Si utilisateur non premium, bloquer le filtre
+      if (!this.isUserPremium) {
+        console.log('❌ Filtre genre bloqué - Premium requis');
+        e.target.value = ''; // Reset à "Tous"
+        this.showPremiumRequiredModal('le filtrage par genre');
+        return;
+      }
+
+      console.log('✅ Filtre genre autorisé (utilisateur premium)');
     });
 
     // Liaison pays-région
@@ -749,14 +758,21 @@ class DirectoryPage {
   applyFilters() {
     const formData = new FormData(document.getElementById('filtersForm'));
 
-    // 🆓 FILTRE GENRE DISPONIBLE POUR TOUS (ex-premium uniquement)
+    // 🔒 FILTRE GENRE PREMIUM UNIQUEMENT
     const sexeValue = formData.get('sexe');
-    // Suppression de la vérification premium - tous les utilisateurs peuvent filtrer par genre
+    let finalSexeValue = '';
+
+    if (sexeValue && !this.isUserPremium) {
+      console.log('❌ Filtre genre ignoré - Premium requis');
+      finalSexeValue = ''; // Forcer à "Tous"
+    } else {
+      finalSexeValue = sexeValue || '';
+    }
 
     this.filters = {
       ageMin: formData.get('ageMin') || '',
       ageMax: formData.get('ageMax') || '',
-      sexe: sexeValue || '',
+      sexe: finalSexeValue,
       pays: formData.get('filtrePays') || '',
       region: formData.get('filtreRegion') || '',
       ville: formData.get('filtreVille') || '',
@@ -1222,6 +1238,69 @@ class DirectoryPage {
     resultsSection.insertBefore(errorDiv, resultsSection.firstChild);
 
     setTimeout(() => errorDiv.remove(), 5000);
+  }
+
+  // 🔒 MODAL PREMIUM pour fonctionnalités restreintes
+  showPremiumRequiredModal(feature) {
+    const modal = document.createElement('div');
+    modal.className = 'premium-required-modal';
+    modal.innerHTML = `
+      <div class="modal-overlay">
+        <div class="modal-content">
+          <div class="premium-icon">🔒</div>
+          <h3>Premium Requis</h3>
+          <p>Pour accéder à <strong>${feature}</strong>, vous devez être membre premium.</p>
+          <div class="premium-price">Seulement 5.75 CHF/mois</div>
+          <ul class="premium-features-compact">
+            <li>✅ Filtrage par genre</li>
+            <li>✅ Messages illimités</li>
+            <li>✅ Accès complet aux profils</li>
+            <li>✅ Visibilité prioritaire</li>
+          </ul>
+          <div class="modal-actions">
+            <button class="btn-premium-upgrade" onclick="window.location.href='/pages/premium.html'">
+              🚀 Devenir Premium
+            </button>
+            <button class="btn-cancel" onclick="this.closest('.premium-required-modal').remove()">
+              Annuler
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Styles CSS pour le modal
+    modal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.8);
+    `;
+
+    // Styles pour le contenu du modal
+    const styles = `
+      .premium-required-modal .modal-overlay { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+      .premium-required-modal .modal-content { background: white; padding: 2rem; border-radius: 12px; text-align: center; max-width: 400px; margin: 1rem; }
+      .premium-required-modal .premium-icon { font-size: 3rem; margin-bottom: 1rem; }
+      .premium-required-modal .premium-price { color: #ff6b6b; font-size: 1.5rem; font-weight: bold; margin: 1rem 0; }
+      .premium-required-modal .premium-features-compact { list-style: none; padding: 0; margin: 1rem 0; }
+      .premium-required-modal .premium-features-compact li { margin: 0.5rem 0; text-align: left; }
+      .premium-required-modal .modal-actions { display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; }
+      .premium-required-modal .btn-premium-upgrade { background: linear-gradient(135deg, #ff6b6b, #ff8e8e); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: bold; }
+      .premium-required-modal .btn-cancel { background: #ccc; color: #333; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; }
+    `;
+
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = styles;
+    modal.appendChild(styleSheet);
+
+    document.body.appendChild(modal);
   }
 
   // 🔒 POPUP PREMIUM pour bloquer fonctionnalités
