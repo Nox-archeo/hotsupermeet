@@ -19,6 +19,8 @@
     '/cookies',
     '/mentions',
     '/pages/404.html',
+    '/cam',
+    '/pages/cam.html',
   ];
 
   // Pages qui nécessitent une connexion
@@ -34,8 +36,6 @@
     '/pages/ads.html',
     '/tonight',
     '/pages/tonight.html',
-    '/cam',
-    '/pages/cam.html',
   ];
 
   // Vérifier si l'utilisateur est connecté
