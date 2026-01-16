@@ -153,7 +153,10 @@ const sendMessage = async (req, res) => {
           '🌟 NON-PREMIUM AVEC PREMIUM - Messages illimités autorisés!'
         );
       } else {
-        // Non-premium + Non-premium = Limite 3 messages
+        // Non-premium + Non-premium = Limite personnalisée ou 3 par défaut
+        const senderUser = await User.findById(fromUserId);
+        const messageLimit = senderUser?.messageLimit || 3; // Limite personnalisée ou 3 par défaut
+        
         const userMessagesInConversation = existingMessages.filter(
           msg =>
             msg.fromUserId.toString() === fromUserId.toString() &&
@@ -161,19 +164,19 @@ const sendMessage = async (req, res) => {
         );
 
         console.log(
-          `🔒 NON-PREMIUM avec NON-PREMIUM - Messages envoyés: ${userMessagesInConversation.length}/3`
+          `🔒 NON-PREMIUM avec NON-PREMIUM - Messages envoyés: ${userMessagesInConversation.length}/${messageLimit}`
         );
 
-        if (userMessagesInConversation.length >= 3) {
+        if (userMessagesInConversation.length >= messageLimit) {
           return res.status(403).json({
             success: false,
             error: {
               code: 'MESSAGE_LIMIT_REACHED',
               message:
-                'Limite de 3 messages atteinte entre non-premium. Discutez avec des premium ou passez premium pour des messages illimités!',
+                `Limite de ${messageLimit} messages atteinte entre non-premium. Discutez avec des premium ou passez premium pour des messages illimités!`,
               redirectTo: '/pages/premium.html',
               messagesUsed: userMessagesInConversation.length,
-              messagesLimit: 3,
+              messagesLimit: messageLimit,
             },
           });
         }

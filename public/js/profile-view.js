@@ -297,7 +297,8 @@ class ProfileViewChat {
       .map((photo, index) => {
         const blurStyle = shouldBlur ? 'filter: blur(20px);' : '';
         const containerStyle = shouldBlur ? 'position: relative;' : '';
-        const clickableClass = shouldBlur ? '' : 'gallery-photo'; // Ajouter classe pour lightbox si pas floutées
+        const clickableClass = shouldBlur ? '' : 'private-photo'; // Classe spécifique pour photos privées
+        const cursorStyle = shouldBlur ? '' : 'cursor: pointer;'; // Corriger la logique
 
         return `
         <div class="photo-item private ${shouldBlur ? 'blurred' : 'access-granted'}" style="${containerStyle}">
@@ -305,7 +306,7 @@ class ProfileViewChat {
                alt="Photo privée" 
                class="${clickableClass}"
                data-index="${index}"
-               style="width: 100px; height: 100px; object-fit: cover; margin: 5px; border-radius: 8px; ${blurStyle}; ${shouldBlur ? '' : 'cursor: pointer;'}" />
+               style="width: 100px; height: 100px; object-fit: cover; margin: 5px; border-radius: 8px; ${blurStyle}; ${cursorStyle}" />
           ${shouldBlur ? '<div class="photo-overlay" style="position: absolute; top: 5px; left: 5px; right: 5px; bottom: 5px; background: rgba(0,0,0,0.6); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">🔒</div>' : ''}
         </div>
       `;
@@ -314,7 +315,7 @@ class ProfileViewChat {
 
     // 📸 LIGHTBOX: Ajouter event listeners pour les photos privées défloutées
     if (!shouldBlur) {
-      this.setupPhotoLightbox(photos);
+      this.setupPrivatePhotoLightbox(photos);
     }
   }
 
@@ -877,6 +878,20 @@ class ProfileViewChat {
     // Ajouter event listeners aux photos
     document.querySelectorAll('.gallery-photo').forEach((photo, index) => {
       photo.addEventListener('click', () => {
+        this.openLightbox(index);
+      });
+    });
+  }
+
+  // 📸 LIGHTBOX: Système de popup pour visualiser les photos PRIVÉES
+  setupPrivatePhotoLightbox(photos) {
+    this.currentPhotoIndex = 0;
+    this.lightboxPhotos = photos;
+
+    // Ajouter event listeners aux photos privées
+    document.querySelectorAll('.private-photo').forEach((photo, index) => {
+      photo.addEventListener('click', () => {
+        console.log('🔒 Clic sur photo privée #' + index);
         this.openLightbox(index);
       });
     });
