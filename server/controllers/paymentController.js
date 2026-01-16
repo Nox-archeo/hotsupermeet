@@ -120,28 +120,28 @@ const confirmSubscription = async (req, res) => {
       await PayPalService.getSubscriptionDetails(subscriptionId);
     console.log(`📋 Statut PayPal: ${subscriptionDetails.status}`);
 
-    // Trouver l'utilisateur par l'ID d'abonnement
-    console.log(
-      `🔍 Recherche utilisateur avec subscription_id: ${subscriptionId}`
-    );
-    const user = await User.findOne({
-      'premium.paypalSubscriptionId': subscriptionId,
-    });
-
-    if (!user) {
-      console.log(
-        `❌ AUCUN UTILISATEUR trouvé avec subscription_id: ${subscriptionId}`
-      );
-      // FALLBACK: Chercher par custom_id dans PayPal si possible
-      console.log('🔍 Tentative fallback avec custom_id...');
-
-      // Si pas d'utilisateur trouvé, rediriger quand même mais avec erreur
+    // Trouver l'utilisateur par le custom_id PayPal (plus fiable)
+    const userId = subscriptionDetails.custom_id;
+    if (!userId) {
+      console.log('❌ ERREUR: custom_id manquant dans subscription PayPal');
       return res.redirect(
-        `/pages/premium.html?success=false&reason=user_not_found&subscription_id=${subscriptionId}`
+        `/pages/premium.html?success=false&reason=missing_custom_id&subscription_id=${subscriptionId}`
       );
     }
 
-    console.log(`✅ UTILISATEUR TROUVÉ: ${user._id} - ${user.profile.nom}`);
+    console.log(`🔍 Recherche utilisateur avec custom_id: ${userId}`);
+    const user = await User.findById(userId);
+
+    if (!user) {
+      console.log(`❌ UTILISATEUR NON TROUVÉ: ${userId}`);
+      return res.redirect(
+        `/pages/premium.html?success=false&reason=user_not_found&user_id=${userId}&subscription_id=${subscriptionId}`
+      );
+    }
+
+    console.log(
+      `✅ UTILISATEUR TROUVÉ via custom_id: ${user._id} - ${user.profile.nom}`
+    );
 
     // Mettre à jour le statut premium de l'utilisateur
     if (subscriptionDetails.status === 'ACTIVE') {
