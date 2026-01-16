@@ -104,25 +104,20 @@ const sendMessage = async (req, res) => {
       isInitialRequest = true;
       messageStatus = 'pending';
     } else if (hasPendingRequest && !hasApprovedMessages) {
-      // Il y a déjà une demande en attente - on la SUPPRIME d'abord pour nettoyer
+      // ⚠️ SUPPRESSION DÉSACTIVÉE - Éviter la perte de messages
       console.log(
-        '🗑️ NETTOYAGE - Suppression des anciennes demandes en double'
+        '⚠️ PROTECTION - Demande déjà en attente détectée, mais suppression désactivée pour éviter la perte de messages'
       );
-      await Message.deleteMany({
-        $or: [
-          { fromUserId, toUserId, isInitialRequest: true, status: 'pending' },
-          {
-            fromUserId: toUserId,
-            toUserId: fromUserId,
-            isInitialRequest: true,
-            status: 'pending',
-          },
-        ],
+      console.log('📊 DEBUG PROTECTION - Demandes existantes:', {
+        fromUser: fromUser.profile?.nom,
+        toUser: toUser.profile?.nom,
+        hasPendingRequest,
+        hasApprovedMessages,
       });
 
-      // Puis on crée la nouvelle demande proprement
-      isInitialRequest = true;
-      messageStatus = 'pending';
+      // Pour l'instant, on permet les messages en double plutôt que de supprimer
+      isInitialRequest = false; // Ne pas marquer comme demande initiale
+      messageStatus = 'pending'; // Mais garder en pending
     } else if (!hasApprovedMessages) {
       // Pas de messages approuvés, mais pas de demande non plus = première demande
       isInitialRequest = true;
@@ -153,10 +148,7 @@ const sendMessage = async (req, res) => {
           '🌟 NON-PREMIUM AVEC PREMIUM - Messages illimités autorisés!'
         );
       } else {
-        // Non-premium + Non-premium = Limite personnalisée ou 3 par défaut
-        const senderUser = await User.findById(fromUserId);
-        const messageLimit = senderUser?.messageLimit || 3; // Limite personnalisée ou 3 par défaut
-        
+        // Non-premium + Non-premium = Limite 3 messages
         const userMessagesInConversation = existingMessages.filter(
           msg =>
             msg.fromUserId.toString() === fromUserId.toString() &&
@@ -164,19 +156,19 @@ const sendMessage = async (req, res) => {
         );
 
         console.log(
-          `🔒 NON-PREMIUM avec NON-PREMIUM - Messages envoyés: ${userMessagesInConversation.length}/${messageLimit}`
+          `🔒 NON-PREMIUM avec NON-PREMIUM - Messages envoyés: ${userMessagesInConversation.length}/3`
         );
 
-        if (userMessagesInConversation.length >= messageLimit) {
+        if (userMessagesInConversation.length >= 3) {
           return res.status(403).json({
             success: false,
             error: {
               code: 'MESSAGE_LIMIT_REACHED',
               message:
-                `Limite de ${messageLimit} messages atteinte entre non-premium. Discutez avec des premium ou passez premium pour des messages illimités!`,
+                'Limite de 3 messages atteinte entre non-premium. Discutez avec des premium ou passez premium pour des messages illimités!',
               redirectTo: '/pages/premium.html',
               messagesUsed: userMessagesInConversation.length,
-              messagesLimit: messageLimit,
+              messagesLimit: 3,
             },
           });
         }
@@ -230,6 +222,21 @@ const sendMessage = async (req, res) => {
       isInitialRequest: verifyMessage.isInitialRequest,
       savedCorrectly: !!verifyMessage,
     });
+
+    // 🚨 PROTECTION SPÉCIALE GEEKOUILLETTE
+    if (
+      fromUser.profile?.nom?.toLowerCase().includes('geekouillette') ||
+      toUser.profile?.nom?.toLowerCase().includes('geekouillette')
+    ) {
+      console.log('🛡️ PROTECTION GEEKOUILLETTE - Message sauvegardé:', {
+        messageId: message._id,
+        from: fromUser.profile?.nom,
+        to: toUser.profile?.nom,
+        content: content.substring(0, 30),
+        status: messageStatus,
+        timestamp: new Date().toISOString(),
+      });
+    }
 
     // Populer les informations de l'expéditeur pour la réponse
     await message.populate(
@@ -658,6 +665,15 @@ const getPendingChatRequests = async (req, res) => {
       '🔍 DEMANDES DEBUG - Recherche demandes pour userId:',
       currentUserId
     );
+
+    // 🛡️ PROTECTION DEBUG GEEKOUILLETTE
+    if (req.user.profile?.nom?.toLowerCase().includes('geekouillette')) {
+      console.log('🛡️ GEEKOUILLETTE DEBUG - Récupération des demandes pour:', {
+        userId: currentUserId,
+        nom: req.user.profile.nom,
+        timestamp: new Date().toISOString(),
+      });
+    }
 
     // NOUVEAU DEBUG - Voir tous les messages du destinataire pour comprendre
     const allMessagesForUser = await Message.find({ toUserId: currentUserId });
