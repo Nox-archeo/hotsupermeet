@@ -676,16 +676,14 @@ const getPendingChatRequests = async (req, res) => {
     }
 
     // NOUVEAU DEBUG - Voir tous les messages du destinataire pour comprendre
-    const allMessagesForUser = await Message.find({ toUserId: currentUserId });
+    const allMessagesForUser = await Message.find({
+      toUserId: currentUserId,
+    }).limit(5); // Limiter pour éviter les erreurs
+
     console.log(
-      '🔍 TOUS MESSAGES DEBUG - Messages reçus par cet utilisateur:',
-      allMessagesForUser.map(m => ({
-        id: m._id,
-        from: m.fromUserId,
-        status: m.status,
-        isInitialRequest: m.isInitialRequest,
-        content: m.content.substring(0, 30),
-      }))
+      '🔍 TOUS MESSAGES DEBUG - Messages récents pour cet utilisateur:',
+      allMessagesForUser.length,
+      'messages trouvés'
     );
 
     const requests = await Message.find({

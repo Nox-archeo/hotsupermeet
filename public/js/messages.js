@@ -2077,6 +2077,7 @@ class MessagesManager {
     }
 
     container.innerHTML = requests
+      .filter(request => request.requester && request.requester.profile) // Filtrer les requests invalides
       .map(
         request => `
       <div class="photo-request-card" data-request-id="${request._id}">
