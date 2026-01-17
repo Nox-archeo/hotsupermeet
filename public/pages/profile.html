@@ -178,14 +178,9 @@
                         </select>
                       </div>
 
-                      <div
-                        class="form-group premium-only"
-                        id="orientationProfileGroup"
-                        style="display: none"
-                      >
+                      <div class="form-group" id="orientationProfileGroup">
                         <label for="profileOrientation"
-                          >Orientation sexuelle
-                          <span class="premium-badge">PREMIUM</span></label
+                          >Orientation sexuelle</label
                         >
                         <select id="profileOrientation" class="form-input">
                           <option value="hetero">Hétérosexuel(le)</option>
@@ -878,28 +873,16 @@
               ageField.value = user.profile.age || '';
               sexeField.value = user.profile.sexe || '';
 
-              // Gestion de l'orientation (premium uniquement)
+              // Gestion de l'orientation - TOUJOURS VISIBLE dans son propre profil
               const orientationField =
                 document.getElementById('profileOrientation');
-              const orientationGroup = document.getElementById(
-                'orientationProfileGroup'
-              );
 
-              if (orientationField && orientationGroup) {
-                // Vérifier si l'utilisateur est premium
-                const isPremium =
-                  user.subscription && user.subscription.isPremium;
-
-                if (isPremium) {
-                  orientationGroup.style.display = 'block';
-                  orientationField.value = user.profile.orientation || 'hetero';
-                  console.log(
-                    '✅ Champ orientation affiché (utilisateur premium)'
-                  );
-                } else {
-                  orientationGroup.style.display = 'none';
-                  console.log('🔒 Champ orientation masqué (non premium)');
-                }
+              if (orientationField) {
+                orientationField.value = user.profile.orientation || 'hetero';
+                console.log(
+                  '✅ Champ orientation configuré:',
+                  user.profile.orientation || 'hetero'
+                );
               }
 
               // Remplir les champs de localisation avec gestion robuste
@@ -1317,110 +1300,7 @@
           }
         }, 500);
 
-        // 🔒 GESTION PREMIUM POUR ORIENTATION SEXUELLE
-        const orientationField = document.getElementById('profileOrientation');
-        if (orientationField) {
-          orientationField.addEventListener('change', function (e) {
-            // Vérifier si l'utilisateur est premium
-            const token = localStorage.getItem('hotmeet_token');
-            if (!token) return;
-
-            // Si l'utilisateur n'est pas premium, afficher le popup
-            checkUserPremiumStatus(token).then(isPremium => {
-              if (!isPremium && e.target.value !== 'hetero') {
-                e.target.value = 'hetero'; // Reset à la valeur par défaut
-                showPremiumRequiredModal(
-                  "la modification de l'orientation sexuelle"
-                );
-              }
-            });
-          });
-        }
-
-        // Fonction pour vérifier le statut premium
-        async function checkUserPremiumStatus(token) {
-          try {
-            const response = await fetch('/api/subscription/status', {
-              headers: { Authorization: `Bearer ${token}` },
-            });
-            const data = await response.json();
-            return (
-              data.success && data.subscription && data.subscription.isPremium
-            );
-          } catch (error) {
-            console.error('Erreur vérification premium:', error);
-            return false;
-          }
-        }
-
-        // Fonction pour afficher le modal premium
-        function showPremiumRequiredModal(feature) {
-          const modal = document.createElement('div');
-          modal.className = 'premium-required-modal';
-          modal.innerHTML = `
-            <div class="modal-overlay">
-              <div class="modal-content">
-                <div class="premium-icon">🔒</div>
-                <h3>Premium Requis</h3>
-                <p>Pour accéder à <strong>${feature}</strong>, vous devez être membre premium.</p>
-                <div class="premium-price">Seulement 5.75 CHF/mois</div>
-                <ul class="premium-features-compact">
-                  <li>✅ Orientation sexuelle personnalisée</li>
-                  <li>✅ Messages illimités</li>
-                  <li>✅ Accès complet aux profils</li>
-                  <li>✅ Visibilité prioritaire</li>
-                </ul>
-                <div class="modal-actions">
-                  <button class="btn-premium-upgrade" onclick="window.location.href='/pages/premium.html'">
-                    🚀 Devenir Premium
-                  </button>
-                  <button class="btn-cancel" onclick="this.closest('.premium-required-modal').remove()">
-                    Annuler
-                  </button>
-                </div>
-              </div>
-            </div>
-          `;
-
-          modal.style.cssText = `
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999;
-            display: flex; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.8);
-          `;
-
-          // Styles pour le contenu du modal
-          const style = document.createElement('style');
-          style.textContent = `
-            .premium-required-modal .modal-content {
-              background: white; border-radius: 15px; padding: 2rem; max-width: 400px; text-align: center;
-              box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            }
-            .premium-required-modal .premium-icon { font-size: 3rem; margin-bottom: 1rem; }
-            .premium-required-modal h3 { color: #2c3e50; margin-bottom: 1rem; }
-            .premium-required-modal .premium-price { 
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-              color: white; padding: 0.5rem 1rem; border-radius: 25px; margin: 1rem 0;
-              font-weight: bold; display: inline-block;
-            }
-            .premium-required-modal .premium-features-compact { 
-              text-align: left; margin: 1rem 0; padding-left: 1rem;
-            }
-            .premium-required-modal .premium-features-compact li { margin-bottom: 0.5rem; }
-            .premium-required-modal .modal-actions { display: flex; gap: 1rem; margin-top: 2rem; }
-            .premium-required-modal .btn-premium-upgrade {
-              flex: 1; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-              color: white; border: none; padding: 0.75rem; border-radius: 8px;
-              font-weight: bold; cursor: pointer; transition: transform 0.2s;
-            }
-            .premium-required-modal .btn-premium-upgrade:hover { transform: translateY(-2px); }
-            .premium-required-modal .btn-cancel {
-              flex: 1; background: #e0e0e0; color: #666; border: none;
-              padding: 0.75rem; border-radius: 8px; cursor: pointer;
-            }
-          `;
-          document.head.appendChild(style);
-          document.body.appendChild(modal);
-        }
+        // ✅ ORIENTATION LIBRE DANS LE PROFIL PERSONNEL - Pas de restriction premium
       });
     </script>
 
