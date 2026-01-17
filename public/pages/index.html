@@ -86,10 +86,10 @@
     <!-- URL Canonique OBLIGATOIRE pour indexation Google -->
     <link rel="canonical" href="https://www.hotsupermeet.com/" />
 
-    <!-- CSS et styles -->
-    <link rel="stylesheet" href="/css/style.css?v=10" />
-    <link rel="stylesheet" href="/css/animations.css?v=3" />
-    <link rel="stylesheet" href="/css/responsive.css?v=2" />
+    <!-- CSS et styles - VERSIONS MINIFIÉES POUR PERFORMANCE -->
+    <link rel="stylesheet" href="/css/style.min.css?v=11" />
+    <link rel="stylesheet" href="/css/animations.min.css?v=4" />
+    <link rel="stylesheet" href="/css/responsive.min.css?v=3" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -99,9 +99,15 @@
       rel="stylesheet"
     />
 
-    <!-- Preload ressources critiques -->
-    <link rel="preload" href="/css/style.css?v=10" as="style" />
+    <!-- Preload ressources critiques - OPTIMISÉ POUR PERFORMANCE -->
+    <link rel="preload" href="/css/style.min.css?v=11" as="style" />
+    <link rel="preload" href="/css/animations.min.css?v=4" as="style" />
     <link rel="preload" href="/images/logo-hotmeet.png" as="image" />
+    <link rel="preload" href="/images/hero-custom.jpg" as="image" />
+    <link rel="preload" href="/js/app.js" as="script" />
+    <link rel="preload" href="/js/auth.js" as="script" />
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//fonts.gstatic.com" />
 
     <!-- Google Search Console Verification -->
     <meta

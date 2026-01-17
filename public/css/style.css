@@ -23,6 +23,49 @@
   box-sizing: border-box;
 }
 
+/* Améliorations accessibilité globales */
+*:focus {
+  outline: 3px solid rgba(106, 28, 176, 0.6);
+  outline-offset: 2px;
+}
+
+/* Focus visible uniquement pour navigation clavier */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 3px solid rgba(106, 28, 176, 0.8);
+  outline-offset: 2px;
+}
+
+/* Amélioration du contraste pour tous les liens */
+a {
+  color: #4a1480;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
+a:hover,
+a:focus {
+  background-color: rgba(106, 28, 176, 0.1);
+  border-radius: 3px;
+  padding: 2px 4px;
+  margin: -2px -4px;
+}
+
+/* Préférence utilisateur : mouvement réduit */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* Accessibilité : classe pour masquer visuellement mais garder pour lecteurs d'écran */
 .sr-only {
   position: absolute !important;
@@ -156,20 +199,26 @@ h4 {
 
 .nav-link {
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.9);
+  color: #ffffff;
   font-weight: 500;
   padding: 0.5rem 0.75rem;
   border-radius: var(--radius);
   transition: var(--transition);
   font-size: 0.9rem;
   white-space: nowrap;
+  border-bottom: 2px solid transparent;
 }
 
 .nav-link:hover,
+.nav-link:focus,
 .nav-link.active {
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
   transform: translateY(-1px);
+  border-bottom-color: #ffffff;
+  text-decoration: underline;
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
 }
 
 .nav-actions {
@@ -331,27 +380,37 @@ h4 {
 }
 
 .btn-primary {
-  background: var(--primary-color);
-  color: white;
+  background: #6a1cb0;
+  color: #ffffff;
+  border: 2px solid #6a1cb0;
 }
 
-.btn-primary:hover {
-  background: var(--primary-dark);
+.btn-primary:hover,
+.btn-primary:focus {
+  background: #4a1480;
+  color: #ffffff;
+  border-color: #4a1480;
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
+  outline: 3px solid rgba(106, 28, 176, 0.4);
+  outline-offset: 2px;
 }
 
 .btn-secondary {
-  background: var(--primary-color);
-  color: white;
-  border: 2px solid var(--primary-color);
+  background: transparent;
+  color: #ffffff;
+  border: 2px solid #ffffff;
 }
 
-.btn-secondary:hover {
-  background: var(--primary-dark);
-  color: white;
+.btn-secondary:hover,
+.btn-secondary:focus {
+  background: #ffffff;
+  color: #2c3e50;
+  border-color: #ffffff;
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
+  outline: 3px solid rgba(255, 255, 255, 0.4);
+  outline-offset: 2px;
 }
 
 /* Hero Section améliorée */
@@ -2290,9 +2349,6 @@ h4 {
   animation: slideInUp 0.4s ease-out;
 }
 
-  white-space: nowrap;
-}
-
 .profile-info {
   flex: 1;
   min-width: 0;
@@ -2674,7 +2730,8 @@ h4 {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -2690,15 +2747,15 @@ h4 {
     padding: 1.5rem;
     gap: 1rem;
   }
-  
+
   .notice-icon {
     font-size: 2.5rem;
   }
-  
+
   .notice-content h3 {
     font-size: 1.3rem;
   }
-  
+
   .notice-content p {
     font-size: 0.9rem;
   }
@@ -2708,11 +2765,11 @@ h4 {
   .development-notice {
     padding: 1rem;
   }
-  
+
   .notice-icon {
     font-size: 2rem;
   }
-  
+
   .notice-content h3 {
     font-size: 1.2rem;
   }
@@ -2732,7 +2789,7 @@ h4 {
   border-radius: 15px;
   color: white;
   margin: 2rem 0;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .premium-blocker .premium-icon {
@@ -2754,7 +2811,7 @@ h4 {
 }
 
 .premium-benefits {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   padding: 1.5rem;
   border-radius: 10px;
   margin-bottom: 2rem;
@@ -2763,7 +2820,7 @@ h4 {
 
 .premium-benefits h4 {
   margin-bottom: 1rem;
-  color: #FFD700;
+  color: #ffd700;
   font-size: 1.2rem;
 }
 
@@ -2787,14 +2844,14 @@ h4 {
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   text-decoration: none;
   display: inline-block;
 }
 
 .btn-premium:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   color: white;
   text-decoration: none;
 }
