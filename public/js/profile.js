@@ -116,6 +116,7 @@ document
     const nom = document.getElementById('profileNom').value.trim();
     const age = document.getElementById('profileAge').value;
     const sexe = document.getElementById('profileSexe').value;
+    const orientation = document.getElementById('profileOrientation').value;
     const pays = document.getElementById('profilePays').value.trim();
     const region = document.getElementById('profileRegion').value.trim();
     const ville = document.getElementById('profileVille').value.trim();
@@ -138,6 +139,7 @@ document
         nom: nom,
         age: age && !isNaN(parseInt(age)) ? parseInt(age) : undefined, // undefined au lieu de string vide
         sexe: sexe || undefined,
+        orientation: orientation || undefined,
         localisation: {
           pays: pays || undefined,
           region: region || undefined,
@@ -277,6 +279,12 @@ async function loadProfileData() {
       document.getElementById('profileNom').value = profile.nom || '';
       document.getElementById('profileAge').value = profile.age || '';
       document.getElementById('profileSexe').value = profile.sexe || '';
+
+      // Remplir l'orientation si le champ existe
+      const orientationField = document.getElementById('profileOrientation');
+      if (orientationField) {
+        orientationField.value = profile.orientation || 'hetero';
+      }
 
       // Remplir les champs de localisation
       let pays = '';
@@ -444,6 +452,13 @@ async function loadProfileData() {
           nomField.value = user.profile.nom || '';
           ageField.value = user.profile.age || '';
           sexeField.value = user.profile.sexe || '';
+
+          // Remplir l'orientation si le champ existe
+          const orientationField =
+            document.getElementById('profileOrientation');
+          if (orientationField) {
+            orientationField.value = user.profile.orientation || 'hetero';
+          }
 
           // Remplir les champs de localisation avec gestion robuste
           let pays = '';
