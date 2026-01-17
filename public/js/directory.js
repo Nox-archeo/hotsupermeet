@@ -656,22 +656,7 @@ class DirectoryPage {
       );
     });
 
-    // 🔑 Afficher/masquer le filtre orientation selon statut premium
-    this.updateOrientationFilterVisibility();
-  }
-
-  // 🔑 GESTION VISIBILITÉ FILTRE ORIENTATION PREMIUM UNIQUEMENT
-  updateOrientationFilterVisibility() {
-    const orientationFilter = document.getElementById('orientationFilter');
-    if (!orientationFilter) return;
-
-    if (this.isUserPremium) {
-      orientationFilter.style.display = 'block';
-      console.log('✅ Filtre orientation affiché (utilisateur premium)');
-    } else {
-      orientationFilter.style.display = 'none';
-      console.log('🔒 Filtre orientation masqué (non premium)');
-    }
+    // ✅ FILTRE ORIENTATION TOUJOURS VISIBLE - Popup premium sur utilisation
   }
 
   setupLocationFilters() {
@@ -788,27 +773,6 @@ class DirectoryPage {
 
     // Charger aussi les villes pour ce pays
     this.updateCities(pays, '');
-  }
-
-  // 🔑 GESTION VISIBILITÉ FILTRE ORIENTATION
-  updateOrientationFilterVisibility() {
-    const orientationFilter = document.getElementById('orientationFilter');
-    const orientationSelect = document.getElementById('orientation');
-
-    if (!orientationFilter || !orientationSelect) return;
-
-    if (this.isUserPremium) {
-      // Utilisateur premium : afficher le filtre
-      orientationFilter.style.display = 'block';
-      orientationSelect.disabled = false;
-      console.log('✅ Filtre orientation disponible (utilisateur premium)');
-    } else {
-      // Utilisateur non premium : masquer le filtre
-      orientationFilter.style.display = 'none';
-      orientationSelect.disabled = true;
-      orientationSelect.value = ''; // Reset
-      console.log('🔒 Filtre orientation masqué (premium requis)');
-    }
   }
 
   applyFilters() {
