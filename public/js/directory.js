@@ -608,21 +608,36 @@ class DirectoryPage {
       this.loadUsers();
     });
 
-    // 🔒 FILTRE ORIENTATION - PREMIUM UNIQUEMENT
+    // 🔒 FILTRE GENRE - POPUP PREMIUM SI NON-PREMIUM (logique originale restaurée)
+    document.getElementById('sexe').addEventListener('change', e => {
+      console.log('🔒 Tentative de filtre genre:', e.target.value);
+
+      // Si utilisateur non premium ET qu'il essaie de filtrer (pas "Tous")
+      if (!this.isUserPremium && e.target.value !== '') {
+        console.log('❌ Filtre genre bloqué - Premium requis');
+        e.target.value = ''; // Reset à "Tous"
+        this.showPremiumRequiredModal('le filtrage par genre');
+        return;
+      }
+
+      console.log('✅ Filtre genre autorisé');
+    });
+
+    // 🔒 FILTRE ORIENTATION - POPUP PREMIUM SI NON-PREMIUM
     const orientationSelect = document.getElementById('orientation');
     if (orientationSelect) {
       orientationSelect.addEventListener('change', e => {
         console.log('🔒 Tentative de filtre orientation:', e.target.value);
 
-        // Si utilisateur non premium, bloquer le filtre
-        if (!this.isUserPremium) {
+        // Si utilisateur non premium ET qu'il essaie de filtrer (pas "Toutes")
+        if (!this.isUserPremium && e.target.value !== '') {
           console.log('❌ Filtre orientation bloqué - Premium requis');
           e.target.value = ''; // Reset à "Toutes"
           this.showPremiumRequiredModal('le filtrage par orientation sexuelle');
           return;
         }
 
-        console.log('✅ Filtre orientation autorisé (utilisateur premium)');
+        console.log('✅ Filtre orientation autorisé');
       });
     }
 
@@ -645,7 +660,7 @@ class DirectoryPage {
     this.updateOrientationFilterVisibility();
   }
 
-  // 🔑 GESTION VISIBILITÉ FILTRE ORIENTATION PREMIUM
+  // 🔑 GESTION VISIBILITÉ FILTRE ORIENTATION PREMIUM UNIQUEMENT
   updateOrientationFilterVisibility() {
     const orientationFilter = document.getElementById('orientationFilter');
     if (!orientationFilter) return;
@@ -799,7 +814,7 @@ class DirectoryPage {
   applyFilters() {
     const formData = new FormData(document.getElementById('filtersForm'));
 
-    // 🔒 FILTRE ORIENTATION PREMIUM UNIQUEMENT
+    // 🔒 FILTRE ORIENTATION - PREMIUM UNIQUEMENT (vérifié côté serveur aussi)
     const orientationValue = formData.get('orientation');
     let finalOrientationValue = '';
 
@@ -813,7 +828,7 @@ class DirectoryPage {
     this.filters = {
       ageMin: formData.get('ageMin') || '',
       ageMax: formData.get('ageMax') || '',
-      sexe: formData.get('sexe') || '',
+      sexe: formData.get('sexe') || '', // Genre libre pour tous
       orientation: finalOrientationValue,
       pays: formData.get('filtrePays') || '',
       region: formData.get('filtreRegion') || '',
