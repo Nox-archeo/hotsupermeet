@@ -943,7 +943,7 @@ class DirectoryPage {
           <p class="profile-age">${user.profile.age} ans</p>
           <p class="profile-location">${this.getLocationDisplay(user.profile.localisation)}</p>
           <p class="profile-gender">${this.getGenderLabel(user.profile.sexe)}</p>
-          <p class="profile-orientation">${this.getOrientationLabel(user.orientation || 'hetero')}</p>
+          <p class="profile-orientation">${this.getOrientationLabel(user.profile.orientation || 'hetero')}</p>
           <div class="profile-actions">
             <button class="btn-primary view-profile-btn" data-user-id="${user.id}">
               Voir le profil
