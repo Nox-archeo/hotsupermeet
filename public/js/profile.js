@@ -202,6 +202,24 @@ document
 
           // Mettre à jour seulement les informations de base, PAS les photos
           updateBasicProfileDisplay(updatedData.user.profile);
+
+          // 🔄 FORCER LE RAFRAÎCHISSEMENT DE L'ANNUAIRE si il est ouvert
+          if (
+            window.directoryPage &&
+            typeof window.directoryPage.loadUsers === 'function'
+          ) {
+            console.log(
+              "🔄 Rafraîchissement de l'annuaire après modification du profil"
+            );
+            window.directoryPage.loadUsers();
+          }
+
+          // 🔄 Envoyer un événement pour informer les autres pages
+          window.dispatchEvent(
+            new CustomEvent('profileUpdated', {
+              detail: { profile: updatedData.user.profile },
+            })
+          );
         }
 
         // NE PAS recharger loadProfileData() pour éviter de remplacer les photos

@@ -13,6 +13,12 @@ class DirectoryPage {
     this.setupEventListeners();
     this.setupLocationFilters();
 
+    // 🔄 Écouter les modifications de profil pour rafraîchir l'annuaire
+    window.addEventListener('profileUpdated', event => {
+      console.log("🔄 Profil modifié détecté - Rafraîchissement de l'annuaire");
+      this.loadUsers();
+    });
+
     // 🤖 DÉTECTION BOT GOOGLE pour indexation SEO
     const isGoogleBot = this.isGoogleBot();
     if (isGoogleBot) {
