@@ -18,7 +18,16 @@ const userSchema = new mongoose.Schema(
     profile: {
       nom: { type: String, required: true, trim: true },
       age: { type: Number, required: true, min: 18, max: 100 },
-      sexe: { type: String, enum: ['homme', 'femme', 'autre'], required: true },
+      sexe: {
+        type: String,
+        enum: ['homme', 'femme', 'couple', 'trans-femme', 'trans-homme'],
+        required: true,
+      },
+      orientation: {
+        type: String,
+        enum: ['hetero', 'bi', 'gay', 'lesbienne'],
+        default: 'hetero',
+      },
       localisation: {
         pays: { type: String, required: true, trim: true },
         region: { type: String, required: true, trim: true },
@@ -66,8 +75,20 @@ const userSchema = new mongoose.Schema(
       ageMax: { type: Number, min: 18, max: 100, default: 100 },
       sexeRecherche: {
         type: String,
-        enum: ['homme', 'femme', 'autre', 'tous'],
+        enum: [
+          'homme',
+          'femme',
+          'couple',
+          'trans-femme',
+          'trans-homme',
+          'tous',
+        ],
         default: 'tous',
+      },
+      orientationRecherchee: {
+        type: String,
+        enum: ['hetero', 'bi', 'gay', 'lesbienne', 'toutes'],
+        default: 'toutes',
       },
       pratiquesRecherchees: [{ type: String, trim: true }],
       localisationPreferee: { type: String, trim: true },
@@ -128,6 +149,7 @@ userSchema.index({ 'profile.localisation.region': 1 });
 userSchema.index({ 'profile.localisation.ville': 1 });
 userSchema.index({ 'profile.age': 1 });
 userSchema.index({ 'profile.sexe': 1 });
+userSchema.index({ 'profile.orientation': 1 });
 userSchema.index({ 'premium.isPremium': 1 });
 userSchema.index({ 'stats.lastActive': -1 });
 userSchema.index({ 'security.isBlocked': 1 });

@@ -608,20 +608,23 @@ class DirectoryPage {
       this.loadUsers();
     });
 
-    // 🔒 FILTRE GENRE - PREMIUM UNIQUEMENT
-    document.getElementById('sexe').addEventListener('change', e => {
-      console.log('🔒 Tentative de filtre genre:', e.target.value);
+    // 🔒 FILTRE ORIENTATION - PREMIUM UNIQUEMENT
+    const orientationSelect = document.getElementById('orientation');
+    if (orientationSelect) {
+      orientationSelect.addEventListener('change', e => {
+        console.log('🔒 Tentative de filtre orientation:', e.target.value);
 
-      // Si utilisateur non premium, bloquer le filtre
-      if (!this.isUserPremium) {
-        console.log('❌ Filtre genre bloqué - Premium requis');
-        e.target.value = ''; // Reset à "Tous"
-        this.showPremiumRequiredModal('le filtrage par genre');
-        return;
-      }
+        // Si utilisateur non premium, bloquer le filtre
+        if (!this.isUserPremium) {
+          console.log('❌ Filtre orientation bloqué - Premium requis');
+          e.target.value = ''; // Reset à "Toutes"
+          this.showPremiumRequiredModal('le filtrage par orientation sexuelle');
+          return;
+        }
 
-      console.log('✅ Filtre genre autorisé (utilisateur premium)');
-    });
+        console.log('✅ Filtre orientation autorisé (utilisateur premium)');
+      });
+    }
 
     // Liaison pays-région
     document.getElementById('filtrePays').addEventListener('change', e => {
@@ -637,6 +640,23 @@ class DirectoryPage {
         e.target.value
       );
     });
+
+    // 🔑 Afficher/masquer le filtre orientation selon statut premium
+    this.updateOrientationFilterVisibility();
+  }
+
+  // 🔑 GESTION VISIBILITÉ FILTRE ORIENTATION PREMIUM
+  updateOrientationFilterVisibility() {
+    const orientationFilter = document.getElementById('orientationFilter');
+    if (!orientationFilter) return;
+
+    if (this.isUserPremium) {
+      orientationFilter.style.display = 'block';
+      console.log('✅ Filtre orientation affiché (utilisateur premium)');
+    } else {
+      orientationFilter.style.display = 'none';
+      console.log('🔒 Filtre orientation masqué (non premium)');
+    }
   }
 
   setupLocationFilters() {
@@ -755,24 +775,46 @@ class DirectoryPage {
     this.updateCities(pays, '');
   }
 
+  // 🔑 GESTION VISIBILITÉ FILTRE ORIENTATION
+  updateOrientationFilterVisibility() {
+    const orientationFilter = document.getElementById('orientationFilter');
+    const orientationSelect = document.getElementById('orientation');
+
+    if (!orientationFilter || !orientationSelect) return;
+
+    if (this.isUserPremium) {
+      // Utilisateur premium : afficher le filtre
+      orientationFilter.style.display = 'block';
+      orientationSelect.disabled = false;
+      console.log('✅ Filtre orientation disponible (utilisateur premium)');
+    } else {
+      // Utilisateur non premium : masquer le filtre
+      orientationFilter.style.display = 'none';
+      orientationSelect.disabled = true;
+      orientationSelect.value = ''; // Reset
+      console.log('🔒 Filtre orientation masqué (premium requis)');
+    }
+  }
+
   applyFilters() {
     const formData = new FormData(document.getElementById('filtersForm'));
 
-    // 🔒 FILTRE GENRE PREMIUM UNIQUEMENT
-    const sexeValue = formData.get('sexe');
-    let finalSexeValue = '';
+    // 🔒 FILTRE ORIENTATION PREMIUM UNIQUEMENT
+    const orientationValue = formData.get('orientation');
+    let finalOrientationValue = '';
 
-    if (sexeValue && !this.isUserPremium) {
-      console.log('❌ Filtre genre ignoré - Premium requis');
-      finalSexeValue = ''; // Forcer à "Tous"
+    if (orientationValue && !this.isUserPremium) {
+      console.log('❌ Filtre orientation ignoré - Premium requis');
+      finalOrientationValue = ''; // Forcer à "Toutes"
     } else {
-      finalSexeValue = sexeValue || '';
+      finalOrientationValue = orientationValue || '';
     }
 
     this.filters = {
       ageMin: formData.get('ageMin') || '',
       ageMax: formData.get('ageMax') || '',
-      sexe: finalSexeValue,
+      sexe: formData.get('sexe') || '',
+      orientation: finalOrientationValue,
       pays: formData.get('filtrePays') || '',
       region: formData.get('filtreRegion') || '',
       ville: formData.get('filtreVille') || '',
@@ -886,6 +928,7 @@ class DirectoryPage {
           <p class="profile-age">${user.profile.age} ans</p>
           <p class="profile-location">${this.getLocationDisplay(user.profile.localisation)}</p>
           <p class="profile-gender">${this.getGenderLabel(user.profile.sexe)}</p>
+          <p class="profile-orientation">${this.getOrientationLabel(user.orientation || 'hetero')}</p>
           <div class="profile-actions">
             <button class="btn-primary view-profile-btn" data-user-id="${user.id}">
               Voir le profil
@@ -935,9 +978,22 @@ class DirectoryPage {
     const labels = {
       homme: 'Homme',
       femme: 'Femme',
+      couple: 'Couple',
+      'trans-femme': 'Trans Femme',
+      'trans-homme': 'Trans Homme',
       autre: 'Autre',
     };
     return labels[gender] || gender;
+  }
+
+  getOrientationLabel(orientation) {
+    const labels = {
+      hetero: 'Hétérosexuel(le)',
+      bi: 'Bisexuel(le)',
+      gay: 'Gay',
+      lesbienne: 'Lesbienne',
+    };
+    return labels[orientation] || orientation;
   }
 
   // Fonction pour afficher la localisation avec drapeau

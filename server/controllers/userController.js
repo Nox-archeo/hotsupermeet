@@ -8,6 +8,7 @@ const getUsers = async (req, res) => {
       ageMin,
       ageMax,
       sexe,
+      orientation,
       pays,
       region,
       ville,
@@ -63,6 +64,15 @@ const getUsers = async (req, res) => {
       query['profile.sexe'] = sexe;
     }
 
+    // 🔒 Filtre par orientation - PREMIUM UNIQUEMENT
+    if (orientation && orientation !== 'toutes') {
+      if (isUserPremium) {
+        query['profile.orientation'] = orientation;
+      } else {
+        console.log('❌ Filtre orientation ignoré - Premium requis');
+      }
+    }
+
     // Filtre par localisation (pays, région, ville) - recherche dans la structure objet
     if (pays) {
       query['profile.localisation.pays'] = new RegExp(pays, 'i');
@@ -116,7 +126,7 @@ const getUsers = async (req, res) => {
       const femmeQuery = { ...query, 'profile.sexe': 'femme' };
       const femmes = await User.find(femmeQuery)
         .select(
-          'profile.nom profile.age profile.sexe profile.localisation profile.photos profile.disponibilite stats.lastActive premium.isPremium'
+          'profile.nom profile.age profile.sexe profile.orientation profile.localisation profile.photos profile.disponibilite stats.lastActive premium.isPremium'
         )
         .sort(sortOption)
         .skip(Math.floor(pageSkip * 0.5)) // Skip proportionnel pour les femmes
@@ -130,7 +140,7 @@ const getUsers = async (req, res) => {
         const hommeQuery = { ...query, 'profile.sexe': 'homme' };
         hommes = await User.find(hommeQuery)
           .select(
-            'profile.nom profile.age profile.sexe profile.localisation profile.photos profile.disponibilite stats.lastActive premium.isPremium'
+            'profile.nom profile.age profile.sexe profile.orientation profile.localisation profile.photos profile.disponibilite stats.lastActive premium.isPremium'
           )
           .sort(sortOption)
           .skip(Math.ceil(pageSkip * 0.5)) // Skip proportionnel pour les hommes
@@ -153,7 +163,7 @@ const getUsers = async (req, res) => {
       // Pages suivantes ou avec filtre: logique normale
       users = await User.find(query)
         .select(
-          'profile.nom profile.age profile.sexe profile.localisation profile.photos profile.disponibilite stats.lastActive premium.isPremium'
+          'profile.nom profile.age profile.sexe profile.orientation profile.localisation profile.photos profile.disponibilite stats.lastActive premium.isPremium'
         )
         .sort(sortOption)
         .skip(skip)
@@ -171,6 +181,7 @@ const getUsers = async (req, res) => {
         nom: user.profile.nom,
         age: user.profile.age,
         sexe: user.profile.sexe,
+        orientation: user.profile.orientation || 'hetero',
         localisation: user.profile.localisation,
         photos: user.profile.photos || [],
         disponibilite: user.profile.disponibilite,
