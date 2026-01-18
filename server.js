@@ -422,6 +422,15 @@ app.get('/health', (req, res) => {
   res.status(200).json(healthStatus);
 });
 
+// 🔀 REDIRECTIONS 301 pour pages manquantes
+app.get('/help', (req, res) => {
+  res.redirect(301, '/');
+});
+
+app.get('/about', (req, res) => {
+  res.redirect(301, '/');
+});
+
 // Route de démonstration pour l'API
 app.get('/api/demo', (req, res) => {
   res.json({
