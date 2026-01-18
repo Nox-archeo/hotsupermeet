@@ -8,6 +8,7 @@ const fileUpload = require('express-fileupload');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 const https = require('https');
+const path = require('path');
 
 // Charger les variables d'environnement
 require('dotenv').config();
