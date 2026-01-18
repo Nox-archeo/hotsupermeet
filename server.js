@@ -431,6 +431,15 @@ app.get('/about', (req, res) => {
   res.redirect(301, '/');
 });
 
+app.get('/support', (req, res) => {
+  res.redirect(301, '/contact');
+});
+
+// 📧 PAGE CONTACT
+app.get('/contact', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/pages/contact.html'));
+});
+
 // Route de démonstration pour l'API
 app.get('/api/demo', (req, res) => {
   res.json({
