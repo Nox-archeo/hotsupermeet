@@ -161,11 +161,11 @@ body {
   /* Boutons sur bande noire SIMPLE sous l'image */
   .hero-actions {
     position: absolute;
-    bottom: -100px; /* Plus haut */
+    bottom: -80px; /* Plus haut pour voir les 2 boutons */
     left: 0;
     right: 0;
     background: #000; /* Bande NOIRE */
-    padding: 1.5rem; /* Simple */
+    padding: 2rem 1.5rem; /* Plus de padding haut/bas */
     z-index: 4;
     width: 100vw; /* TOUTE la largeur écran */
     margin-left: calc(-50vw + 50%); /* Centrer sur toute largeur */
