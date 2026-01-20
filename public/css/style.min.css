@@ -117,35 +117,53 @@ body {
   z-index: 1; /* Visible */
 }
 
-/* MOBILE: Image plus grande avec object-fit COVER */
+/* MOBILE: Image ENTIÈRE mais plus grande */
 @media (max-width: 768px) {
-  .hero-background-img {
-    object-fit: cover; /* Plus grande sur mobile */
-    object-position: center;
+  .hero {
+    min-height: 120vh; /* Plus haut pour image plus grande */
   }
 
-  /* Texte positionné dans l'image sur mobile */
+  .hero-background-img {
+    object-fit: contain; /* IMAGE ENTIÈRE visible */
+    object-position: center;
+    height: 120vh; /* Plus grande */
+  }
+
+  /* Titre en haut sur bande noire */
   .hero-content {
     position: relative;
     z-index: 3;
-    padding-top: 20vh; /* Push le texte vers le bas dans l'image */
+    display: flex;
+    flex-direction: column;
+    height: 120vh;
   }
 
-  /* Titre reste en haut sur bande noire */
-  .hero-title {
-    margin-bottom: 0.5rem;
-  }
-
+  /* Zone titre en haut sur bande noire */
+  .hero-title,
   .hero-subtitle {
-    margin-bottom: 1rem;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 0.5rem 1rem;
+    margin: 0;
+    order: -1; /* En premier */
   }
 
-  /* Description et bouton dans l'image */
+  /* Tout le reste dans l'image */
   .hero-description {
-    background: rgba(0, 0, 0, 0.3); /* Légère transparence pour lisibilité */
+    background: rgba(0, 0, 0, 0.4);
     padding: 1rem;
     border-radius: 8px;
-    margin-bottom: 1rem;
+    margin: auto 0; /* Centré verticalement dans l'image */
+  }
+
+  .btn-primary {
+    background: rgba(255, 255, 255, 0.9);
+    color: #000;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-weight: bold;
+    align-self: center;
+    margin-top: 1rem;
   }
 }
 
