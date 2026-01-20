@@ -161,28 +161,40 @@ body {
   /* Boutons SORTIS de l'image - sur bande noire en dessous */
   .hero-actions {
     position: absolute;
-    bottom: -80px; /* SOUS l'image */
+    bottom: -150px; /* SOUS l'image */
     left: 0;
     right: 0;
     background: #000; /* Bande NOIRE */
-    padding: 1rem;
+    padding: 2rem 1rem; /* Plus de padding pour 2 boutons */
     z-index: 4;
     order: 1;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .btn-hero-primary,
   .btn-hero-secondary {
     width: 100%;
-    margin: 0.5rem 0;
+    margin: 0.75rem 0; /* Plus d'espace entre boutons */
     padding: 1rem;
     border-radius: 8px;
     font-weight: bold;
+    border: none; /* PAS de bordure bleue */
+    outline: none; /* PAS de outline bleu */
+    background: #fff;
+    color: #000;
   }
 
-  /* Scroll indicator encore plus bas */
+  .btn-hero-primary:focus,
+  .btn-hero-secondary:focus {
+    outline: none; /* PAS de focus bleu */
+    box-shadow: 0 0 0 2px #fff; /* Bordure blanche au focus */
+  }
+
+  /* Scroll indicator SOUS la bande noire */
   .scroll-indicator {
     position: absolute;
-    bottom: -130px; /* Sous la bande noire */
+    bottom: -200px; /* Sous la bande noire des boutons */
     left: 50%;
     transform: translateX(-50%);
     z-index: 4;
