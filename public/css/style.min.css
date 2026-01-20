@@ -161,7 +161,7 @@ body {
   /* Boutons sur bande noire SIMPLE sous l'image */
   .hero-actions {
     position: absolute;
-    bottom: -120px; /* SOUS l'image */
+    bottom: -100px; /* Plus haut */
     left: 0;
     right: 0;
     background: #000; /* Bande NOIRE */
@@ -592,9 +592,9 @@ h4 {
 }
 
 .btn-hero-secondary {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  backdrop-filter: blur(10px);
+  background: #fff !important; /* FORCE blanc */
+  color: #000 !important; /* FORCE noir */
+  backdrop-filter: none;
 }
 
 .btn-hero-secondary:hover {
