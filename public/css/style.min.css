@@ -102,19 +102,19 @@ body {
   padding: 0 2rem;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #000; /* Fond noir pour les bandes */
 }
 
-/* Image de fond parfaite avec object-fit */
+/* Image de fond parfaite avec object-fit CONTAIN */
 .hero-background-img {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain; /* IMAGE ENTIÈRE */
   object-position: center;
-  z-index: -2;
+  z-index: 1; /* Visible */
 }
 
 /* Overlay gradient par dessus l'image */
@@ -127,10 +127,16 @@ body {
   height: 100%;
   background: linear-gradient(
     135deg,
-    rgba(102, 126, 234, 0.15) 0%,
-    rgba(118, 75, 162, 0.15) 100%
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.2) 100%
   );
-  z-index: -1;
+  z-index: 2;
+}
+
+/* Contenu par dessus tout */
+.hero-content {
+  position: relative;
+  z-index: 3;
 }
 
 /* Typographie */
