@@ -181,8 +181,8 @@ body {
     font-weight: bold;
     border: none;
     outline: none;
-    background: #fff;
-    color: #000;
+    background: #fff; /* TOUS les deux en blanc */
+    color: #000; /* TOUS les deux en noir */
     text-align: center;
   }
 
