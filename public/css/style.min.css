@@ -161,7 +161,7 @@ body {
   /* Boutons sur bande noire SIMPLE sous l'image */
   .hero-actions {
     position: absolute;
-    bottom: -80px; /* Plus haut pour voir les 2 boutons */
+    bottom: -50px; /* ENCORE plus haut */
     left: 0;
     right: 0;
     background: #000; /* Bande NOIRE */
