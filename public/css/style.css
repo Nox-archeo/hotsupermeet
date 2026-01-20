@@ -941,14 +941,13 @@ h4 {
     padding: 6rem 1rem 2rem;
     min-height: 100vh;
     text-align: center;
-    /* Mobile: Image entière avec fond noir */
+    /* Mobile: Image COVER mais centrée sur la fille */
     background:
-      linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%),
+      linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.3) 100%),
       url('/images/hero-custom.jpg');
-    background-size: contain !important;
-    background-position: center !important;
+    background-size: cover !important;
+    background-position: center center !important;
     background-repeat: no-repeat !important;
-    background-color: #000 !important;
   }
 
   .hero-content {
