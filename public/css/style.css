@@ -117,6 +117,38 @@ body {
   z-index: 1; /* Visible */
 }
 
+/* MOBILE: Image plus grande avec object-fit COVER */
+@media (max-width: 768px) {
+  .hero-background-img {
+    object-fit: cover; /* Plus grande sur mobile */
+    object-position: center;
+  }
+
+  /* Texte positionné dans l'image sur mobile */
+  .hero-content {
+    position: relative;
+    z-index: 3;
+    padding-top: 20vh; /* Push le texte vers le bas dans l'image */
+  }
+
+  /* Titre reste en haut sur bande noire */
+  .hero-title {
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-subtitle {
+    margin-bottom: 1rem;
+  }
+
+  /* Description et bouton dans l'image */
+  .hero-description {
+    background: rgba(0, 0, 0, 0.3); /* Légère transparence pour lisibilité */
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+}
+
 /* Overlay gradient par dessus l'image */
 .hero::before {
   content: '';
