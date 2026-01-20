@@ -158,47 +158,37 @@ body {
     margin: auto 0; /* Centré verticalement dans l'image */
   }
 
-  /* Boutons SORTIS de l'image - sur bande noire en dessous */
+  /* Boutons sur bande noire SIMPLE sous l'image */
   .hero-actions {
     position: absolute;
-    bottom: -150px; /* SOUS l'image */
+    bottom: -120px; /* SOUS l'image */
     left: 0;
     right: 0;
     background: #000; /* Bande NOIRE */
-    padding: 2rem 1rem; /* Plus de padding pour 2 boutons */
+    padding: 1.5rem; /* Simple */
     z-index: 4;
-    order: 1;
-    width: 100%;
-    box-sizing: border-box;
+    width: 100vw; /* TOUTE la largeur écran */
+    margin-left: calc(-50vw + 50%); /* Centrer sur toute largeur */
   }
 
   .btn-hero-primary,
   .btn-hero-secondary {
-    width: 100%;
-    margin: 0.75rem 0; /* Plus d'espace entre boutons */
+    display: block; /* Block pour être sûr qu'ils sont visibles */
+    width: calc(100% - 2rem); /* Largeur avec marges */
+    margin: 0.5rem auto; /* Centrés */
     padding: 1rem;
     border-radius: 8px;
     font-weight: bold;
-    border: none; /* PAS de bordure bleue */
-    outline: none; /* PAS de outline bleu */
+    border: none;
+    outline: none;
     background: #fff;
     color: #000;
+    text-align: center;
   }
 
-  .btn-hero-primary:focus,
-  .btn-hero-secondary:focus {
-    outline: none; /* PAS de focus bleu */
-    box-shadow: 0 0 0 2px #fff; /* Bordure blanche au focus */
-  }
-
-  /* Scroll indicator SOUS la bande noire */
+  /* ENLEVER COMPLÈTEMENT la flèche sur mobile */
   .scroll-indicator {
-    position: absolute;
-    bottom: -200px; /* Sous la bande noire des boutons */
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 4;
-    color: #000; /* Visible sur fond blanc */
+    display: none; /* CACHÉE sur mobile */
   }
 }
 
