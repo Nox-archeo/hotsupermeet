@@ -1437,21 +1437,22 @@ h4 {
 /* Mobile - taille réduite et fond noir au lieu de bleu */
 @media (max-width: 768px) {
   .directory-hero {
-    min-height: 25vh; /* Plus petit sur mobile */
-    background-color: #000; /* Noir au lieu de bleu */
+    min-height: 20vh; /* ENCORE plus petit sur mobile */
+    background-color: #000 !important; /* Noir FORCÉ */
     background-size: cover;
+    padding-top: 80px; /* Réduit aussi */
   }
 
   .directory-hero .hero-title {
-    font-size: 1.8rem;
+    font-size: 1.4rem; /* Plus petit */
   }
 
   .directory-hero .hero-subtitle {
-    font-size: 1rem;
+    font-size: 0.9rem; /* Plus petit */
   }
 
   .directory-hero .hero-description {
-    font-size: 0.9rem;
+    font-size: 0.8rem; /* Plus petit */
     padding: 0 1rem;
   }
 }
@@ -2936,7 +2937,11 @@ h4 {
   justify-content: center;
   padding: 3rem 2rem;
   text-align: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(
+    135deg,
+    #000 0%,
+    #333 100%
+  ); /* NOIR au lieu de bleu */
   border-radius: 15px;
   color: white;
   margin: 2rem 0;
