@@ -156,15 +156,31 @@ body {
     margin: auto 0; /* Centré verticalement dans l'image */
   }
 
-  .btn-primary {
-    background: rgba(255, 255, 255, 0.9);
-    color: #000;
-    border: none;
-    padding: 1rem 2rem;
+  /* Boutons hero dans l'image */
+  .hero-actions {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem;
+  }
+
+  .btn-hero-primary,
+  .btn-hero-secondary {
+    width: 100%;
+    margin: 0.5rem 0;
+    padding: 1rem;
     border-radius: 8px;
     font-weight: bold;
-    align-self: center;
-    margin-top: 1rem;
+  }
+
+  /* Scroll indicator SOUS l'image sur mobile */
+  .scroll-indicator {
+    position: absolute;
+    bottom: -50px; /* Sous l'image */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4;
+    color: #000; /* Visible sur fond blanc */
   }
 }
 
@@ -640,15 +656,16 @@ h4 {
   }
 }
 
-/* Scroll Indicator */
+/* Scroll Indicator - Desktop sous l'image */
 .scroll-indicator {
   position: absolute;
-  bottom: 2rem;
+  bottom: -50px; /* Sous l'image sur desktop aussi */
   left: 50%;
   transform: translateX(-50%);
-  color: white;
+  color: #000; /* Noir sur fond blanc */
   opacity: 0.7;
   animation: bounce 2s infinite;
+  z-index: 4;
 }
 
 .scroll-indicator span {
@@ -660,7 +677,7 @@ h4 {
 .arrow {
   width: 2px;
   height: 20px;
-  background: white;
+  background: #000; /* Noir au lieu de blanc */
   margin: 0 auto;
   position: relative;
 }
@@ -672,7 +689,7 @@ h4 {
   left: -4px;
   width: 10px;
   height: 10px;
-  border-right: 2px solid white;
+  border-right: 2px solid #000; /* Noir au lieu de blanc */
   border-bottom: 2px solid white;
   transform: rotate(45deg);
 }
