@@ -1449,22 +1449,11 @@ h4 {
     background-repeat: no-repeat;
     padding-top: 70px;
     padding-bottom: 10px !important;
-    display: flex !important; /* Flexbox pour contrôler position */
-    flex-direction: column !important; /* Colonne verticale */
-    justify-content: space-between !important; /* Espacement */
-  }
-
-  .directory-hero .hero-content {
-    display: flex !important;
-    flex-direction: column !important;
-    height: 100% !important;
   }
 
   .directory-hero .hero-title {
     font-size: 1.8rem; /* Plus raisonnable - 1.5x l'original */
     margin-bottom: 0.3rem;
-    order: -1 !important; /* PREMIER - EN HAUT */
-    margin-top: 0 !important; /* Collé au haut */
   }
 
   .directory-hero .hero-subtitle {
