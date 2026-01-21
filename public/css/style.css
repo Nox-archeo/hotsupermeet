@@ -1444,7 +1444,7 @@ h4 {
   .directory-hero {
     min-height: 450px !important; /* ENCORE plus grand pour réduire bandes haut/bas */
     max-height: 480px !important; /* Plus d'espace vertical */
-    background-size: 125%; /* ENCORE PLUS GRAND pour égaliser marges haut/bas avec côtés */
+    background-size: 145%; /* BEAUCOUP PLUS GRAND - espace haut/bas était 5x côtés */
     background-position: center;
     background-repeat: no-repeat;
     padding-top: 70px;
