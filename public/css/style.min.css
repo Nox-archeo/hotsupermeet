@@ -1444,7 +1444,9 @@ h4 {
   .directory-hero {
     min-height: 6vh !important; /* FORCE la petite taille */
     background-color: #000 !important; /* Noir FORCÉ */
-    background-size: cover;
+    background-size: contain; /* IMAGE ENTIÈRE NON ÉTIRÉE */
+    background-position: center;
+    background-repeat: no-repeat;
     padding-top: 70px; /* Header seulement */
     padding-bottom: 0.5rem !important; /* Minimal */
   }
