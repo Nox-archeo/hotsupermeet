@@ -1452,17 +1452,17 @@ h4 {
   }
 
   .directory-hero .hero-title {
-    font-size: 3.6rem; /* x3 plus grand - presque toute l'image */
+    font-size: 1.8rem; /* Plus raisonnable - 1.5x l'original */
     margin-bottom: 0.3rem;
   }
 
   .directory-hero .hero-subtitle {
-    font-size: 2.4rem; /* x3 plus grand */
+    font-size: 1.2rem; /* Plus raisonnable - 1.5x l'original */
     margin-bottom: 0.2rem;
   }
 
   .directory-hero .hero-description {
-    font-size: 2.25rem; /* x3 plus grand */
+    font-size: 1.1rem; /* Plus raisonnable - 1.5x l'original */
     padding: 0 1rem;
     margin-bottom: 0;
   }
