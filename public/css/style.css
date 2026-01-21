@@ -1418,6 +1418,11 @@ h4 {
   background-color: #000; /* Fallback noir */
 }
 
+/* Override pages-container pour directory seulement */
+.directory-page .pages-container {
+  background: #000 !important; /* Fond noir SEULEMENT pour directory */
+}
+
 .directory-hero::before {
   content: '';
   position: absolute;

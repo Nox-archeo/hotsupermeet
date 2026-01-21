@@ -3,7 +3,11 @@
 /* Styles généraux pour les pages internes */
 .pages-container {
   min-height: 100vh;
-  background: #000; /* NOIR au lieu du bleu dégueulasse */
+  background: linear-gradient(
+    135deg,
+    #667eea 0%,
+    #764ba2 100%
+  ); /* REMETTRE le bleu pour les autres pages */
   padding-top: 100px;
   padding-bottom: 2rem;
 }
