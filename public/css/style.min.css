@@ -1454,6 +1454,7 @@ h4 {
   .directory-hero .hero-title {
     font-size: 1.8rem; /* Plus raisonnable - 1.5x l'original */
     margin-bottom: 0.3rem;
+    margin-top: -50px !important; /* REMONTÉ - collé au haut de l'image */
   }
 
   .directory-hero .hero-subtitle {
