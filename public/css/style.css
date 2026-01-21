@@ -1437,11 +1437,11 @@ h4 {
 /* Mobile - taille réduite et fond noir au lieu de bleu */
 @media (max-width: 768px) {
   .directory-hero {
-    min-height: 6vh; /* DRASTIQUEMENT réduit - moitié de moitié */
+    min-height: 6vh !important; /* FORCE la petite taille */
     background-color: #000 !important; /* Noir FORCÉ */
     background-size: cover;
     padding-top: 70px; /* Header seulement */
-    padding-bottom: 0.5rem; /* Minimal */
+    padding-bottom: 0.5rem !important; /* Minimal */
   }
 
   .directory-hero .hero-title {
