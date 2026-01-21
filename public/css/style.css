@@ -1439,15 +1439,15 @@ h4 {
   z-index: 2;
 }
 
-/* Mobile - EXACTEMENT COMME PC */
+/* Mobile - IMAGE NON ÉTIRÉE + ESPACE RÉDUIT */
 @media (max-width: 768px) {
   .directory-hero {
-    min-height: 30vh; /* Même proportion que PC */
-    background-size: cover; /* COMME PC - remplit tout */
+    min-height: 120px !important; /* TRÈS PETIT ESPACE */
+    background-size: contain !important; /* IMAGE NON ÉTIRÉE */
     background-position: center;
     background-repeat: no-repeat;
-    padding-top: 70px; /* Header seulement */
-    padding-bottom: 1rem;
+    padding-top: 70px;
+    padding-bottom: 5px !important;
   }
 
   .directory-hero .hero-title {
