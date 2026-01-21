@@ -1439,11 +1439,12 @@ h4 {
   z-index: 2;
 }
 
-/* Mobile - MÊME IMAGE mais moins d'espace total */
+/* Mobile - Image proportionnée + fond ajusté */
 @media (max-width: 768px) {
   .directory-hero {
-    min-height: 25vh !important; /* MOINS d'espace que PC (40vh) */
-    background-size: cover; /* MÊME IMAGE que PC */
+    min-height: 200px !important; /* Ajusté à la taille image */
+    max-height: 220px !important; /* Évite trop d'espace */
+    background-size: contain; /* Bonnes proportions */
     background-position: center;
     background-repeat: no-repeat;
     padding-top: 70px;
