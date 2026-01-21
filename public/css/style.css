@@ -1442,12 +1442,9 @@ h4 {
 /* Mobile - Image proportionnée + fond ajusté */
 @media (max-width: 768px) {
   .directory-hero {
-    min-height: 200px !important; /* Ajusté à la taille image */
-    max-height: 220px !important; /* Évite trop d'espace */
-    background-size: contain; /* Bonnes proportions */
-    background-position: center;
-    background-repeat: no-repeat;
-    padding-top: 70px;
+    min-height: 350px !important; /* DOUBLÉ pour plus grande image */
+    max-height: 380px !important; /* Plus d'espace */
+    background-size: contain; /* Bonnes proportions TOUJOURS */
     padding-bottom: 10px !important;
   }
 
