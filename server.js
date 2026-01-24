@@ -13,6 +13,9 @@ const path = require('path');
 // Charger les variables d'environnement
 require('dotenv').config();
 
+// Jobs système
+const { startPremiumCleanupJob } = require('./server/jobs/premiumCleanup');
+
 // 🌍 SERVICE DE TRADUCTION avec MyMemory API
 async function translateMessage(text, fromLang, toLang) {
   if (fromLang === toLang) return text;
@@ -1026,6 +1029,10 @@ app.use('/api/uploads', uploadLimiter, require('./server/routes/uploads')); // P
 app.use('/api/subscriptions', require('./server/routes/subscriptions'));
 app.use('/api/cam', require('./server/routes/cam')); // ✅ ROUTE CAM MANQUANTE !
 app.use('/api/privatePhotos', require('./server/routes/privatePhotos')); // ✅ ROUTE PRIVATE PHOTOS MANQUANTE !
+
+// 🚨 ROUTE D'URGENCE PREMIUM FIX
+const { createFixRoute } = require('./fix-user-premium-urgency');
+createFixRoute(app);
 
 // 🧪 ROUTES DE DIAGNOSTIC SYSTÈME
 app.use('/api', require('./diagnostic-routes'));
@@ -2563,6 +2570,10 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log('🏁 Port d\\' + 'écoute:', PORT);
   console.log('🔌 Socket.IO activé pour le cam-to-cam');
   console.log('🌍 Serveur accessible depuis toutes les interfaces réseau');
+
+  // Démarrer les jobs système
+  console.log('⏰ Démarrage des jobs système...');
+  startPremiumCleanupJob();
 });
 
 module.exports = app;

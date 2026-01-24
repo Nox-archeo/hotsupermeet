@@ -307,52 +307,11 @@ const handleWebhook = async (req, res) => {
     // Traiter l'événement webhook
     const result = await PayPalService.processWebhookEvent(body);
 
-    // Mettre à jour l'utilisateur en fonction de l'événement
-    const resource = body.resource;
-    const customId = resource.custom_id || resource.subscriber?.custom_id;
-
-    if (customId) {
-      const user = await User.findById(customId);
-
-      if (user) {
-        switch (body.event_type) {
-          case 'BILLING.SUBSCRIPTION.ACTIVATED':
-            user.premium.isPremium = true;
-            user.premium.expiration = new Date(
-              Date.now() + 30 * 24 * 60 * 60 * 1000
-            ); // 30 jours
-            break;
-
-          case 'BILLING.SUBSCRIPTION.CANCELLED':
-          case 'BILLING.SUBSCRIPTION.SUSPENDED':
-            // ✅ CORRECTION : Ne pas couper l'accès immédiatement
-            // L'utilisateur garde son accès jusqu'à l'expiration naturelle
-            // On supprime juste l'ID PayPal pour empêcher le renouvellement
-            user.premium.paypalSubscriptionId = null;
-            console.log(
-              `🔄 Abonnement PayPal annulé, accès maintenu jusqu'à expiration pour utilisateur ${user._id}`
-            );
-            break;
-
-          case 'BILLING.SUBSCRIPTION.PAYMENT.SUCCEEDED':
-            // Renouveler l'abonnement pour 30 jours supplémentaires
-            user.premium.isPremium = true;
-            user.premium.expiration = new Date(
-              Date.now() + 30 * 24 * 60 * 60 * 1000
-            );
-            break;
-
-          case 'BILLING.SUBSCRIPTION.PAYMENT.FAILED':
-            // Désactiver le premium après 3 échecs (géré par PayPal)
-            user.premium.isPremium = false;
-            user.premium.expiration = null;
-            break;
-        }
-
-        await user.save();
-        console.log(`Statut premium mis à jour pour l'utilisateur ${customId}`);
-      }
-    }
+    // ✅ CORRECTION : Ne plus dupliquer la logique - PayPalService s'occupe de tout
+    console.log(
+      `✅ Webhook ${body.event_type} traité par PayPalService:`,
+      result
+    );
 
     res.json({
       success: true,

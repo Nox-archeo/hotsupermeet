@@ -17,15 +17,21 @@ const getSubscriptionInfo = async (req, res) => {
     }
 
     const subscriptionInfo = {
-      isPremium: user.premium.isPremium,
+      isPremium: user.premium.isPremium && user.premium.expiration > new Date(),
       expiration: user.premium.expiration,
       features: {
-        unlimitedMessaging: user.premium.isPremium,
-        adsAccess: user.premium.isPremium,
-        tonightMeets: user.premium.isPremium,
-        camToCam: user.premium.isPremium,
-        profileHighlight: user.premium.isPremium,
-        prioritySupport: user.premium.isPremium,
+        unlimitedMessaging:
+          user.premium.isPremium && user.premium.expiration > new Date(),
+        adsAccess:
+          user.premium.isPremium && user.premium.expiration > new Date(),
+        tonightMeets:
+          user.premium.isPremium && user.premium.expiration > new Date(),
+        camToCam:
+          user.premium.isPremium && user.premium.expiration > new Date(),
+        profileHighlight:
+          user.premium.isPremium && user.premium.expiration > new Date(),
+        prioritySupport:
+          user.premium.isPremium && user.premium.expiration > new Date(),
       },
     };
 
@@ -87,7 +93,8 @@ const checkPremiumAccess = async (req, res) => {
     }
 
     // Vérifier si l'utilisateur a accès
-    const hasAccess = user.premium.isPremium;
+    const hasAccess =
+      user.premium.isPremium && user.premium.expiration > new Date();
 
     res.json({
       success: true,
@@ -171,7 +178,7 @@ const requirePremium = feature => {
         });
       }
 
-      if (!user.premium.isPremium) {
+      if (!user.premium.isPremium || user.premium.expiration <= new Date()) {
         return res.status(403).json({
           success: false,
           error: {
