@@ -496,7 +496,15 @@ class PayPalService {
   // Gérer un paiement réussi
   async handlePaymentSucceeded(resource) {
     try {
+      console.log(
+        '💰 handlePaymentSucceeded() APPELÉ:',
+        new Date().toISOString()
+      );
+      console.log('💳 Resource reçu:', JSON.stringify(resource, null, 2));
+
       const subscriptionId = resource.billing_agreement_id || resource.id;
+      console.log('🔍 Subscription ID extrait:', subscriptionId);
+
       const User = require('../models/User');
 
       const user = await User.findOne({
@@ -505,11 +513,14 @@ class PayPalService {
 
       if (!user) {
         console.warn(
-          'Utilisateur non trouvé pour paiement réussi:',
+          '❌ Utilisateur non trouvé pour paiement réussi:',
           subscriptionId
         );
         return { processed: false, message: 'Utilisateur non trouvé' };
       }
+
+      console.log(`👤 UTILISATEUR TROUVÉ: ${user._id} (${user.email})`);
+      console.log(`📅 Expiration ACTUELLE: ${user.premium.expiration}`);
 
       // Renouveler/activer le premium pour 30 jours de plus
       const currentExpiration = user.premium.expiration || new Date();
@@ -518,13 +529,21 @@ class PayPalService {
       );
       newExpiration.setMonth(newExpiration.getMonth() + 1);
 
+      console.log(`🔄 CALCUL NOUVELLE EXPIRATION:`);
+      console.log(`   Current: ${currentExpiration}`);
+      console.log(`   Now: ${new Date()}`);
+      console.log(
+        `   Max: ${new Date(Math.max(currentExpiration.getTime(), Date.now()))}`
+      );
+      console.log(`   New (+ 1 mois): ${newExpiration}`);
+
       user.premium.isPremium = true;
       user.premium.expiration = newExpiration;
 
       await user.save();
 
       console.log(
-        `💰 Paiement réussi - Premium renouvelé pour utilisateur ${user._id} jusqu'au ${newExpiration}`
+        `✅ PREMIUM RENOUVELÉ avec succès pour utilisateur ${user._id} jusqu'au ${newExpiration}`
       );
       return { processed: true, action: 'payment_succeeded', userId: user._id };
     } catch (error) {

@@ -1030,10 +1030,6 @@ app.use('/api/subscriptions', require('./server/routes/subscriptions'));
 app.use('/api/cam', require('./server/routes/cam')); // ✅ ROUTE CAM MANQUANTE !
 app.use('/api/privatePhotos', require('./server/routes/privatePhotos')); // ✅ ROUTE PRIVATE PHOTOS MANQUANTE !
 
-// 🚨 ROUTE D'URGENCE PREMIUM FIX
-const { createFixRoute } = require('./fix-user-premium-urgency');
-createFixRoute(app);
-
 // 🧪 ROUTES DE DIAGNOSTIC SYSTÈME
 app.use('/api', require('./diagnostic-routes'));
 
@@ -1042,6 +1038,55 @@ app.use('/debug', require('./server/routes/debug-paypal'));
 
 // �🚀 Routes PayPal directes (URLs de retour)
 const paymentController = require('./server/controllers/paymentController');
+
+// 🚨 ROUTE URGENCE : Forcer mise à jour premium pour utilisateur spécifique
+app.post('/api/force-premium-update', async (req, res) => {
+  try {
+    const User = require('./server/models/User'); // Utiliser le modèle existant
+    const userId = '694c07a87e92345006d59dd3'; // ID spécifique de l'utilisateur
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, error: 'Utilisateur non trouvé' });
+    }
+
+    console.log(`🚨 CORRECTION MANUELLE pour ${user.email}`);
+    console.log(`📅 Expiration AVANT: ${user.premium.expiration}`);
+
+    // Calculer nouvelle expiration depuis le dernier paiement (24 janvier 2026)
+    const dateLastPayment = new Date('2026-01-24');
+    const newExpiration = new Date(dateLastPayment);
+    newExpiration.setMonth(newExpiration.getMonth() + 1);
+
+    user.premium.isPremium = true;
+    user.premium.expiration = newExpiration;
+
+    await user.save();
+
+    console.log(
+      `✅ CORRECTION APPLIQUÉE - Nouvelle expiration: ${newExpiration}`
+    );
+
+    res.json({
+      success: true,
+      message: 'Premium mis à jour avec succès',
+      user: {
+        id: userId,
+        email: user.email,
+        newExpiration: user.premium.expiration,
+        isPremium: user.premium.isPremium,
+      },
+    });
+  } catch (error) {
+    console.error('❌ Erreur correction premium:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// �🚀 Routes PayPal directes (URLs de retour)
 app.get('/payment/success', (req, res, next) => {
   paymentController.confirmSubscription(req, res).catch(next);
 });

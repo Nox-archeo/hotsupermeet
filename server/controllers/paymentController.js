@@ -290,6 +290,28 @@ const handleWebhook = async (req, res) => {
     const headers = req.headers;
     const body = req.body;
 
+    // 🚨 LOGS DÉTAILLÉS POUR DEBUG WEBHOOK
+    console.log('🔔 WEBHOOK PAYPAL REÇU:', new Date().toISOString());
+    console.log('📧 Event Type:', body.event_type);
+    console.log(
+      '🔗 Resource ID:',
+      body.resource?.id || body.resource?.billing_agreement_id
+    );
+    console.log(
+      '👤 Custom ID:',
+      body.resource?.custom_id || body.resource?.subscriber?.custom_id
+    );
+
+    // Log spécial pour PAYMENT.SUCCEEDED
+    if (body.event_type === 'BILLING.SUBSCRIPTION.PAYMENT.SUCCEEDED') {
+      console.log('💰 PAIEMENT RÉUSSI DÉTECTÉ - Analysing...');
+      console.log(
+        '💳 Subscription ID:',
+        body.resource?.billing_agreement_id || body.resource?.id
+      );
+      console.log('💵 Amount:', body.resource?.amount?.total || 'N/A');
+    }
+
     // Vérifier la signature du webhook
     const isValidSignature = await PayPalService.verifyWebhookSignature(
       headers,
@@ -297,7 +319,7 @@ const handleWebhook = async (req, res) => {
     );
 
     if (!isValidSignature) {
-      console.warn('Signature webhook PayPal invalide');
+      console.warn('❌ Signature webhook PayPal invalide');
       return res.status(400).json({
         success: false,
         error: 'Signature invalide',
