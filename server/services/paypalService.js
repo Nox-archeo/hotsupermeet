@@ -502,40 +502,73 @@ class PayPalService {
       );
       console.log('💳 Resource reçu:', JSON.stringify(resource, null, 2));
 
-      const subscriptionId = resource.billing_agreement_id || resource.id;
+      // ⚠️ CORRECTION CRITIQUE: PayPal peut envoyer différents champs selon le type de webhook
+      const subscriptionId =
+        resource.billing_agreement_id ||
+        resource.id ||
+        resource.subscription_id;
       console.log('🔍 Subscription ID extrait:', subscriptionId);
 
       const User = require('../models/User');
 
-      const user = await User.findOne({
+      // 🚨 CHERCHER L'UTILISATEUR avec différentes stratégies
+      let user = await User.findOne({
         'premium.paypalSubscriptionId': subscriptionId,
       });
 
+      // Si pas trouvé avec l'ID direct, essayer avec custom_id du webhook
+      if (!user && resource.custom_id) {
+        console.log('🔄 Recherche par custom_id:', resource.custom_id);
+        user = await User.findById(resource.custom_id);
+
+        // Si trouvé par custom_id, vérifier que c'est bien le bon abonnement
+        if (user && user.premium.paypalSubscriptionId !== subscriptionId) {
+          console.warn(
+            '⚠️ Subscription ID mismatch, mais utilisateur trouvé par custom_id'
+          );
+        }
+      }
+
       if (!user) {
-        console.warn(
-          '❌ Utilisateur non trouvé pour paiement réussi:',
-          subscriptionId
-        );
+        console.warn('❌ Utilisateur non trouvé pour paiement réussi:');
+        console.warn('   Subscription ID cherché:', subscriptionId);
+        console.warn('   Custom ID cherché:', resource.custom_id);
+
+        // 🚨 DEBUG: Lister tous les utilisateurs premium pour voir les IDs PayPal
+        const premiumUsers = await User.find({
+          'premium.paypalSubscriptionId': { $exists: true, $ne: null },
+        })
+          .select('_id email premium.paypalSubscriptionId')
+          .limit(5);
+
+        console.log('📋 Utilisateurs premium existants:');
+        premiumUsers.forEach(u => {
+          console.log(`   ${u.email}: ${u.premium.paypalSubscriptionId}`);
+        });
+
         return { processed: false, message: 'Utilisateur non trouvé' };
       }
 
       console.log(`👤 UTILISATEUR TROUVÉ: ${user._id} (${user.email})`);
       console.log(`📅 Expiration ACTUELLE: ${user.premium.expiration}`);
 
-      // Renouveler/activer le premium pour 30 jours de plus
+      // 🔧 CALCUL CORRECT DE LA NOUVELLE EXPIRATION
       const currentExpiration = user.premium.expiration || new Date();
-      const newExpiration = new Date(
-        Math.max(currentExpiration.getTime(), Date.now())
-      );
+      const now = new Date();
+
+      // Si l'expiration actuelle est dans le futur, prolonger depuis cette date
+      // Sinon, prolonger depuis maintenant (pour les cas où premium a expiré)
+      const baseDate = currentExpiration > now ? currentExpiration : now;
+      const newExpiration = new Date(baseDate);
       newExpiration.setMonth(newExpiration.getMonth() + 1);
 
       console.log(`🔄 CALCUL NOUVELLE EXPIRATION:`);
-      console.log(`   Current: ${currentExpiration}`);
-      console.log(`   Now: ${new Date()}`);
+      console.log(`   Expiration actuelle: ${currentExpiration}`);
+      console.log(`   Maintenant: ${now}`);
       console.log(
-        `   Max: ${new Date(Math.max(currentExpiration.getTime(), Date.now()))}`
+        `   Date de base (${currentExpiration > now ? 'expiration' : 'maintenant'}): ${baseDate}`
       );
-      console.log(`   New (+ 1 mois): ${newExpiration}`);
+      console.log(`   Nouvelle expiration (+1 mois): ${newExpiration}`);
 
       user.premium.isPremium = true;
       user.premium.expiration = newExpiration;
@@ -543,7 +576,7 @@ class PayPalService {
       await user.save();
 
       console.log(
-        `✅ PREMIUM RENOUVELÉ avec succès pour utilisateur ${user._id} jusqu'au ${newExpiration}`
+        `✅ PREMIUM RENOUVELÉ AUTOMATIQUEMENT pour utilisateur ${user._id} (${user.email}) jusqu'au ${newExpiration.toLocaleDateString()}`
       );
       return { processed: true, action: 'payment_succeeded', userId: user._id };
     } catch (error) {
