@@ -28,9 +28,9 @@ const repairSteveRossier = async (req, res) => {
     console.log(`   Expiration: ${user.premium.expiration}`);
     console.log(`   PayPal Sub ID: ${user.premium.paypalSubscriptionId}`);
 
-    // Steve avait une expiration au 25 janvier 12:36:24
-    // Il a payé le 26 janvier -> il doit expirer le 25 février 12:36:24 (ancienne date + 1 mois EXACT)
-    const nouvelleDateExpiration = new Date('2026-02-25T12:36:24.565Z');
+    // Steve a payé le 26 janvier -> il doit expirer le 27 février (26+1 jour+1 mois)
+    // Logique parfaite: 1 jour de marge + 1 mois d'abonnement
+    const nouvelleDateExpiration = new Date('2026-02-27T03:06:00.000Z');
 
     user.premium.isPremium = true;
     user.premium.expiration = nouvelleDateExpiration;
