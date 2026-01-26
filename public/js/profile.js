@@ -2032,3 +2032,162 @@ async function sendPrivatePhotoRequest(
     showMessage("Erreur lors de l'envoi de la demande", 'error');
   }
 }
+
+// ===== GESTION DES NOTIFICATIONS PUSH =====
+
+// Initialiser les contrôles de notifications
+function initNotificationControls() {
+  console.log('🔔 Initialisation contrôles notifications...');
+
+  // Attendre que le gestionnaire global soit prêt
+  if (!window.globalNotificationManager) {
+    setTimeout(initNotificationControls, 500);
+    return;
+  }
+
+  const statusText = document.getElementById('notificationStatusText');
+  const enableBtn = document.getElementById('enableNotificationsBtn');
+  const disableBtn = document.getElementById('disableNotificationsBtn');
+  const testBtn = document.getElementById('testNotificationBtn');
+
+  if (!statusText || !enableBtn || !disableBtn || !testBtn) {
+    console.warn('Elements de notification non trouvés');
+    return;
+  }
+
+  // Mettre à jour le statut
+  updateNotificationStatus();
+
+  // Event listeners
+  enableBtn.addEventListener('click', enableNotifications);
+  disableBtn.addEventListener('click', disableNotifications);
+  testBtn.addEventListener('click', testNotifications);
+
+  console.log('✅ Contrôles notifications initialisés');
+}
+
+// Mettre à jour l'affichage du statut des notifications
+function updateNotificationStatus() {
+  const manager = window.globalNotificationManager;
+  if (!manager) return;
+
+  const status = manager.getNotificationStatus();
+  const statusText = document.getElementById('notificationStatusText');
+  const enableBtn = document.getElementById('enableNotificationsBtn');
+  const disableBtn = document.getElementById('disableNotificationsBtn');
+  const testBtn = document.getElementById('testNotificationBtn');
+
+  // Mettre à jour le texte de statut
+  statusText.textContent = status.message;
+  statusText.style.color = status.isEnabled
+    ? '#27ae60'
+    : status.permission === 'denied'
+      ? '#e74c3c'
+      : '#7f8c8d';
+
+  // Afficher/masquer les boutons
+  enableBtn.style.display =
+    status.canEnable && !status.isEnabled ? 'inline-block' : 'none';
+  disableBtn.style.display = status.isEnabled ? 'inline-block' : 'none';
+  testBtn.style.display = status.isEnabled ? 'inline-block' : 'none';
+}
+
+// Activer les notifications
+async function enableNotifications() {
+  const manager = window.globalNotificationManager;
+  if (!manager) return;
+
+  const enableBtn = document.getElementById('enableNotificationsBtn');
+  const originalText = enableBtn.textContent;
+
+  enableBtn.textContent = 'Activation...';
+  enableBtn.disabled = true;
+
+  try {
+    const result = await manager.enableNotifications();
+
+    if (result.success) {
+      showMessage(result.message, 'success');
+      setTimeout(updateNotificationStatus, 500);
+    } else {
+      showMessage(result.message, 'error');
+    }
+  } catch (error) {
+    console.error('Erreur activation notifications:', error);
+    showMessage("Erreur lors de l'activation des notifications", 'error');
+  } finally {
+    enableBtn.textContent = originalText;
+    enableBtn.disabled = false;
+  }
+}
+
+// Désactiver les notifications
+async function disableNotifications() {
+  if (
+    !confirm(
+      "Êtes-vous sûr de vouloir désactiver les notifications ?\n\nVous ne recevrez plus d'alertes pour les nouveaux messages."
+    )
+  ) {
+    return;
+  }
+
+  const manager = window.globalNotificationManager;
+  if (!manager) return;
+
+  const disableBtn = document.getElementById('disableNotificationsBtn');
+  const originalText = disableBtn.textContent;
+
+  disableBtn.textContent = 'Désactivation...';
+  disableBtn.disabled = true;
+
+  try {
+    const result = await manager.disableNotifications();
+
+    if (result.success) {
+      showMessage(result.message, 'success');
+      setTimeout(updateNotificationStatus, 500);
+    } else {
+      showMessage(result.message, 'error');
+    }
+  } catch (error) {
+    console.error('Erreur désactivation notifications:', error);
+    showMessage('Erreur lors de la désactivation des notifications', 'error');
+  } finally {
+    disableBtn.textContent = originalText;
+    disableBtn.disabled = false;
+  }
+}
+
+// Tester les notifications
+async function testNotifications() {
+  const manager = window.globalNotificationManager;
+  if (!manager) return;
+
+  const testBtn = document.getElementById('testNotificationBtn');
+  const originalText = testBtn.textContent;
+
+  testBtn.textContent = 'Test en cours...';
+  testBtn.disabled = true;
+
+  try {
+    const result = await manager.testNotification();
+
+    if (result.success) {
+      showMessage(result.message, 'success');
+    } else {
+      showMessage(result.message, 'error');
+    }
+  } catch (error) {
+    console.error('Erreur test notifications:', error);
+    showMessage('Erreur lors du test des notifications', 'error');
+  } finally {
+    testBtn.textContent = originalText;
+    testBtn.disabled = false;
+  }
+}
+
+// Initialiser les notifications quand la page est prête
+document.addEventListener('DOMContentLoaded', () => {
+  // Attendre un délai pour que le global manager soit prêt
+  setTimeout(initNotificationControls, 1000);
+});

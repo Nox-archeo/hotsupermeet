@@ -287,10 +287,8 @@ class GlobalNotificationManager {
       console.log('🔔 Token détecté, démarrage notifications globales');
       this.startGlobalPolling();
 
-      // Si les push sont supportés, s'abonner
-      if (this.pushSupported) {
-        this.subscribeToPush();
-      }
+      // 🆕 DEMANDER AUTOMATIQUEMENT LES NOTIFICATIONS
+      this.checkAndRequestPushPermissions();
 
       // Arrêter la vérification d'initialisation
       if (this.initInterval) {
@@ -298,6 +296,92 @@ class GlobalNotificationManager {
         this.initInterval = null;
       }
     }
+  }
+
+  // 🆕 Vérifier et demander automatiquement les permissions push
+  async checkAndRequestPushPermissions() {
+    if (!this.pushSupported) {
+      console.warn('🚫 Push notifications non supportées sur ce navigateur');
+      return;
+    }
+
+    const currentPermission = Notification.permission;
+    console.log('🔐 Permission actuelle:', currentPermission);
+
+    // Si déjà accordée, s'abonner
+    if (currentPermission === 'granted') {
+      await this.subscribeToPush();
+      return;
+    }
+
+    // Si refusée, ne pas redemander (respecter le choix utilisateur)
+    if (currentPermission === 'denied') {
+      console.log("🚫 Permission refusée par l'utilisateur");
+      return;
+    }
+
+    // Si pas encore demandée, proposer avec un délai pour ne pas être intrusif
+    if (currentPermission === 'default') {
+      // Attendre 3 secondes après connexion pour proposer
+      setTimeout(async () => {
+        await this.showNotificationPrompt();
+      }, 3000);
+    }
+  }
+
+  // 🆕 Afficher un prompt élégant pour les notifications
+  async showNotificationPrompt() {
+    // Vérifier si l'utilisateur n'a pas déjà fermé le prompt aujourd'hui
+    const today = new Date().toDateString();
+    const lastPrompt = localStorage.getItem('hotmeet_notification_prompt_date');
+
+    if (lastPrompt === today) {
+      console.log("📅 Prompt notifications déjà affiché aujourd'hui");
+      return;
+    }
+
+    // Afficher un prompt personnalisé
+    if (
+      window.confirm(
+        '🔔 Activer les notifications HotMeet ?\n\nRecevez des notifications quand vous recevez des messages, demandes de chat ou photos.\n\nVous pourrez les désactiver à tout moment dans votre profil.'
+      )
+    ) {
+      const granted = await this.requestNotificationPermission();
+      if (granted) {
+        this.showSuccessMessage('✅ Notifications activées avec succès !');
+      }
+    } else {
+      // Marquer la date pour ne pas redemander aujourd'hui
+      localStorage.setItem('hotmeet_notification_prompt_date', today);
+    }
+  }
+
+  // 🆕 Afficher un message de succès
+  showSuccessMessage(message) {
+    // Créer une notification de succès temporaire
+    const successDiv = document.createElement('div');
+    successDiv.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #4CAF50;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 10000;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+    `;
+    successDiv.textContent = message;
+    document.body.appendChild(successDiv);
+
+    // Supprimer après 3 secondes
+    setTimeout(() => {
+      if (successDiv.parentNode) {
+        successDiv.remove();
+      }
+    }, 3000);
   }
 
   // Démarrer la vérification globale
@@ -423,6 +507,101 @@ class GlobalNotificationManager {
   // Méthode publique pour forcer une mise à jour
   forceUpdate() {
     this.checkGlobalNotifications();
+  }
+
+  // 🆕 MÉTHODES POUR LE CONTRÔLE UTILISATEUR
+
+  // Vérifier si les notifications sont activées
+  isNotificationEnabled() {
+    return (
+      Notification.permission === 'granted' && this.pushSubscription !== null
+    );
+  }
+
+  // Obtenir le statut des notifications pour l'affichage
+  getNotificationStatus() {
+    const permission = Notification.permission;
+    const hasSubscription = this.pushSubscription !== null;
+
+    return {
+      permission,
+      hasSubscription,
+      isEnabled: permission === 'granted' && hasSubscription,
+      canEnable: this.pushSupported && permission !== 'denied',
+      message: this.getStatusMessage(permission, hasSubscription),
+    };
+  }
+
+  // Message de statut pour l'utilisateur
+  getStatusMessage(permission, hasSubscription) {
+    if (!this.pushSupported) {
+      return 'Les notifications push ne sont pas supportées sur votre navigateur';
+    }
+
+    if (permission === 'denied') {
+      return 'Notifications bloquées. Activez-les dans les paramètres de votre navigateur';
+    }
+
+    if (permission === 'granted' && hasSubscription) {
+      return 'Notifications activées ✅';
+    }
+
+    if (permission === 'granted' && !hasSubscription) {
+      return 'Permissions accordées, reconnexion en cours...';
+    }
+
+    return 'Notifications désactivées';
+  }
+
+  // Activer les notifications (depuis le profil)
+  async enableNotifications() {
+    if (!this.pushSupported) {
+      throw new Error('Les notifications push ne sont pas supportées');
+    }
+
+    const granted = await this.requestNotificationPermission();
+    if (granted) {
+      return { success: true, message: 'Notifications activées avec succès !' };
+    } else {
+      return { success: false, message: 'Permission refusée' };
+    }
+  }
+
+  // Désactiver les notifications (depuis le profil)
+  async disableNotifications() {
+    try {
+      await this.unsubscribeFromPush();
+      return { success: true, message: 'Notifications désactivées' };
+    } catch (error) {
+      console.error('Erreur désactivation notifications:', error);
+      return { success: false, message: 'Erreur lors de la désactivation' };
+    }
+  }
+
+  // Tester les notifications (version plus user-friendly)
+  async testNotification() {
+    if (!this.isNotificationEnabled()) {
+      throw new Error('Notifications non activées');
+    }
+
+    try {
+      const response = await fetch('/api/push/test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('hotmeet_token')}`,
+        },
+      });
+
+      if (response.ok) {
+        return { success: true, message: 'Notification test envoyée !' };
+      } else {
+        throw new Error('Erreur serveur');
+      }
+    } catch (error) {
+      console.error('Erreur test notification:', error);
+      return { success: false, message: 'Erreur lors du test' };
+    }
   }
 }
 
