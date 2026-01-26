@@ -559,22 +559,17 @@ class PayPalService {
       console.log(`👤 UTILISATEUR TROUVÉ: ${user._id} (${user.email})`);
       console.log(`📅 Expiration ACTUELLE: ${user.premium.expiration}`);
 
-      // CALCUL CORRECT DE LA NOUVELLE EXPIRATION
+      // 🚨 LOGIQUE CORRIGÉE : TOUJOURS partir de l'ancienne expiration + 1 mois
+      // Un utilisateur qui paye ne doit JAMAIS perdre son statut premium !
       const currentExpiration = user.premium.expiration || new Date();
-      const now = new Date();
 
-      // Si l'expiration actuelle est dans le futur, prolonger depuis cette date
-      // Sinon, prolonger depuis maintenant (pour les cas où premium a expiré)
-      const baseDate = currentExpiration > now ? currentExpiration : now;
-      const newExpiration = new Date(baseDate);
+      // TOUJOURS prolonger depuis l'ancienne date d'expiration, même si elle est passée
+      // Car l'utilisateur a payé = il mérite la continuité de son abonnement
+      const newExpiration = new Date(currentExpiration);
       newExpiration.setMonth(newExpiration.getMonth() + 1);
 
-      console.log(`🔄 CALCUL NOUVELLE EXPIRATION:`);
+      console.log(`🔄 CALCUL NOUVELLE EXPIRATION (PAYMENT.SUCCEEDED):`);
       console.log(`   Expiration actuelle: ${currentExpiration}`);
-      console.log(`   Maintenant: ${now}`);
-      console.log(
-        `   Date de base (${currentExpiration > now ? 'expiration' : 'maintenant'}): ${baseDate}`
-      );
       console.log(`   Nouvelle expiration (+1 mois): ${newExpiration}`);
 
       user.premium.isPremium = true;
@@ -658,20 +653,17 @@ class PayPalService {
       console.log(`👤 UTILISATEUR TROUVÉ: ${user._id} (${user.email})`);
       console.log(`📅 Expiration ACTUELLE: ${user.premium.expiration}`);
 
-      // CALCUL CORRECT DE LA NOUVELLE EXPIRATION
+      // 🚨 LOGIQUE CORRIGÉE : TOUJOURS partir de l'ancienne expiration + 1 mois
+      // Un utilisateur qui paye ne doit JAMAIS perdre son statut premium !
       const currentExpiration = user.premium.expiration || new Date();
-      const now = new Date();
 
-      // Si l'expiration actuelle est dans le futur, prolonger depuis cette date
-      // Sinon, prolonger depuis maintenant (pour les cas où premium a expiré)
-      const baseDate = currentExpiration > now ? currentExpiration : now;
-      const newExpiration = new Date(baseDate);
+      // TOUJOURS prolonger depuis l'ancienne date d'expiration, même si elle est passée
+      // Car l'utilisateur a payé = il mérite la continuité de son abonnement
+      const newExpiration = new Date(currentExpiration);
       newExpiration.setMonth(newExpiration.getMonth() + 1);
 
       console.log(`🔄 CALCUL NOUVELLE EXPIRATION (PAYMENT.SALE.COMPLETED):`);
       console.log(`   Expiration actuelle: ${currentExpiration}`);
-      console.log(`   Maintenant: ${now}`);
-      console.log(`   Date de base: ${baseDate}`);
       console.log(`   Nouvelle expiration (+1 mois): ${newExpiration}`);
 
       user.premium.isPremium = true;
