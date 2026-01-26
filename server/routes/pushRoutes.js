@@ -7,7 +7,7 @@ const PushNotificationService = require('../services/pushNotificationService');
 router.post('/subscribe', auth, async (req, res) => {
   try {
     const { endpoint, keys } = req.body;
-    const userId = req.user.userId;
+    const userId = req.user._id;
 
     console.log('📝 Nouvel abonnement push pour utilisateur:', userId);
 
@@ -64,7 +64,7 @@ router.post('/subscribe', auth, async (req, res) => {
 router.post('/unsubscribe', auth, async (req, res) => {
   try {
     const { endpoint } = req.body;
-    const userId = req.user.userId;
+    const userId = req.user._id;
 
     console.log('🔕 Désabonnement push pour utilisateur:', userId);
 
@@ -101,7 +101,7 @@ router.post('/unsubscribe', auth, async (req, res) => {
 router.post('/send', auth, async (req, res) => {
   try {
     const { targetUserId, title, body, options } = req.body;
-    const senderId = req.user.userId;
+    const senderId = req.user._id;
 
     // Vérifications de sécurité basiques
     if (!targetUserId || !title || !body) {
@@ -146,7 +146,7 @@ router.post('/send', auth, async (req, res) => {
 // Tester les notifications push pour l'utilisateur connecté
 router.post('/test', auth, async (req, res) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.user._id;
 
     console.log('🧪 Test notification push pour utilisateur:', userId);
 
@@ -215,7 +215,7 @@ router.get('/stats', auth, async (req, res) => {
 // Obtenir le statut des abonnements pour l'utilisateur connecté
 router.get('/status', auth, async (req, res) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.user._id;
 
     // Récupérer l'utilisateur avec ses abonnements
     const User = require('../models/User');
