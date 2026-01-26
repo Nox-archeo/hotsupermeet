@@ -255,20 +255,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// Middleware pour parser le JSON avec sécurité renforcée
-app.use(
-  express.json({
-    limit: '10mb',
-    verify: (req, res, buf) => {
-      // Vérification de base contre JSON malformé
-      try {
-        JSON.parse(buf);
-      } catch (e) {
-        throw new Error('Invalid JSON');
-      }
-    },
-  })
-);
+// Middleware pour parser le JSON
+app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Protection contre les injections NoSQL basique
