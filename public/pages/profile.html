@@ -108,6 +108,96 @@
               Gestion de votre profil
             </h2>
 
+            <!-- 🔔 SECTION NOTIFICATIONS - TRÈS VISIBLE -->
+            <div
+              style="
+                background: #fff;
+                border: 3px solid #e74c3c;
+                border-radius: 15px;
+                padding: 2rem;
+                margin: 2rem 0;
+                text-align: center;
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+              "
+            >
+              <h3
+                style="
+                  color: #e74c3c;
+                  font-size: 1.5rem;
+                  margin-bottom: 1.5rem;
+                  font-weight: 700;
+                "
+              >
+                🔔 GESTION DES NOTIFICATIONS PUSH
+              </h3>
+              <div
+                id="notificationStatusMain"
+                style="
+                  background: #f8f9fa;
+                  padding: 1rem;
+                  border-radius: 10px;
+                  margin-bottom: 1.5rem;
+                  border-left: 5px solid #e74c3c;
+                "
+              >
+                <span
+                  id="notificationStatusTextMain"
+                  style="font-weight: 600; color: #2c3e50; font-size: 1.1rem"
+                >
+                  Chargement du statut...
+                </span>
+              </div>
+              <p
+                style="
+                  color: #666;
+                  margin-bottom: 2rem;
+                  font-size: 1.1rem;
+                  line-height: 1.6;
+                "
+              >
+                💡 <strong>Recevez des notifications instantanées</strong> pour
+                les nouveaux messages, demandes de chat et demandes de photos
+                privées !
+              </p>
+              <div
+                style="
+                  display: flex;
+                  gap: 1.5rem;
+                  justify-content: center;
+                  flex-wrap: wrap;
+                "
+              >
+                <button
+                  type="button"
+                  class="btn-primary"
+                  id="enableNotificationsMainBtn"
+                  style="
+                    padding: 15px 30px;
+                    font-size: 1.2rem;
+                    font-weight: 700;
+                    border-radius: 10px;
+                  "
+                >
+                  ✅ ACTIVER LES NOTIFICATIONS
+                </button>
+                <button
+                  type="button"
+                  class="btn-danger"
+                  id="disableNotificationsMainBtn"
+                  style="
+                    padding: 15px 30px;
+                    font-size: 1.2rem;
+                    font-weight: 700;
+                    border-radius: 10px;
+                    background: #e74c3c;
+                    border-color: #e74c3c;
+                  "
+                >
+                  ❌ DÉSACTIVER LES NOTIFICATIONS
+                </button>
+              </div>
+            </div>
+
             <div class="profile-management">
               <div class="profile-card">
                 <div class="profile-header">
@@ -500,111 +590,6 @@
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- 🔔 Section Notifications - Visible et Séparée -->
-        <section
-          class="notifications-section"
-          style="
-            background: #fff;
-            border: 2px solid #3498db;
-            border-radius: 10px;
-            margin: 2rem auto;
-            max-width: 800px;
-            padding: 2rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          "
-        >
-          <div class="container">
-            <h3
-              style="
-                color: #2c3e50;
-                margin-bottom: 1.5rem;
-                display: flex;
-                align-items: center;
-                font-size: 1.3rem;
-                font-weight: 600;
-              "
-            >
-              <span style="margin-right: 12px; font-size: 1.8rem">🔔</span>
-              Gestion des Notifications Push
-            </h3>
-
-            <div class="notification-content" style="margin-bottom: 1.5rem">
-              <div
-                id="notificationStatusMain"
-                style="
-                  padding: 1rem;
-                  background: #f8f9fa;
-                  border-radius: 8px;
-                  margin-bottom: 1rem;
-                  border-left: 4px solid #3498db;
-                "
-              >
-                <span
-                  id="notificationStatusTextMain"
-                  style="font-weight: 500; color: #2c3e50"
-                >
-                  Chargement du statut...
-                </span>
-              </div>
-
-              <p
-                style="color: #7f8c8d; margin-bottom: 1.5rem; line-height: 1.6"
-              >
-                💡
-                <strong
-                  >Les notifications push vous alertent instantanément</strong
-                >
-                des nouveaux messages, demandes de chat et demandes de photos
-                privées, même quand le site est fermé. Recommandé pour ne rien
-                manquer !
-              </p>
-            </div>
-
-            <div
-              class="notification-buttons"
-              style="
-                display: flex;
-                gap: 1rem;
-                flex-wrap: wrap;
-                justify-content: center;
-              "
-            >
-              <button
-                type="button"
-                class="btn-primary"
-                id="enableNotificationsMainBtn"
-                style="
-                  padding: 12px 24px;
-                  font-size: 1.1rem;
-                  font-weight: 600;
-                  display: flex;
-                  align-items: center;
-                  gap: 8px;
-                "
-              >
-                <span>✅</span> Activer les Notifications
-              </button>
-              <button
-                type="button"
-                class="btn-danger"
-                id="disableNotificationsMainBtn"
-                style="
-                  padding: 12px 24px;
-                  font-size: 1.1rem;
-                  font-weight: 600;
-                  background: #e74c3c;
-                  border-color: #e74c3c;
-                  display: flex;
-                  align-items: center;
-                  gap: 8px;
-                "
-              >
-                <span>❌</span> Désactiver les Notifications
-              </button>
             </div>
           </div>
         </section>

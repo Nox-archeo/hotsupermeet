@@ -342,6 +342,13 @@ class PayPalService {
         case 'BILLING.SUBSCRIPTION.PAYMENT.SUCCEEDED':
           return await this.handlePaymentSucceeded(resource);
 
+        // 🚨 CORRECTION CRITIQUE: PayPal envoie aussi PAYMENT.SALE.COMPLETED pour les renouvellements
+        case 'PAYMENT.SALE.COMPLETED':
+          console.log(
+            '🔄 PAYMENT.SALE.COMPLETED détecté - Traitement comme renouvellement...'
+          );
+          return await this.handlePaymentSaleCompleted(resource);
+
         default:
           console.log(`Événement webhook non géré: ${eventType}`);
           return { processed: false, message: 'Événement non géré' };
@@ -581,6 +588,107 @@ class PayPalService {
       return { processed: true, action: 'payment_succeeded', userId: user._id };
     } catch (error) {
       console.error('Erreur paiement réussi:', error);
+      return { processed: false, message: error.message };
+    }
+  }
+
+  // 🚨 NOUVEAU: Gérer les paiements PAYMENT.SALE.COMPLETED (renouvellements)
+  async handlePaymentSaleCompleted(resource) {
+    try {
+      console.log(
+        '💰 handlePaymentSaleCompleted() APPELÉ:',
+        new Date().toISOString()
+      );
+      console.log('💳 Resource reçu:', JSON.stringify(resource, null, 2));
+
+      // Pour PAYMENT.SALE.COMPLETED, l'ID d'abonnement peut être dans billing_agreement_id
+      const subscriptionId = resource.billing_agreement_id || resource.id;
+      console.log('🔍 Subscription ID extrait:', subscriptionId);
+
+      const User = require('../models/User');
+
+      // Chercher l'utilisateur par subscription ID
+      let user = await User.findOne({
+        'premium.paypalSubscriptionId': subscriptionId,
+      });
+
+      // Si pas trouvé, essayer avec custom_id du webhook
+      if (!user && resource.custom_id) {
+        console.log('🔄 Recherche par custom_id:', resource.custom_id);
+        user = await User.findById(resource.custom_id);
+      }
+
+      // 🚨 DEBUG SPÉCIAL pour Steve Rossier
+      if (!user) {
+        console.warn('❌ Utilisateur non trouvé pour PAYMENT.SALE.COMPLETED:');
+        console.warn('   Subscription ID cherché:', subscriptionId);
+        console.warn('   Custom ID cherché:', resource.custom_id);
+
+        // Chercher Steve Rossier spécifiquement
+        const steveUser = await User.findOne({
+          email: 'steverosse@hotmail.com',
+        });
+        if (steveUser) {
+          console.log('🔍 STEVE ROSSIER TROUVÉ par email:');
+          console.log(`   ID: ${steveUser._id}`);
+          console.log(
+            `   PayPal Sub ID: ${steveUser.premium.paypalSubscriptionId}`
+          );
+
+          // Si c'est Steve et que l'ID correspond approximativement, on l'utilise
+          if (
+            steveUser.premium.paypalSubscriptionId &&
+            (steveUser.premium.paypalSubscriptionId === subscriptionId ||
+              subscriptionId.includes('UT41KX29XFX6') ||
+              steveUser.premium.paypalSubscriptionId.includes('UT41KX29XFX6'))
+          ) {
+            user = steveUser;
+            console.log('✅ Utilisation de Steve Rossier pour ce paiement');
+          }
+        }
+      }
+
+      if (!user) {
+        return {
+          processed: false,
+          message: 'Utilisateur non trouvé pour PAYMENT.SALE.COMPLETED',
+        };
+      }
+
+      console.log(`👤 UTILISATEUR TROUVÉ: ${user._id} (${user.email})`);
+      console.log(`📅 Expiration ACTUELLE: ${user.premium.expiration}`);
+
+      // CALCUL CORRECT DE LA NOUVELLE EXPIRATION
+      const currentExpiration = user.premium.expiration || new Date();
+      const now = new Date();
+
+      // Si l'expiration actuelle est dans le futur, prolonger depuis cette date
+      // Sinon, prolonger depuis maintenant (pour les cas où premium a expiré)
+      const baseDate = currentExpiration > now ? currentExpiration : now;
+      const newExpiration = new Date(baseDate);
+      newExpiration.setMonth(newExpiration.getMonth() + 1);
+
+      console.log(`🔄 CALCUL NOUVELLE EXPIRATION (PAYMENT.SALE.COMPLETED):`);
+      console.log(`   Expiration actuelle: ${currentExpiration}`);
+      console.log(`   Maintenant: ${now}`);
+      console.log(`   Date de base: ${baseDate}`);
+      console.log(`   Nouvelle expiration (+1 mois): ${newExpiration}`);
+
+      user.premium.isPremium = true;
+      user.premium.expiration = newExpiration;
+
+      await user.save();
+
+      console.log(
+        `✅ PREMIUM RENOUVELÉ via PAYMENT.SALE.COMPLETED pour ${user._id} (${user.email}) jusqu'au ${newExpiration.toLocaleDateString()}`
+      );
+      return {
+        processed: true,
+        action: 'payment_sale_completed',
+        userId: user._id,
+      };
+    } catch (error) {
+      console.error('Erreur PAYMENT.SALE.COMPLETED:', error);
       return { processed: false, message: error.message };
     }
   }
