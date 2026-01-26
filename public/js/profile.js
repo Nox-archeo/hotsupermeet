@@ -2048,9 +2048,17 @@ function initNotificationControls() {
   const statusText = document.getElementById('notificationStatusText');
   const enableBtn = document.getElementById('enableNotificationsBtn');
   const disableBtn = document.getElementById('disableNotificationsBtn');
-  const testBtn = document.getElementById('testNotificationBtn');
 
-  if (!statusText || !enableBtn || !disableBtn || !testBtn) {
+  // 🆕 NOUVEAUX BOUTONS PRINCIPAUX VISIBLES
+  const statusTextMain = document.getElementById('notificationStatusTextMain');
+  const enableBtnMain = document.getElementById('enableNotificationsMainBtn');
+  const disableBtnMain = document.getElementById('disableNotificationsMainBtn');
+
+  if (
+    (!statusText && !statusTextMain) ||
+    (!enableBtn && !enableBtnMain) ||
+    (!disableBtn && !disableBtnMain)
+  ) {
     console.warn('Elements de notification non trouvés');
     return;
   }
@@ -2058,10 +2066,15 @@ function initNotificationControls() {
   // Mettre à jour le statut
   updateNotificationStatus();
 
-  // Event listeners
-  enableBtn.addEventListener('click', enableNotifications);
-  disableBtn.addEventListener('click', disableNotifications);
-  testBtn.addEventListener('click', testNotifications);
+  // Event listeners pour les anciens boutons (s'ils existent)
+  if (enableBtn) enableBtn.addEventListener('click', enableNotifications);
+  if (disableBtn) disableBtn.addEventListener('click', disableNotifications);
+
+  // 🆕 Event listeners pour les NOUVEAUX boutons principaux
+  if (enableBtnMain)
+    enableBtnMain.addEventListener('click', enableNotifications);
+  if (disableBtnMain)
+    disableBtnMain.addEventListener('click', disableNotifications);
 
   console.log('✅ Contrôles notifications initialisés');
 }
@@ -2072,24 +2085,51 @@ function updateNotificationStatus() {
   if (!manager) return;
 
   const status = manager.getNotificationStatus();
+
+  // Anciens éléments (s'ils existent)
   const statusText = document.getElementById('notificationStatusText');
   const enableBtn = document.getElementById('enableNotificationsBtn');
   const disableBtn = document.getElementById('disableNotificationsBtn');
-  const testBtn = document.getElementById('testNotificationBtn');
 
-  // Mettre à jour le texte de statut
-  statusText.textContent = status.message;
-  statusText.style.color = status.isEnabled
+  // 🆕 NOUVEAUX éléments principaux
+  const statusTextMain = document.getElementById('notificationStatusTextMain');
+  const enableBtnMain = document.getElementById('enableNotificationsMainBtn');
+  const disableBtnMain = document.getElementById('disableNotificationsMainBtn');
+
+  // Mettre à jour le texte de statut (anciens ET nouveaux)
+  const statusColor = status.isEnabled
     ? '#27ae60'
     : status.permission === 'denied'
       ? '#e74c3c'
       : '#7f8c8d';
 
-  // Afficher/masquer les boutons
-  enableBtn.style.display =
-    status.canEnable && !status.isEnabled ? 'inline-block' : 'none';
-  disableBtn.style.display = status.isEnabled ? 'inline-block' : 'none';
-  testBtn.style.display = status.isEnabled ? 'inline-block' : 'none';
+  if (statusText) {
+    statusText.textContent = status.message;
+    statusText.style.color = statusColor;
+  }
+
+  if (statusTextMain) {
+    statusTextMain.textContent = status.message;
+    statusTextMain.style.color = statusColor;
+  }
+
+  // Afficher/masquer les ANCIENS boutons (s'ils existent)
+  if (enableBtn) {
+    enableBtn.style.display =
+      status.canEnable && !status.isEnabled ? 'inline-block' : 'none';
+  }
+  if (disableBtn) {
+    disableBtn.style.display = status.isEnabled ? 'inline-block' : 'none';
+  }
+
+  // 🆕 Afficher/masquer les NOUVEAUX boutons principaux
+  if (enableBtnMain) {
+    enableBtnMain.style.display =
+      status.canEnable && !status.isEnabled ? 'inline-block' : 'none';
+  }
+  if (disableBtnMain) {
+    disableBtnMain.style.display = status.isEnabled ? 'inline-block' : 'none';
+  }
 }
 
 // Activer les notifications

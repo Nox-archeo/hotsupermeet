@@ -504,6 +504,111 @@
           </div>
         </section>
 
+        <!-- 🔔 Section Notifications - Visible et Séparée -->
+        <section
+          class="notifications-section"
+          style="
+            background: #fff;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            margin: 2rem auto;
+            max-width: 800px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          "
+        >
+          <div class="container">
+            <h3
+              style="
+                color: #2c3e50;
+                margin-bottom: 1.5rem;
+                display: flex;
+                align-items: center;
+                font-size: 1.3rem;
+                font-weight: 600;
+              "
+            >
+              <span style="margin-right: 12px; font-size: 1.8rem">🔔</span>
+              Gestion des Notifications Push
+            </h3>
+
+            <div class="notification-content" style="margin-bottom: 1.5rem">
+              <div
+                id="notificationStatusMain"
+                style="
+                  padding: 1rem;
+                  background: #f8f9fa;
+                  border-radius: 8px;
+                  margin-bottom: 1rem;
+                  border-left: 4px solid #3498db;
+                "
+              >
+                <span
+                  id="notificationStatusTextMain"
+                  style="font-weight: 500; color: #2c3e50"
+                >
+                  Chargement du statut...
+                </span>
+              </div>
+
+              <p
+                style="color: #7f8c8d; margin-bottom: 1.5rem; line-height: 1.6"
+              >
+                💡
+                <strong
+                  >Les notifications push vous alertent instantanément</strong
+                >
+                des nouveaux messages, demandes de chat et demandes de photos
+                privées, même quand le site est fermé. Recommandé pour ne rien
+                manquer !
+              </p>
+            </div>
+
+            <div
+              class="notification-buttons"
+              style="
+                display: flex;
+                gap: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+              "
+            >
+              <button
+                type="button"
+                class="btn-primary"
+                id="enableNotificationsMainBtn"
+                style="
+                  padding: 12px 24px;
+                  font-size: 1.1rem;
+                  font-weight: 600;
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                "
+              >
+                <span>✅</span> Activer les Notifications
+              </button>
+              <button
+                type="button"
+                class="btn-danger"
+                id="disableNotificationsMainBtn"
+                style="
+                  padding: 12px 24px;
+                  font-size: 1.1rem;
+                  font-weight: 600;
+                  background: #e74c3c;
+                  border-color: #e74c3c;
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                "
+              >
+                <span>❌</span> Désactiver les Notifications
+              </button>
+            </div>
+          </div>
+        </section>
+
         <!-- Section Zone Dangereuse -->
         <section
           class="danger-zone"
