@@ -1,5 +1,6 @@
 const PrivatePhotoRequest = require('../models/PrivatePhotoRequest');
 const User = require('../models/User');
+const PushNotificationService = require('../services/pushNotificationService'); // 🔔 PUSH NOTIFICATIONS
 const mongoose = require('mongoose');
 
 console.log('📸 CONTROLLER PRIVATE PHOTOS: Module chargé avec succès');
@@ -65,6 +66,22 @@ const sendPrivatePhotoRequest = async (req, res) => {
     });
 
     await newRequest.save();
+
+    // 🔔 NOTIFICATION PUSH - Envoyer notification pour demande de photo privée
+    try {
+      const requesterUser = await User.findById(requesterId);
+      const senderName = requesterUser?.profile?.nom || "Quelqu'un";
+
+      await PushNotificationService.sendPhotoRequestNotification(
+        targetUserId,
+        senderName
+      );
+
+      console.log('🔔 Notification push envoyée pour demande photo privée');
+    } catch (pushError) {
+      console.warn('⚠️ Erreur envoi notification push photo:', pushError);
+      // Ne pas faire échouer la demande si la notification échoue
+    }
 
     res.json({
       success: true,

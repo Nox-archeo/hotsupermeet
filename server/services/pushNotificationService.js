@@ -208,7 +208,7 @@ class PushNotificationService {
     return await this.sendNotificationToUser(recipientId, payload);
   }
 
-  // Envoyer notification pour demande de photo
+  // Envoyer notification pour demande de photo privée
   async sendPhotoRequestNotification(recipientId, senderName) {
     const payload = {
       title: `📸 Demande de photo privée`,
@@ -220,29 +220,11 @@ class PushNotificationService {
       type: 'photo_request',
       userId: recipientId,
       requireInteraction: true,
-      vibrate: [100, 50, 100, 50, 200],
+      vibrate: [100, 50, 100, 50, 200]
     };
 
     return await this.sendNotificationToUser(recipientId, payload);
-  }
-
-  // Envoyer notification pour demande de cam
-  async sendCamRequestNotification(recipientId, senderName) {
-    const payload = {
-      title: `🎥 Invitation webcam`,
-      body: `${senderName} vous invite à une session webcam`,
-      icon: '/images/logo-192.png',
-      badge: '/images/badge-72.png',
-      url: '/pages/cam.html',
-      tag: 'cam-request',
-      type: 'cam_request',
-      userId: recipientId,
-      requireInteraction: true,
-      vibrate: [300, 100, 300],
-    };
-
-    return await this.sendNotificationToUser(recipientId, payload);
-  }
+  },
 
   // Envoyer notification personnalisée
   async sendCustomNotification(userId, title, body, options = {}) {
