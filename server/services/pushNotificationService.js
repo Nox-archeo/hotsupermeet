@@ -220,11 +220,11 @@ class PushNotificationService {
       type: 'photo_request',
       userId: recipientId,
       requireInteraction: true,
-      vibrate: [100, 50, 100, 50, 200]
+      vibrate: [100, 50, 100, 50, 200],
     };
 
     return await this.sendNotificationToUser(recipientId, payload);
-  },
+  }
 
   // Envoyer notification personnalisée
   async sendCustomNotification(userId, title, body, options = {}) {
