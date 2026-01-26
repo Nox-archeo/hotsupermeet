@@ -335,6 +335,7 @@ class AuthPage {
     const formData = new FormData(form);
     const profilePhoto = formData.get('profilePhoto');
     const blurPhoto = formData.get('blurPhoto') === 'on'; // Récupérer l'état de la checkbox
+    const enableNotifications = formData.get('enableNotifications') === 'on'; // 🆕 Option notifications
 
     // Créer un FormData pour envoyer tout en une seule requête
     const registrationData = new FormData();
@@ -378,6 +379,13 @@ class AuthPage {
           'hotmeet_user_stats',
           JSON.stringify(result.user.stats)
         );
+
+        // 🆕 Si l'utilisateur veut les notifications, les activer
+        if (enableNotifications) {
+          setTimeout(() => {
+            window.activateNotificationsAfterRegistration();
+          }, 2000);
+        }
 
         setTimeout(() => {
           // Utiliser la redirection auth-guard si disponible, sinon profil par défaut
@@ -731,3 +739,21 @@ const styles = `
 const styleSheet = document.createElement('style');
 styleSheet.textContent = styles;
 document.head.appendChild(styleSheet);
+
+// 🆕 Fonction globale pour activer notifications après inscription
+window.activateNotificationsAfterRegistration = async function () {
+  try {
+    // Attendre que le gestionnaire global soit prêt
+    if (window.globalNotificationManager) {
+      const result =
+        await window.globalNotificationManager.enableNotifications();
+      if (result.success) {
+        console.log('✅ Notifications activées après inscription');
+      }
+    } else {
+      console.log('⏳ Gestionnaire notifications pas encore prêt');
+    }
+  } catch (error) {
+    console.warn('Erreur activation notifications après inscription:', error);
+  }
+};
