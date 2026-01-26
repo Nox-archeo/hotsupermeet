@@ -1,6 +1,7 @@
 const Message = require('../models/Message');
 const User = require('../models/User');
 const { validationResult } = require('express-validator');
+const PushNotificationService = require('../services/pushNotificationService'); // 🔔 PUSH NOTIFICATIONS
 
 // Import pour Socket.io - sera injecté par le serveur
 let io;
@@ -211,6 +212,37 @@ const sendMessage = async (req, res) => {
       status: messageStatus,
       isInitialRequest: isInitialRequest,
     });
+
+    // 🔔 NOTIFICATIONS PUSH - Envoyer notification pour nouveau message
+    try {
+      if (messageStatus === 'approved') {
+        // Envoyer notification push pour message approuvé
+        const senderName = fromUser.profile?.nom || "Quelqu'un";
+        const messagePreview =
+          content.length > 50 ? content.substring(0, 50) + '...' : content;
+
+        await PushNotificationService.sendNewMessageNotification(
+          toUserId,
+          senderName,
+          messagePreview
+        );
+
+        console.log('🔔 Notification push envoyée pour message approuvé');
+      } else if (isInitialRequest) {
+        // Envoyer notification push pour demande de chat
+        const senderName = fromUser.profile?.nom || "Quelqu'un";
+
+        await PushNotificationService.sendChatRequestNotification(
+          toUserId,
+          senderName
+        );
+
+        console.log('🔔 Notification push envoyée pour demande de chat');
+      }
+    } catch (pushError) {
+      console.warn('⚠️ Erreur envoi notification push:', pushError);
+      // Ne pas faire échouer l'envoi du message si la notification échoue
+    }
 
     // NOUVEAU DEBUG - Vérifier immédiatement après sauvegarde
     const verifyMessage = await Message.findById(message._id);

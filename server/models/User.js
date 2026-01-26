@@ -70,6 +70,18 @@ const userSchema = new mongoose.Schema(
       paypalSubscriptionId: { type: String },
       // isFemaleFree supprimé - système 100% payant
     },
+    // 🔔 Push Notifications Subscriptions
+    pushSubscriptions: [
+      {
+        endpoint: { type: String, required: true },
+        keys: {
+          p256dh: { type: String, required: true },
+          auth: { type: String, required: true },
+        },
+        createdAt: { type: Date, default: Date.now },
+        updatedAt: { type: Date, default: Date.now },
+      },
+    ],
     preferences: {
       ageMin: { type: Number, min: 18, max: 100, default: 18 },
       ageMax: { type: Number, min: 18, max: 100, default: 100 },

@@ -269,6 +269,14 @@
             <button class="btn-hero-secondary" id="heroDiscoverBtn">
               Découvrir les fonctionnalités
             </button>
+            <!-- 🔔 Bouton test notifications push -->
+            <button
+              class="btn-hero-secondary"
+              id="testPushBtn"
+              style="display: none; margin-top: 10px"
+            >
+              🔔 Tester les notifications
+            </button>
           </div>
         </div>
         <div class="hero-visual">
@@ -773,5 +781,64 @@
 
     <!-- Script de notifications globales -->
     <script src="/js/global-notifications.js"></script>
+
+    <!-- 🔔 Script test notifications push -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const testPushBtn = document.getElementById('testPushBtn');
+
+        // Afficher le bouton uniquement si l'utilisateur est connecté
+        const token = localStorage.getItem('hotmeet_token');
+        if (token && testPushBtn) {
+          testPushBtn.style.display = 'block';
+
+          testPushBtn.addEventListener('click', async function () {
+            try {
+              // Demander la permission si pas encore accordée
+              if (
+                window.globalNotificationManager &&
+                window.globalNotificationManager.pushSupported
+              ) {
+                const hasPermission = Notification.permission === 'granted';
+
+                if (!hasPermission) {
+                  const permitted =
+                    await window.globalNotificationManager.requestNotificationPermission();
+                  if (!permitted) {
+                    alert(
+                      'Permission refusée. Activez les notifications dans les paramètres de votre navigateur.'
+                    );
+                    return;
+                  }
+                }
+
+                // Tester une notification push
+                const response = await fetch('/api/push/test', {
+                  method: 'POST',
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                  },
+                });
+
+                if (response.ok) {
+                  const result = await response.json();
+                  alert(
+                    '✅ Notification test envoyée ! Vérifiez vos notifications.'
+                  );
+                } else {
+                  alert("❌ Erreur lors de l'envoi du test");
+                }
+              } else {
+                alert('❌ Notifications push non supportées sur ce navigateur');
+              }
+            } catch (error) {
+              console.error('Erreur test push:', error);
+              alert('❌ Erreur lors du test');
+            }
+          });
+        }
+      });
+    </script>
   </body>
 </html>

@@ -1029,6 +1029,7 @@ app.use('/api/uploads', uploadLimiter, require('./server/routes/uploads')); // P
 app.use('/api/subscriptions', require('./server/routes/subscriptions'));
 app.use('/api/cam', require('./server/routes/cam')); // ✅ ROUTE CAM MANQUANTE !
 app.use('/api/privatePhotos', require('./server/routes/privatePhotos')); // ✅ ROUTE PRIVATE PHOTOS MANQUANTE !
+app.use('/api/push', require('./server/routes/pushRoutes')); // 🔔 ROUTES PUSH NOTIFICATIONS
 
 // 🧪 ROUTES DE DIAGNOSTIC SYSTÈME
 app.use('/api', require('./diagnostic-routes'));

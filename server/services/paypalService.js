@@ -545,17 +545,10 @@ class PayPalService {
         premiumUsers.forEach(u => {
           console.log(`   ${u.email}: ${u.premium.paypalSubscriptionId}`);
         });
-
-        return { processed: false, message: 'Utilisateur non trouvé' };
-      }
-
-      console.log(`👤 UTILISATEUR TROUVÉ: ${user._id} (${user.email})`);
-      console.log(`📅 Expiration ACTUELLE: ${user.premium.expiration}`);
-
-      // 🔧 CALCUL CORRECT DE LA NOUVELLE EXPIRATION
+🔧 CALCUL CORRECT DE LA NOUVELLE EXPIRATION
       const currentExpiration = user.premium.expiration || new Date();
       const now = new Date();
-
+      
       // Si l'expiration actuelle est dans le futur, prolonger depuis cette date
       // Sinon, prolonger depuis maintenant (pour les cas où premium a expiré)
       const baseDate = currentExpiration > now ? currentExpiration : now;
@@ -565,8 +558,16 @@ class PayPalService {
       console.log(`🔄 CALCUL NOUVELLE EXPIRATION:`);
       console.log(`   Expiration actuelle: ${currentExpiration}`);
       console.log(`   Maintenant: ${now}`);
+      console.log(`   Date de base (${currentExpiration > now ? 'expiration' : 'maintenant'}): ${baseDate}`);
+      console.log(`   Nouvelle expiration (+1 mois): ${newExpiration}`);
+
+      user.premium.isPremium = true;
+      user.premium.expiration = newExpiration;
+
+      await user.save();
+
       console.log(
-        `   Date de base (${currentExpiration > now ? 'expiration' : 'maintenant'}): ${baseDate}`
+        `✅ PREMIUM RENOUVELÉ AUTOMATIQUEMENT pour utilisateur ${user._id} (${user.email}) jusqu'au ${newExpiration.toLocaleDateString()e}`
       );
       console.log(`   Nouvelle expiration (+1 mois): ${newExpiration}`);
 
