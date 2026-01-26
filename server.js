@@ -1234,6 +1234,14 @@ app.post('/api/paypal-webhook', (req, res, next) => {
   paymentController.handleWebhook(req, res).catch(next);
 });
 
+// 🚨 ROUTES DE RÉPARATION URGENTE STEVE ROSSIER
+const repairController = require('./server/controllers/repairController');
+app.post('/api/repair-steve', repairController.repairSteveRossier);
+app.post(
+  '/api/test-payment-sale-completed',
+  repairController.testPaymentSaleCompleted
+);
+
 // Initialiser Socket.io dans les contrôleurs
 const messageController = require('./server/controllers/messageController');
 messageController.setSocketIO(io);
