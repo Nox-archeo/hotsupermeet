@@ -599,52 +599,67 @@ class PayPalService {
 
       // Pour PAYMENT.SALE.COMPLETED, l'ID d'abonnement peut être dans billing_agreement_id
       const subscriptionId = resource.billing_agreement_id || resource.id;
+      const customUserId = resource.custom || resource.custom_id;
       console.log('🔍 Subscription ID extrait:', subscriptionId);
+      console.log('🔍 Custom User ID extrait:', customUserId);
 
       const User = require('../models/User');
+      let user = null;
 
-      // Chercher l'utilisateur par subscription ID
-      let user = await User.findOne({
-        'premium.paypalSubscriptionId': subscriptionId,
-      });
-
-      // Si pas trouvé, essayer avec custom_id du webhook
-      if (!user && resource.custom_id) {
-        console.log('🔄 Recherche par custom_id:', resource.custom_id);
-        user = await User.findById(resource.custom_id);
+      // STRATÉGIE 1: Chercher l'utilisateur par subscription ID
+      if (subscriptionId) {
+        user = await User.findOne({
+          'premium.paypalSubscriptionId': subscriptionId,
+        });
+        console.log(
+          `🔍 Recherche par subscription ID "${subscriptionId}":`,
+          user ? 'TROUVÉ' : 'NON TROUVÉ'
+        );
       }
 
-      // 🚨 DEBUG SPÉCIAL pour Steve Rossier
-      if (!user) {
-        console.warn('❌ Utilisateur non trouvé pour PAYMENT.SALE.COMPLETED:');
-        console.warn('   Subscription ID cherché:', subscriptionId);
-        console.warn('   Custom ID cherché:', resource.custom_id);
+      // STRATÉGIE 2: Si pas trouvé, chercher par custom_id (ID MongoDB de l'utilisateur)
+      if (!user && customUserId) {
+        console.log('🔄 Recherche par custom user ID:', customUserId);
+        user = await User.findById(customUserId);
 
-        // Chercher Steve Rossier spécifiquement
-        const steveUser = await User.findOne({
-          email: 'steverosse@hotmail.com',
-        });
-        if (steveUser) {
-          console.log('🔍 STEVE ROSSIER TROUVÉ par email:');
-          console.log(`   ID: ${steveUser._id}`);
+        if (user) {
+          console.log(`✅ UTILISATEUR TROUVÉ par custom ID: ${user.email}`);
           console.log(
-            `   PayPal Sub ID: ${steveUser.premium.paypalSubscriptionId}`
+            `📋 Son PayPal Subscription ID actuel: ${user.premium.paypalSubscriptionId}`
           );
 
-          // Si c'est Steve et que l'ID correspond approximativement, on l'utilise
-          if (
-            steveUser.premium.paypalSubscriptionId &&
-            (steveUser.premium.paypalSubscriptionId === subscriptionId ||
-              subscriptionId.includes('UT41KX29XFX6') ||
-              steveUser.premium.paypalSubscriptionId.includes('UT41KX29XFX6'))
-          ) {
-            user = steveUser;
-            console.log('✅ Utilisation de Steve Rossier pour ce paiement');
+          // 🚨 MISE À JOUR CRITIQUE: Si l'ID PayPal a changé, le mettre à jour
+          if (user.premium.paypalSubscriptionId !== subscriptionId) {
+            console.log(
+              `🔧 MISE À JOUR PayPal Subscription ID: ${user.premium.paypalSubscriptionId} -> ${subscriptionId}`
+            );
+            user.premium.paypalSubscriptionId = subscriptionId;
           }
         }
       }
 
+      // 🚨 DEBUG SPÉCIAL pour les cas problématiques
       if (!user) {
+        console.warn('❌ Utilisateur non trouvé pour PAYMENT.SALE.COMPLETED:');
+        console.warn('   Subscription ID cherché:', subscriptionId);
+        console.warn('   Custom ID cherché:', customUserId);
+
+        // 📊 Lister les utilisateurs récents pour debug
+        const recentUsers = await User.find({
+          'premium.isPremium': true,
+          'premium.paypalSubscriptionId': { $exists: true, $ne: null },
+        })
+          .select('_id email premium.paypalSubscriptionId premium.expiration')
+          .sort({ updatedAt: -1 })
+          .limit(3);
+
+        console.log('📋 Derniers utilisateurs premium:');
+        recentUsers.forEach(u => {
+          console.log(
+            `   ${u.email} (${u._id}): PayPal=${u.premium.paypalSubscriptionId}, Expire=${u.premium.expiration}`
+          );
+        });
+
         return {
           processed: false,
           message: 'Utilisateur non trouvé pour PAYMENT.SALE.COMPLETED',
