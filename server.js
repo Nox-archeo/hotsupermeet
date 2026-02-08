@@ -1237,12 +1237,16 @@ app.post('/api/paypal-webhook', (req, res, next) => {
 // 🚨 ROUTES DE RÉPARATION URGENTE STEVE ROSSIER
 const repairController = require('./server/controllers/repairController');
 const repairFleischkaese = require('./server/controllers/repairFleischkaese');
+const monitorController = require('./server/controllers/monitorController');
 app.post('/api/repair-steve', repairController.repairSteveRossier);
 app.post('/api/repair-fleischkaese', repairFleischkaese.repairFleischkaese);
 app.post(
   '/api/test-payment-sale-completed',
   repairController.testPaymentSaleCompleted
 );
+
+// 🔍 ENDPOINT DE MONITORING PAYPAL
+app.get('/api/admin/monitor-paypal', monitorController.monitorPayPalIssues);
 
 // Initialiser Socket.io dans les contrôleurs
 const messageController = require('./server/controllers/messageController');
