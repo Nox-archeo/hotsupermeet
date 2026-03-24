@@ -294,9 +294,22 @@ const checkPrivatePhotoAccess = async (req, res) => {
     const hasAccess = !!acceptedRequest;
     const reason = acceptedRequest ? 'access_granted' : 'no_access';
 
+    // ✅ NOUVELLE VÉRIFICATION: Seuls les membres premium peuvent voir les photos privées
+    if (hasAccess && !req.user.premium.isPremium) {
+      console.log('🚫 DEBUG - Accès refusé: utilisateur non-premium');
+      return res.json({
+        success: true,
+        hasAccess: false,
+        isOwner: false,
+        reason: 'premium_required',
+        message: 'Pour voir les photos privées, vous devez passer premium',
+      });
+    }
+
     console.log('🔍 DEBUG - Réponse finale:', {
       hasAccess,
       reason,
+      isPremium: req.user.premium.isPremium,
     });
 
     res.json({

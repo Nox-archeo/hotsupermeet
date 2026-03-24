@@ -266,18 +266,41 @@ class ProfileViewChat {
     }
 
     // Vérifier si l'utilisateur a accès aux photos privées
-    const hasAccess = await this.checkPrivatePhotoAccess();
+    const accessResult = await this.checkPrivatePhotoAccess();
 
-    console.log('🔓 SETUP PHOTOS PRIVÉES - Accès accordé:', hasAccess);
+    console.log('🔓 SETUP PHOTOS PRIVÉES - Accès accordé:', accessResult);
 
-    if (hasAccess) {
+    if (accessResult.hasAccess) {
       // L'utilisateur a accès : afficher les photos défloutées
       this.displayPrivatePhotos(privatePhotos, false);
       requestButton.style.display = 'none';
       messageContainer.innerHTML =
         '<p class="access-granted">✅ Accès accordé aux photos privées</p>';
+    } else if (accessResult.reason === 'premium_required') {
+      // L'utilisateur n'est pas premium : message d'upgrade
+      this.displayPrivatePhotos(privatePhotos, true);
+      requestButton.style.display = 'none';
+      messageContainer.innerHTML = `
+        <div class="premium-required-message" style="background: linear-gradient(45deg, #FFD700, #FFA500); padding: 15px; border-radius: 10px; text-align: center; margin: 10px 0;">
+          <p style="margin: 0 0 10px 0; font-weight: bold; color: #000;">👑 Photos privées - Accès Premium requis</p>
+          <p style="margin: 0 0 15px 0; color: #333;">Devenez Premium pour accéder à toutes les photos privées</p>
+          <button id="upgradeToPremiumBtn" style="background: #FF4500; color: white; border: none; padding: 12px 24px; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 16px; transition: all 0.3s ease;">
+            ✨ Devenir Premium
+          </button>
+        </div>
+      `;
+
+      // Ajouter l'événement pour le bouton Premium
+      setTimeout(() => {
+        const upgradeBtn = document.getElementById('upgradeToPremiumBtn');
+        if (upgradeBtn) {
+          upgradeBtn.addEventListener('click', () => {
+            window.location.href = '/premium';
+          });
+        }
+      }, 100);
     } else {
-      // L'utilisateur n'a pas accès : afficher les photos floutées
+      // L'utilisateur n'a pas accès : afficher les photos floutées avec bouton de demande
       this.displayPrivatePhotos(privatePhotos, true);
       requestButton.style.display = 'inline-block';
       messageContainer.innerHTML =
@@ -332,7 +355,12 @@ class ProfileViewChat {
       if (response.ok) {
         const result = await response.json();
         console.log('🔓 VÉRIFICATION ACCÈS - Résultat:', result);
-        return result.hasAccess;
+
+        // Retourner un objet avec plus d'informations
+        return {
+          hasAccess: result.hasAccess,
+          reason: result.reason || null,
+        };
       } else {
         console.log(
           '❌ VÉRIFICATION ACCÈS - Erreur response:',
@@ -342,7 +370,7 @@ class ProfileViewChat {
     } catch (error) {
       console.error('Erreur vérification accès photos privées:', error);
     }
-    return false;
+    return { hasAccess: false, reason: null };
   }
 
   setupRequestButton() {
