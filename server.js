@@ -1016,7 +1016,7 @@ app.use('/api/tonight', require('./server/routes/tonight'));
 app.use('/api/uploads', uploadLimiter, require('./server/routes/uploads')); // Protection anti-spam upload
 app.use('/api/subscriptions', require('./server/routes/subscriptions'));
 app.use('/api/cam', require('./server/routes/cam')); // ✅ ROUTE CAM MANQUANTE !
-app.use('/api/privatePhotos', require('./server/routes/privatePhotos')); // ✅ ROUTE PRIVATE PHOTOS MANQUANTE !
+app.use('/api/private-photos', require('./server/routes/privatePhotos')); // ✅ ROUTE PRIVATE PHOTOS CORRIGÉE POUR MOBILE !
 app.use('/api/push', require('./server/routes/pushRoutes')); // 🔔 ROUTES PUSH NOTIFICATIONS
 
 // 🧪 ROUTES DE DIAGNOSTIC SYSTÈME
