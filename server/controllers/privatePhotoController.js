@@ -149,6 +149,28 @@ const respondToPrivatePhotoRequest = async (req, res) => {
 
     // Si accepté, émettre événement pour notifier l'utilisateur qui a fait la demande
     if (action === 'accept') {
+      // 🔔 NOTIFICATION PUSH - Envoyer notification pour acceptation photo privée
+      try {
+        const targetUser = await User.findById(userId);
+        const senderName = targetUser?.profile?.nom || "Quelqu'un";
+
+        await PushNotificationService.sendPhotoAccessGrantedNotification(
+          request.requester.toString(),
+          senderName
+        );
+
+        console.log(
+          '🔔 Notification push envoyée pour acceptation photo privée'
+        );
+      } catch (pushError) {
+        console.warn(
+          '⚠️ Erreur envoi notification push acceptation photo:',
+          pushError
+        );
+        // Ne pas faire échouer l'acceptation si la notification échoue
+      }
+
+      // Socket.io événement temps réel
       const io = req.app.get('io');
       if (io) {
         console.log(

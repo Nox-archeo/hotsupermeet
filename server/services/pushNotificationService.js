@@ -226,6 +226,24 @@ class PushNotificationService {
     return await this.sendNotificationToUser(recipientId, payload);
   }
 
+  // Envoyer notification pour acceptation de demande photo privée
+  async sendPhotoAccessGrantedNotification(recipientId, senderName) {
+    const payload = {
+      title: `🎉 Accès accordé aux photos privées`,
+      body: `${senderName} vous a accordé l'accès à ses photos privées`,
+      icon: '/images/logo-192.png',
+      badge: '/images/badge-72.png',
+      url: '/pages/profile.html',
+      tag: 'photo-access-granted',
+      type: 'photo_access_granted',
+      userId: recipientId,
+      requireInteraction: true,
+      vibrate: [200, 100, 200],
+    };
+
+    return await this.sendNotificationToUser(recipientId, payload);
+  }
+
   // Envoyer notification personnalisée
   async sendCustomNotification(userId, title, body, options = {}) {
     const payload = {
