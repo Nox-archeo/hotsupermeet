@@ -1289,6 +1289,10 @@ class MessagesManager {
       req => req.status === 'pending'
     ).length;
 
+    // Compter les demandes de photos privées en attente
+    const pendingPhotoRequests =
+      (this.photoRequests && this.photoRequests.pending) || 0;
+
     // Compter les messages non lus dans les conversations
     const unreadMessages = this.conversations.reduce((total, conv) => {
       return total + (conv.unreadCount || 0);
@@ -1299,13 +1303,15 @@ class MessagesManager {
     console.log('   - Demandes en attente:', pendingRequests);
     console.log('   - Réponses non lues:', unreadResponses);
     console.log('   - Demandes Ce Soir:', pendingTonightRequests);
+    console.log('   - Demandes photos:', pendingPhotoRequests);
     console.log('   - Conversations data:', this.conversations);
 
     const totalNotifications =
       pendingRequests +
       unreadResponses +
       unreadMessages +
-      pendingTonightRequests;
+      pendingTonightRequests +
+      pendingPhotoRequests; // Ajouter les demandes photos
 
     // Badge principal (messages) - icône en haut du site
     const messageBadge = document.getElementById('messageBadge');
@@ -2042,9 +2048,15 @@ class MessagesManager {
         }
       );
 
+      let pendingCount = 0;
       if (receivedResponse.ok) {
         const receivedData = await receivedResponse.json();
         this.displayReceivedPhotoRequests(receivedData.requests || []);
+
+        // Compter les demandes en attente
+        pendingCount = (receivedData.requests || []).filter(
+          req => req.status === 'pending'
+        ).length;
       }
 
       // Charger les demandes envoyées
@@ -2056,6 +2068,15 @@ class MessagesManager {
         const sentData = await sentResponse.json();
         this.displaySentPhotoRequests(sentData.requests || []);
       }
+
+      // Stocker le nombre de demandes en attente pour les badges
+      if (!this.photoRequests) {
+        this.photoRequests = {};
+      }
+      this.photoRequests.pending = pendingCount;
+
+      // Mettre à jour les badges
+      this.updateNotificationBadges();
     } catch (error) {
       console.error('Erreur chargement demandes photos:', error);
     }

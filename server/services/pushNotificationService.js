@@ -227,18 +227,35 @@ class PushNotificationService {
   }
 
   // Envoyer notification pour acceptation de demande photo privée
-  async sendPhotoAccessGrantedNotification(recipientId, senderName) {
+  async sendPhotoAccessGrantedNotification(
+    recipientId,
+    senderName,
+    senderUserId
+  ) {
     const payload = {
-      title: `🎉 Accès accordé aux photos privées`,
-      body: `${senderName} vous a accordé l'accès à ses photos privées`,
+      title: `🎉 ${senderName} a accepté votre demande !`,
+      body: `${senderName} a accepté votre demande d'accès à ses photos privées. Cliquez pour voir son profil.`,
       icon: '/images/logo-192.png',
       badge: '/images/badge-72.png',
-      url: '/pages/profile.html',
+      url: `/pages/profile-view.html?userId=${senderUserId}`,
       tag: 'photo-access-granted',
       type: 'photo_access_granted',
       userId: recipientId,
+      senderUserId: senderUserId,
       requireInteraction: true,
-      vibrate: [200, 100, 200],
+      vibrate: [200, 100, 200, 100, 300],
+      actions: [
+        {
+          action: 'view-profile',
+          title: '👀 Voir le profil',
+          icon: '/images/view-icon.png',
+        },
+        {
+          action: 'dismiss',
+          title: '❌ Fermer',
+          icon: '/images/close-icon.png',
+        },
+      ],
     };
 
     return await this.sendNotificationToUser(recipientId, payload);

@@ -457,6 +457,25 @@ router.post('/private-photos/respond', auth, async (req, res) => {
     console.log('💾 SERVER - Sauvegarde du statut:', newStatus);
     await request.save();
 
+    // 🔔 NOTIFICATION PUSH pour acceptation
+    if (action === 'accept') {
+      try {
+        const PushNotificationService = require('../services/pushNotificationService');
+        const targetUser = await User.findById(userId);
+        const senderName = targetUser?.profile?.nom || "Quelqu'un";
+
+        await PushNotificationService.sendPhotoAccessGrantedNotification(
+          request.requester.toString(),
+          senderName,
+          userId.toString()
+        );
+
+        console.log('🔔 Notification push envoyée depuis AUTH.JS');
+      } catch (pushError) {
+        console.warn('⚠️ Erreur notification push AUTH.JS:', pushError);
+      }
+    }
+
     // Préparer la réponse
     const responseData = {
       _id: request._id,

@@ -156,7 +156,8 @@ const respondToPrivatePhotoRequest = async (req, res) => {
 
         await PushNotificationService.sendPhotoAccessGrantedNotification(
           request.requester.toString(),
-          senderName
+          senderName,
+          userId.toString() // Ajouter l'ID de celui qui accepte pour redirection profil
         );
 
         console.log(
