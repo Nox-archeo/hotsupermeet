@@ -314,11 +314,19 @@ const checkPrivatePhotoAccess = async (req, res) => {
     });
 
     const hasAccess = !!acceptedRequest;
-    const reason = acceptedRequest ? 'access_granted' : 'no_access';
+
+    console.log('🔍 DEBUG - État utilisateur:', {
+      hasAccess,
+      isPremium: req.user.premium?.isPremium || false,
+      premiumObject: req.user.premium,
+    });
 
     // ✅ NOUVELLE VÉRIFICATION: Seuls les membres premium peuvent voir les photos privées
-    if (hasAccess && !req.user.premium.isPremium) {
-      console.log('🚫 DEBUG - Accès refusé: utilisateur non-premium');
+    // Si l'utilisateur a une demande acceptée MAIS n'est pas premium → message premium requis
+    if (hasAccess && !req.user.premium?.isPremium) {
+      console.log(
+        '🚫 DEBUG - Accès refusé: utilisateur non-premium avec demande acceptée'
+      );
       return res.json({
         success: true,
         hasAccess: false,
@@ -328,10 +336,12 @@ const checkPrivatePhotoAccess = async (req, res) => {
       });
     }
 
+    const reason = hasAccess ? 'access_granted' : 'no_access';
+
     console.log('🔍 DEBUG - Réponse finale:', {
       hasAccess,
       reason,
-      isPremium: req.user.premium.isPremium,
+      isPremium: req.user.premium?.isPremium || false,
     });
 
     res.json({
