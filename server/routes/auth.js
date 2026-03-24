@@ -558,11 +558,42 @@ router.get(
       });
 
       const hasAccess = !!acceptedRequest;
-      const reason = acceptedRequest ? 'access_granted' : 'no_access';
+
+      console.log('🔍 DEBUG AUTH.JS - État utilisateur premium:', {
+        hasAccess,
+        isPremium: req.user.premium?.isPremium || false,
+        premiumObject: req.user.premium,
+      });
+
+      // 🚫 RESTRICTION PREMIUM OBLIGATOIRE dans AUTH.JS :
+      // Si une demande est acceptée, seuls les premium peuvent voir les photos
+      if (hasAccess) {
+        const isPremium = req.user.premium?.isPremium || false;
+        console.log('🔒 CONTRÔLE PREMIUM AUTH.JS - isPremium:', isPremium);
+
+        if (!isPremium) {
+          console.log(
+            '🚫 RESTRICTION AUTH.JS APPLIQUÉE - Accès refusé pour non-premium'
+          );
+          return res.json({
+            success: true,
+            hasAccess: false,
+            isOwner: false,
+            reason: 'premium_required',
+            message:
+              'Abonnement Premium requis pour accéder aux photos privées',
+          });
+        }
+
+        console.log('✅ ACCÈS AUTORISÉ AUTH.JS - Utilisateur premium confirmé');
+      }
+
+      const reason = hasAccess ? 'access_granted' : 'no_access';
 
       console.log('🔍 DEBUG AUTH.JS - Réponse finale:', {
         hasAccess,
         reason,
+        isPremium: req.user.premium?.isPremium || false,
       });
 
       res.json({
