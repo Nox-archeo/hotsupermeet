@@ -173,13 +173,18 @@ class PushNotificationService {
   }
 
   // Envoyer notification pour nouveau message
-  async sendNewMessageNotification(recipientId, senderName, messagePreview) {
+  async sendNewMessageNotification(
+    recipientId,
+    senderName,
+    messagePreview,
+    senderId
+  ) {
     const payload = {
       title: `💬 Nouveau message de ${senderName}`,
       body: messagePreview || 'Vous avez reçu un nouveau message',
       icon: '/images/logo-192.png',
       badge: '/images/badge-72.png',
-      url: '/pages/messages.html',
+      url: `/pages/messages.html?user=${senderId}`,
       tag: 'new-message',
       type: 'message',
       userId: recipientId,
@@ -191,13 +196,13 @@ class PushNotificationService {
   }
 
   // Envoyer notification pour demande de chat
-  async sendChatRequestNotification(recipientId, senderName) {
+  async sendChatRequestNotification(recipientId, senderName, senderId) {
     const payload = {
       title: `💕 Nouvelle demande de chat`,
       body: `${senderName} souhaite discuter avec vous`,
       icon: '/images/logo-192.png',
       badge: '/images/badge-72.png',
-      url: '/pages/messages.html',
+      url: `/pages/messages.html?user=${senderId}`,
       tag: 'chat-request',
       type: 'chat_request',
       userId: recipientId,

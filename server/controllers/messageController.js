@@ -224,7 +224,8 @@ const sendMessage = async (req, res) => {
         await PushNotificationService.sendNewMessageNotification(
           toUserId,
           senderName,
-          messagePreview
+          messagePreview,
+          fromUserId
         );
 
         console.log('🔔 Notification push envoyée pour message approuvé');
@@ -234,7 +235,8 @@ const sendMessage = async (req, res) => {
 
         await PushNotificationService.sendChatRequestNotification(
           toUserId,
-          senderName
+          senderName,
+          fromUserId
         );
 
         console.log('🔔 Notification push envoyée pour demande de chat');
