@@ -359,23 +359,82 @@ class PayPalService {
     }
   }
 
+  // Résoudre un utilisateur à partir des données webhook PayPal
+  // Priorité: subscriptionId -> custom_id -> email PayPal
+  async resolveUserFromPayPalResource(resource) {
+    const User = require('../models/User');
+
+    const subscriptionId =
+      resource.billing_agreement_id || resource.subscription_id || resource.id;
+    const customUserId = resource.custom_id || resource.custom;
+    const subscriberEmail = resource.subscriber?.email_address
+      ? resource.subscriber.email_address.toLowerCase().trim()
+      : null;
+
+    let user = null;
+
+    // 1) Recherche par ID d'abonnement PayPal
+    if (subscriptionId) {
+      user = await User.findOne({
+        'premium.paypalSubscriptionId': subscriptionId,
+      });
+    }
+
+    // 2) Fallback par custom_id PayPal
+    if (!user && customUserId) {
+      try {
+        user = await User.findById(customUserId);
+      } catch (error) {
+        // custom_id non MongoID ou invalide -> on continue sur email
+      }
+    }
+
+    // 3) Fallback par email PayPal (source de vérité pour l'abonnement)
+    if (!user && subscriberEmail) {
+      user = await User.findOne({
+        email: {
+          $regex: `^${subscriberEmail.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`,
+          $options: 'i',
+        },
+      });
+    }
+
+    return {
+      user,
+      subscriptionId,
+      customUserId,
+      subscriberEmail,
+    };
+  }
+
+  // Synchroniser l'ID d'abonnement PayPal si différent
+  syncUserPayPalSubscriptionId(user, subscriptionId) {
+    if (!user || !subscriptionId) {
+      return false;
+    }
+
+    if (user.premium.paypalSubscriptionId !== subscriptionId) {
+      console.warn(
+        `⚠️ Correction PayPal Subscription ID pour ${user.email}: ${user.premium.paypalSubscriptionId} -> ${subscriptionId}`
+      );
+      user.premium.paypalSubscriptionId = subscriptionId;
+      return true;
+    }
+
+    return false;
+  }
+
   // Gérer l'activation d'un abonnement
   async handleSubscriptionActivated(resource) {
     try {
-      const userId = resource.custom_id;
-      if (!userId) {
-        console.warn(
-          "Pas d'ID utilisateur dans l'abonnement activé:",
-          resource.id
-        );
-        return { processed: false, message: 'ID utilisateur manquant' };
-      }
-
-      const User = require('../models/User');
-      const user = await User.findById(userId);
+      const { user, subscriptionId, customUserId, subscriberEmail } =
+        await this.resolveUserFromPayPalResource(resource);
 
       if (!user) {
-        console.warn('Utilisateur non trouvé:', userId);
+        console.warn('Utilisateur non trouvé pour activation:');
+        console.warn('   Subscription ID:', subscriptionId);
+        console.warn('   Custom ID:', customUserId);
+        console.warn('   Email PayPal:', subscriberEmail);
         return { processed: false, message: 'Utilisateur non trouvé' };
       }
 
@@ -385,14 +444,18 @@ class PayPalService {
 
       user.premium.isPremium = true;
       user.premium.expiration = expirationDate;
-      user.premium.paypalSubscriptionId = resource.id;
+      this.syncUserPayPalSubscriptionId(user, subscriptionId || resource.id);
 
       await user.save();
 
       console.log(
-        `✅ Premium activé pour utilisateur ${userId}, expire: ${expirationDate}`
+        `✅ Premium activé pour utilisateur ${user._id}, expire: ${expirationDate}`
       );
-      return { processed: true, action: 'subscription_activated', userId };
+      return {
+        processed: true,
+        action: 'subscription_activated',
+        userId: user._id,
+      };
     } catch (error) {
       console.error('Erreur activation abonnement:', error);
       return { processed: false, message: error.message };
@@ -471,20 +534,19 @@ class PayPalService {
   // Gérer un paiement échoué
   async handlePaymentFailed(resource) {
     try {
-      const subscriptionId = resource.billing_agreement_id || resource.id;
-      const User = require('../models/User');
-
-      const user = await User.findOne({
-        'premium.paypalSubscriptionId': subscriptionId,
-      });
+      const { user, subscriptionId, customUserId, subscriberEmail } =
+        await this.resolveUserFromPayPalResource(resource);
 
       if (!user) {
-        console.warn(
-          'Utilisateur non trouvé pour paiement échoué:',
-          subscriptionId
-        );
+        console.warn('Utilisateur non trouvé pour paiement échoué:');
+        console.warn('   Subscription ID:', subscriptionId);
+        console.warn('   Custom ID:', customUserId);
+        console.warn('   Email PayPal:', subscriberEmail);
         return { processed: false, message: 'Utilisateur non trouvé' };
       }
+
+      this.syncUserPayPalSubscriptionId(user, subscriptionId);
+      await user.save();
 
       console.log(
         `💸 Paiement échoué pour utilisateur ${user._id} - PayPal gèrera les reprises`
@@ -516,42 +578,14 @@ class PayPalService {
         resource.subscription_id;
       console.log('🔍 Subscription ID extrait:', subscriptionId);
 
-      const User = require('../models/User');
-
-      // 🚨 CHERCHER L'UTILISATEUR avec différentes stratégies
-      let user = await User.findOne({
-        'premium.paypalSubscriptionId': subscriptionId,
-      });
-
-      // Si pas trouvé avec l'ID direct, essayer avec custom_id du webhook
-      if (!user && resource.custom_id) {
-        console.log('🔄 Recherche par custom_id:', resource.custom_id);
-        user = await User.findById(resource.custom_id);
-
-        // Si trouvé par custom_id, vérifier que c'est bien le bon abonnement
-        if (user && user.premium.paypalSubscriptionId !== subscriptionId) {
-          console.warn(
-            '⚠️ Subscription ID mismatch, mais utilisateur trouvé par custom_id'
-          );
-        }
-      }
+      const { user, customUserId, subscriberEmail } =
+        await this.resolveUserFromPayPalResource(resource);
 
       if (!user) {
         console.warn('❌ Utilisateur non trouvé pour paiement réussi:');
         console.warn('   Subscription ID cherché:', subscriptionId);
-        console.warn('   Custom ID cherché:', resource.custom_id);
-
-        // 🚨 DEBUG: Lister tous les utilisateurs premium pour voir les IDs PayPal
-        const premiumUsers = await User.find({
-          'premium.paypalSubscriptionId': { $exists: true, $ne: null },
-        })
-          .select('_id email premium.paypalSubscriptionId')
-          .limit(5);
-
-        console.log('📋 Utilisateurs premium existants:');
-        premiumUsers.forEach(u => {
-          console.log(`   ${u.email}: ${u.premium.paypalSubscriptionId}`);
-        });
+        console.warn('   Custom ID cherché:', customUserId);
+        console.warn('   Email PayPal cherché:', subscriberEmail);
 
         return { processed: false, message: 'Utilisateur non trouvé' };
       }
@@ -575,6 +609,7 @@ class PayPalService {
 
       user.premium.isPremium = true;
       user.premium.expiration = newExpiration;
+      this.syncUserPayPalSubscriptionId(user, subscriptionId);
 
       await user.save();
 
@@ -603,62 +638,18 @@ class PayPalService {
       console.log('🔍 Subscription ID extrait:', subscriptionId);
       console.log('🔍 Custom User ID extrait:', customUserId);
 
-      const User = require('../models/User');
-      let user = null;
-
-      // STRATÉGIE 1: Chercher l'utilisateur par subscription ID
-      if (subscriptionId) {
-        user = await User.findOne({
-          'premium.paypalSubscriptionId': subscriptionId,
-        });
-        console.log(
-          `🔍 Recherche par subscription ID "${subscriptionId}":`,
-          user ? 'TROUVÉ' : 'NON TROUVÉ'
-        );
-      }
-
-      // STRATÉGIE 2: Si pas trouvé, chercher par custom_id (ID MongoDB de l'utilisateur)
-      if (!user && customUserId) {
-        console.log('🔄 Recherche par custom user ID:', customUserId);
-        user = await User.findById(customUserId);
-
-        if (user) {
-          console.log(`✅ UTILISATEUR TROUVÉ par custom ID: ${user.email}`);
-          console.log(
-            `📋 Son PayPal Subscription ID actuel: ${user.premium.paypalSubscriptionId}`
-          );
-
-          // 🚨 MISE À JOUR CRITIQUE: Si l'ID PayPal a changé, le mettre à jour
-          if (user.premium.paypalSubscriptionId !== subscriptionId) {
-            console.log(
-              `🔧 MISE À JOUR PayPal Subscription ID: ${user.premium.paypalSubscriptionId} -> ${subscriptionId}`
-            );
-            user.premium.paypalSubscriptionId = subscriptionId;
-          }
-        }
-      }
+      const {
+        user,
+        customUserId: resolvedCustomId,
+        subscriberEmail,
+      } = await this.resolveUserFromPayPalResource(resource);
 
       // 🚨 DEBUG SPÉCIAL pour les cas problématiques
       if (!user) {
         console.warn('❌ Utilisateur non trouvé pour PAYMENT.SALE.COMPLETED:');
         console.warn('   Subscription ID cherché:', subscriptionId);
-        console.warn('   Custom ID cherché:', customUserId);
-
-        // 📊 Lister les utilisateurs récents pour debug
-        const recentUsers = await User.find({
-          'premium.isPremium': true,
-          'premium.paypalSubscriptionId': { $exists: true, $ne: null },
-        })
-          .select('_id email premium.paypalSubscriptionId premium.expiration')
-          .sort({ updatedAt: -1 })
-          .limit(3);
-
-        console.log('📋 Derniers utilisateurs premium:');
-        recentUsers.forEach(u => {
-          console.log(
-            `   ${u.email} (${u._id}): PayPal=${u.premium.paypalSubscriptionId}, Expire=${u.premium.expiration}`
-          );
-        });
+        console.warn('   Custom ID cherché:', resolvedCustomId);
+        console.warn('   Email PayPal cherché:', subscriberEmail);
 
         return {
           processed: false,
@@ -685,6 +676,7 @@ class PayPalService {
 
       user.premium.isPremium = true;
       user.premium.expiration = newExpiration;
+      this.syncUserPayPalSubscriptionId(user, subscriptionId);
 
       await user.save();
 
