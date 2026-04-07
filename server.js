@@ -1247,6 +1247,7 @@ app.post(
 
 // 🔍 ENDPOINT DE MONITORING PAYPAL
 const paypalAnalysisController = require('./server/controllers/paypalAnalysisController');
+const paypalReconciliationController = require('./server/controllers/paypalReconciliationController');
 app.get('/api/admin/monitor-paypal', monitorController.monitorPayPalIssues);
 app.get(
   '/api/admin/analyze-paypal-issues',
@@ -1255,6 +1256,14 @@ app.get(
 app.get(
   '/api/admin/check-subscription/:subscriptionId',
   paypalAnalysisController.checkSpecificSubscription
+);
+app.get(
+  '/api/admin/reconcile-paypal',
+  paypalReconciliationController.reconcilePayPalUsers
+);
+app.post(
+  '/api/admin/repair-paypal-links',
+  paypalReconciliationController.repairPayPalLinks
 );
 
 // Initialiser Socket.io dans les contrôleurs
