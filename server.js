@@ -1246,7 +1246,16 @@ app.post(
 );
 
 // 🔍 ENDPOINT DE MONITORING PAYPAL
+const paypalAnalysisController = require('./server/controllers/paypalAnalysisController');
 app.get('/api/admin/monitor-paypal', monitorController.monitorPayPalIssues);
+app.get(
+  '/api/admin/analyze-paypal-issues',
+  paypalAnalysisController.analyzePayPalIssues
+);
+app.get(
+  '/api/admin/check-subscription/:subscriptionId',
+  paypalAnalysisController.checkSpecificSubscription
+);
 
 // Initialiser Socket.io dans les contrôleurs
 const messageController = require('./server/controllers/messageController');

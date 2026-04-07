@@ -82,40 +82,99 @@ class MessagesManager {
   }
 
   // Ouvrir une conversation avec un utilisateur spécifique
-  openConversationWithUser(userId) {
+  async openConversationWithUser(userId) {
+    console.log('🔍 Ouverture conversation avec utilisateur:', userId);
+
     // Rechercher si une conversation existe déjà avec cet utilisateur
     const existingConversation = this.conversations.find(
       conv => conv.withUser.id === userId
     );
 
     if (existingConversation) {
+      console.log('✅ Conversation existante trouvée');
       this.showChatWindow(existingConversation);
     } else {
-      // Créer une nouvelle conversation avec des données simulées
-      const newConversation = {
-        id: Date.now(),
-        withUser: {
-          id: userId,
-          name: 'Utilisateur',
-          age: 30,
-          gender: 'autre',
-          location: 'Localisation inconnue',
-          photo: '/images/default-avatar.jpg',
-          isOnline: true,
-        },
-        lastMessage: 'Nouvelle conversation',
-        timestamp: new Date(),
-        unread: 0,
-        messages: [],
-      };
+      try {
+        console.log('🔍 Chargement conversation depuis API...');
+        const token = localStorage.getItem('hotmeet_token');
+        if (!token) {
+          console.error("❌ Pas de token d'authentification");
+          return;
+        }
 
-      this.conversations.unshift(newConversation);
-      this.renderConversations();
-      this.showChatWindow(newConversation);
+        // Charger la conversation depuis l'API
+        const response = await fetch(
+          `/api/messages/conversation/${userId}?_=${Date.now()}`,
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              Pragma: 'no-cache',
+            },
+            credentials: 'include',
+          }
+        );
+
+        if (response.ok) {
+          const conversationData = await response.json();
+          console.log('✅ Données conversation reçues:', conversationData);
+
+          if (conversationData.success && conversationData.conversation) {
+            const conversation = conversationData.conversation;
+
+            // Ajouter la conversation à la liste et l'afficher
+            this.conversations.unshift(conversation);
+            this.renderConversations();
+            this.showChatWindow(conversation);
+          } else {
+            console.warn(
+              "⚠️ Pas de conversation trouvée, création d'une nouvelle"
+            );
+            // Créer une conversation temporaire pour permettre l'envoi de messages
+            this.createTemporaryConversation(userId);
+          }
+        } else {
+          console.error('❌ Erreur API:', response.status);
+          this.createTemporaryConversation(userId);
+        }
+      } catch (error) {
+        console.error(
+          '❌ Erreur lors du chargement de la conversation:',
+          error
+        );
+        this.createTemporaryConversation(userId);
+      }
     }
 
     // Basculer vers l'onglet des conversations
     this.switchTab('conversations');
+  }
+
+  // Créer une conversation temporaire pour un nouvel utilisateur
+  createTemporaryConversation(userId) {
+    console.log('🆕 Création conversation temporaire pour:', userId);
+    const newConversation = {
+      id: Date.now(),
+      withUser: {
+        id: userId,
+        name: 'Chargement...',
+        age: '',
+        gender: 'autre',
+        location: 'Chargement...',
+        photo: '/images/default-avatar.jpg',
+        isOnline: false,
+      },
+      lastMessage: 'Nouvelle conversation',
+      timestamp: new Date(),
+      unread: 0,
+      messages: [],
+    };
+
+    this.conversations.unshift(newConversation);
+    this.renderConversations();
+    this.showChatWindow(newConversation);
   }
 
   // Ouvrir une conversation pour répondre à une annonce
