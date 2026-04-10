@@ -670,6 +670,19 @@ class DirectoryPage {
       );
     });
 
+    // Liaison ville (restriction premium)
+    document.getElementById('filtreVille').addEventListener('change', e => {
+      // 🔒 Vérification premium pour la sélection de ville
+      if (e.target.value && !this.isUserPremium) {
+        console.log('❌ Filtre ville bloqué - Premium requis');
+        e.target.value = ''; // Reset à "Toutes les villes"
+        this.showPremiumRequiredModal('la sélection de ville');
+        return;
+      }
+
+      console.log('Changement de ville:', e.target.value);
+    });
+
     // ✅ FILTRE ORIENTATION TOUJOURS VISIBLE - Popup premium sur utilisation
   }
 
