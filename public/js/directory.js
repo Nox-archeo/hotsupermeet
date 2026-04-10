@@ -655,6 +655,14 @@ class DirectoryPage {
 
     // Liaison région-villes
     document.getElementById('filtreRegion').addEventListener('change', e => {
+      // 🔒 Vérification premium pour la sélection de région
+      if (e.target.value && !this.isUserPremium) {
+        console.log('❌ Filtre région bloqué - Premium requis');
+        e.target.value = ''; // Reset à "Toutes les régions"
+        this.showPremiumRequiredModal('la sélection de région');
+        return;
+      }
+
       console.log('Changement de région:', e.target.value);
       this.updateCities(
         document.getElementById('filtrePays').value,
