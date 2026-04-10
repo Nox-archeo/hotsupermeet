@@ -62,6 +62,38 @@ window.addEventListener('resize', function () {
 // Variable globale pour conserver la région à restaurer
 window.regionToRestore = null;
 
+// Vérification du statut premium pour le profil
+async function checkPremiumStatusProfile() {
+  try {
+    const token = localStorage.getItem('hotmeet_token');
+    if (!token) {
+      console.log('❌ Aucun token trouvé pour vérification premium profil');
+      return false;
+    }
+
+    const response = await fetch('/api/payments/status', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      console.log('❌ Réponse API non valide pour profil:', response.status);
+      return false;
+    }
+
+    const data = await response.json();
+    const isPremium =
+      data.success && data.subscription && data.subscription.isPremium;
+
+    return isPremium;
+  } catch (error) {
+    console.error('❌ Erreur vérification premium profil:', error);
+    return false;
+  }
+}
+
 // Mettre à jour seulement l'affichage de base du profil (nom, âge, ville) sans toucher aux photos
 function updateBasicProfileDisplay(profileData) {
   try {
@@ -992,8 +1024,43 @@ function setupLocationSelectors() {
       // Plus besoin de updateCities car la ville est maintenant un champ texte libre
     });
 
-    // Événement changement de région - pas besoin de gérer les villes
-    // Les villes sont maintenant en saisie libre
+    // Événement changement de région - VÉRIFICATION PREMIUM
+    if (regionSelect) {
+      regionSelect.addEventListener('change', async e => {
+        const selectedRegion = e.target.value;
+
+        // Si l'utilisateur sélectionne une région spécifique (pas vide)
+        if (selectedRegion) {
+          const isPremium = await checkPremiumStatusProfile();
+
+          if (!isPremium) {
+            // Bloquer la sélection et rediriger vers premium
+            e.target.value = '';
+            showMessage(
+              '🔒 Sélection de région réservée aux membres Premium',
+              'error'
+            );
+            setTimeout(() => {
+              window.location.href = '/premium';
+            }, 1500);
+            return;
+          }
+        }
+      });
+
+      // Marquer visuellement les régions comme premium
+      setTimeout(async () => {
+        const isPremium = await checkPremiumStatusProfile();
+        if (!isPremium && regionSelect) {
+          // Ajouter des icônes 🔒 aux options de région
+          Array.from(regionSelect.options).forEach(option => {
+            if (option.value && option.value !== '') {
+              option.textContent = option.textContent + ' 🔒';
+            }
+          });
+        }
+      }, 500);
+    }
 
     // Mettre à jour les régions si un pays est déjà sélectionné
     // Utiliser un timeout pour s'assurer que le DOM est complètement chargé

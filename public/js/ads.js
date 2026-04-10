@@ -1860,6 +1860,44 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
   }
 
+  // 🔒 VÉRIFICATION PREMIUM POUR LA RÉGION
+  if (filterRegion) {
+    filterRegion.addEventListener('change', async e => {
+      const selectedRegion = e.target.value;
+
+      // Si l'utilisateur sélectionne une région spécifique (pas "Toutes les régions")
+      if (selectedRegion) {
+        const isPremium = await checkPremiumStatus();
+
+        if (!isPremium) {
+          // Bloquer la sélection et rediriger vers premium
+          e.target.value = '';
+          showMessage(
+            '🔒 Sélection de région réservée aux membres Premium',
+            'error'
+          );
+          setTimeout(() => {
+            window.location.href = '/premium';
+          }, 1500);
+          return;
+        }
+      }
+    });
+
+    // Marquer visuellement les régions comme premium
+    setTimeout(async () => {
+      const isPremium = await checkPremiumStatus();
+      if (!isPremium && filterRegion) {
+        // Ajouter des icônes 🔒 aux options de région
+        Array.from(filterRegion.options).forEach(option => {
+          if (option.value && option.value !== '') {
+            option.textContent = option.textContent + ' 🔒';
+          }
+        });
+      }
+    }, 500);
+  }
+
   // Afficher le menu principal par défaut
   showAdsMenu();
 
