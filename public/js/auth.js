@@ -137,32 +137,12 @@ class AuthPage {
         this.updateRegions(paysSelect.value, regionSelect);
       });
 
-      // 🔒 PROTECTION PREMIUM POUR LA RÉGION EN INSCRIPTION
+      // Région libre pour l'inscription - pas de restriction premium ici
       regionSelect.addEventListener('change', e => {
         const selectedRegion = e.target.value;
-
-        // Si l'utilisateur sélectionne une région spécifique (pas vide)
-        if (selectedRegion) {
-          // Bloquer immédiatement et rediriger
-          e.target.value = '';
-          alert(
-            "🔒 La sélection de région est réservée aux membres Premium.\n\nInscrivez-vous d'abord, puis passez Premium pour accéder à cette fonctionnalité."
-          );
-          return;
-        }
+        console.log('Région sélectionnée:', selectedRegion);
+        // Pas de restriction premium pour l'inscription
       });
-
-      // Marquer visuellement les régions comme premium
-      setTimeout(() => {
-        if (regionSelect) {
-          // Ajouter des icônes 🔒 aux options de région
-          Array.from(regionSelect.options).forEach(option => {
-            if (option.value && option.value !== '') {
-              option.textContent = option.textContent + ' 🔒';
-            }
-          });
-        }
-      }, 500);
     }
   }
 
