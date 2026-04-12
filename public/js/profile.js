@@ -94,6 +94,110 @@ async function checkPremiumStatusProfile() {
   }
 }
 
+// 💖 CRÉER DYNAMIQUEMENT LA SECTION "CE QUE JE RECHERCHE"
+function createRechercheSection(selectedValues = []) {
+  // Vérifier si la section existe déjà
+  if (document.getElementById('profileRechercheSection')) {
+    return; // Déjà créée
+  }
+
+  const orientationGroup = document.getElementById('orientationProfileGroup');
+  if (!orientationGroup) {
+    console.log(
+      '❌ Groupe orientation non trouvé, impossible d\\ajouter recherche'
+    );
+    return;
+  }
+
+  // Créer la section recherche
+  const rechercheSection = document.createElement('div');
+  rechercheSection.className = 'form-group';
+  rechercheSection.id = 'profileRechercheSection';
+  rechercheSection.innerHTML = `
+    <label for="profileRecherche">Ce que je recherche</label>
+    <small class="form-help">Vous pouvez sélectionner plusieurs options</small>
+    <div class="recherche-checkboxes-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.5rem; margin-top: 0.5rem; border: 1px solid #e1e8ed; border-radius: 8px; padding: 1rem; background: white;">
+      <label class="checkbox-item" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <input type="checkbox" name="profileRecherche" value="relation-amicale">
+        <span class="checkbox-text">Relation amicale</span>
+      </label>
+      <label class="checkbox-item" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <input type="checkbox" name="profileRecherche" value="sex-friend">
+        <span class="checkbox-text">Sex friend</span>
+      </label>
+      <label class="checkbox-item" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <input type="checkbox" name="profileRecherche" value="coup-dun-soir">
+        <span class="checkbox-text">Coup d\\un soir</span>
+      </label>
+      <label class="checkbox-item" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <input type="checkbox" name="profileRecherche" value="relation-amoureuse">
+        <span class="checkbox-text">Relation amoureuse</span>
+      </label>
+      <label class="checkbox-item" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <input type="checkbox" name="profileRecherche" value="relation-tarifee">
+        <span class="checkbox-text">Relation tarifée</span>
+      </label>
+      <label class="checkbox-item" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <input type="checkbox" name="profileRecherche" value="sugar">
+        <span class="checkbox-text">Sugar</span>
+      </label>
+      <label class="checkbox-item" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <input type="checkbox" name="profileRecherche" value="sans-prise-de-tete">
+        <span class="checkbox-text">Sans prise de tête</span>
+      </label>
+      <label class="checkbox-item" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <input type="checkbox" name="profileRecherche" value="relation-ouverte">
+        <span class="checkbox-text">Relation ouverte</span>
+      </label>
+      <label class="checkbox-item" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <input type="checkbox" name="profileRecherche" value="polyamour">
+        <span class="checkbox-text">Polyamour</span>
+      </label>
+      <label class="checkbox-item" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <input type="checkbox" name="profileRecherche" value="echangisme">
+        <span class="checkbox-text">Échangisme</span>
+      </label>
+      <label class="checkbox-item" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <input type="checkbox" name="profileRecherche" value="plans-a-plusieurs">
+        <span class="checkbox-text">Plans à plusieurs</span>
+      </label>
+      <label class="checkbox-item" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <input type="checkbox" name="profileRecherche" value="relation-discrete">
+        <span class="checkbox-text">Relation discrète</span>
+      </label>
+      <label class="checkbox-item" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <input type="checkbox" name="profileRecherche" value="flirt">
+        <span class="checkbox-text">Flirt</span>
+      </label>
+      <label class="checkbox-item" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+        <input type="checkbox" name="profileRecherche" value="chat-hot">
+        <span class="checkbox-text">Chat hot</span>
+      </label>
+    </div>
+  `;
+
+  // Insérer après le groupe orientation
+  orientationGroup.insertAdjacentElement('afterend', rechercheSection);
+
+  // Pré-cocher les valeurs sélectionnées
+  if (selectedValues && selectedValues.length > 0) {
+    selectedValues.forEach(value => {
+      const checkbox = rechercheSection.querySelector(
+        `input[value="${value}"]`
+      );
+      if (checkbox) {
+        checkbox.checked = true;
+      }
+    });
+  }
+
+  console.log(
+    '✅ Section "Ce que je recherche" créée dynamiquement avec',
+    selectedValues.length,
+    'valeurs pré-sélectionnées'
+  );
+}
+
 // Mettre à jour seulement l'affichage de base du profil (nom, âge, ville) sans toucher aux photos
 function updateBasicProfileDisplay(profileData) {
   try {
@@ -154,6 +258,14 @@ document
     const ville = document.getElementById('profileVille').value.trim();
     const bio = document.getElementById('profileBio').value.trim();
 
+    // 💖 Collecter les données recherche
+    const rechercheCheckboxes = document.querySelectorAll(
+      'input[name="profileRecherche"]:checked'
+    );
+    const rechercheValues = Array.from(rechercheCheckboxes).map(
+      checkbox => checkbox.value
+    );
+
     // Validation minimale : seulement nom obligatoire
     if (!nom) {
       // Restaurer le bouton en cas d'erreur
@@ -178,6 +290,7 @@ document
           ville: ville || undefined,
         },
         bio: bio || undefined,
+        recherche: rechercheValues.length > 0 ? rechercheValues : undefined, // 💖 Préférences recherche
       },
     };
 
@@ -335,6 +448,9 @@ async function loadProfileData() {
       if (orientationField) {
         orientationField.value = profile.orientation || 'hetero';
       }
+
+      // 💖 AJOUTER DYNAMIQUEMENT LA SECTION "CE QUE JE RECHERCHE"
+      createRechercheSection(profile.recherche || []);
 
       // Remplir les champs de localisation
       let pays = '';
@@ -508,6 +624,27 @@ async function loadProfileData() {
             document.getElementById('profileOrientation');
           if (orientationField) {
             orientationField.value = user.profile.orientation || 'hetero';
+          }
+
+          // 💖 Remplir les préférences recherche
+          if (user.profile.recherche && Array.isArray(user.profile.recherche)) {
+            // Décocher toutes les cases d'abord
+            const rechercheCheckboxes = document.querySelectorAll(
+              'input[name="profileRecherche"]'
+            );
+            rechercheCheckboxes.forEach(checkbox => {
+              checkbox.checked = false;
+            });
+
+            // Cocher seulement celles qui sont dans les préférences de l'utilisateur
+            user.profile.recherche.forEach(rechercheType => {
+              const checkbox = document.querySelector(
+                `input[name="profileRecherche"][value="${rechercheType}"]`
+              );
+              if (checkbox) {
+                checkbox.checked = true;
+              }
+            });
           }
 
           // Remplir les champs de localisation avec gestion robuste
