@@ -364,6 +364,56 @@
   color: #2c3e50;
 }
 
+/* 💖 Styles pour les checkboxes de catégorie dans l'annuaire */
+.categorie-checkboxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 0.5rem;
+  border: 1px solid #e1e8ed;
+  border-radius: 6px;
+  background-color: #fff;
+}
+
+.categorie-checkboxes .checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #e1e8ed;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+}
+
+.categorie-checkboxes .checkbox-item:hover {
+  background-color: #f8f9fa;
+  border-color: #667eea;
+}
+
+.categorie-checkboxes .checkbox-item input[type='checkbox'] {
+  margin: 0;
+  accent-color: #667eea;
+}
+
+.categorie-checkboxes
+  .checkbox-item
+  input[type='checkbox']:checked
+  + .checkbox-text {
+  font-weight: 600;
+  color: #667eea;
+}
+
+.categorie-checkboxes .checkbox-text {
+  font-size: 13px;
+  color: #2c3e50;
+  transition: color 0.2s ease;
+}
+
 /* Styles pour la section contact */
 .contact-details {
   margin-top: 1rem;

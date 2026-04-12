@@ -647,6 +647,26 @@ class DirectoryPage {
       });
     }
 
+    // 💖 FILTRE CATÉGORIE - POPUP PREMIUM SI NON-PREMIUM (MULTI-SÉLECTION)
+    const categorieCheckboxes = document.querySelectorAll(
+      'input[name="categorie"]'
+    );
+    categorieCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', e => {
+        console.log('🔒 Tentative de filtre catégorie:', e.target.value);
+
+        // Si utilisateur non premium ET qu'il essaie de cocher
+        if (!this.isUserPremium && e.target.checked) {
+          console.log('❌ Filtre catégorie bloqué - Premium requis');
+          e.target.checked = false; // Décocher
+          this.showPremiumRequiredModal('le filtrage par catégorie');
+          return;
+        }
+
+        console.log('✅ Filtre catégorie autorisé');
+      });
+    });
+
     // Liaison pays-région
     document.getElementById('filtrePays').addEventListener('change', e => {
       console.log('Changement de pays:', e.target.value);
@@ -816,11 +836,27 @@ class DirectoryPage {
       finalOrientationValue = orientationValue || '';
     }
 
+    // 💖 FILTRE CATÉGORIE - PREMIUM UNIQUEMENT (MULTI-SÉLECTION)
+    let finalCategorieValues = [];
+
+    if (this.isUserPremium) {
+      const categorieCheckboxes = document.querySelectorAll(
+        'input[name="categorie"]:checked'
+      );
+      finalCategorieValues = Array.from(categorieCheckboxes).map(
+        cb => cb.value
+      );
+    } else {
+      console.log('❌ Filtre catégorie ignoré - Premium requis');
+      finalCategorieValues = []; // Forcer à vide
+    }
+
     this.filters = {
       ageMin: formData.get('ageMin') || '',
       ageMax: formData.get('ageMax') || '',
       sexe: formData.get('sexe') || '', // Genre libre pour tous
       orientation: finalOrientationValue,
+      categorie: finalCategorieValues, // 💖 Nouveau filtre catégorie (array)
       pays: formData.get('filtrePays') || '',
       region: formData.get('filtreRegion') || '',
       ville: formData.get('filtreVille') || '',
@@ -831,6 +867,15 @@ class DirectoryPage {
 
   resetFilters() {
     document.getElementById('filtersForm').reset();
+
+    // 💖 Décocher toutes les checkboxes de catégorie
+    const categorieCheckboxes = document.querySelectorAll(
+      'input[name="categorie"]'
+    );
+    categorieCheckboxes.forEach(checkbox => {
+      checkbox.checked = false;
+    });
+
     this.filters = {};
     this.currentPage = 1;
     this.loadUsers();
@@ -844,7 +889,14 @@ class DirectoryPage {
       // Ajouter les filtres non vides
       Object.keys(this.filters).forEach(key => {
         if (this.filters[key]) {
-          params.append(key, this.filters[key]);
+          // 💖 Traitement spécial pour le filtre catégorie (array)
+          if (key === 'categorie' && Array.isArray(this.filters[key])) {
+            this.filters[key].forEach(value => {
+              params.append('categorie', value);
+            });
+          } else {
+            params.append(key, this.filters[key]);
+          }
         }
       });
 

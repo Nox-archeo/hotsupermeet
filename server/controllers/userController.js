@@ -9,6 +9,7 @@ const getUsers = async (req, res) => {
       ageMax,
       sexe,
       orientation,
+      categorie,
       pays,
       region,
       ville,
@@ -71,6 +72,27 @@ const getUsers = async (req, res) => {
       } else {
         console.log('❌ Filtre orientation ignoré - Premium requis');
       }
+    }
+
+    // 💖 Filtre par catégorie - PREMIUM UNIQUEMENT (MULTI-SÉLECTION)
+    if (categorie && isUserPremium) {
+      // Convertir la chaîne en array si nécessaire
+      let categorieArray = [];
+      if (Array.isArray(categorie)) {
+        categorieArray = categorie;
+      } else if (typeof categorie === 'string') {
+        // Si c'est une chaîne séparée par des virgules
+        categorieArray = categorie
+          .split(',')
+          .map(c => c.trim())
+          .filter(c => c);
+      }
+
+      if (categorieArray.length > 0) {
+        query['profile.recherche'] = { $in: categorieArray };
+      }
+    } else if (categorie && !isUserPremium) {
+      console.log('❌ Filtre catégorie ignoré - Premium requis');
     }
 
     // Filtre par localisation (pays, région, ville) - recherche dans la structure objet

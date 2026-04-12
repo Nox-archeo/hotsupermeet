@@ -766,12 +766,21 @@
         .addEventListener('submit', async function (e) {
           e.preventDefault();
 
+          // 💖 Collecter les données "recherche"
+          const rechercheCheckboxes = document.querySelectorAll(
+            'input[name="profileRecherche"]:checked'
+          );
+          const rechercheValues = Array.from(rechercheCheckboxes).map(
+            checkbox => checkbox.value
+          );
+
           const formData = {
             profile: {
               nom: document.getElementById('profileNom').value.trim(),
               age: parseInt(document.getElementById('profileAge').value),
               sexe: document.getElementById('profileSexe').value,
               orientation: document.getElementById('profileOrientation').value,
+              recherche: rechercheValues, // 💖 Ajouter les données recherche
               localisation: {
                 pays: document.getElementById('profilePays').value,
                 region: document.getElementById('profileRegion').value,
@@ -906,6 +915,16 @@
               document.getElementById('profileOrientation');
             if (orientationField) {
               orientationField.value = profile.orientation || 'hetero';
+            }
+
+            // 💖 Pré-remplir les cases à cocher "recherche"
+            if (profile.recherche && Array.isArray(profile.recherche)) {
+              const rechercheCheckboxes = document.querySelectorAll(
+                'input[name="profileRecherche"]'
+              );
+              rechercheCheckboxes.forEach(checkbox => {
+                checkbox.checked = profile.recherche.includes(checkbox.value);
+              });
             }
 
             // Remplir les champs de localisation
