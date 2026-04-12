@@ -1048,18 +1048,8 @@ function setupLocationSelectors() {
         }
       });
 
-      // Marquer visuellement les régions comme premium
-      setTimeout(async () => {
-        const isPremium = await checkPremiumStatusProfile();
-        if (!isPremium && regionSelect) {
-          // Ajouter des icônes 🔒 aux options de région
-          Array.from(regionSelect.options).forEach(option => {
-            if (option.value && option.value !== '') {
-              option.textContent = option.textContent + ' 🔒';
-            }
-          });
-        }
-      }, 500);
+      // Les régions sont libres dans le profil - Pas de restriction premium
+      // (Restrictions premium uniquement dans l'annuaire pour la recherche)
     }
 
     // Mettre à jour les régions si un pays est déjà sélectionné
