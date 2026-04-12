@@ -154,11 +154,13 @@ document
     const ville = document.getElementById('profileVille').value.trim();
     const bio = document.getElementById('profileBio').value.trim();
 
-    // 💖 Collecter les données recherche depuis le select multiple
-    const rechercheSelect = document.getElementById('profileRecherche');
-    const rechercheValues = rechercheSelect
-      ? Array.from(rechercheSelect.selectedOptions).map(option => option.value)
-      : [];
+    // 💖 Collecter les données recherche depuis les checkboxes
+    const rechercheCheckboxes = document.querySelectorAll(
+      'input[name="profileRecherche"]:checked'
+    );
+    const rechercheValues = Array.from(rechercheCheckboxes).map(
+      checkbox => checkbox.value
+    );
 
     // Validation minimale : seulement nom obligatoire
     if (!nom) {
@@ -343,25 +345,25 @@ async function loadProfileData() {
         orientationField.value = profile.orientation || 'hetero';
       }
 
-      // 💖 REMPLIR LE SELECT RECHERCHE (maintenant un select multiple)
+      // 💖 REMPLIR LES CHECKBOXES RECHERCHE
       if (profile.recherche && Array.isArray(profile.recherche)) {
-        const rechercheSelect = document.getElementById('profileRecherche');
-        if (rechercheSelect) {
-          // Désélectionner toutes les options d'abord
-          Array.from(rechercheSelect.options).forEach(option => {
-            option.selected = false;
-          });
+        // Décocher toutes les cases d'abord
+        const rechercheCheckboxes = document.querySelectorAll(
+          'input[name="profileRecherche"]'
+        );
+        rechercheCheckboxes.forEach(checkbox => {
+          checkbox.checked = false;
+        });
 
-          // Sélectionner seulement celles qui sont dans les préférences de l'utilisateur
-          profile.recherche.forEach(rechercheType => {
-            const option = rechercheSelect.querySelector(
-              `option[value="${rechercheType}"]`
-            );
-            if (option) {
-              option.selected = true;
-            }
-          });
-        }
+        // Cocher seulement celles qui sont dans les préférences de l'utilisateur
+        profile.recherche.forEach(rechercheType => {
+          const checkbox = document.querySelector(
+            `input[name="profileRecherche"][value="${rechercheType}"]`
+          );
+          if (checkbox) {
+            checkbox.checked = true;
+          }
+        });
       }
 
       // Remplir les champs de localisation
