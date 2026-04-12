@@ -12,6 +12,7 @@ class DirectoryPage {
     // Toujours charger l'interface de l'annuaire
     this.setupEventListeners();
     this.setupLocationFilters();
+    this.setupCategorieDropdown(); // 💖 Nouveau setup pour le dropdown
 
     // 🔄 Écouter les modifications de profil pour rafraîchir l'annuaire
     window.addEventListener('profileUpdated', event => {
@@ -664,6 +665,9 @@ class DirectoryPage {
         }
 
         console.log('✅ Filtre catégorie autorisé');
+        
+        // 💖 Mettre à jour le texte du dropdown
+        this.updateCategorieDropdownText();
       });
     });
 
@@ -704,6 +708,55 @@ class DirectoryPage {
     });
 
     // ✅ FILTRE ORIENTATION TOUJOURS VISIBLE - Popup premium sur utilisation
+  }
+
+  // 💖 Setup du menu déroulant catégorie
+  setupCategorieDropdown() {
+    const dropdownHeader = document.getElementById('categorieDropdownHeader');
+    const dropdownContent = document.getElementById('categorieDropdownContent');
+    
+    if (!dropdownHeader || !dropdownContent) return;
+
+    // Gestion du clic sur l'header pour ouvrir/fermer
+    dropdownHeader.addEventListener('click', () => {
+      const isOpen = dropdownContent.classList.contains('show');
+      
+      if (isOpen) {
+        dropdownContent.classList.remove('show');
+        dropdownHeader.classList.remove('active');
+      } else {
+        dropdownContent.classList.add('show');
+        dropdownHeader.classList.add('active');
+      }
+    });
+
+    // Fermer le dropdown si on clique ailleurs
+    document.addEventListener('click', (e) => {
+      if (!dropdownHeader.contains(e.target) && !dropdownContent.contains(e.target)) {
+        dropdownContent.classList.remove('show');
+        dropdownHeader.classList.remove('active');
+      }
+    });
+
+    // Mettre à jour le texte du dropdown selon les sélections
+    this.updateCategorieDropdownText();
+  }
+
+  // 💖 Mettre à jour le texte du dropdown
+  updateCategorieDropdownText() {
+    const dropdownText = document.querySelector('.dropdown-text');
+    const checkedBoxes = document.querySelectorAll('input[name="categorie"]:checked');
+    
+    if (!dropdownText) return;
+
+    if (checkedBoxes.length === 0) {
+      dropdownText.textContent = 'Toutes les catégories';
+    } else if (checkedBoxes.length === 1) {
+      const label = checkedBoxes[0].nextElementSibling.textContent;
+      dropdownText.textContent = label;
+    } else {
+      dropdownText.textContent = `${checkedBoxes.length} catégories sélectionnées`;
+    }
   }
 
   setupLocationFilters() {
