@@ -665,7 +665,7 @@ class DirectoryPage {
         }
 
         console.log('✅ Filtre catégorie autorisé');
-        
+
         // 💖 Mettre à jour le texte du dropdown
         this.updateCategorieDropdownText();
       });
@@ -714,13 +714,13 @@ class DirectoryPage {
   setupCategorieDropdown() {
     const dropdownHeader = document.getElementById('categorieDropdownHeader');
     const dropdownContent = document.getElementById('categorieDropdownContent');
-    
+
     if (!dropdownHeader || !dropdownContent) return;
 
     // Gestion du clic sur l'header pour ouvrir/fermer
     dropdownHeader.addEventListener('click', () => {
       const isOpen = dropdownContent.classList.contains('show');
-      
+
       if (isOpen) {
         dropdownContent.classList.remove('show');
         dropdownHeader.classList.remove('active');
@@ -731,8 +731,11 @@ class DirectoryPage {
     });
 
     // Fermer le dropdown si on clique ailleurs
-    document.addEventListener('click', (e) => {
-      if (!dropdownHeader.contains(e.target) && !dropdownContent.contains(e.target)) {
+    document.addEventListener('click', e => {
+      if (
+        !dropdownHeader.contains(e.target) &&
+        !dropdownContent.contains(e.target)
+      ) {
         dropdownContent.classList.remove('show');
         dropdownHeader.classList.remove('active');
       }
@@ -745,8 +748,10 @@ class DirectoryPage {
   // 💖 Mettre à jour le texte du dropdown
   updateCategorieDropdownText() {
     const dropdownText = document.querySelector('.dropdown-text');
-    const checkedBoxes = document.querySelectorAll('input[name="categorie"]:checked');
-    
+    const checkedBoxes = document.querySelectorAll(
+      'input[name="categorie"]:checked'
+    );
+
     if (!dropdownText) return;
 
     if (checkedBoxes.length === 0) {
@@ -1040,6 +1045,11 @@ class DirectoryPage {
           <p class="profile-location">${this.getLocationDisplay(user.profile.localisation)}</p>
           <p class="profile-gender">${this.getGenderLabel(user.profile.sexe)}</p>
           <p class="profile-orientation">${this.getOrientationLabel(user.profile.orientation || 'hetero')}</p>
+          ${
+            user.profile.recherche && user.profile.recherche.length > 0
+              ? `<p class="profile-recherche" style="color: #e91e63; font-size: 0.85em; font-style: italic; margin-top: 0.25rem;">${this.getRechercheLabel(user.profile.recherche)}</p>`
+              : ''
+          }
           <div class="profile-actions">
             <button class="btn-primary view-profile-btn" data-user-id="${user.id}">
               Voir le profil
@@ -1105,6 +1115,41 @@ class DirectoryPage {
       lesbienne: 'Lesbienne',
     };
     return labels[orientation] || orientation;
+  }
+
+  // 💖 Fonction pour formater les préférences de recherche
+  getRechercheLabel(recherche) {
+    if (!recherche || !Array.isArray(recherche) || recherche.length === 0) {
+      return '';
+    }
+
+    const labels = {
+      'relation-amicale': 'Relation amicale',
+      'sex-friend': 'Sex friend',
+      'coup-dun-soir': "Coup d'un soir",
+      'relation-amoureuse': 'Relation amoureuse',
+      'relation-tarifee': 'Relation tarifée',
+      'sugar-baby': 'Sugar Baby',
+      'sugar-mommy': 'Sugar Mommy',
+      'sugar-daddy': 'Sugar Daddy',
+      'sans-prise-de-tete': 'Sans prise de tête',
+      'relation-ouverte': 'Relation ouverte',
+      polyamour: 'Polyamour',
+      echangisme: 'Échangisme',
+      'plans-a-plusieurs': 'Plans à plusieurs',
+      'relation-discrete': 'Relation discrète',
+      flirt: 'Flirt',
+      'chat-hot': 'Chat hot',
+    };
+
+    const rechercheLabels = recherche.map(item => labels[item] || item);
+
+    // Limiter l'affichage à 3 éléments max avec "..."
+    if (rechercheLabels.length > 3) {
+      return `💖 ${rechercheLabels.slice(0, 2).join(', ')} et ${rechercheLabels.length - 2} autres`;
+    } else {
+      return `💖 ${rechercheLabels.join(', ')}`;
+    }
   }
 
   // Fonction pour afficher la localisation avec drapeau

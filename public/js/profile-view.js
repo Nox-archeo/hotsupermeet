@@ -213,11 +213,55 @@ class ProfileViewChat {
       document.getElementById('bioSection').style.display = 'none';
     }
 
+    // 💖 Préférences de recherche
+    this.displayRecherche(profile.recherche);
+
     // Photos
     this.displayPhotos(profile.photos || []);
 
     // Vérifier l'accès aux photos privées et configurer la section
     this.setupPrivatePhotosSection(profile.photos || []);
+  }
+
+  // 💖 Afficher les préférences de recherche
+  displayRecherche(recherche) {
+    const rechercheContainer = document.getElementById('rechercheSection');
+
+    if (!recherche || !Array.isArray(recherche) || recherche.length === 0) {
+      if (rechercheContainer) {
+        rechercheContainer.style.display = 'none';
+      }
+      return;
+    }
+
+    const labels = {
+      'relation-amicale': 'Relation amicale',
+      'sex-friend': 'Sex friend',
+      'coup-dun-soir': "Coup d'un soir",
+      'relation-amoureuse': 'Relation amoureuse',
+      'relation-tarifee': 'Relation tarifée',
+      'sugar-baby': 'Sugar Baby',
+      'sugar-mommy': 'Sugar Mommy',
+      'sugar-daddy': 'Sugar Daddy',
+      'sans-prise-de-tete': 'Sans prise de tête',
+      'relation-ouverte': 'Relation ouverte',
+      polyamour: 'Polyamour',
+      echangisme: 'Échangisme',
+      'plans-a-plusieurs': 'Plans à plusieurs',
+      'relation-discrete': 'Relation discrète',
+      flirt: 'Flirt',
+      'chat-hot': 'Chat hot',
+    };
+
+    const rechercheLabels = recherche.map(item => labels[item] || item);
+
+    if (rechercheContainer) {
+      rechercheContainer.style.display = 'block';
+      const rechercheContent = document.getElementById('profileRecherche');
+      if (rechercheContent) {
+        rechercheContent.textContent = rechercheLabels.join(', ');
+      }
+    }
   }
 
   displayPhotos(photos) {
