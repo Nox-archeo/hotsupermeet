@@ -281,14 +281,32 @@
                       </div>
 
                       <!-- 💖 Ce que je recherche - Section pour profil -->
-                      <div class="form-group">
+                      <div
+                        class="form-group"
+                        style="
+                          display: block !important;
+                          visibility: visible !important;
+                        "
+                      >
                         <label for="profileRecherche"
                           >Ce que je recherche</label
                         >
                         <small class="form-help"
                           >Vous pouvez sélectionner plusieurs options</small
                         >
-                        <div class="recherche-checkboxes-grid">
+                        <div
+                          class="recherche-checkboxes-grid"
+                          style="
+                            display: grid !important;
+                            grid-template-columns: repeat(2, 1fr);
+                            gap: 0.5rem;
+                            margin-top: 0.5rem;
+                            border: 1px solid #ccc;
+                            padding: 1rem;
+                            background: white;
+                          "
+                        >
+                          >
                           <label class="checkbox-item">
                             <input
                               type="checkbox"
