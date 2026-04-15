@@ -148,7 +148,7 @@ const getUsers = async (req, res) => {
       const femmeQuery = { ...query, 'profile.sexe': 'femme' };
       const femmes = await User.find(femmeQuery)
         .select(
-          'profile.nom profile.age profile.sexe profile.orientation profile.localisation profile.photos profile.disponibilite stats.lastActive premium.isPremium'
+          'profile.nom profile.age profile.sexe profile.orientation profile.localisation profile.photos profile.disponibilite profile.recherche stats.lastActive premium.isPremium'
         )
         .sort(sortOption)
         .skip(Math.floor(pageSkip * 0.5)) // Skip proportionnel pour les femmes
@@ -162,7 +162,7 @@ const getUsers = async (req, res) => {
         const hommeQuery = { ...query, 'profile.sexe': 'homme' };
         hommes = await User.find(hommeQuery)
           .select(
-            'profile.nom profile.age profile.sexe profile.orientation profile.localisation profile.photos profile.disponibilite stats.lastActive premium.isPremium'
+            'profile.nom profile.age profile.sexe profile.orientation profile.localisation profile.photos profile.disponibilite profile.recherche stats.lastActive premium.isPremium'
           )
           .sort(sortOption)
           .skip(Math.ceil(pageSkip * 0.5)) // Skip proportionnel pour les hommes
@@ -185,7 +185,7 @@ const getUsers = async (req, res) => {
       // Pages suivantes ou avec filtre: logique normale
       users = await User.find(query)
         .select(
-          'profile.nom profile.age profile.sexe profile.orientation profile.localisation profile.photos profile.disponibilite stats.lastActive premium.isPremium'
+          'profile.nom profile.age profile.sexe profile.orientation profile.localisation profile.photos profile.disponibilite profile.recherche stats.lastActive premium.isPremium'
         )
         .sort(sortOption)
         .skip(skip)
@@ -446,7 +446,7 @@ const searchUsers = async (req, res) => {
 
     const users = await User.find(searchQuery)
       .select(
-        'profile.nom profile.age profile.sexe profile.localisation profile.photos profile.disponibilite stats.lastActive premium.isPremium'
+        'profile.nom profile.age profile.sexe profile.localisation profile.photos profile.disponibilite profile.recherche stats.lastActive premium.isPremium'
       )
       .sort({ 'premium.isPremium': -1, 'stats.lastActive': -1 })
       .skip(skip)
