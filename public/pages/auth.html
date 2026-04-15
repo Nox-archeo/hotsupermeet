@@ -305,28 +305,114 @@
               </select>
             </div>
 
-            <!-- 💖 Ce que je recherche - Select comme orientation -->
+            <!-- 💖 Ce que je recherche - Checkboxes multiples -->
             <div class="form-group">
-              <label for="recherche">Ce que je recherche</label>
-              <select id="recherche" name="recherche" class="form-input">
-                <option value="">Choisir...</option>
-                <option value="relation-amicale">Relation amicale</option>
-                <option value="sex-friend">Sex friend</option>
-                <option value="coup-dun-soir">Coup d'un soir</option>
-                <option value="relation-amoureuse">Relation amoureuse</option>
-                <option value="relation-tarifee">Relation tarifée</option>
-                <option value="sugar-baby">Sugar Baby</option>
-                <option value="sugar-mommy">Sugar Mommy</option>
-                <option value="sugar-daddy">Sugar Daddy</option>
-                <option value="sans-prise-de-tete">Sans prise de tête</option>
-                <option value="relation-ouverte">Relation ouverte</option>
-                <option value="polyamour">Polyamour</option>
-                <option value="echangisme">Échangisme</option>
-                <option value="plans-a-plusieurs">Plans à plusieurs</option>
-                <option value="relation-discrete">Relation discrète</option>
-                <option value="flirt">Flirt</option>
-                <option value="chat-hot">Chat hot</option>
-              </select>
+              <label>Ce que je recherche (plusieurs choix possibles)</label>
+              <div
+                class="checkbox-grid"
+                style="
+                  display: grid;
+                  grid-template-columns: 1fr 1fr;
+                  gap: 0.5rem;
+                  margin-top: 0.5rem;
+                "
+              >
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    name="recherche"
+                    value="relation-amicale"
+                  />
+                  Relation amicale
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="recherche" value="sex-friend" />
+                  Sex friend
+                </label>
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    name="recherche"
+                    value="coup-dun-soir"
+                  />
+                  Coup d'un soir
+                </label>
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    name="recherche"
+                    value="relation-amoureuse"
+                  />
+                  Relation amoureuse
+                </label>
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    name="recherche"
+                    value="relation-tarifee"
+                  />
+                  Relation tarifée
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="recherche" value="sugar-baby" />
+                  Sugar Baby
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="recherche" value="sugar-mommy" />
+                  Sugar Mommy
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="recherche" value="sugar-daddy" />
+                  Sugar Daddy
+                </label>
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    name="recherche"
+                    value="sans-prise-de-tete"
+                  />
+                  Sans prise de tête
+                </label>
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    name="recherche"
+                    value="relation-ouverte"
+                  />
+                  Relation ouverte
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="recherche" value="polyamour" />
+                  Polyamour
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="recherche" value="echangisme" />
+                  Échangisme
+                </label>
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    name="recherche"
+                    value="plans-a-plusieurs"
+                  />
+                  Plans à plusieurs
+                </label>
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    name="recherche"
+                    value="relation-discrete"
+                  />
+                  Relation discrète
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="recherche" value="flirt" /> Flirt
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="recherche" value="chat-hot" />
+                  Chat hot
+                </label>
+              </div>
             </div>
 
             <div class="form-group">

@@ -154,13 +154,15 @@ document
     const ville = document.getElementById('profileVille').value.trim();
     const bio = document.getElementById('profileBio').value.trim();
 
-    // 💖 Collecter recherche avec select COMME ORIENTATION
-    const recherche = document.getElementById('profileRecherche').value;
-    const rechercheValues = recherche ? [recherche] : []; // Convertir en array pour compatibilité backend
+    // 💖 Collecter recherche avec checkboxes MULTIPLES
+    const rechercheChecked = document.querySelectorAll(
+      'input[name="profileRecherche"]:checked'
+    );
+    const rechercheValues = Array.from(rechercheChecked).map(cb => cb.value);
 
     // 🚀 DEBUG RECHERCHE - Voir ce qui est collecté
-    console.log('🔍 DEBUG RECHERCHE COLLECTÉE:');
-    console.log('- Recherche sélectionnée:', recherche);
+    console.log('🔍 DEBUG RECHERCHE MULTIPLE:');
+    console.log('- Checkboxes sélectionnées:', rechercheValues.length);
     console.log('- Valeurs collectées:', rechercheValues);
 
     // Validation minimale : seulement nom obligatoire
@@ -346,18 +348,20 @@ async function loadProfileData() {
         orientationField.value = profile.orientation || 'hetero';
       }
 
-      // 💖 REMPLIR LE SELECT RECHERCHE COMME ORIENTATION
-      const rechercheField = document.getElementById('profileRecherche');
-      if (
-        rechercheField &&
-        profile.recherche &&
-        Array.isArray(profile.recherche)
-      ) {
-        // Prendre le premier élément du tableau (puisqu'on passe d'un système multi à simple)
-        rechercheField.value = profile.recherche[0] || '';
-      } else if (rechercheField) {
-        rechercheField.value = '';
-      }
+      // 💖 COCHER LES CHECKBOXES RECHERCHE MULTIPLES
+      const rechercheCheckboxes = document.querySelectorAll(
+        'input[name="profileRecherche"]'
+      );
+      rechercheCheckboxes.forEach(cb => {
+        cb.checked = false; // Décocher tout d'abord
+        if (
+          profile.recherche &&
+          Array.isArray(profile.recherche) &&
+          profile.recherche.includes(cb.value)
+        ) {
+          cb.checked = true; // Cocher si la valeur est dans le profil
+        }
+      });
 
       // Remplir les champs de localisation
       let pays = '';

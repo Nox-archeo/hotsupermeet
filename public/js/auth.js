@@ -354,7 +354,16 @@ class AuthPage {
     registrationData.append('age', formData.get('age'));
     registrationData.append('sexe', formData.get('sexe'));
     registrationData.append('orientation', formData.get('orientation')); // 🆕 ORIENTATION AJOUTÉE
-    registrationData.append('recherche', formData.get('recherche')); // 💖 RECHERCHE AJOUTÉE
+    // 💖 Collecter toutes les checkboxes recherche cochées
+    const rechercheCheckboxes = document.querySelectorAll(
+      'input[name="recherche"]:checked'
+    );
+    const rechercheValues = Array.from(rechercheCheckboxes).map(cb => cb.value);
+
+    // Ajouter chaque valeur recherche (pour le backend qui attend plusieurs valeurs)
+    rechercheValues.forEach(value => {
+      registrationData.append('recherche', value);
+    });
     registrationData.append('pays', formData.get('pays'));
     registrationData.append('region', formData.get('region'));
     registrationData.append('ville', formData.get('ville'));

@@ -71,7 +71,11 @@ const register = async (req, res) => {
         age: parseInt(req.body.age),
         sexe: req.body.sexe,
         orientation: req.body.orientation || 'hetero',
-        recherche: req.body.recherche ? [req.body.recherche] : [], // Convertir en array pour cohérence
+        recherche: Array.isArray(req.body.recherche)
+          ? req.body.recherche
+          : req.body.recherche
+            ? [req.body.recherche]
+            : [], // Gérer array multiple ou valeur unique
         localisation: localisation,
         bio: req.body.bio || '',
       };
