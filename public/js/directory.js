@@ -1045,11 +1045,7 @@ class DirectoryPage {
           <p class="profile-location">${this.getLocationDisplay(user.profile.localisation)}</p>
           <p class="profile-gender">${this.getGenderLabel(user.profile.sexe)}</p>
           <p class="profile-orientation">${this.getOrientationLabel(user.profile.orientation || 'hetero')}</p>
-          ${
-            user.profile.recherche && user.profile.recherche.length > 0
-              ? `<p class="profile-recherche" style="color: #e91e63; font-size: 0.85em; font-style: italic; margin-top: 0.25rem;">${this.getRechercheLabel(user.profile.recherche)}</p>`
-              : ''
-          }
+          <p class="profile-recherche" style="color: #e91e63; font-size: 0.85em; font-style: italic; margin-top: 0.25rem;">${this.getRechercheLabel(user.profile.recherche || [])}</p>
           <div class="profile-actions">
             <button class="btn-primary view-profile-btn" data-user-id="${user.id}">
               Voir le profil
@@ -1117,17 +1113,18 @@ class DirectoryPage {
     return labels[orientation] || orientation;
   }
 
-  // 💖 Fonction pour formater les préférences de recherche - ADAPTÉE POUR SELECT
+  // 💖 Fonction pour formater les préférences de recherche - AFFICHAGE TOUJOURS VISIBLE
   getRechercheLabel(recherche) {
-    if (!recherche) {
-      return '';
+    // Si pas de recherche définie, afficher un message par défaut
+    if (!recherche || (Array.isArray(recherche) && recherche.length === 0)) {
+      return '💭 Non renseigné';
     }
 
     // Si c'est un array (ancien format), prendre le premier élément
     const rechercheValue = Array.isArray(recherche) ? recherche[0] : recherche;
 
     if (!rechercheValue) {
-      return '';
+      return '💭 Non renseigné';
     }
 
     const labels = {
