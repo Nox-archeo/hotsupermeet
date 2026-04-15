@@ -162,6 +162,15 @@ document
       checkbox => checkbox.value
     );
 
+    // 🚀 DEBUG RECHERCHE - Voir ce qui est collecté
+    console.log('🔍 DEBUG RECHERCHE COLLECTÉE:');
+    console.log(
+      '- Checkboxes trouvées:',
+      document.querySelectorAll('input[name="profileRecherche"]').length
+    );
+    console.log('- Checkboxes cochées:', rechercheCheckboxes.length);
+    console.log('- Valeurs collectées:', rechercheValues);
+
     // Validation minimale : seulement nom obligatoire
     if (!nom) {
       // Restaurer le bouton en cas d'erreur
