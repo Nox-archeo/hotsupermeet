@@ -187,7 +187,7 @@ document
           ville: ville || undefined,
         },
         bio: bio || undefined,
-        recherche: rechercheValues.length > 0 ? rechercheValues : undefined, // 💖 Préférences recherche
+        recherche: rechercheValues, // 💖 Toujours envoyer un array (vide ou avec valeurs)
       },
     };
 
