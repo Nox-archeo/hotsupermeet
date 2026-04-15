@@ -52,6 +52,7 @@ const register = async (req, res) => {
       console.log('Données extraites - Âge:', req.body.age);
       console.log('Données extraites - Sexe:', req.body.sexe);
       console.log('Données extraites - Orientation:', req.body.orientation);
+      console.log('Données extraites - Recherche:', req.body.recherche);
       console.log('Données extraites - Pays:', req.body.pays);
       console.log('Données extraites - Région:', req.body.region);
       console.log('Données extraites - Ville:', req.body.ville);
@@ -70,6 +71,7 @@ const register = async (req, res) => {
         age: parseInt(req.body.age),
         sexe: req.body.sexe,
         orientation: req.body.orientation || 'hetero',
+        recherche: req.body.recherche ? [req.body.recherche] : [], // Convertir en array pour cohérence
         localisation: localisation,
         bio: req.body.bio || '',
       };

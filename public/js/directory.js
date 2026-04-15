@@ -1117,9 +1117,16 @@ class DirectoryPage {
     return labels[orientation] || orientation;
   }
 
-  // 💖 Fonction pour formater les préférences de recherche
+  // 💖 Fonction pour formater les préférences de recherche - ADAPTÉE POUR SELECT
   getRechercheLabel(recherche) {
-    if (!recherche || !Array.isArray(recherche) || recherche.length === 0) {
+    if (!recherche) {
+      return '';
+    }
+
+    // Si c'est un array (ancien format), prendre le premier élément
+    const rechercheValue = Array.isArray(recherche) ? recherche[0] : recherche;
+
+    if (!rechercheValue) {
       return '';
     }
 
@@ -1142,14 +1149,7 @@ class DirectoryPage {
       'chat-hot': 'Chat hot',
     };
 
-    const rechercheLabels = recherche.map(item => labels[item] || item);
-
-    // Limiter l'affichage à 3 éléments max avec "..."
-    if (rechercheLabels.length > 3) {
-      return `💖 ${rechercheLabels.slice(0, 2).join(', ')} et ${rechercheLabels.length - 2} autres`;
-    } else {
-      return `💖 ${rechercheLabels.join(', ')}`;
-    }
+    return `💖 ${labels[rechercheValue] || rechercheValue}`;
   }
 
   // Fonction pour afficher la localisation avec drapeau

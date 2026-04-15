@@ -354,6 +354,7 @@ class AuthPage {
     registrationData.append('age', formData.get('age'));
     registrationData.append('sexe', formData.get('sexe'));
     registrationData.append('orientation', formData.get('orientation')); // 🆕 ORIENTATION AJOUTÉE
+    registrationData.append('recherche', formData.get('recherche')); // 💖 RECHERCHE AJOUTÉE
     registrationData.append('pays', formData.get('pays'));
     registrationData.append('region', formData.get('region'));
     registrationData.append('ville', formData.get('ville'));

@@ -154,21 +154,13 @@ document
     const ville = document.getElementById('profileVille').value.trim();
     const bio = document.getElementById('profileBio').value.trim();
 
-    // 💖 Collecter les données recherche depuis les checkboxes
-    const rechercheCheckboxes = document.querySelectorAll(
-      'input[name="profileRecherche"]:checked'
-    );
-    const rechercheValues = Array.from(rechercheCheckboxes).map(
-      checkbox => checkbox.value
-    );
+    // 💖 Collecter recherche avec select COMME ORIENTATION
+    const recherche = document.getElementById('profileRecherche').value;
+    const rechercheValues = recherche ? [recherche] : []; // Convertir en array pour compatibilité backend
 
     // 🚀 DEBUG RECHERCHE - Voir ce qui est collecté
     console.log('🔍 DEBUG RECHERCHE COLLECTÉE:');
-    console.log(
-      '- Checkboxes trouvées:',
-      document.querySelectorAll('input[name="profileRecherche"]').length
-    );
-    console.log('- Checkboxes cochées:', rechercheCheckboxes.length);
+    console.log('- Recherche sélectionnée:', recherche);
     console.log('- Valeurs collectées:', rechercheValues);
 
     // Validation minimale : seulement nom obligatoire
@@ -354,25 +346,17 @@ async function loadProfileData() {
         orientationField.value = profile.orientation || 'hetero';
       }
 
-      // 💖 REMPLIR LES CHECKBOXES RECHERCHE
-      if (profile.recherche && Array.isArray(profile.recherche)) {
-        // Décocher toutes les cases d'abord
-        const rechercheCheckboxes = document.querySelectorAll(
-          'input[name="profileRecherche"]'
-        );
-        rechercheCheckboxes.forEach(checkbox => {
-          checkbox.checked = false;
-        });
-
-        // Cocher seulement celles qui sont dans les préférences de l'utilisateur
-        profile.recherche.forEach(rechercheType => {
-          const checkbox = document.querySelector(
-            `input[name="profileRecherche"][value="${rechercheType}"]`
-          );
-          if (checkbox) {
-            checkbox.checked = true;
-          }
-        });
+      // 💖 REMPLIR LE SELECT RECHERCHE COMME ORIENTATION
+      const rechercheField = document.getElementById('profileRecherche');
+      if (
+        rechercheField &&
+        profile.recherche &&
+        Array.isArray(profile.recherche)
+      ) {
+        // Prendre le premier élément du tableau (puisqu'on passe d'un système multi à simple)
+        rechercheField.value = profile.recherche[0] || '';
+      } else if (rechercheField) {
+        rechercheField.value = '';
       }
 
       // Remplir les champs de localisation
@@ -549,25 +533,17 @@ async function loadProfileData() {
             orientationField.value = user.profile.orientation || 'hetero';
           }
 
-          // 💖 Remplir les préférences recherche
-          if (user.profile.recherche && Array.isArray(user.profile.recherche)) {
-            // Décocher toutes les cases d'abord
-            const rechercheCheckboxes = document.querySelectorAll(
-              'input[name="profileRecherche"]'
-            );
-            rechercheCheckboxes.forEach(checkbox => {
-              checkbox.checked = false;
-            });
-
-            // Cocher seulement celles qui sont dans les préférences de l'utilisateur
-            user.profile.recherche.forEach(rechercheType => {
-              const checkbox = document.querySelector(
-                `input[name="profileRecherche"][value="${rechercheType}"]`
-              );
-              if (checkbox) {
-                checkbox.checked = true;
-              }
-            });
+          // 💖 Remplir le select recherche COMME ORIENTATION
+          const rechercheField = document.getElementById('profileRecherche');
+          if (
+            rechercheField &&
+            user.profile.recherche &&
+            Array.isArray(user.profile.recherche)
+          ) {
+            // Prendre le premier élément du tableau (puisqu'on passe d'un système multi à simple)
+            rechercheField.value = user.profile.recherche[0] || '';
+          } else if (rechercheField) {
+            rechercheField.value = '';
           }
 
           // Remplir les champs de localisation avec gestion robuste
