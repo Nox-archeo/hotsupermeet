@@ -1113,17 +1113,17 @@ class DirectoryPage {
     return labels[orientation] || orientation;
   }
 
-  // 💖 Fonction pour formater les préférences de recherche - AFFICHAGE TOUJOURS VISIBLE
+  // 💖 Fonction pour formater les préférences de recherche - AFFICHAGE MULTIPLE
   getRechercheLabel(recherche) {
     // Si pas de recherche définie, afficher un message par défaut
     if (!recherche || (Array.isArray(recherche) && recherche.length === 0)) {
       return '💭 Non renseigné';
     }
 
-    // Si c'est un array (ancien format), prendre le premier élément
-    const rechercheValue = Array.isArray(recherche) ? recherche[0] : recherche;
+    // Gestion des arrays multiples
+    const rechercheArray = Array.isArray(recherche) ? recherche : [recherche];
 
-    if (!rechercheValue) {
+    if (rechercheArray.length === 0) {
       return '💭 Non renseigné';
     }
 
@@ -1146,7 +1146,14 @@ class DirectoryPage {
       'chat-hot': 'Chat hot',
     };
 
-    return `💖 ${labels[rechercheValue] || rechercheValue}`;
+    // Convertir en labels et joindre avec des virgules si multiple
+    const labelArray = rechercheArray.map(val => labels[val] || val);
+
+    if (labelArray.length === 1) {
+      return `💖 ${labelArray[0]}`;
+    } else {
+      return `💖 ${labelArray.slice(0, 2).join(', ')}${labelArray.length > 2 ? ' +' + (labelArray.length - 2) : ''}`;
+    }
   }
 
   // Fonction pour afficher la localisation avec drapeau
