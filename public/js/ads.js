@@ -467,15 +467,7 @@ function handleCategoryChange() {
   contactGroup.style.display = 'none';
 
   // Logique d'affichage selon la catégorie
-  if (category.includes('escort')) {
-    // Escort complet : toutes les infos
-    tarifsGroup.style.display = 'block';
-    infoPersoGroup.style.display = 'block';
-    escortDetailsGroup.style.display = 'block';
-    escortServicesGroup.style.display = 'block';
-    disponibilitesGroup.style.display = 'block';
-    contactGroup.style.display = 'block';
-  } else if (category.includes('sugar')) {
+  if (category.includes('sugar')) {
     // Sugar : infos perso + tarifs + disponibilités + contact
     tarifsGroup.style.display = 'block';
     infoPersoGroup.style.display = 'block';
@@ -505,7 +497,6 @@ function handleCategoryChange() {
 
   // Pour toutes les catégories payantes, afficher au minimum les tarifs
   const categoriesPayantes = [
-    'escort',
     'sugar',
     'domination',
     'massage',
@@ -592,52 +583,13 @@ async function handleFormSubmit(e) {
     const categoryValue = document.getElementById('ad-category').value;
     const sexeFromForm = document.getElementById('ad-sexe')?.value || '';
 
-    // Déterminer automatiquement le type basé sur la catégorie
-    let finalType = 'rencontre'; // par défaut
-    if (categoryValue) {
-      if (
-        categoryValue.includes('sugar') ||
-        categoryValue.includes('daddy') ||
-        categoryValue.includes('baby')
-      ) {
-        finalType = 'sugar';
-      } else if (
-        categoryValue.includes('escort') ||
-        categoryValue.includes('masseuse') ||
-        categoryValue.includes('masseur')
-      ) {
-        finalType = 'escort';
-      } else if (
-        [
-          'domination',
-          'massage-tantrique',
-          'cam-sexting',
-          'fetichisme',
-          'planning-soir',
-        ].includes(categoryValue)
-      ) {
-        finalType = 'service';
-      } else if (categoryValue === 'objets-accessoires') {
-        finalType = 'vente';
-      } else if (categoryValue === 'emploi') {
-        finalType = 'emploi';
-      } else {
-        finalType = 'rencontre'; // toutes les rencontres (femme-cherche-homme, etc.)
-      }
-    }
-
     // Déterminer automatiquement le sexe basé sur la catégorie si pas spécifié
     let finalSexe = sexeFromForm;
     if (!finalSexe && categoryValue) {
-      if (
-        categoryValue.startsWith('femme-') ||
-        categoryValue === 'escort-girl' ||
-        categoryValue === 'baby-girl'
-      ) {
+      if (categoryValue.startsWith('femme-') || categoryValue === 'baby-girl') {
         finalSexe = 'femme';
       } else if (
         categoryValue.startsWith('homme-') ||
-        categoryValue === 'escort-boy' ||
         categoryValue === 'baby-boy'
       ) {
         finalSexe = 'homme';
@@ -925,10 +877,6 @@ function formatCategory(category) {
     'baby-girl': 'Sugar Baby Girl',
     'sugar-mommy': 'Sugar Mommy',
     'baby-boy': 'Sugar Baby Boy',
-    'escort-girl': 'Escort Girl',
-    'escort-boy': 'Escort Boy',
-    masseuse: 'Masseuse érotique',
-    masseur: 'Masseur érotique',
     domination: 'Domination',
     'massage-tantrique': 'Massage tantrique',
     'cam-sexting': 'Cam / sexting',

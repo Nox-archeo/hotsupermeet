@@ -2,6 +2,13 @@ const Ad = require('../models/Ad');
 const User = require('../models/User');
 const Message = require('../models/Message');
 
+const BLOCKED_ESCORT_TYPES = [
+  'escort-girl',
+  'escort-boy',
+  'escort-trans',
+  'escort',
+];
+
 // 🤖 ANNONCES PUBLIQUES pour SEO et BOTS
 const getPublicAdsForSEO = async (req, res) => {
   try {
@@ -9,6 +16,7 @@ const getPublicAdsForSEO = async (req, res) => {
 
     const ads = await Ad.find({
       status: 'active',
+      type: { $nin: BLOCKED_ESCORT_TYPES },
     })
       .select('title description category country region city createdAt')
       .sort({ createdAt: -1 })
@@ -92,6 +100,13 @@ const createAd = async (req, res) => {
         success: false,
         message:
           'Les champs type, titre, description et localisation sont obligatoires',
+      });
+    }
+
+    if (BLOCKED_ESCORT_TYPES.includes(type)) {
+      return res.status(400).json({
+        success: false,
+        message: 'La catégorie Escort a été retirée',
       });
     }
 
@@ -206,9 +221,25 @@ const getAds = async (req, res) => {
     // Construire les filtres
     const filters = { status: 'active' };
 
-    // FILTRAGE DIRECT PAR CATÉGORIE - TOUTES LES 21 CATÉGORIES
+    // Toujours exclure les catégories escort
+    filters.type = { $nin: BLOCKED_ESCORT_TYPES };
+
+    // FILTRAGE DIRECT PAR CATÉGORIE
     if (category) {
-      filters.type = category; // ✅ RECHERCHE EXACTE (escort-girl, masseur, planning-soir, etc.)
+      if (BLOCKED_ESCORT_TYPES.includes(category)) {
+        return res.json({
+          success: true,
+          data: [],
+          pagination: {
+            page: parseInt(page),
+            limit: actualLimit,
+            total: 0,
+            pages: 0,
+          },
+        });
+      }
+
+      filters.type = category;
       console.log(
         `🔍 FILTRE CATÉGORIE: "${category}" -> Cherche type exact: "${category}"`
       );
@@ -287,6 +318,13 @@ const getAdById = async (req, res) => {
     );
 
     if (!ad) {
+      return res.status(404).json({
+        success: false,
+        message: 'Annonce non trouvée',
+      });
+    }
+
+    if (BLOCKED_ESCORT_TYPES.includes(ad.type)) {
       return res.status(404).json({
         success: false,
         message: 'Annonce non trouvée',
@@ -379,6 +417,13 @@ const updateAd = async (req, res) => {
       return res.status(403).json({
         success: false,
         message: "Vous n'êtes pas autorisé à modifier cette annonce",
+      });
+    }
+
+    if (updates.type && BLOCKED_ESCORT_TYPES.includes(updates.type)) {
+      return res.status(400).json({
+        success: false,
+        message: 'La catégorie Escort a été retirée',
       });
     }
 

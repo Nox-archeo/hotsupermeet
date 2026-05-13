@@ -1,4 +1,10 @@
 const mongoose = require('mongoose');
+const BLOCKED_ESCORT_TYPES = [
+  'escort-girl',
+  'escort-boy',
+  'escort-trans',
+  'escort',
+];
 
 const adSchema = new mongoose.Schema(
   {
@@ -14,15 +20,12 @@ const adSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      // ✅ TOUTES LES 21 CATÉGORIES ACCEPTÉES
+      // ✅ Catégories autorisées
       enum: [
         'femme-cherche-homme',
         'homme-cherche-femme',
         'femme-cherche-femme',
         'homme-cherche-homme',
-        'escort-girl',
-        'escort-boy',
-        'escort-trans',
         'masseuse',
         'masseur',
         'massage-tantrique',
@@ -42,7 +45,6 @@ const adSchema = new mongoose.Schema(
         'telephone-rose',
         // Compatibilité anciennes annonces
         'rencontre',
-        'escort',
         'sugar',
         'service',
         'emploi',
@@ -200,7 +202,11 @@ adSchema.methods.incrementResponseCount = function () {
 // Méthode statique pour récupérer les annonces actives avec pagination
 adSchema.statics.getActiveAds = function (filters = {}, page = 1, limit = 20) {
   const skip = (page - 1) * limit;
-  const query = { status: 'active', ...filters };
+  const query = {
+    status: 'active',
+    type: { $nin: BLOCKED_ESCORT_TYPES },
+    ...filters,
+  };
 
   return this.find(query)
     .populate(
@@ -217,7 +223,7 @@ adSchema.statics.getActiveAds = function (filters = {}, page = 1, limit = 20) {
 adSchema.statics.getUserAds = function (userId, page = 1, limit = 20) {
   const skip = (page - 1) * limit;
 
-  return this.find({ userId })
+  return this.find({ userId, type: { $nin: BLOCKED_ESCORT_TYPES } })
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
